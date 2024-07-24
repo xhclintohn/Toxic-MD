@@ -1,5 +1,5 @@
 {
-  "name": "SalsaJavaNese",
+  "name": "Toxicxh",
   "version": "5.0.3",
   "description": "Lightweight Bot Multidevice",
   "depecrated": false,
@@ -20,20 +20,20 @@
     "whatsapp",
     "js-whatsapp",
     "whatsapp",
-    "kiku-wabot",
+    "Toxic-wabot",
     "wabot-aq",
     "multi-device",
     "MD",
     "baileys-md"
   ],
-  "homepage": "https://github.com/Valdimir-Kemii/Kiku",
-  "author": "Salsa Javanese",
+  "homepage": "https://github.com/xhclintohn/Toxic-MD",
+  "author": "xhclinton",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Valdimir-Kemii/Kiku.git"
   },
   "bugs": {
-    "url": "https://github.com/Valdimir-Kemii/Kiku/issues"
+    "url": "https://github.com/xhclintohn/Toxic-MD/issues"
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {
