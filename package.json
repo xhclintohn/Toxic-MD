@@ -6,8 +6,8 @@
                "type": "commonjs",
                "license": "GPL-3.0",
    "scripts": {
-                "start": "pm2 start lib/client.js --deep-monitoring --attach --name king",
-                "stop": "pm2 stop king"
+                "start": "pm2 start lib/client.js --deep-monitoring --attach --name toxic",
+                "stop": "pm2 stop toxic"
                 },
                "author": "SamPandey001",
               "dependencies": {
@@ -69,10 +69,10 @@
                     },
                  "repository": {
                  "type": "git",
-                 "url": "git+https://github.com/naveeddogar/KING-MD.git"
+                 "url": "git+https://github.com/xhclintohn/Toxic-MD.git"
                   },
                  "bugs": {
-                 "url": "https://github.com/naveeddogar/KING-MD/issues"
+                 "url": "https://github.com/xhclintohn/Toxic-MD/issues"
                   },
-                 "homepage": "https://github.com/naveeddogar/KING-MD#readme"
+                 "homepage": "https://github.com/xhclintohn/Toxic-MD#readme"
                   }
