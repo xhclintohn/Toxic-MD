@@ -1,0 +1,54 @@
+{
+  "__JSON__": true,
+  "AUTHOR": "naveeddogar",
+  "LANGUAGE": "English",
+  "LANGCODE": "en",
+  "STRINGS": {
+      "updater": {
+          "UPDATE": "*Yᴏᴜʀ ʙᴏᴛᴛᴏ ɪꜱ ᴀʟʀᴇᴀᴅʏ ᴏɴ ʟᴀᴛᴇꜱᴛ ᴠᴇʀꜱɪᴏɴ,Sᴇɴᴘᴀɪ*",
+          "NEW_UPDATE": "```There is a new update available for the bot!```\n\n*Changes:*\n",
+          "UPDATED_LOCAL": "*ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ᴜᴘᴅᴀᴛᴇᴅ!*"
+      },
+      "global": {
+          "botName": "ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴋɪɴɢ-ᴍᴅ",
+          "body": "Wʜᴀᴛꜱᴀᴘᴘ-Bᴏᴛ",
+          "greet2" : "Sᴇɴᴘᴀɪ",
+          "pic1": "https://telegra.ph/file/a6b9bbde7feaa92c69c7b.jpg",
+          "pic2": "https://telegra.ph/file/a6b9bbde7feaa92c69c7b.jpg",
+          "pic3": "https://telegra.ph/file/a6b9bbde7feaa92c69c7b.jpg",
+          "pic4": "https://telegra.ph/file/a6b9bbde7feaa92c69c7b.jpg",
+          "pic5": "https://telegra.ph/file/a6b9bbde7feaa92c69c7b.jpg",
+          "pic6": "https://telegra.ph/file/a6b9bbde7feaa92c69c7b.jpg",
+          "pic7": "https://telegra.ph/file/a6b9bbde7feaa92c69c7b.jpg",
+           "greet" : "Sᴇɴᴘᴀɪ!",
+         "dotbody" : "ɪ'ᴍ ᴀʟɪᴠᴇ , ꜱᴇɴᴘᴀɪ.",
+          "promote": "ᴀᴅᴍɪɴ ʀᴏʟᴇ ɢɪᴠᴇɴ ᴛᴏ ᴍʏ ᴅᴀʀʟɪɴɢ",
+          "pmallow": "```Hii,This is KING-MD1``` \n```An assistant of My Author.```\n```My Author is busy right now.```\n```Kindly Leave your Message.```\n\n```I will inform him about your message asap......```",
+          "pmblock": "❌ *ʙʟᴏᴄᴋᴇᴅ*\n\n Yᴏᴜ ʜᴀᴠᴇ ʙᴇᴇɴ ʙʟᴏᴄᴋᴇᴅ ꜰᴏʀ ꜱᴘᴀᴍᴍɪɴɢ.\n\n _ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴋɪɴɢ-ᴍᴅ_",
+          "pmwarn": "✋*Hɪɪ* \nᴘʟᴇᴀꜱᴇ ᴅᴏɴ'ᴛ ꜱᴘᴀᴍ ᴇʟꜱᴇ ɪ'ʟʟ ʙʟᴏᴄᴋ ʏᴏᴜ ꜰᴏʀ ꜱᴘᴀᴍᴍɪɴɢ. _Yᴏᴜ ʜᴀᴠᴇ ${checkPermit.times} ᴡᴀʀɴɪɴɢ(s)._\n\n *ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴋɪɴɢ-ᴍᴅ*",
+          "permited": "Hɪɪ ${tname} Sᴇɴᴘᴀɪ*\n\nNᴏᴡ ʏᴏᴜ ᴀʀᴇ ᴘᴇʀᴍɪᴛᴛᴇᴅ ʙʏ ᴍʏ ᴏᴡɴᴇʀ ᴛᴏ ᴘᴍ ɴᴏᴡ.\n\n *ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴋɪɴɢ-ᴍᴅ", 
+          "revoked" : "*Hɪɪ ${tname} Sᴇɴᴘᴀɪ*\n\nYᴏᴜʀ ᴘᴍ ᴘᴇʀᴍɪᴛ ᴘᴇʀᴍɪꜱꜱɪᴏɴ ʜᴀꜱ ʙᴇᴇɴ ᴘʀᴏᴠᴏᴋᴇᴅ ɴᴏᴡ.\n\n _ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴋɪɴɢ-ᴍᴅ_",
+          "demote": "Uʜʜ,Aᴅᴍɪɴ-Rᴏʟᴇ ᴛᴀᴋᴇɴ ʙᴀᴄᴋ",
+          "antlink": "Lɪɴᴋ-Dᴇᴛᴇᴄᴛᴇᴅ.\n*Gᴏᴏᴅ ʙʏᴇ Sᴇɴᴘᴀɪ*",
+          "mention": "Pʟᴇᴀꜱᴇ ᴍᴇɴᴛɪᴏɴ ᴀɴʏ ᴜꜱᴇʀ ꜱᴇɴᴘᴀɪ",
+          "title": "KING-MD",
+          "footer": "KING-MD",
+          "by": "Mᴀᴅᴇ ʙʏ : *CɪᴛᴇʟVᴏɪᴅ*",
+          "chat_desc": "Oᴘᴛɪᴏɴꜱ ᴀᴠɪʟᴀʙʟᴇ* : 1. ᴍᴜᴛᴇ\n2. ᴜɴᴍᴜᴛᴇ\n3. Aʀᴄʜɪᴠᴇ\n4. Uɴᴀʀᴄʜɪᴠᴇ\n5. ʀᴇᴀᴅ\n6. ᴜɴʀᴇᴀᴅ\n7. ᴅᴇʟᴇᴛᴇ",
+          "success": "Dᴏɴᴇ  ✅",
+          "dot": "Dɪᴅ ʏᴏᴜ ᴍᴇᴀɴ *ʜᴇʟᴘ*?",
+          "couple_male": "*I ᴅᴏɴᴛ ᴡᴀɴᴛ ᴛᴏ ᴅɪᴇ ᴀʟᴏɴᴇ,ɪ ᴡᴀɴᴛ ᴀ ꜰᴇᴍᴀʟᴇ*",
+          "couple_female": "*I ᴅᴏɴᴛ ᴡᴀɴᴛ ᴛᴏ ᴅɪᴇ ᴀʟᴏɴᴇ,ɪ ᴡᴀɴᴛ ᴀ ᴍᴀʟᴇ*",
+          "admin": "Tʜɪꜱ *ᴄᴏᴍᴍᴀɴᴅ* ɪꜱ ᴏɴʟʏ ꜰᴏʀ Gʀᴏᴜᴘ-Aᴅᴍɪɴꜱ⚠️!",
+          "botAdmin": "Pʟᴇᴀꜱᴇ ᴘʀᴏᴠɪᴅᴇ ᴍᴇ *ᴀᴅᴍɪɴ-ʀᴏʟᴇ* ᴛᴏ ᴘʀᴏᴄᴇᴇᴅ.❗",
+          "owner": "Tʜɪꜱ *ᴄᴏᴍᴍᴀɴᴅ* ɪꜱ ᴏɴʟʏ ꜰᴏʀ ᴍʏ ᴏᴡɴᴇʀ ⚠️",
+          "group": "Tʜɪꜱ *ꜰᴇᴀᴛᴜʀᴇ* ɪꜱ ᴏɴʟʏ ꜰᴏʀ ɢʀᴏᴜᴘꜱ, Bᴀᴋᴀ❗",
+          "private": "Tʜɪꜱ ꜰᴇᴀᴛᴜʀᴇ ɪꜱ ᴏɴʟʏ ꜰᴏʀ ᴛʜᴇ *ʙᴏᴛ-ᴏᴡɴᴇʀ* ⚠️",
+          "bot": "Tʜɪꜱ ꜰᴇᴀᴛᴜʀᴇ ɪꜱ ᴏɴʟʏ ꜰᴏʀ ᴛʜᴇ *ʙᴏᴛ-ɴᴜᴍʙᴇʀ* ⚠️",
+          "wait": "Pʀᴏᴄᴇꜱꜱɪɴɢ ʏᴏᴜʀ ʀᴇQᴜᴇꜱᴛ ✅" 
+      },
+      "error": {
+          "text": "*Uʜʜ,ɢᴏᴛ ᴀɴ Eʀʀᴏʀ*"
+      }
+  }
+}
