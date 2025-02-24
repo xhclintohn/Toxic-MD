@@ -66,7 +66,7 @@ Check button below
 
 ## ```⭐HEROKU DEPLOYMENT⭐```
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/xhclintohn/Toxic-MD.git)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://dashboard.heroku.com/new?button-url=https://github.com/xhclintohn/Toxic-MD&template=https://github.com/xhclintohn/Toxic-MD.git)
 
 
 
