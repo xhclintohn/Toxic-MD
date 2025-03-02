@@ -34,25 +34,21 @@ const temps = moment().format('HH:mm:ss');
 const date = moment().format('DD/MM/YYYY');
 
   let infoMsg =  `
-      *𝙏𝙤𝙭𝙞𝙘 𝙈𝘿 𝗜𝗡𝗙𝗢* 
-❒───────────────────❒
-*𝗚𝗜𝗧𝗛𝗨𝗕 𝗟𝗜𝗡𝗞*
-> https://github.com/xhclintohn/Toxic-MD
+      𝙏𝙤𝙭𝙞𝙘 𝙈𝘿 𝗜𝗡𝗙𝗢
 
-*𝗠𝗬 𝗖𝗛𝗔𝗡𝗡𝗘𝗟*
-> https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19
+> 𝗚𝗜𝗧𝗛𝗨𝗕 𝗟𝗜𝗡𝗞 https://github.com/xhclintohn/Toxic-MD
+
+> 𝗠𝗬 𝗖𝗛𝗔𝗡𝗡𝗘𝗟 https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19
 ⁠
-╭───────────────────❒
-│⏰⁠⁠⁠⁠ *RAM* : ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
-│⚽ *DEV1* : *𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧*
-│⏰ *DEV2* : *𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧*
-⁠⁠⁠⁠╰───────────────────❒
+
+
+DEV1 : 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
   `;
     
 let menuMsg = `
-     *𝙏𝙤𝙭𝙞𝙘 𝗧𝗘𝗖𝗛*
+     𝙏𝙤𝙭𝙞𝙘 𝗧𝗘𝗖𝗛
 
-❒────────────────────❒`;
+</>`;
 
    var lien = mybotpic();
 
