@@ -38,7 +38,7 @@ const date = moment().format('DD/MM/YYYY');
      TOXIC MD
 
 > GITHUB LINK
-https://github.com/xhclintohn/Toxic-MD
+https://github.com/xhclintohn/Toxic-MD/fork
 
 > WHATSAPP CHANNEL https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19
 
