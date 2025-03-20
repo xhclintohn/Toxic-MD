@@ -10,11 +10,11 @@
 </p>
 
 <p align="center">
- <a href="#"><img title="Toxic-MD" src="https://img.shields.io/badge/𝐖𝐡𝐚𝐭𝐬𝐚𝐩𝐩 𝐁𝐎𝐓-𝐆𝐫𝐞𝐞𝐧?colorA=%23ff0000&colorB=%23017e40&style=for-the-badge"></a>
+ <a href="#"><img title="Toxic-MD" src="https://img.shields.io/badge/𝐖𝐡𝐚𝐭𝐬𝐚𝐩𝐩 𝐁𝐎𝐓-𝐆𝐫𝐞𝐞𝐧?colorA=%23ff0000&colorB=%23017e40&style=for-the-badge&logo=whatsapp&logoColor=white&style=flat-square&labelColor=black"></a>
 </p>
 
 <p align="center">
-<a href="https://github.com/xhclintohn"><img title="Author" src="https://img.shields.io/badge/𝐀𝐔𝐓𝐇𝐎𝐑-𝐱𝐡𝐜𝐥𝐢𝐧𝐭𝐨𝐧-𝐆𝐫𝐞𝐞𝐧?style=for-the-badge&logo=github"></a>
+<a href="https://github.com/xhclintohn"><img title="Author" src="https://img.shields.io/badge/𝐀𝐔𝐓𝐇𝐎𝐑-𝐱𝐡𝐜𝐥𝐢𝐧𝐭𝐨𝐧-𝐆𝐫𝐞𝐞𝐧?style=for-the-badge&logo=github&style=flat-square&labelColor=black"></a>
 </p>
 
 <h1 align="center">🚀 𝐈'𝐦 𝐬𝐭𝐢𝐥𝐥 𝐰𝐨𝐫𝐤𝐢𝐧𝐠 𝐭𝐨 𝐦𝐚𝐤𝐞 𝐭𝐡𝐢𝐬 𝐛𝐨𝐭 𝐁𝐞𝐭𝐭𝐞𝐫 🚀</h1>
@@ -30,18 +30,28 @@
 ## 💌 ```Contact Me```
 
 <p align="center">
-<a href="https://api.whatsapp.com/send?phone=254735342808&text=𝐇𝐢 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧"><img src="https://img.shields.io/badge/𝐂𝐨𝐧𝐭𝐚𝐜𝐭 𝐃𝐞𝐯 𝐂𝐥𝐢𝐧𝐭𝐨𝐧-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" /></a>
+<a href="https://api.whatsapp.com/send?phone=254735342808&text=𝐇𝐢 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧">
+  <img src="https://img.shields.io/badge/𝐂𝐨𝐧𝐭𝐚𝐜𝐭 𝐃𝐞𝐯 𝐂𝐥𝐢𝐧𝐭𝐨𝐧-25D366?style=for-the-badge&logo=whatsapp&logoColor=white&style=flat-square&labelColor=black">
+</a>
 </p>
 
 ## 🛠️ ```Join Support Group```
 
-[![WHATSAPP](https://img.shields.io/badge/𝐒𝐮𝐩𝐩𝐨𝐫𝐭 𝐆𝐫𝐨𝐮𝐩-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://chat.whatsapp.com/LQL2RFbHsdjxfmVxrTUD) 
+<p align="center">
+<a href="https://chat.whatsapp.com/LQL2RFbHsdjxfmVxrTUD">
+  <img src="https://img.shields.io/badge/𝐒𝐮𝐩𝐩𝐨𝐫𝐭 𝐆𝐫𝐨𝐮𝐩-25D366?style=for-the-badge&logo=whatsapp&logoColor=white&style=flat-square&labelColor=black">
+</a>
+</p>
 
 ---------
 
 ## 📢 ```Join Our Official Channel```
 
-[![WHATSAPP](https://img.shields.io/badge/𝐎𝐟𝐟𝐢𝐜𝐢𝐚𝐥 𝐂𝐡𝐚𝐧𝐧𝐞𝐥-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19) 
+<p align="center">
+<a href="https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19">
+  <img src="https://img.shields.io/badge/𝐎𝐟𝐟𝐢𝐜𝐢𝐚𝐥 𝐂𝐡𝐚𝐧𝐧𝐞𝐥-25D366?style=for-the-badge&logo=whatsapp&logoColor=white&style=flat-square&labelColor=black">
+</a>
+</p>
 
 ---------
 
@@ -51,7 +61,9 @@
    Tap here 👇  
 
    <br>
-   <a href="https://github.com/xhclintohn/Toxic-MD/fork"><img title="Toxic-MD" src="https://img.shields.io/badge/𝐅𝐎𝐑𝐊 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃-𝐁𝐥𝐚𝐜𝐤?style=for-the-badge&logo=stackshare"></a>
+   <a href="https://github.com/xhclintohn/Toxic-MD/fork">
+     <img src="https://img.shields.io/badge/𝐅𝐎𝐑𝐊 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃-𝐁𝐥𝐚𝐜𝐤?style=for-the-badge&logo=stackshare&style=flat-square&labelColor=black">
+   </a>
 
 2. **Get SESSION-ID by scanning QR code.**  
    Go to `WhatsApp > Three dots on top right > Linked Devices`  
@@ -60,21 +72,35 @@
 ## ```⭐ QR SCAN ⭐```
 
    <br>
-   <a href='https://toxic-pair-code.onrender.com' target="_blank"><img alt='SCAN QR' src='https://img.shields.io/badge/𝐒𝐜𝐚𝐧_𝐐𝐑-100000?style=for-the-badge&logo=scan&logoColor=white&labelColor=black&color=red'/></a>
+   <a href='https://toxic-pair-code.onrender.com' target="_blank">
+     <img src='https://img.shields.io/badge/𝐒𝐜𝐚𝐧_𝐐𝐑-100000?style=for-the-badge&logo=scan&logoColor=white&labelColor=black&color=red&style=flat-square'>
+   </a>
 
 ---------
 
 ## ```⭐ HEROKU DEPLOYMENT ⭐```
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://dashboard.heroku.com/new?button-url=https://github.com/xhclintohn/Toxic-MD&template=https://github.com/xhclintohn/Toxic-MD.git)
+<p align="center">
+<a href="https://dashboard.heroku.com/new?button-url=https://github.com/xhclintohn/Toxic-MD&template=https://github.com/xhclintohn/Toxic-MD.git">
+  <img src="https://img.shields.io/badge/𝐃𝐞𝐩𝐥𝐨𝐲 𝐨𝐧 𝐇𝐞𝐫𝐨𝐤𝐮-430098?style=for-the-badge&logo=heroku&logoColor=white&style=flat-square&labelColor=black">
+</a>
+</p>
 
 ## ```⭐ RAILWAY DEPLOYMENT ⭐```
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app)
+<p align="center">
+<a href="https://railway.app">
+  <img src="https://img.shields.io/badge/𝐃𝐞𝐩𝐥𝐨𝐲 𝐨𝐧 𝐑𝐚𝐢𝐥𝐰𝐚𝐲-0B0D0E?style=for-the-badge&logo=railway&logoColor=white&style=flat-square&labelColor=black">
+</a>
+</p>
 
 ## ```⭐ REPLIT DEPLOYMENT ⭐```
 
-[![Run on Repl.it](https://repl.it/badge/github/xhclintohn/Toxic-MD)](https://repl.it/github/xhclintohn/Toxic-MD)
+<p align="center">
+<a href="https://repl.it/github/xhclintohn/Toxic-MD">
+  <img src="https://img.shields.io/badge/𝐑𝐮𝐧 𝐨𝐧 𝐑𝐞𝐩𝐥𝐢𝐭-0D101E?style=for-the-badge&logo=replit&logoColor=white&style=flat-square&labelColor=black">
+</a>
+</p>
 
 <details>
 <summary>📱 TERMUX DEPLOYMENT</summary>
