@@ -1,174 +1,110 @@
 [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#table-of-contents)
+
 <p align="center">
     <a href="https://ibb.co/N6NMDtn"><img src="https://i.ibb.co/jkJGQRZ/5103aef05fd0d76b.jpg" alt="01" border="0" /></a>
 </p>
 
-
-<h1 align="center">Toxic-MD</h1>
+<h1 align="center">✨ 𝓣𝓸𝔁𝓲𝓬-𝓜𝓓 ✨</h1>
 <p align="center">
-  <a href="https://github.com/xhclintohn"><img src="http://readme-tyng-svg.herokuapp.com?color=FFFFFF&center=true&vCenter=true&multiline=false&lines=Tocic+BOT+Multi+Device;Base+ori+by+ImYanXiao;Recode+By+xhclinton;Give+star+and+forks+this+Repo+:D;Follow+My+Github+acc" alt=":)">
+  <a href="https://github.com/xhclintohn"><img src="http://readme-tyng-svg.herokuapp.com?color=FFFFFF&center=true&vCenter=true&multiline=false&lines=𝓣�𝓸𝔁𝓲𝓬+𝓑𝓞𝓣+𝓜𝓾𝓵𝓽𝓲+𝓓𝓮�𝓿𝓲𝓬𝓮;𝓑𝓪𝓼𝓮𝓭+�𝓷+𝓘𝓶𝓨𝓪𝓷𝓧𝓲𝓪�𝓸;𝓡𝓮𝓬𝓸𝓭𝓮𝓭+𝓑𝔂+𝔁𝓱𝓬𝓵𝓲𝓷�𝓸𝓷;𝓢𝓽𝓪𝓻+𝓪𝓷𝓭+𝓕𝓸𝓻𝓴+𝓽𝓱𝓲𝓼+𝓡𝓮𝓹𝓸+𝓯�𝓻+𝓼𝓾𝓹𝓹𝓸�𝓻𝓽;𝓕𝓸𝓵𝓵𝓸𝔀+𝓜𝔂+𝓖𝓲𝓽𝓱𝓾�+𝓐𝓬�𝓬𝓸𝓾𝓷𝓽" alt=":)"></a>
 </p>
 
 <p align="center">
- <a href="#"><img title="Toxic-MD" src="https://img.shields.io/badge/Whatsapp BOT-green?colorA=%23ff0000&colorB=%23017e40&style=for-the-badge"></a>
-</p>
-<p align="center">
-<a href="https://github.com/xhclintohn"><img title="Author" src="https://img.shields.io/badge/AUTHOR-xhclinton-green.svg?style=for-the-badge&logo=github"></a>
-<h1 align="centre">I'm still working to make this bot Better</h1>
-
-## ````PLEASE NOTE````
-
-⚠️ WARNING ⚠️
-❗ Use this service wisely.
-❗ This Bot uses Baileys - A non WhatsApp API which might lead to account suspension.
-❗ Contact official contacts for more information or support.
-
----------
-
-## ```Contact Me 💌``` 
-
-<p align="center">
-
-<a href="https://api.whatsapp.com/send?phone=254735342808&text=𝐇𝐢 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧  "><img src="https://img.shields.io/badge/Contact Dev Clinton-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" />
-
+ <a href="#"><img title="Toxic-MD" src="https://img.shields.io/badge/𝓦𝓱𝓪𝓽�𝓪�𝓹𝓹 𝓑𝓞𝓣-𝓖𝓻𝓮𝓮𝓷?colorA=%23ff0000&colorB=%23017e40&style=for-the-badge"></a>
 </p>
 
+<p align="center">
+<a href="https://github.com/xhclintohn"><img title="Author" src="https://img.shields.io/badge/𝓐𝓤𝓣𝓗𝓞𝓡-𝔁𝓱𝓬�𝓵�𝓲𝓷𝓽𝓸𝓷-𝓖𝓻𝓮𝓮𝓷?style=for-the-badge&logo=github"></a>
+</p>
 
-## ``Join Support Group``
-[![WHATSAPP](https://img.shields.io/badge/Support%20Group-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://chat.whatsapp.com/LQL2RFbHsdjxfmVxrTUD) 
+<h1 align="center">🚀 𝓘'𝓶 𝓼𝓽𝓲𝓵𝓵 𝔀𝓸𝓻𝓴𝓲𝓷𝓰 𝓽𝓸 𝓶𝓪𝓴𝓮 𝓽𝓱𝓲𝓼 𝓫𝓸𝓽 𝓑𝓮𝓽𝓽𝓮𝓻 🚀</h1>
+
+## ⚠️ ````PLEASE NOTE```` ⚠️
+
+❗ **Use this service wisely.**  
+❗ **This Bot uses Baileys - A non-WhatsApp API which might lead to account suspension.**  
+❗ **Contact official contacts for more information or support.**
+
 ---------
 
-## ``Join Our Official Channel``
-[![WHATSAPP](https://img.shields.io/badge/Official%20Channel-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19) 
+## 💌 ```Contact Me```
+
+<p align="center">
+<a href="https://api.whatsapp.com/send?phone=254735342808&text=𝐇𝐢 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧"><img src="https://img.shields.io/badge/𝓒𝓸𝓷𝓽𝓪�𝓬� 𝓓�𝓿 𝓒𝓵𝓲𝓷𝓽𝓸𝓷-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" /></a>
+</p>
+
+## 🛠️ ```Join Support Group```
+
+[![WHATSAPP](https://img.shields.io/badge/𝓢𝓾𝓹𝓹�𝓸�𝓻𝓽 𝓖𝓻𝓸𝓾𝓹-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://chat.whatsapp.com/LQL2RFbHsdjxfmVxrTUD) 
+
 ---------
 
+## 📢 ```Join Our Official Channel```
 
-## ```⚡STEPS TO DEPLOY BOT⚡```
+[![WHATSAPP](https://img.shields.io/badge/𝓞𝓯𝓯𝓲𝓬𝓲𝓪𝓵 𝓒𝓱𝓪𝓷𝓷𝓮𝓵-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19) 
 
-1. ````⭐Fork this repo⭐````
-   Tap here 👇
+---------
 
-  <br>
-<a href="https://github.com/xhclintohn/Toxic-MD/fork"><img title="Toxic-MD" src="https://img.shields.io/badge/FORK Toxic-MD-h?color=black&style=for-the-badge&logo=stackshare"></a>
+## ⚡ ```STEPS TO DEPLOY BOT```
 
-
-Then get  SESSION-ID by scanning QR code. `Whatapp>Three dots on top right>Linked Devices`***
-Check button below
-
-## `````⭐QR SCAN⭐`````
+1. **⭐ Fork this repo ⭐**  
+   Tap here 👇  
 
    <br>
-<a href='https://toxic-pair-code.onrender.com' target="_blank"><img alt='SCAN QR' src='https://img.shields.io/badge/Scan_qr-100000?style=for-the-badge&logo=scan&logoColor=white&labelColor=black&color=red'/></a>
+   <a href="https://github.com/xhclintohn/Toxic-MD/fork"><img title="Toxic-MD" src="https://img.shields.io/badge/𝓕𝓞𝓡𝓚 𝓣𝓸𝔁𝓲𝓬-𝓜𝓓-𝓑𝓵𝓪𝓬𝓴?style=for-the-badge&logo=stackshare"></a>
 
+2. **Get SESSION-ID by scanning QR code.**  
+   Go to `WhatsApp > Three dots on top right > Linked Devices`  
+   Check the button below to scan the QR code.
+
+## ```⭐ QR SCAN ⭐```
+
+   <br>
+   <a href='https://toxic-pair-code.onrender.com' target="_blank"><img alt='SCAN QR' src='https://img.shields.io/badge/𝓢𝓬𝓪𝓷_𝓠𝓡-100000?style=for-the-badge&logo=scan&logoColor=white&labelColor=black&color=red'/></a>
 
 ---------
 
-
-## ```⭐HEROKU DEPLOYMENT⭐```
+## ```⭐ HEROKU DEPLOYMENT ⭐```
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://dashboard.heroku.com/new?button-url=https://github.com/xhclintohn/Toxic-MD&template=https://github.com/xhclintohn/Toxic-MD.git)
 
-
-
-
-## ```⭐RAILWAY USER⭐```
+## ```⭐ RAILWAY DEPLOYMENT ⭐```
 
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app)
 
-
-## ```⭐REPLIT USER⭐```
+## ```⭐ REPLIT DEPLOYMENT ⭐```
 
 [![Run on Repl.it](https://repl.it/badge/github/xhclintohn/Toxic-MD)](https://repl.it/github/xhclintohn/Toxic-MD)
 
 <details>
-<summary>TERMUX DEPLOYMENT</summary>
+<summary>📱 TERMUX DEPLOYMENT</summary>
 
+## ❌ Not Available for Deployment on Termux
 
-## TERMUX USER ##
+This script is **not deployable** on Termux. Please use other deployment options like Heroku, Railway, or Replit.
 
-```bash
-$ pkg upgrade && pkg update
-$ pkg install git -y
-$ pkg install nodejs -y
-$ pkg install ffmpeg -y
-$ pkg install imagemagick -y
-$ git clone https://github.com/xhclintohn/Toxic-MD 
-$ cd Toxic-MD
-$ npm i 
-```
-If you get a error try using yarn instead of npm, see [here](https://github.com/BochilGaming/games-wabot/tree/multi-device#if-npm-install-failed--try--using-yarn-instead-of-npm)
-```bash
-$ node .
-```
-
-
-#### For android 10 and above don't use npm, use yarn install
-```bash
-$ pkg install yarn -y
-$ yarn install
-```
 </details>
 
 [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#table-of-contents)
+
 <details>
-<summary>TERMUX WITH UBUNTU</summary>
+<summary>🐧 UBUNTU DEPLOYMENT</summary>
 
+## ❌ Not Available for Deployment on Ubuntu
 
-```bash
-apt update && apt full-upgrade
-apt install wget curl git proot-distro
-proot-distro install ubuntu
-echo "proot-distro login ubuntu" > $PREFIX/bin/ubuntu
-ubuntu
-```
----------
+This script is **not deployable** on Ubuntu. Please use other deployment options like Heroku, Railway, or Replit.
 
-[ INSTALLING REQUIRED PACKAGES ]
-
-```bash
-ubuntu
-apt update && apt full-upgrade
-apt install wget curl git ffmpeg imagemagick build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev dbus-x11 ffmpeg2theora ffmpegfs ffmpegthumbnailer ffmpegthumbnailer-dbg ffmpegthumbs libavcodec-dev libavcodec-extra libavcodec-extra58 libavdevice-dev libavdevice58 libavfilter-dev libavfilter-extra libavfilter-extra7 libavformat-dev libavformat58 libavifile-0.7-bin libavifile-0.7-common libavifile-0.7c2 libavresample-dev libavresample4 libavutil-dev libavutil56 libpostproc-dev libpostproc55 graphicsmagick graphicsmagick-dbg graphicsmagick-imagemagick-compat graphicsmagick-libmagick-dev-compat groff imagemagick-6.q16hdri imagemagick-common libchart-gnuplot-perl libgraphics-magick-perl libgraphicsmagick++-q16-12 libgraphicsmagick++1-dev
-```
-
----------
-
-[ INSTALLING NODEJS & Toxic-MD]
-
-```bash
-ubuntu
-curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
-apt install -y nodejs gcc g++ make
-git clone https://github.com/xhclintohn/Toxic-MD
-cd Toxic-MD
-npm install
-npm update
-```
 </details>
 
 [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#table-of-contents)
+
 <details>
-<summary>FOR WINDOWS/VPS/RDP USER 💻</summary>
+<summary>💻 WINDOWS/VPS/RDP DEPLOYMENT</summary>
 
-* Download And Install Git [`Click Here`](https://git-scm.com/downloads)
-* Download And Install NodeJS [`Click Here`](https://nodejs.org/en/download)
-* Download And Install FFmpeg [`Click Here`](https://ffmpeg.org/download.html) (**Don't Forget Add FFmpeg to PATH enviroment variables**)
-* Download And Install ImageMagick [`Click Here`](https://imagemagick.org/script/download.php)
+## ❌ Not Available for Deployment on Windows/VPS/RDP
 
-```bash
-git clone https://github.com/xhclintohn/Toxic-MD
-cd Clinton---md
-npm install
-npm update
-```
+This script is **not deployable** on Windows, VPS, or RDP. Please use other deployment options like Heroku, Railway, or Replit.
 
----------
-
-## Run ⏳
-
-```bash
-node .
-```
 </details>
 
 [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#table-of-contents)
@@ -176,9 +112,9 @@ node .
 ---------
 
 ### 📮 S&K
-1. Not For Sale
-2. Don't forget give star this repo
-3. Don't use this repository wrongly!
-4. If you have problem chat me in owner number on Whatsapp.
+1. **Not For Sale**  
+2. **Don't forget to give a star to this repo**  
+3. **Don't use this repository wrongly!**  
+4. **If you have any problems, contact me on WhatsApp.**
 
 ---------
