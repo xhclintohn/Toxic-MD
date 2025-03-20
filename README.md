@@ -22,7 +22,7 @@
 ## ⚠️ ````PLEASE NOTE```` ⚠️
 
 ❗ **Use this service wisely.**  
-❗ **This Bot uses Baileys - A non-WhatsApp API which might lead to account suspension.**  
+❗ **This Bot uses Baileys - A non-official WhatsApp API which might lead to account suspension.**  
 ❗ **Contact official contacts for more information or support.**
 
 ---------
