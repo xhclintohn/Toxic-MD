@@ -20,8 +20,8 @@
 
 ⚠️ WARNING ⚠️
 ❗ Use this service wisely.
-❗ Any form of abuse will be dealt with firmly.
-❗ Contact official contacts for more information.
+❗ This Bot uses Baileys - A non WhatsApp API which might lead to account suspension.
+❗ Contact official contacts for more information or support.
 
 ---------
 
