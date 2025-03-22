@@ -855,18 +855,21 @@ zk.ev.on('group-participants.update', async (group) => {
                 else {
                     md = "undefined";
                 }
-                console.log("Commands Installation is Completed ✅");
+                console.log("Commands Installation Completed ✅");
 
                 await activateCrons();
                 
                 if((conf.DP).toLowerCase() === 'yes') {     
 
                 let cmsg =`     
-                𝐁𝐎𝐓 𝐑𝐔𝐍𝐍𝐈𝐍𝐆 🤖
-╭❒⁠⁠⁠⁠─❒⁠⁠⁠⁠─❒⁠⁠⁠⁠─❒⁠⁠⁠⁠─❒⁠⁠⁠⁠              
-❒⁠⁠⁠⁠ 𝑫𝑬𝑽   : 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧   
-❒⁠⁠⁠⁠ 𝑩𝑶𝑻   : 𝙏𝙤𝙭𝙞𝙘 𝙈𝘿
-╰❒⁠⁠⁠⁠─❒⁠⁠⁠⁠─❒⁠⁠⁠⁠─❒⁠⁠⁠⁠─❒⁠⁠⁠⁠`;
+               𝐁𝐎𝐓 𝐑𝐔𝐍𝐍𝐈𝐍𝐆✔️
+              
+> 𝑫𝑬𝑽: 
+𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧 
+  
+> 𝑩𝑶𝑻: 
+𝙏𝙤𝙭𝙞𝙘 𝙈𝘿
+`;
                 await zk.sendMessage(zk.user.id, { text: cmsg });
                 }
             }
