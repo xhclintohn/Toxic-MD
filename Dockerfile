@@ -19,4 +19,4 @@ COPY . .
 EXPOSE 3000
 
 # Run the web service on container startup.
-CMD [ "npm", "run", "toxictech" ]
+CMD [ "npm", "run", "toshtech" ]
