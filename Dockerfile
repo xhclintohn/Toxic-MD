@@ -1,25 +1,22 @@
-FROM node:lts-buster
+# Use the official Node.js image.
+# https://hub.docker.com/_/node
+FROM node:16-alpine
 
-RUN apt-get update && \
-  apt-get install -y \
-  ffmpeg \
-  imagemagick \
-  webp && \
-  apt-get upgrade -y && \
-  npm i pm2 -g && \
-  rm -rf /var/lib/apt/lists/*
-  
-RUN git clone https://github.com/xhclintohn/Toxic-MD  /root/Toxic-MD
-WORKDIR /root/Toxic-MD/
+# Create and change to the app directory.
+WORKDIR /usr/src/app
 
+# Install dependencies:
+# Copy the package.json and package-lock.json files.
+COPY package*.json ./
 
-COPY package.json .
-RUN npm install pm2 -g
-RUN npm install --legacy-peer-deps
+# Install the dependencies.
+RUN npm install --production
 
+# Copy the rest of the application code.
 COPY . .
 
-EXPOSE 5000
+# Expose the port the app runs on
+EXPOSE 3000
 
-CMD ["npm", "run" , "toxic.js"]
-
+# Run the web service on container startup.
+CMD [ "npm", "run", "toxictech" ]
