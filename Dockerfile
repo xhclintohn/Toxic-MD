@@ -2,6 +2,9 @@
 # https://hub.docker.com/_/node
 FROM node:16-alpine
 
+# Install git
+RUN apk add --no-cache git
+
 # Create and change to the app directory.
 WORKDIR /usr/src/app
 
