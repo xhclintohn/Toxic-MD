@@ -2,6 +2,9 @@
 # https://hub.docker.com/_/node
 FROM node:16-alpine
 
+# Install git
+RUN apk add --no-cache git
+
 # Install pm2
 RUN npm install -g pm2
 
@@ -21,4 +24,4 @@ COPY . .
 EXPOSE 3000
 
 # Run the web service on container startup.
-CMD [ "pm2-runtime", "start", "toxic.js" ]
+CMD ["pm2-runtime", "start", "toxic.js"]
