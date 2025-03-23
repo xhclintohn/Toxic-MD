@@ -2,8 +2,9 @@
 # https://hub.docker.com/_/node
 FROM node:16-alpine
 
-# Install git
+# Install git and pm2
 RUN apk add --no-cache git
+RUN npm install -g pm2
 
 # Create and change to the app directory.
 WORKDIR /usr/src/app
