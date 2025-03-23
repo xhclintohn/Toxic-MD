@@ -6,3 +6,6 @@ services:
     plan: free
     buildCommand: "npm install"
     startCommand: "npm run toshtech"
+    envVars:
+      - key: PORT
+        value: "3000"
