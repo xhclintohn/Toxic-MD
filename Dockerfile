@@ -2,14 +2,12 @@
 # https://hub.docker.com/_/node
 FROM node:16-alpine
 
-# Install git and pm2
-RUN apk add --no-cache git
+# Install pm2
 RUN npm install -g pm2
 
 # Create and change to the app directory.
 WORKDIR /usr/src/app
 
-# Install dependencies:
 # Copy the package.json and package-lock.json files.
 COPY package*.json ./
 
@@ -23,4 +21,4 @@ COPY . .
 EXPOSE 3000
 
 # Run the web service on container startup.
-CMD [ "npm", "run", "toshtech" ]
+CMD [ "pm2-runtime", "start", "toxic.js" ]
