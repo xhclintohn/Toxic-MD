@@ -7,7 +7,6 @@
     "test": "node toxic.js",
     "s": "node toxic.js",
     "toshtech": "pm2 start toxic.js --attach",
-    "toshtech": "pm2 start toxic.js --attach",
     "c": "tsc"
   },
   "keywords": [
@@ -19,12 +18,13 @@
     "Toxic-MD-bot"
   ],
   "author": "xhclinton",
-"license": "ISC",
+  "license": "ISC",
   "dependencies": {
+    "express": "^4.17.1",  // Added express dependency
     "@adiwajshing/keyed-db": "^0.2.4",
     "@hapi/boom": "^10.0.1",
     "@types/node": "^18.0.6",
-                "@whiskeysockets/baileys": "github:Luffy2ndAccount/Baileys",
+    "@whiskeysockets/baileys": "github:Luffy2ndAccount/Baileys",
     "ytdl-core": "github:franceking1/flash-dls",
     "@xaviabot/fb-downloader": "^1.0.14",
     "aptoide-scraper": "^1.0.1",
@@ -42,13 +42,13 @@
     "fs-extra": "^11.1.1",
     "g-i-s": "^2.1.7",
     "gist": "^0.2.0",
-     "genius-lyrics": "^4.4.3", 
+    "genius-lyrics": "^4.4.3",
     "google-it": "^1.6.4",
     "google-tts-api": "latest",
     "heroku-client": "^3.1.0",
     "human-readable": "^0.2.1",
     "javascript-obfuscator": "^4.1.0",
-                     "jimp": "^0.16.13", 
+    "jimp": "^0.16.13",
     "latest": "^0.2.0",
     "link-preview-js": "^3.0.4",
     "moment-timezone": "^0.5.43",
