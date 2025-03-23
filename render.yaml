@@ -5,4 +5,4 @@ services:
     region: Frankfurt
     plan: free
     buildCommand: "npm install"
-    startCommand: "npm run toxictech"
+    startCommand: "npm run toshtech"
