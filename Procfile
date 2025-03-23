@@ -1,1 +1,1 @@
-web: node toshtech
+web: npm run toshtech
