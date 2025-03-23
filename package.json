@@ -20,7 +20,7 @@
   "author": "xhclinton",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.1",  // Added express dependency
+    "express": "^4.17.1",
     "@adiwajshing/keyed-db": "^0.2.4",
     "@hapi/boom": "^10.0.1",
     "@types/node": "^18.0.6",
