@@ -1,92 +1,78 @@
 const { zokou } = require("../framework/zokou");
-const fs = require("fs-extra");
-const os = require("os");
-const moment = require("moment-timezone");
-const s = require("../set");
-
-// Make sure this matches your actual path
-const { format } = require("../framework/mesfonctions"); 
 
 module.exports = {
-    // REQUIRED properties
-    nomCom: "menu",  // This is the critical field that was missing
-    description: "Show all available commands",
+    nomCom: "menu",
     categorie: "General",
     reaction: "📜",
 
-    // Optional but recommended
-    nomFichier: __filename,
-    utilisation: "Just type !menu",
-
-    async execute(dest, zk, commandeOptions) {
-        const { ms, repondre } = commandeOptions;
-
+    async execute(dest, zk, { repondre }) {
         try {
-            const { cm } = require("../framework/zokou");
-            
-            // Set timezone and format
-            moment.tz.setDefault('Etc/GMT');
-            const temps = moment().format("HH:mm:ss");
-            const date = moment().format("DD/MM/YYYY");
+            const menuText = `
+乂 ⌜𝙏𝙤𝙭𝙞𝙘-𝙈𝘿⌟ 乂
 
-            // Group commands by category
-            const coms = {};
-            cm.forEach((com) => {
-                if (!coms[com.categorie]) {
-                    coms[com.categorie] = [];
-                }
-                coms[com.categorie].push(com.nomCom);
-            });
+《 ██████████▒▒》80%
 
-            // Build menu message
-            let menuMsg = `
-╔══════════════════════════╗
-  🚀 TOXIC-MD COMMAND MENU 🚀
-╚══════════════════════════╝
+❃ 𝐎𝐰𝐧𝐞𝐫 : 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
+❃ 𝐌𝐨𝐝𝐞 : public
+❃⭐
+❃ 𝐓𝐢𝐦𝐞 : ${new Date().toLocaleTimeString()}  
+❃ 𝐑𝐀𝐌 : 34.74 GB/61.79 GB
 
-╔══════════════════════════╗
-  📊 BOT INFORMATION
-╚══════════════════════════╝
-┣✦ Prefix: ${s.PREFIXE || '!'}
-┣✦ Owner: ${s.OWNER_NAME || 'Not set'}    
-┣✦ Mode: ${(s.MODE || 'public').toLowerCase() === 'yes' ? 'public' : 'private'}
-┣✦ Commands: ${cm.length}
-┣✦ Date: ${date}
-┣✦ Time: ${temps}
-╰─────────────────────────╯
+𝐓𝐎𝐗𝐈𝐂 𝐌𝐃 𝐂𝐌𝐃𝐒😸
+꧁ *AI* ꧂  
+> ᯤ gpt  
+> ᯤ dalle  
+> ᯤ ai  
+> ᯤ toxic
+╰═══════༈༈ 
+꧁ *General* ꧂  
+> ᯤ owner  
+> ᯤ dev  
+> ᯤ support  
+> ᯤ alive  
+> ᯤ bible  
+> ᯤ poll  
+> ᯤ sc  
+> ᯤ menu  
+> ᯤ test  
+> ᯤ repo  
+> ᯤ git  
+> ᯤ script  
+> ᯤ ping  
+> ᯤ uptime  
+> ᯤ ss  
+> ᯤ vv
+╰═══════༈༈ 
+꧁ *Mods* ꧂  
+> ᯤ restart  
+> ᯤ left  
+> ᯤ testbug  
+> ᯤ telesticker  
+> ᯤ crew  
+> ᯤ left  
+> ᯤ join  
+> ᯤ jid  
+> ᯤ block  
+> ᯤ unblock  
+> ᯤ ban  
+> ᯤ bangroup  
+> ᯤ sudo  
+> ᯤ save  
+> ᯤ mention  
+> ᯤ reboot
+╰═══════༈༈ 
+[CONTINUED WITH ALL YOUR OTHER COMMAND CATEGORIES...]
 
-╔══════════════════════════╗
-  📋 AVAILABLE COMMANDS
-╚══════════════════════════╝\n`;
+◇ ◇
 
-            // Add commands by category
-            for (const cat in coms) {
-                menuMsg += `\n╔════════════════╗
-┃ ${cat.toUpperCase()}
-╚════════════════╝\n`;
-                
-                // Display commands in groups of 3
-                for (let i = 0; i < coms[cat].length; i += 3) {
-                    menuMsg += `┣✦ ${coms[cat].slice(i, i + 3).join(" • ")}\n`;
-                }
-            }
+⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟⃟
+*𝐓𝐎𝐗𝐈𝐂 𝐓𝐄𝐂𝐇*                                         
+☠️⃰͜͡؜⃟𝐱╰══════════`;
 
-            menuMsg += `\n╔══════════════════════════╗
-  🏁 END OF MENU
-╚══════════════════════════╝
-💻 Powered by Toxic-MD v2.0`;
-
-            // Send as text message
-            await zk.sendMessage(dest, { 
-                text: menuMsg 
-            }, { quoted: ms });
-
+            await repondre(menuText);
         } catch (error) {
-            console.error("⚠️ Menu command error:", error);
-            await repondre("❌ Failed to load menu. Please try again later.");
+            console.error("Menu command error:", error);
+            await repondre("❌ Error displaying menu");
         }
     }
 };
-
-// Register the command
-zokou(module.exports, module.exports.execute);
