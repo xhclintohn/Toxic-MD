@@ -8,7 +8,8 @@
     "s": "node toxic.js",
     "toshtech": "pm2 start toxic.js --attach",
     "c": "tsc",
-    "start": "node toxic.js"
+    "start": "node toxic.js",
+    "build": "tsc"
   },
   "keywords": [
     "bot",
@@ -74,11 +75,14 @@
     "youtube-yts": "^2.0.0",
     "yt-search": "^2.12.1",
     "youtubedl-core": "^4.11.7",
-    "blob-polyfill": "^5.0.20210310",
     "events": "^3.3.0",
-    "util": "^0.12.5"
+    "util": "^0.12.5",
+    "blob-util": "^2.0.2"
   },
   "engines": {
     "node": ">=16.0.0"
+  },
+  "resolutions": {
+    "blob-polyfill": "npm:blob-util@^2.0.2"
   }
 }
