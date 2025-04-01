@@ -4,33 +4,42 @@ const os = require("os");
 const moment = require("moment-timezone");
 const s = require("../set");
 
+// Make sure this matches your actual path
+const { format } = require("../framework/mesfonctions"); 
+
 module.exports = {
-    name: "menu",
-    description: "Show all commands",
-    category: "General",
+    // REQUIRED properties
+    nomCom: "menu",  // This is the critical field that was missing
+    description: "Show all available commands",
+    categorie: "General",
     reaction: "📜",
 
-    async execute(dest, zk, { ms, repondre }) {
+    // Optional but recommended
+    nomFichier: __filename,
+    utilisation: "Just type !menu",
+
+    async execute(dest, zk, commandeOptions) {
+        const { ms, repondre } = commandeOptions;
+
         try {
             const { cm } = require("../framework/zokou");
             
-            // Get bot info
+            // Set timezone and format
             moment.tz.setDefault('Etc/GMT');
-            const time = moment().format("HH:mm:ss");
+            const temps = moment().format("HH:mm:ss");
             const date = moment().format("DD/MM/YYYY");
-            const mode = (s.MODE || 'public').toLowerCase() === 'yes' ? 'public' : 'private';
 
             // Group commands by category
-            const categories = {};
-            cm.forEach(cmd => {
-                if (!categories[cmd.categorie]) {
-                    categories[cmd.categorie] = [];
+            const coms = {};
+            cm.forEach((com) => {
+                if (!coms[com.categorie]) {
+                    coms[com.categorie] = [];
                 }
-                categories[cmd.categorie].push(cmd.nomCom);
+                coms[com.categorie].push(com.nomCom);
             });
 
-            // Build menu text
-            let menuText = `
+            // Build menu message
+            let menuMsg = `
 ╔══════════════════════════╗
   🚀 TOXIC-MD COMMAND MENU 🚀
 ╚══════════════════════════╝
@@ -39,11 +48,11 @@ module.exports = {
   📊 BOT INFORMATION
 ╚══════════════════════════╝
 ┣✦ Prefix: ${s.PREFIXE || '!'}
-┣✦ Owner: ${s.OWNER_NAME || 'Not set'}
-┣✦ Mode: ${mode}
+┣✦ Owner: ${s.OWNER_NAME || 'Not set'}    
+┣✦ Mode: ${(s.MODE || 'public').toLowerCase() === 'yes' ? 'public' : 'private'}
 ┣✦ Commands: ${cm.length}
 ┣✦ Date: ${date}
-┣✦ Time: ${time}
+┣✦ Time: ${temps}
 ╰─────────────────────────╯
 
 ╔══════════════════════════╗
@@ -51,30 +60,30 @@ module.exports = {
 ╚══════════════════════════╝\n`;
 
             // Add commands by category
-            for (const [category, commands] of Object.entries(categories)) {
-                menuText += `\n╔════════════════╗
-┃ ${category.toUpperCase()}
+            for (const cat in coms) {
+                menuMsg += `\n╔════════════════╗
+┃ ${cat.toUpperCase()}
 ╚════════════════╝\n`;
                 
-                // Add commands in groups of 3
-                for (let i = 0; i < commands.length; i += 3) {
-                    menuText += `┣✦ ${commands.slice(i, i + 3).join(" • ")}\n`;
+                // Display commands in groups of 3
+                for (let i = 0; i < coms[cat].length; i += 3) {
+                    menuMsg += `┣✦ ${coms[cat].slice(i, i + 3).join(" • ")}\n`;
                 }
             }
 
-            menuText += `\n╔══════════════════════════╗
+            menuMsg += `\n╔══════════════════════════╗
   🏁 END OF MENU
 ╚══════════════════════════╝
 💻 Powered by Toxic-MD v2.0`;
 
-            // Send as text message first for testing
+            // Send as text message
             await zk.sendMessage(dest, { 
-                text: menuText 
+                text: menuMsg 
             }, { quoted: ms });
 
         } catch (error) {
-            console.error("MENU ERROR:", error);
-            await repondre("❌ Failed to load menu. Please try again.");
+            console.error("⚠️ Menu command error:", error);
+            await repondre("❌ Failed to load menu. Please try again later.");
         }
     }
 };
