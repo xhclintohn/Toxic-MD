@@ -10,12 +10,15 @@ zokou({
 }, async (dest, zk, commandeOptions) => {
     const { repondre, ms } = commandeOptions;
     const startTime = Date.now();
-    
-    await repondre("𝐂𝐡𝐞𝐜𝐤𝐢𝐧𝐠 𝐫𝐞𝐬𝐩𝐨𝐧𝐬𝐞 𝐬𝐩𝐞𝐞𝐝...");
-    
+
+    // Send initial message and store it for editing later
+    const checkingMsg = await zk.sendMessage(dest, { 
+      text: "𝐂𝐡𝐞𝐜𝐤𝐢𝐧𝐠 𝐫𝐞𝐬𝐩𝐨𝐧𝐬𝐞 𝐬𝐩𝐞𝐞𝐝..." 
+    }, { quoted: ms });
+
     const endTime = Date.now();
     const pingTime = endTime - startTime;
-    
+
     const pingMessage = `
 
 ┃ 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 𝐏𝐢𝐧𝐠 ┃
@@ -23,10 +26,12 @@ zokou({
 ┣✦ 𝐑𝐞𝐬𝐩𝐨𝐧𝐬𝐞 𝐓𝐢𝐦𝐞: ${pingTime}ms
 ┣✦ 𝐒𝐭𝐚𝐭𝐮𝐬: 𝐎𝐩𝐭𝐢𝐦𝐚𝐥
 ╰─────────────────╯`;
-    
-    await zk.sendMessage(dest, { 
-      text: pingMessage 
-    }, { quoted: ms });
+
+    // Edit the original message instead of sending a new one
+    await zk.sendMessage(dest, {
+      text: pingMessage,
+      edit: checkingMsg.key
+    });
 });
 
 // Existing test command with updated styling
