@@ -3,11 +3,10 @@ const fs = require("fs-extra");
 const os = require("os");
 const moment = require("moment-timezone");
 const s = require("../set");
-const { format } = require("../framework/mesfonctions");
 
 module.exports = {
     name: "menu",
-    description: "Show all available commands",
+    description: "Show command menu",
     category: "General",
     reaction: "📜",
     nomFichier: __filename,
@@ -16,36 +15,25 @@ module.exports = {
         const { ms, repondre } = commandeOptions;
         
         try {
-            // Get commands from zokou
+            // Get commands
             const { cm } = require("../framework/zokou");
             
-            // Set timezone and format
+            // Format time
             moment.tz.setDefault('Etc/GMT');
-            const temps = moment().format("HH:mm:ss");
+            const time = moment().format("HH:mm:ss");
             const date = moment().format("DD/MM/YYYY");
 
             // Group commands by category
-            const coms = {};
-            cm.forEach((com) => {
-                if (!coms[com.categorie]) {
-                    coms[com.categorie] = [];
+            const categories = {};
+            cm.forEach(cmd => {
+                if (!categories[cmd.categorie]) {
+                    categories[cmd.categorie] = [];
                 }
-                coms[com.categorie].push(com.nomCom);
+                categories[cmd.categorie].push(cmd.nomCom);
             });
 
-            // Category emojis
-            const emoji = {
-                "General": "🌐",
-                "Search": "🔍",
-                "Fun": "🎭",
-                "Mods": "🛠️",
-                "Conversion": "🔄",
-                "Group": "👥",
-                "Media": "🎬"
-            };
-
-            // Build menu message
-            let menuMsg = `
+            // Build menu text
+            let menuText = `
 ╔══════════════════════════╗
   𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 𝐂𝐨𝐦𝐦𝐚𝐧𝐝 𝐌𝐞𝐧𝐮
 ╚══════════════════════════╝
@@ -53,13 +41,12 @@ module.exports = {
 ╔══════════════════════════╗
   𝐁𝐨𝐭 𝐈𝐧𝐟𝐨𝐫𝐦𝐚𝐭𝐢𝐨𝐧
 ╚══════════════════════════╝
-┣✦ 𝐏𝐫𝐞𝐟𝐢𝐱: ${s.PREFIXE || '!'}
-┣✦ 𝐎𝐰𝐧𝐞𝐫: ${s.OWNER_NAME || 'Not set'}    
-┣✦ 𝐌𝐨𝐝𝐞: ${(s.MODE || 'public').toLowerCase() === 'yes' ? 'public' : 'private'}
-┣✦ 𝐂𝐨𝐦𝐦𝐚𝐧𝐝𝐬: ${cm.length}
-┣✦ 𝐃𝐚𝐭𝐞: ${date}
-┣✦ 𝐓𝐢𝐦𝐞: ${temps}
-┣✦ 𝐌𝐞𝐦𝐨𝐫𝐲: ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
+┣✦ Prefix: ${s.PREFIXE || '!'}
+┣✦ Owner: ${s.OWNER_NAME || 'Not set'}
+┣✦ Mode: ${(s.MODE || 'public').toLowerCase() === 'yes' ? 'public' : 'private'}
+┣✦ Commands: ${cm.length}
+┣✦ Date: ${date}
+┣✦ Time: ${time}
 ╰─────────────────────────╯
 
 ╔══════════════════════════╗
@@ -67,35 +54,36 @@ module.exports = {
 ╚══════════════════════════╝\n`;
 
             // Add commands by category
-            for (const cat in coms) {
-                const categoryEmoji = emoji[cat] || "✨";
-                menuMsg += `\n╔════════════════╗
-┃ ${categoryEmoji} ${cat} ${categoryEmoji}
+            for (const [category, commands] of Object.entries(categories)) {
+                menuText += `\n╔════════════════╗
+┃ ${category.toUpperCase()}
 ╚════════════════╝\n`;
                 
-                // Display commands
-                for (let i = 0; i < coms[cat].length; i += 3) {
-                    const chunk = coms[cat].slice(i, i + 3);
-                    menuMsg += `┣✦ ${chunk.join(" • ")}\n`;
+                // Add commands in groups of 3
+                for (let i = 0; i < commands.length; i += 3) {
+                    menuText += `┣✦ ${commands.slice(i, i + 3).join(" • ")}\n`;
                 }
             }
 
-            menuMsg += `\n╔══════════════════════════╗
+            menuText += `\n╔══════════════════════════╗
   𝐄𝐧𝐝 𝐨𝐟 𝐌𝐞𝐧𝐮
 ╚══════════════════════════╝
-𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐛𝐲 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 | ©𝟐𝟎𝟐𝟒`;
+𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐛𝐲 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃`;
 
-            // Send menu with image (using simple URL instead of streams)
-            const imageUrl = s.IMAGE_MENU || "https://i.imgur.com/8K7fT5a.jpg";
-            await zk.sendMessage(dest, {
-                image: { url: imageUrl },
-                caption: menuMsg,
-                footer: "Type 'help <command>' for more info"
+            // Send as simple text message first for testing
+            await zk.sendMessage(dest, { 
+                text: menuText 
             }, { quoted: ms });
 
+            // If working, you can add image back later:
+            // await zk.sendMessage(dest, {
+            //     image: { url: "https://i.imgur.com/8K7fT5a.jpg" },
+            //     caption: menuText
+            // }, { quoted: ms });
+
         } catch (error) {
-            console.error("⚠️ Menu command error:", error);
-            repondre("⚠️ Failed to load menu. Please try again later.");
+            console.error("Menu command error:", error);
+            repondre("Error loading menu. Please try again.");
         }
     }
 };
