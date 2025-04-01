@@ -4,7 +4,7 @@ const { zokou } = require("../framework/zokou");
 
 // Menu command
 zokou({ 
-  nomCom: "menu", 
+  nomCom: "help", 
   reaction: "📜", 
   nomFichier: __filename 
 }, async (dest, zk, commandeOptions) => {
@@ -21,14 +21,10 @@ zokou({
 
  ❃ 𝐎𝐰𝐧𝐞𝐫 : 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
  ❃ 𝐌𝐨𝐝𝐞 : public
- ❃⭐
- ❃ 𝐓𝐢𝐦𝐞 : ${timeString}  
+ ❃⭐  
  ❃ 𝐑𝐀𝐌 : 34.74 GB/61.79 GB
-
   
-
-  
-  𝐓𝐎𝐗𝐈𝐂 𝐌𝐃 𝐂𝐌𝐃𝐒😸
+  𝐓𝐎𝐗𝐈𝐂 𝐌𝐃 𝐂𝐌𝐃𝐒
 ꧁ *AI* ꧂  
 > ᯤ  gpt  
 > ᯤ  dalle  
