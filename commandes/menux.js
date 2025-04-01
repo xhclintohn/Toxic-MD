@@ -3,7 +3,7 @@ const fs = require("fs-extra");
 const os = require("os");
 const moment = require("moment-timezone");
 const s = require("../set");
-const { format, police } = require("../framework/mesfonctions");
+const { format } = require("../framework/mesfonctions");
 
 module.exports = {
     name: "menu",
@@ -36,7 +36,7 @@ module.exports = {
             // Category emojis
             const emoji = {
                 "General": "🌐",
-                "Search": "🔍", 
+                "Search": "🔍",
                 "Fun": "🎭",
                 "Mods": "🛠️",
                 "Conversion": "🔄",
@@ -44,37 +44,34 @@ module.exports = {
                 "Media": "🎬"
             };
 
-            // Build menu message with stylish fonts
-            let menuMsg = police(`
+            // Build menu message
+            let menuMsg = `
 ╔══════════════════════════╗
-  TOXIC-MD COMMAND MENU
-╚══════════════════════════╝`, 5) + "\n\n";
+  𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 𝐂𝐨𝐦𝐦𝐚𝐧𝐝 𝐌𝐞𝐧𝐮
+╚══════════════════════════╝
 
-            menuMsg += police(`
 ╔══════════════════════════╗
-  BOT INFORMATION
-╚══════════════════════════╝`, 3) + "\n";
-            
-            menuMsg += `┣✦ ${police("Prefix:", 3)} ${s.PREFIXE || '!'}\n`;
-            menuMsg += `┣✦ ${police("Owner:", 3)} ${s.OWNER_NAME || 'Not set'}\n`;
-            menuMsg += `┣✦ ${police("Mode:", 3)} ${(s.MODE || 'public').toLowerCase() === 'yes' ? 'public' : 'private'}\n`;
-            menuMsg += `┣✦ ${police("Commands:", 3)} ${cm.length}\n`;
-            menuMsg += `┣✦ ${police("Date:", 3)} ${date}\n`;
-            menuMsg += `┣✦ ${police("Time:", 3)} ${temps}\n`;
-            menuMsg += `┣✦ ${police("Memory:", 3)} ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}\n`;
-            menuMsg += `╰─────────────────────────╯\n\n`;
+  𝐁𝐨𝐭 𝐈𝐧𝐟𝐨𝐫𝐦𝐚𝐭𝐢𝐨𝐧
+╚══════════════════════════╝
+┣✦ 𝐏𝐫𝐞𝐟𝐢𝐱: ${s.PREFIXE || '!'}
+┣✦ 𝐎𝐰𝐧𝐞𝐫: ${s.OWNER_NAME || 'Not set'}    
+┣✦ 𝐌𝐨𝐝𝐞: ${(s.MODE || 'public').toLowerCase() === 'yes' ? 'public' : 'private'}
+┣✦ 𝐂𝐨𝐦𝐦𝐚𝐧𝐝𝐬: ${cm.length}
+┣✦ 𝐃𝐚𝐭𝐞: ${date}
+┣✦ 𝐓𝐢𝐦𝐞: ${temps}
+┣✦ 𝐌𝐞𝐦𝐨𝐫𝐲: ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
+╰─────────────────────────╯
 
-            menuMsg += police(`
 ╔══════════════════════════╗
-  AVAILABLE COMMANDS
-╚══════════════════════════╝`, 4) + "\n";
+  𝐀𝐯𝐚𝐢𝐥𝐚𝐛𝐥𝐞 𝐂𝐨𝐦𝐦𝐚𝐧𝐝𝐬
+╚══════════════════════════╝\n`;
 
             // Add commands by category
             for (const cat in coms) {
                 const categoryEmoji = emoji[cat] || "✨";
-                menuMsg += `\n${police(`╔════════════════╗
+                menuMsg += `\n╔════════════════╗
 ┃ ${categoryEmoji} ${cat} ${categoryEmoji}
-╚════════════════╝`, 2)}\n`;
+╚════════════════╝\n`;
                 
                 // Display commands
                 for (let i = 0; i < coms[cat].length; i += 3) {
@@ -83,13 +80,12 @@ module.exports = {
                 }
             }
 
-            menuMsg += `\n${police(`
-╔══════════════════════════╗
-  END OF MENU
+            menuMsg += `\n╔══════════════════════════╗
+  𝐄𝐧𝐝 𝐨𝐟 𝐌𝐞𝐧𝐮
 ╚══════════════════════════╝
-Powered by Toxic-MD | ©2024`, 1)}`;
+𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐛𝐲 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 | ©𝟐𝟎𝟐𝟒`;
 
-            // Send menu with image
+            // Send menu with image (using simple URL instead of streams)
             const imageUrl = s.IMAGE_MENU || "https://i.imgur.com/8K7fT5a.jpg";
             await zk.sendMessage(dest, {
                 image: { url: imageUrl },
