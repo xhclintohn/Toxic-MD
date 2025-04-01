@@ -1,42 +1,83 @@
 const { zokou } = require("../framework/zokou");
-const fs = require('fs-extra');
-const { createSafeStream } = require('../framework/zokou');
+const fs = require("fs-extra");
+const os = require("os");
+const moment = require("moment-timezone");
+const s = require("../set");
 
 module.exports = {
     name: "menu",
-    description: "Show command menu",
+    description: "Show all commands",
     category: "General",
     reaction: "📜",
-    nomFichier: __filename,
 
-    async execute(dest, zk, options) {
-        const { ms, repondre } = options;
-        
+    async execute(dest, zk, { ms, repondre }) {
         try {
-            // Example safe file handling
-            const menuText = "Your menu content here";
+            const { cm } = require("../framework/zokou");
             
-            // Option 1: Send as text
-            await zk.sendMessage(dest, { text: menuText }, { quoted: ms });
-            
-            // Option 2: Safe image sending
-            /*
-            const imagePath = './assets/menu.jpg';
-            const imageBuffer = await fs.readFile(imagePath);
-            const safeStream = createSafeStream(imageBuffer);
-            
+            // Get bot info
+            moment.tz.setDefault('Etc/GMT');
+            const time = moment().format("HH:mm:ss");
+            const date = moment().format("DD/MM/YYYY");
+            const mode = (s.MODE || 'public').toLowerCase() === 'yes' ? 'public' : 'private';
+
+            // Group commands by category
+            const categories = {};
+            cm.forEach(cmd => {
+                if (!categories[cmd.categorie]) {
+                    categories[cmd.categorie] = [];
+                }
+                categories[cmd.categorie].push(cmd.nomCom);
+            });
+
+            // Build menu text
+            let menuText = `
+╔══════════════════════════╗
+  🚀 TOXIC-MD COMMAND MENU 🚀
+╚══════════════════════════╝
+
+╔══════════════════════════╗
+  📊 BOT INFORMATION
+╚══════════════════════════╝
+┣✦ Prefix: ${s.PREFIXE || '!'}
+┣✦ Owner: ${s.OWNER_NAME || 'Not set'}
+┣✦ Mode: ${mode}
+┣✦ Commands: ${cm.length}
+┣✦ Date: ${date}
+┣✦ Time: ${time}
+╰─────────────────────────╯
+
+╔══════════════════════════╗
+  📋 AVAILABLE COMMANDS
+╚══════════════════════════╝\n`;
+
+            // Add commands by category
+            for (const [category, commands] of Object.entries(categories)) {
+                menuText += `\n╔════════════════╗
+┃ ${category.toUpperCase()}
+╚════════════════╝\n`;
+                
+                // Add commands in groups of 3
+                for (let i = 0; i < commands.length; i += 3) {
+                    menuText += `┣✦ ${commands.slice(i, i + 3).join(" • ")}\n`;
+                }
+            }
+
+            menuText += `\n╔══════════════════════════╗
+  🏁 END OF MENU
+╚══════════════════════════╝
+💻 Powered by Toxic-MD v2.0`;
+
+            // Send as text message first for testing
             await zk.sendMessage(dest, { 
-                image: { stream: () => safeStream },
-                caption: menuText 
+                text: menuText 
             }, { quoted: ms });
-            */
-            
+
         } catch (error) {
-            console.error("Menu error:", error);
-            await repondre("⚠️ Menu unavailable. Try again later.");
+            console.error("MENU ERROR:", error);
+            await repondre("❌ Failed to load menu. Please try again.");
         }
     }
 };
 
-// Register command
+// Register the command
 zokou(module.exports, module.exports.execute);
