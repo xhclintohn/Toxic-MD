@@ -69,7 +69,7 @@
    Go to `WhatsApp > Three dots on top right > Linked Devices`  
    Check the button below to scan the QR code.
 
-## ```⭐ QR SCAN ⭐```
+## ```⭐ PAIR WITH WHATSAPP ⭐```
 
    <br>
    <a href='https://toxic-pair-code.onrender.com' target="_blank">
