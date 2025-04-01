@@ -6,22 +6,19 @@ const s = require("../set");
 
 module.exports = {
     name: "menu",
-    description: "Show command menu",
+    description: "Show all commands",
     category: "General",
     reaction: "📜",
-    nomFichier: __filename,
 
-    async execute(dest, zk, commandeOptions) {
-        const { ms, repondre } = commandeOptions;
-        
+    async execute(dest, zk, { ms, repondre }) {
         try {
-            // Get commands
             const { cm } = require("../framework/zokou");
             
-            // Format time
+            // Get bot info
             moment.tz.setDefault('Etc/GMT');
             const time = moment().format("HH:mm:ss");
             const date = moment().format("DD/MM/YYYY");
+            const mode = (s.MODE || 'public').toLowerCase() === 'yes' ? 'public' : 'private';
 
             // Group commands by category
             const categories = {};
@@ -35,22 +32,22 @@ module.exports = {
             // Build menu text
             let menuText = `
 ╔══════════════════════════╗
-  𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 𝐂𝐨𝐦𝐦𝐚𝐧𝐝 𝐌𝐞𝐧𝐮
+  🚀 TOXIC-MD COMMAND MENU 🚀
 ╚══════════════════════════╝
 
 ╔══════════════════════════╗
-  𝐁𝐨𝐭 𝐈𝐧𝐟𝐨𝐫𝐦𝐚𝐭𝐢𝐨𝐧
+  📊 BOT INFORMATION
 ╚══════════════════════════╝
 ┣✦ Prefix: ${s.PREFIXE || '!'}
 ┣✦ Owner: ${s.OWNER_NAME || 'Not set'}
-┣✦ Mode: ${(s.MODE || 'public').toLowerCase() === 'yes' ? 'public' : 'private'}
+┣✦ Mode: ${mode}
 ┣✦ Commands: ${cm.length}
 ┣✦ Date: ${date}
 ┣✦ Time: ${time}
 ╰─────────────────────────╯
 
 ╔══════════════════════════╗
-  𝐀𝐯𝐚𝐢𝐥𝐚𝐛𝐥𝐞 𝐂𝐨𝐦𝐦𝐚𝐧𝐝𝐬
+  📋 AVAILABLE COMMANDS
 ╚══════════════════════════╝\n`;
 
             // Add commands by category
@@ -66,24 +63,21 @@ module.exports = {
             }
 
             menuText += `\n╔══════════════════════════╗
-  𝐄𝐧𝐝 𝐨𝐟 𝐌𝐞𝐧𝐮
+  🏁 END OF MENU
 ╚══════════════════════════╝
-𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐛𝐲 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃`;
+💻 Powered by Toxic-MD v2.0`;
 
-            // Send as simple text message first for testing
+            // Send as text message first for testing
             await zk.sendMessage(dest, { 
                 text: menuText 
             }, { quoted: ms });
 
-            // If working, you can add image back later:
-            // await zk.sendMessage(dest, {
-            //     image: { url: "https://i.imgur.com/8K7fT5a.jpg" },
-            //     caption: menuText
-            // }, { quoted: ms });
-
         } catch (error) {
-            console.error("Menu command error:", error);
-            repondre("Error loading menu. Please try again.");
+            console.error("MENU ERROR:", error);
+            await repondre("❌ Failed to load menu. Please try again.");
         }
     }
 };
+
+// Register the command
+zokou(module.exports, module.exports.execute);
