@@ -1,121 +1,174 @@
+const util = require('util');
+const fs = require('fs-extra');
 const { zokou } = require(__dirname + "/../framework/zokou");
 const { format } = require(__dirname + "/../framework/mesfonctions");
 const os = require("os");
 const moment = require("moment-timezone");
+const s = require(__dirname + "/../set");
+const more = String.fromCharCode(8206);
+const readmore = more.repeat(4001);
 
-module.exports = {
-    name: "menu",
-    alias: ["help", "cmd", "commands"],
-    description: "Display all available commands",
-    category: "General",
-    reaction: "📜",
+zokou({ 
+    nomCom: "menu", 
+    categorie: "General", 
+    reaction: "🔥" 
+}, async (dest, zk, commandeOptions) => {
+    let { ms, repondre, prefixe, nomAuteurMessage, mybotpic } = commandeOptions;
+    let { cm } = require(__dirname + "/../framework/zokou");
 
-    async execute(dest, zk, commandeOptions) {
-        const { ms, repondre, prefixe } = commandeOptions;
-        const { cm } = require(__dirname + "/../framework/zokou");
+    // Create loading message
+    let loadingMsg = await zk.sendMessage(dest, { 
+        text: "🔄 𝐋𝐨𝐚𝐝𝐢𝐧𝐠 𝐌𝐞𝐧𝐮... 1%"
+    }, { quoted: ms });
 
-        try {
-            // Create loading bar animation
-            const loadingBar = async () => {
-                const stages = [
-                    "▱▱▱▱▱▱▱▱▱▱ 0%",
-                    "▰▱▱▱▱▱▱▱▱▱ 10%",
-                    "▰▰▱▱▱▱▱▱▱▱ 20%",
-                    "▰▰▰▱▱▱▱▱▱▱ 30%", 
-                    "▰▰▰▰▱▱▱▱▱▱ 40%",
-                    "▰▰▰▰▰▱▱▱▱▱ 50%",
-                    "▰▰▰▰▰▰▱▱▱▱ 60%",
-                    "▰▰▰▰▰▰▰▱▱▱ 70%",
-                    "▰▰▰▰▰▰▰▰▱▱ 80%",
-                    "▰▰▰▰▰▰▰▰▰▱ 90%",
-                    "▰▰▰▰▰▰▰▰▰▰ 100%"
-                ];
+    // Update progress in 10% increments
+    const updateProgress = async (percent) => {
+        const progressBar = '█'.repeat(percent/10) + '░'.repeat(10 - percent/10);
+        await zk.sendMessage(dest, {
+            text: `🔄 𝐋𝐨𝐚𝐝𝐢𝐧𝐠 𝐌𝐞𝐧𝐮... ${percent}%\n${progressBar}`,
+            edit: loadingMsg.key
+        });
+    };
 
-                const loadingMsg = await repondre("🔄 𝐋𝐨𝐚𝐝𝐢𝐧𝐠 𝐌𝐞𝐧𝐮...\n" + stages[0]);
+    // Simulate loading process
+    for (let i = 10; i <= 100; i += 10) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        await updateProgress(i);
+    }
 
-                for (let i = 1; i < stages.length; i++) {
-                    await new Promise(resolve => setTimeout(resolve, 200));
-                    await zk.sendMessage(dest, {
-                        text: "🔄 𝐋𝐨𝐚𝐝𝐢𝐧𝐠 𝐌𝐞𝐧𝐮...\n" + stages[i],
-                        edit: loadingMsg.key
-                    });
-                }
+    // Prepare menu content
+    var coms = {};
+    var mode = "public";
+    if ((s.MODE).toLocaleLowerCase() != "yes") {
+        mode = "private";
+    }
 
-                return loadingMsg;
-            };
+    cm.map(async (com, index) => {
+        if (!coms[com.categorie]) {
+            coms[com.categorie] = [];
+        }
+        coms[com.categorie].push(com.nomCom);
+    });
 
-            const loadingMsg = await loadingBar();
+    moment.tz.setDefault('EAT');
+    const temps = moment().format('HH:mm:ss');
+    const date = moment().format('DD/MM/YYYY');
 
-            // Prepare menu content
-            let coms = {};
-            cm.forEach((com) => {
-                if (!coms[com.categorie]) coms[com.categorie] = [];
-                coms[com.categorie].push(com.nomCom);
-            });
+    // ASCII Art Banner
+    const banner = `
+████████╗ ██████╗ ██╗  ██╗██╗ ██████╗
+╚══██╔══╝██╔═══██╗╚██╗██╔╝██║██╔════╝
+   ██║   ██║   ██║ ╚███╔╝ ██║██║     
+   ██║   ██║   ██║ ██╔██╗ ██║██║     
+   ██║   ╚██████╔╝██╔╝ ██╗██║╚██████╗
+   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚═╝ ╚═════╝
+    `;
 
-            // System info
-            moment.tz.setDefault('EAT');
-            const systemInfo = `
-╔════◇ *𝐒𝐘𝐒𝐓𝐄𝐌 𝐈𝐍𝐅𝐎* ◇════╗
-│
-│ 🖥️ *𝐁𝐨𝐭 𝐍𝐚𝐦𝐞:* 𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐕𝟐
-│ ⏰ *𝐓𝐢𝐦𝐞:* ${moment().format('HH:mm:ss')} (EAT)
-│ 💾 *𝐌𝐞𝐦𝐨𝐫𝐲:* ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
-│
-╚══════════════════════════╝
+    let infoMsg = `
+╔═══◇ *𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐕𝟐* ◇═══╗
+${banner}
+╠════◇ *𝐒𝐘𝐒𝐓𝐄𝐌 𝐈𝐍𝐅𝐎* ◇════╣
+│🎭 *𝐎𝐰𝐧𝐞𝐫*: @254735342808
+│⚡ *𝐌𝐨𝐝𝐞*: ${mode}
+│⏰ *𝐓𝐢𝐦𝐞*: ${temps} (EAT)
+│💾 *𝐑𝐀𝐌*: ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
+╚════◇ *𝐒𝐓𝐀𝐓𝐔𝐒* ◇════╝
 `;
 
-            // Create menu
-            let menuMsg = `
-╔════◇ *𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐌𝐄𝐍𝐔* ◇════╗
+    let menuMsg = `
+╔═══◇ *𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐌𝐄𝐍𝐔* ◇═══╗
 │
-│ 📜 *𝐔𝐬𝐚𝐠𝐞:* ${prefixe}𝐡𝐞𝐥𝐩 <𝐜𝐨𝐦𝐦𝐚𝐧𝐝>
-│ 🔍 *𝐅𝐨𝐫 𝐝𝐞𝐭𝐚𝐢𝐥𝐞𝐝 𝐢𝐧𝐟𝐨𝐫𝐦𝐚𝐭𝐢𝐨𝐧*
+│ *𝐔𝐬𝐞 ${prefixe}help <command>*
+│ *𝐟𝐨𝐫 𝐝𝐞𝐭𝐚𝐢𝐥𝐬*
 │
 ╠════◇ *𝐂𝐀𝐓𝐄𝐆𝐎𝐑𝐈𝐄𝐒* ◇════╣
 `;
 
-            // Add categories
-            const categoryIcons = {
-                "General": "📌",
-                "Group": "👥",
-                "Mods": "🛡️",
-                "Fun": "🎮",
-                "Search": "🔎"
-            };
+    // Category colors and icons
+    const categoryStyles = {
+        "General": { icon: "🌟", color: "#FFD700" },
+        "Group": { icon: "👥", color: "#00BFFF" },
+        "Mods": { icon: "🛡️", color: "#FF4500" },
+        "Fun": { icon: "🎭", color: "#9370DB" },
+        "Search": { icon: "🔍", color: "#32CD32" }
+    };
 
-            for (const [category, commands] of Object.entries(coms)) {
-                const icon = categoryIcons[category] || "✨";
-                menuMsg += `\n│ ${icon} *${category.toUpperCase()}* ${icon}\n│\n`;
-                menuMsg += `│ ${commands.map(cmd => `• ${cmd}`).join('\n│ ')}\n`;
-            }
+    for (const cat in coms) {
+        const style = categoryStyles[cat] || { icon: "✨", color: "#FFFFFF" };
+        menuMsg += `│\n│ ${style.icon} *${cat.toUpperCase()}* ${style.icon}\n│\n`;
 
-            // Footer
-            menuMsg += `
+        // Split commands into chunks of 3 for better layout
+        const chunkSize = 3;
+        for (let i = 0; i < coms[cat].length; i += chunkSize) {
+            const chunk = coms[cat].slice(i, i + chunkSize);
+            menuMsg += `│ ➤ ${chunk.join(" • ")}\n`;
+        }
+    }
+
+    menuMsg += `
 ╠════◇ *𝐂𝐑𝐄𝐃𝐈𝐓𝐒* ◇════╣
 │
-│ 👨‍💻 *𝐃𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐫:* @254735342808
-│ 🤖 *𝐌𝐚𝐢𝐧𝐭𝐚𝐢𝐧𝐞𝐫:* @254799283147
+│ *𝐃𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐝 𝐛𝐲:*
+│ @254735342808 (𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧)
+│ @254799283147 (𝐓𝐎𝐗𝐈𝐂-𝐌𝐃)
 │
-╚════◇ *𝐌𝐄𝐍𝐔 𝐑𝐄𝐀𝐃𝐘!* ◇════╝
+╚════◇ *𝐄𝐍𝐃* ◇════╝
 `;
 
-            // Send final menu
+    try {
+        const lien = mybotpic();
+        const mentionedJids = [
+            '254735342808@s.whatsapp.net', 
+            '254799283147@s.whatsapp.net'
+        ];
+
+        // Final loading update
+        await zk.sendMessage(dest, {
+            text: "✅ 𝐌𝐞𝐧𝐮 𝐑𝐞𝐚𝐝𝐲!",
+            edit: loadingMsg.key
+        });
+
+        // Small delay before showing menu
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        if (lien.match(/\.(mp4|gif)$/i)) {
             await zk.sendMessage(
                 dest,
-                {
-                    text: systemInfo + menuMsg,
-                    mentions: [
-                        '254735342808@s.whatsapp.net',
-                        '254799283147@s.whatsapp.net'
-                    ]
+                { 
+                    video: { url: lien }, 
+                    caption: infoMsg + menuMsg,
+                    footer: "🔥 𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 - 𝐓𝐡𝐞 𝐌𝐨𝐬𝐭 𝐏𝐨𝐰𝐞𝐫𝐟𝐮𝐥 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐁𝐨𝐭",
+                    mentions: mentionedJids,
+                    gifPlayback: true
                 },
                 { quoted: ms }
             );
-
-        } catch (error) {
-            console.error("Menu Error:", error);
-            await repondre("❌ 𝐄𝐫𝐫𝐨𝐫: 𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐥𝐨𝐚𝐝 𝐦𝐞𝐧𝐮. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧.");
+        } else if (lien.match(/\.(jpeg|png|jpg)$/i)) {
+            await zk.sendMessage(
+                dest,
+                { 
+                    image: { url: lien }, 
+                    caption: infoMsg + menuMsg,
+                    footer: "🔥 𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 - 𝐓𝐡𝐞 𝐌𝐨𝐬𝐭 𝐏𝐨𝐰𝐞𝐫𝐟𝐮𝐥 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐁𝐨𝐭",
+                    mentions: mentionedJids
+                },
+                { quoted: ms }
+            );
+        } else {
+            await zk.sendMessage(
+                dest,
+                { 
+                    text: infoMsg + menuMsg,
+                    mentions: mentionedJids
+                },
+                { quoted: ms }
+            );
         }
+    } catch (e) {
+        console.error("❌ 𝐄𝐫𝐫𝐨𝐫:", e);
+        await zk.sendMessage(dest, {
+            text: "❌ 𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐥𝐨𝐚𝐝 𝐦𝐞𝐧𝐮. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫.",
+            edit: loadingMsg.key
+        });
     }
-};
+});
