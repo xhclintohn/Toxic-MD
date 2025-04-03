@@ -1,7 +1,7 @@
 [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#table-of-contents)
 
 <p align="center">
-    <a href="https://ibb.co/N6NMDtn"><img src="https://i.ibb.co/jkJGQRZ/5103aef05fd0d76b.jpg" alt="01" border="0" /></a>
+    <a href="https://ibb.co/N6NMDtn"><img src="https://i.ibb.co/QvzCRjHQ/1c5d0e2ade058b6b.jpg" alt="01" border="0" /></a>
 </p>
 
 <h1 align="center">✨ 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 ✨</h1>
