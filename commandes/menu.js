@@ -15,9 +15,30 @@ zokou({
 }, async (dest, zk, commandeOptions) => {
     let { ms, repondre, prefixe, nomAuteurMessage, mybotpic } = commandeOptions;
     let { cm } = require(__dirname + "/../framework/zokou");
+    
+    // Create loading message
+    let loadingMsg = await zk.sendMessage(dest, { 
+        text: "🔄 𝐋𝐨𝐚𝐝𝐢𝐧𝐠 𝐌𝐞𝐧𝐮... 1%"
+    }, { quoted: ms });
+
+    // Update progress in 10% increments
+    const updateProgress = async (percent) => {
+        const progressBar = '█'.repeat(percent/10) + '░'.repeat(10 - percent/10);
+        await zk.sendMessage(dest, {
+            text: `🔄 𝐋𝐨𝐚𝐝𝐢𝐧𝐠 𝐌𝐞𝐧𝐮... ${percent}%\n${progressBar}`,
+            edit: loadingMsg.key
+        });
+    };
+
+    // Simulate loading process
+    for (let i = 10; i <= 100; i += 10) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        await updateProgress(i);
+    }
+
+    // Prepare menu content
     var coms = {};
     var mode = "public";
-    
     if ((s.MODE).toLocaleLowerCase() != "yes") {
         mode = "private";
     }
@@ -75,7 +96,7 @@ ${banner}
     for (const cat in coms) {
         const style = categoryStyles[cat] || { icon: "✨", color: "#FFFFFF" };
         menuMsg += `│\n│ ${style.icon} *${cat.toUpperCase()}* ${style.icon}\n│\n`;
-        
+
         // Split commands into chunks of 3 for better layout
         const chunkSize = 3;
         for (let i = 0; i < coms[cat].length; i += chunkSize) {
@@ -101,6 +122,15 @@ ${banner}
             '254799283147@s.whatsapp.net'
         ];
 
+        // Final loading update
+        await zk.sendMessage(dest, {
+            text: "✅ 𝐌𝐞𝐧𝐮 𝐑𝐞𝐚𝐝𝐲!",
+            edit: loadingMsg.key
+        });
+
+        // Small delay before showing menu
+        await new Promise(resolve => setTimeout(resolve, 500));
+
         if (lien.match(/\.(mp4|gif)$/i)) {
             await zk.sendMessage(
                 dest,
@@ -125,10 +155,20 @@ ${banner}
                 { quoted: ms }
             );
         } else {
-            await repondre(infoMsg + menuMsg, { mentions: mentionedJids });
+            await zk.sendMessage(
+                dest,
+                { 
+                    text: infoMsg + menuMsg,
+                    mentions: mentionedJids
+                },
+                { quoted: ms }
+            );
         }
     } catch (e) {
         console.error("❌ 𝐄𝐫𝐫𝐨𝐫:", e);
-        await repondre("❌ 𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐥𝐨𝐚𝐝 𝐦𝐞𝐧𝐮. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫.");
+        await zk.sendMessage(dest, {
+            text: "❌ 𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐥𝐨𝐚𝐝 𝐦𝐞𝐧𝐮. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫.",
+            edit: loadingMsg.key
+        });
     }
 });
