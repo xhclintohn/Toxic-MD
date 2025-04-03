@@ -3,7 +3,7 @@ const { zokou } = require("../framework/zokou");
 const yts = require("yt-search");
 
 // Configuration
-const API_BASE_URL = "https://api.dreaded.site/api/ytdl"; // Updated API base URL
+const API_BASE_URL = "https://api.dreaded.site/api/ytdl/audio"; // Updated API base URL
 
 // Audio Download Command (only 'play' command)
 zokou({
