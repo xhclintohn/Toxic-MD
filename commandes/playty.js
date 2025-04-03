@@ -1,6 +1,7 @@
 require("dotenv").config();
 const { zokou } = require("../framework/zokou");
 const yts = require("yt-search");
+const axios = require("axios");
 
 zokou({
   nomCom: "play",
@@ -39,6 +40,10 @@ zokou({
     const video = search.videos[0];
     const apiUrl = `https://api.dreaded.site/api/ytdl/audio?url=${encodeURIComponent(video.url)}`;
 
+    // First get the audio as a buffer
+    const response = await axios.get(apiUrl, { responseType: 'arraybuffer' });
+    const audioBuffer = Buffer.from(response.data, 'binary');
+
     // Create stylish caption
     const caption = `
 ╭───── • ─────╮
@@ -52,11 +57,12 @@ zokou({
 
 ╰── ⋅ ⋅ ⋅ ── ✦ ── ⋅ ⋅ ⋅ ──╯`;
 
-    // Send audio immediately with caption
+    // Send audio with proper formatting
     await zk.sendMessage(dest, {
-      audio: { url: apiUrl },
+      audio: audioBuffer,
       mimetype: 'audio/mpeg',
       ptt: false,
+      fileName: `${video.title}.mp3`,
       caption: caption
     }, { quoted: ms });
 
@@ -67,7 +73,7 @@ zokou({
    𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐌𝐔𝐒𝐈𝐂
 ╰───── • ─────╯
 
-⚠️ 𝐄𝐫𝐫𝐨𝐫: 𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐩𝐫𝐨𝐜𝐞𝐬𝐬 𝐚𝐮𝐝𝐢𝐨
+⚠️ 𝐄𝐫𝐫𝐨𝐫: ${error.message.includes('timeout') ? 'Request timed out' : 'Failed to process audio'}
 💡 𝐓𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫
 👑 𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
 
