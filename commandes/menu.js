@@ -16,16 +16,18 @@ zokou({
     let { ms, repondre, prefixe, nomAuteurMessage, mybotpic } = commandeOptions;
     let { cm } = require(__dirname + "/../framework/zokou");
 
-    // Create loading message
+    // Create battery-style loading message
     let loadingMsg = await zk.sendMessage(dest, { 
-        text: "🔄 𝐋𝐨𝐚𝐝𝐢𝐧𝐠 𝐌𝐞𝐧𝐮... 1%"
+        text: "🔄 𝐋𝐨𝐚𝐝𝐢𝐧𝐠 𝐌𝐞𝐧𝐮...\n▰▱▱▱▱▱▱▱▱▱ 10%"
     }, { quoted: ms });
 
-    // Update progress in 10% increments
+    // Update progress in battery style
     const updateProgress = async (percent) => {
-        const progressBar = '█'.repeat(percent/10) + '░'.repeat(10 - percent/10);
+        const filled = Math.floor(percent/10);
+        const empty = 10 - filled;
+        const batteryBar = '▰'.repeat(filled) + '▱'.repeat(empty);
         await zk.sendMessage(dest, {
-            text: `🔄 𝐋𝐨𝐚𝐝𝐢𝐧𝐠 𝐌𝐞𝐧𝐮... ${percent}%\n${progressBar}`,
+            text: `🔄 𝐋𝐨𝐚𝐝𝐢𝐧𝐠 𝐌𝐞𝐧𝐮...\n${batteryBar} ${percent}%`,
             edit: loadingMsg.key
         });
     };
@@ -54,19 +56,8 @@ zokou({
     const temps = moment().format('HH:mm:ss');
     const date = moment().format('DD/MM/YYYY');
 
-    // ASCII Art Banner
-    const banner = `
-████████╗ ██████╗ ██╗  ██╗██╗ ██████╗
-╚══██╔══╝██╔═══██╗╚██╗██╔╝██║██╔════╝
-   ██║   ██║   ██║ ╚███╔╝ ██║██║     
-   ██║   ██║   ██║ ██╔██╗ ██║██║     
-   ██║   ╚██████╔╝██╔╝ ██╗██║╚██████╗
-   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚═╝ ╚═════╝
-    `;
-
     let infoMsg = `
 ╔═══◇ *𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐕𝟐* ◇═══╗
-${banner}
 ╠════◇ *𝐒𝐘𝐒𝐓𝐄𝐌 𝐈𝐍𝐅𝐎* ◇════╣
 │🎭 *𝐎𝐰𝐧𝐞𝐫*: @254735342808
 │⚡ *𝐌𝐨𝐝𝐞*: ${mode}
@@ -124,7 +115,7 @@ ${banner}
 
         // Final loading update
         await zk.sendMessage(dest, {
-            text: "✅ 𝐌𝐞𝐧𝐮 𝐑𝐞𝐚𝐝𝐲!",
+            text: "✅ 𝐌𝐞𝐧𝐮 𝐑𝐞𝐚𝐝𝐲!\n▰▰▰▰▰▰▰▰▰▰ 100%",
             edit: loadingMsg.key
         });
 
