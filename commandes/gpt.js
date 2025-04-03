@@ -42,8 +42,13 @@ zokou({
       throw new Error(`API request failed with status ${response.status}`);
     }
 
-    const result = await response.text();
+    const data = await response.json();
     
+    // Check if response contains valid result
+    if (!data.success || !data.result) {
+      throw new Error("API returned empty or invalid response");
+    }
+
     // Format the response with fancy styling
     const formattedResponse = `
 ╭───── • ─────╮
@@ -53,8 +58,9 @@ zokou({
 🗣️ 𝐐𝐮𝐞𝐬𝐭𝐢𝐨𝐧: ${question}
 
 🤖 𝐑𝐞𝐬𝐩𝐨𝐧𝐬𝐞: 
-${result}
+${data.result}
 
+👑 𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
 
 ╰── ⋅ ⋅ ⋅ ── ✦ ── ⋅ ⋅ ⋅ ──╯`;
 
