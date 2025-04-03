@@ -1,7 +1,3 @@
-require("dotenv").config();
-const { zokou } = require("../framework/zokou");
-
-// ChatGPT Command
 zokou({
   nomCom: "gpt",
   categorie: "AI",
@@ -15,7 +11,7 @@ zokou({
    𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐀𝐈
 ╰───── • ─────╯
 
-🤖 𝐏𝐥𝐞𝐚𝐬𝐞 𝐩𝐫𝐨𝐯𝐢𝐝𝐞 𝐚 𝐪𝐮𝐞𝐬𝐭𝐢𝐨𝐧 𝐨𝐫 𝐩𝐫𝐨𝐦𝐩𝐭
+🤖 𝐏𝐥𝐞𝐚𝐬𝐞 𝐩𝐫𝐨𝐯𝐢𝐝𝐞 𝐚 𝐪𝐮𝐞𝐬𝐭𝐢𝐨𝐧
 👑 𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
 
 ╰── ⋅ ⋅ ⋅ ── ✦ ── ⋅ ⋅ ⋅ ──╯`);
@@ -25,57 +21,46 @@ zokou({
     const question = arg.join(" ");
     const apiUrl = `https://api.dreaded.site/api/chatgpt?text=${encodeURIComponent(question)}`;
     
-    // Show processing message
-    await repondre(`
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+
+    // Handle empty responses more gracefully
+    if (!data || !data.result || data.result.trim() === "") {
+      return repondre(`
 ╭───── • ─────╮
    𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐀𝐈
 ╰───── • ─────╯
 
-🔍 𝐏𝐫𝐨𝐜𝐞𝐬𝐬𝐢𝐧𝐠 𝐲𝐨𝐮𝐫 𝐫𝐞𝐪𝐮𝐞𝐬𝐭...
+🤖 𝐓𝐡𝐞 𝐀𝐈 𝐝𝐢𝐝 𝐧𝐨𝐭 𝐫𝐞𝐭𝐮𝐫𝐧 𝐚 𝐯𝐚𝐥𝐢𝐝 𝐫𝐞𝐬𝐩𝐨𝐧𝐬𝐞
+💡 𝐓𝐫𝐲 𝐚𝐬𝐤𝐢𝐧𝐠 𝐝𝐢𝐟𝐟𝐞𝐫𝐞𝐧𝐭𝐥𝐲
 👑 𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
 
 ╰── ⋅ ⋅ ⋅ ── ✦ ── ⋅ ⋅ ⋅ ──╯`);
-
-    const response = await fetch(apiUrl);
-    
-    if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
     }
 
-    const data = await response.json();
-    
-    // Check if response contains valid result
-    if (!data.success || !data.result) {
-      throw new Error("API returned empty or invalid response");
-    }
-
-    // Format the response with fancy styling
-    const formattedResponse = `
+    // Format response
+    await repondre(`
 ╭───── • ─────╮
    𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐀𝐈
 ╰───── • ─────╯
 
 🗣️ 𝐐𝐮𝐞𝐬𝐭𝐢𝐨𝐧: ${question}
 
-🤖 𝐑𝐞𝐬𝐩𝐨𝐧𝐬𝐞: 
+🤖 𝐑𝐞𝐬𝐩𝐨𝐧𝐬𝐞:
 ${data.result}
 
 👑 𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
 
-╰── ⋅ ⋅ ⋅ ── ✦ ── ⋅ ⋅ ⋅ ──╯`;
-
-    await repondre(formattedResponse);
+╰── ⋅ ⋅ ⋅ ── ✦ ── ⋅ ⋅ ⋅ ──╯`);
 
   } catch (error) {
-    console.error("Error:", error);
+    console.error("GPT Error:", error);
     await repondre(`
 ╭───── • ─────╮
    𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐀𝐈
 ╰───── • ─────╯
 
-⚠️ 𝐀𝐧 𝐞𝐫𝐫𝐨𝐫 𝐨𝐜𝐜𝐮𝐫𝐫𝐞𝐝:
-${error.message}
-
+⚠️ 𝐀𝐈 𝐬𝐞𝐫𝐯𝐢𝐜𝐞 𝐭𝐞𝐦𝐩𝐨𝐫𝐚𝐫𝐢𝐥𝐲 𝐮𝐧𝐚𝐯𝐚𝐢𝐥𝐚𝐛𝐥𝐞
 👑 𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
 
 ╰── ⋅ ⋅ ⋅ ── ✦ ── ⋅ ⋅ ⋅ ──╯`);
