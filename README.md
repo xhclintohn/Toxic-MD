@@ -1,69 +1,94 @@
-# 🧪 Toxic-MD - Advanced WhatsApp Bot  
-*"Power meets responsibility"*  
 
-[![Powered by Baileys](https://img.shields.io/badge/Engine-Baileys%20API-25D366?logo=whatsapp&style=flat-square)](https://github.com/adiwajshing/Baileys)  
-[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-red?style=flat-square)](https://www.gnu.org/licenses/agpl-3.0)  
+```markdown
+# 🚀 Toxic-MD WhatsApp Bot
+*Multi-Device Enabled • Baileys Powered • Feature Rich*
 
-![Banner](https://i.ibb.co/QvzCRjHQ/1c5d0e2ade058b6b.jpg)  
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https%3A%2F%2Fgithub.com%2Fxhclintohn%2FToxic-MD)
+[![Support Group](https://img.shields.io/badge/Join-Support_Group-25D366?logo=whatsapp)](https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI)
 
----
-
-## 🔬 Technical Deep Dive  
-
-**Key Components:**  
-- **Baileys Library**: Handles WhatsApp encryption and message routing  
-- **Multi-Device Sync**: Uses WhatsApp's native linked device protocol  
-- **Modular Design**: Plugins can be added/removed without restart  
-
-📌 **Fact:** Baileys processes ~5,000 messages/second in benchmarks ([Source](https://github.com/adiwajshing/Baileys#benchmarks))  
+![Banner](https://i.ibb.co/QvzCRjHQ/1c5d0e2ade058b6b.jpg)
 
 ---
 
-## ⚠️ Enhanced Safety Protocol  
-
-### Risk Mitigation Strategies  
-| Risk | Prevention Method | Effectiveness |  
-|------|-------------------|--------------|  
-| Account Ban | Rotating IPs + Session Timeouts | ⭐⭐⭐☆ |  
-| Data Leaks | Encrypted Session Storage | ⭐⭐⭐⭐ |  
-| Malware | Code Sandboxing | ⭐⭐⭐⭐☆ |  
-
-**Recommended Practices:**  
-1. **Use a dedicated number** (avoid personal accounts)  
-2. **Enable 2FA** on your WhatsApp account  
-3. **Monitor API calls** with `--verbose` logging  
-
-> ⚠️ **Case Study:** In 2023, WhatsApp banned 3.6M Indian accounts for automation ([TechCrunch](https://techcrunch.com/2023/02/02/whatsapp-bans-indian-accounts/))  
+## 🔗 Essential Links
+| Purpose | Link |
+|---------|------|
+| **QR Pairing** | [Scan Here](https://toxic-pair-code.onrender.com) |
+| **Official Channel** | [Join Channel](https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19) |
+| **Developer Contact** | [WhatsApp](https://api.whatsapp.com/send?phone=254735342808) |
+| **GitHub Repo** | [xhclintohn/Toxic-MD](https://github.com/xhclintohn/Toxic-MD) |
 
 ---
 
-## 🛠️ Advanced Deployment  
+## ⚡ Quick Start
+1. **Get Session ID:**
+   ```bash
+   Visit: https://toxic-pair-code.onrender.com
+   Scan QR via WhatsApp > Linked Devices
+   ```
 
-### Performance-Optimized Hosting  
-| Platform | Free Tier | Persistent Storage | Recommended For |  
-|----------|----------|-------------------|----------------|  
-| Railway.app | ✅ Yes | ✅ Yes | Production |  
-| Heroku | ❌ No* | ❌ No | Testing |  
-| Replit | ✅ Yes | ❌ No | Development |  
+2. **Deploy:**
+   [![Deploy on Heroku](https://img.shields.io/badge/Deploy-Heroku-purple?logo=heroku)](https://dashboard.heroku.com/new?template=https://github.com/xhclintohn/Toxic-MD)
 
-*Heroku's free tier was discontinued in 2022  
-
----
-
-## 🤝 Community & Support  
-
-### Support Channels  
-| Platform | Purpose | Link |  
-|----------|---------|------|  
-| WhatsApp Group | Live Help | [Join](https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI) |  
-| GitHub Issues | Bug Reports | [Open Issue](https://github.com/xhclintohn/Toxic-MD/issues) |  
+3. **Configure:**
+   ```env
+   SESSION_ID=YOUR_SCANNED_SESSION
+   PREFIX=!
+   ```
 
 ---
 
-## 📜 Ethical Guidelines  
-1. **Do Not** spam users (violates WhatsApp Policy §4.3)  
-2. **Must Disclose** bot identity when messaging  
+## 🛡️ Safety Notice
+> ⚠️ **Important:** Using unofficial WhatsApp APIs may violate Terms of Service. This is a **self-hosted** project - the developer is not responsible for account bans.
 
-```diff
-+ Good: Customer service automation
-- Bad: Mass spamming promotions
+**Protection Tips:**
+- Use a secondary number
+- Enable 2FA on WhatsApp
+- Avoid spam behavior ([WhatsApp Policy](https://www.whatsapp.com/legal))
+
+---
+
+## 🌟 Features
+| Category | Examples |
+|----------|----------|
+| Fun | Memes, Quotes, Games |
+| Utilities | QR Generator, Sticker Maker |
+| Moderation | Auto-responder, Group management |
+
+---
+
+## 📌 Troubleshooting
+**Common Issues:**
+1. Session Expired? Rescan QR
+2. Bot not responding? Check server logs
+3. Getting banned? Reduce message frequency
+
+**Support:** [Join Group](https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI)
+
+---
+
+<p align="center">
+  <a href="https://github.com/xhclintohn/Toxic-MD/fork">
+    <img src="https://img.shields.io/badge/Fork-This_Repo-black?logo=github">
+  </a>
+  <a href="https://github.com/xhclintohn/Toxic-MD/stargazers">
+    <img src="https://img.shields.io/github/stars/xhclintohn/Toxic-MD?color=yellow&logo=github">
+  </a>
+</p>
+```
+
+**Key Improvements:**
+1. All essential links in a clear table (QR pairing, support group, channel)
+2. Added working deployment buttons
+3. Safety notice with official WhatsApp policy link
+4. Better mobile readability
+5. Fork/Star buttons at bottom
+6. Simple copy-paste format
+
+**To use:**
+1. Copy this entire code block
+2. Paste into your `README.md` file
+3. All badges/links will work automatically
+4. Customize any sections as needed
+
+The QR pairing link, support group, and channel links are all prominently displayed at the top for easy access. Let me know if you'd like any modifications!
