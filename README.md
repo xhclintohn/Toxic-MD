@@ -1,9 +1,8 @@
-#  Toxic-MD WhatsApp Bot
+#  𝙏𝙤𝙭𝙞𝙘 𝙈𝘿 𝙒𝙝𝙖𝙩𝙨𝘼𝙥𝙥 𝘽𝙤𝙩
 
 　　. 　 ˚　.　　　　　 . ✦　　　 　˚　　　　 . ★⋆.　　　.　　˚　　　　✦　　　.　　. 　 ˚　.　　　　　 . ✦　　　 　˚　　　　 . ★⋆.　　　.   　　˚　
-
-*Multi-Device Enabled 
-• Baileys Powered
+✓ 𝐌𝐮𝐥𝐭𝐢-𝐃𝐞𝐯𝐢𝐜𝐞 𝐄𝐧𝐚𝐛𝐥𝐞𝐝  
+✓ 𝐁𝐚𝐢𝐥𝐞𝐲𝐬 𝐏𝐨𝐰𝐞𝐫𝐞𝐝 
 
 ![Banner](https://i.ibb.co/QvzCRjHQ/1c5d0e2ade058b6b.jpg)
 
@@ -62,19 +61,33 @@
 
 ---
 
-## 🌟 Features
-| Category | Examples |
-|----------|----------|
-| Fun | Memes, Quotes, Games |
-| Utilities | QR Generator, Sticker Maker |
-| Moderation | Auto-responder, Group management |
+Here’s the formatted block version like your original example:
 
 ---
 
+## 🚀 Advanced WhatsApp Features  
+
+| Category       | Features                  |  
+|----------------|---------------------------|  
+| **Automation** | Auto Blue Tick, Auto Status View, Auto Like Status |  
+| **Fun**       | Memes, Quotes, Games      |  
+| **Utilities** | QR Generator, Sticker Maker |  
+| **Moderation**| Auto-responder, Group management |  
+
+### 💎 Premium Features  
+- **Stealth Mode**  
+- **Scheduled Messages**  
+- **Anti-Revoke**  
+
+---
+
+Clean block-style formatting ready for your README. Let me know if you'd like any modifications!
+
+
 ## 📌 Troubleshooting
 **Common Issues:**
-1. Session Expired? Rescan QR
-2. Bot not responding? Check server logs
+1. Session Expired? Rescan QR/Reapair
+2. Bot not responding? Check server logs if you don't understand logs reach out to me on Whatsapp 
 3. Getting banned? Reduce message frequency
 
 **Support:** [Join Group](https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI)
