@@ -3,9 +3,6 @@
 
 ![Banner](https://i.ibb.co/QvzCRjHQ/1c5d0e2ade058b6b.jpg)
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https%3A%2F%2Fgithub.com%2Fxhclintohn%2FToxic-MD)
-[![Support Group](https://img.shields.io/badge/Join-Support_Group-25D366?logo=whatsapp)](https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI)
-
 ---
 
 ## 🔗 Essential Links
@@ -19,6 +16,9 @@
 ---
 
 ## ⚡ Quick Start
+
+> **Note:** This script is not deployable on VPS/panel or Termux. Only Render, Heroku, and Replit are supported.
+
 1. **Get Session ID:**
     ```bash
     Visit: https://toxic-pair-code.onrender.com
@@ -26,7 +26,17 @@
     ```
 
 2. **Deploy:**
-    [![Deploy on Heroku](https://img.shields.io/badge/Deploy-Heroku-purple?logo=heroku)](https://dashboard.heroku.com/new?template=https://github.com/xhclintohn/Toxic-MD)
+    <p align="center">
+        <a href="https://railway.app/new/template?template=https%3A%2F%2Fgithub.com%2Fxhclintohn%2FToxic-MD">
+            <img src="https://railway.app/button.svg" alt="Deploy on Railway" width="200">
+        </a>
+        <a href="https://dashboard.heroku.com/new?template=https://github.com/xhclintohn/Toxic-MD">
+            <img src="https://img.shields.io/badge/Deploy-Heroku-purple?logo=heroku" alt="Deploy on Heroku" width="200">
+        </a>
+        <a href="https://replit.com/github/xhclintohn/Toxic-MD">
+            <img src="https://img.shields.io/badge/Deploy-Replit-blue?logo=replit" alt="Deploy on Replit" width="200">
+        </a>
+    </p>
 
 3. **Configure:**
     ```env
@@ -71,5 +81,8 @@
   </a>
   <a href="https://github.com/xhclintohn/Toxic-MD/stargazers">
     <img src="https://img.shields.io/github/stars/xhclintohn/Toxic-MD?color=yellow&logo=github">
+  </a>
+  <a href="https://api.whatsapp.com/send?phone=254735342808">
+    <img src="https://img.shields.io/badge/Contact-Developer-brightgreen?logo=whatsapp">
   </a>
 </p>
