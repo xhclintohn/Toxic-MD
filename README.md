@@ -1,5 +1,9 @@
-# 🚀 Toxic-MD WhatsApp Bot
-*Multi-Device Enabled • Baileys Powered • Feature Rich*
+#  Toxic-MD WhatsApp Bot
+
+　　. 　 ˚　.　　　　　 . ✦　　　 　˚　　　　 . ★⋆.　　　.　　˚　　　　✦　　　.　　. 　 ˚　.　　　　　 . ✦　　　 　˚　　　　 . ★⋆.　　　.   　　˚　
+
+*Multi-Device Enabled 
+• Baileys Powered
 
 ![Banner](https://i.ibb.co/QvzCRjHQ/1c5d0e2ade058b6b.jpg)
 
