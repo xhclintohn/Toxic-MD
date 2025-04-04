@@ -28,7 +28,7 @@
     "AUTO_LIKE_STATUS":
     {
       "description":"Automatically like status updates (type yes to active or no to deactive ; don't write in capital letter)",
-      "value":"no",
+      "value":"yes",
       "required":false
     },
     "PM_PERMIT" :
