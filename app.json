@@ -1,5 +1,5 @@
 {
-  "name":"Toxic-MD",
+  "name":"Toxic",
   "description":"Whatsapp bot developed by xhclinton",
   "keywords":["bot","node","baileys","whatsapp"],
   "logo":"https://i.ibb.co/jyzsBZG/0b3f2531c2c10a93.jpg",
@@ -13,15 +13,22 @@
       "value":".",
       "required":true
     },
-    "BOT_NAME" : {
-      "description":"put A name for your bot",
-      "value":"𝙏𝙤𝙭𝙞𝙘 𝙈𝘿",
+    "AUTO_READ_STATUS":
+    {
+      "description":"Your contact status will be read automatically(type yes to active or no to deactive  ; don't write in capital letter)",
+      "value":"yes",
+      "required":false
+    }, 
+    "AUTO_DOWNLOAD_STATUS":
+    {
+      "description":"Your contact status will be download automatically and send to you(type yes to active or no to deactive ; don't write in capital letter)",
+      "value":"no",
       "required":false
     },
-    "PUBLIC_MODE":
+    "AUTO_LIKE_STATUS":
     {
-      "description":"type yes to put your bot on public mode or no to put it on private mod",
-      "value":"yes",
+      "description":"Automatically like status updates (type yes to active or no to deactive ; don't write in capital letter)",
+      "value":"no",
       "required":false
     },
     "PM_PERMIT" :
@@ -30,16 +37,58 @@
       "value":"no",
       "required":false
     },
-    "WARN_COUNT":
-    {
-      "desc": "this is the limit of warn for warning commandes",
-      "required": false,
-      "value": "3"
+    "BOT_NAME" : {
+      "description":"put A name for your bot",
+      "value":"𝙏𝙤𝙭𝙞𝙘 𝙈𝘿",
+      "required":false
+    },
+    "AUTO_READ_MESSAGES" : {
+      "description":"to automatically blue tick messages",
+      "value":"no",
+      "required":false
     },
     "BOT_MENU_LINKS" : {
       "description":"add one or many link for your bot menu  ; eg : url1,url2,url3.....",
       "value":"https://i.ibb.co/QvzCRjHQ/1c5d0e2ade058b6b.jpg",
       "required":false
+    },
+    "PUBLIC_MODE":
+    {
+      "description":"type yes to put your bot on public mode or no to put it on private mod",
+      "value":"yes",
+      "required":false
+    },
+    "HEROKU_API_KEY": {
+      "description": "insert your heroku api-key (this is optionnal)",
+      "required" :false
+    },
+    "HEROKU_APP_NAME": {
+      "description": "insert your heroku APP NAME (this is optionnal)",
+      "required" :false
+    },
+    "SESSION_ID":
+    {
+      "description":"put your session ID , the code you receive after scanning Qr code",   
+      "value":"",
+      "required":true
+    },
+    "OWNER_NAME":
+    {
+      "desc": "Your Name",
+      "required": false,
+      "value": "𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧"
+    },
+    "NUMERO_OWNER":
+    {
+      "desc": "Your number , dont put '+' and put you area code(exemple of togo '228')",
+      "required":false,
+      "value": "254735342808"
+    },
+    "WARN_COUNT":
+    {
+      "desc": "this is the limit of warn for warning commandes",
+      "required": false,
+      "value": "3"
     },
     "STARTING_BOT_MESSAGE":
     {
@@ -47,80 +96,15 @@
       "required": true,
       "value": "yes"
     },
-    
-    "STATUS_SETTINGS": {
-      "AUTO_READ_STATUS":
-      {
-        "description":"Your contact status will be read automatically(type yes to active or no to deactive  ; don't write in capital letter)",
-        "value":"yes",
-        "required":false
-      },
-      "AUTO_DOWNLOAD_STATUS":
-      {
-        "description":"Your contact status will be download automatically and send to you(type yes to active or no to deactive ; don't write in capital letter)",
-        "value":"no",
-        "required":false
-      },
-      "AUTO_LIKE_STATUS":
-      {
-        "description":"Automatically like status updates (type yes to active or no to deactive ; don't write in capital letter)",
-        "value":"no",
-        "required":false
-      }
-    },
-    
-    "MESSAGE_SETTINGS": {
-      "AUTO_READ_MESSAGES" : {
-        "description":"to automatically blue tick messages",
-        "value":"no",
-        "required":false
-      },
-      "ANTI_DELETE_MESSAGE" : {
-        "description": "if you want to enable anti delete message put yes else put no",
-        "value": "yes",
-        "required": false
-      }
-    },
-    
     "PRESENCE":{
       "description":"Mark your presence: 1 to indicate that you are online even if you are not. 2 to indicate that you are currently typing a message. 3 to indicate that you are currently recording an audio. Or leave the field blank to indicate your real state.",
       "value":"",
       "required": false
     },
-    
-    "OWNER_SETTINGS": {
-      "OWNER_NAME":
-      {
-        "desc": "Your Name",
-        "required": false,
-        "value": "𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧"
-      },
-      "NUMERO_OWNER":
-      {
-        "desc": "Your number , dont put '+' and put you area code(exemple of togo '228')",
-        "required":false,
-        "value": "254735342808"
-      }
-    },
-    
-    "SESSION_SETTINGS": {
-      "SESSION_ID":
-      {
-        "description":"put your session ID , the code you receive after scanning Qr code",   
-        "value":"",
-        "required":true
-      }
-    },
-    
-    "HEROKU_SETTINGS": {
-      "HEROKU_API_KEY": {
-        "description": "insert your heroku api-key (this is optionnal)",
-        "required" :false
-      },
-      "HEROKU_APP_NAME": {
-        "description": "insert your heroku APP NAME (this is optionnal)",
-        "required" :false
-      }
+    "ANTI_DELETE_MESSAGE" : {
+      "description": "if you want to enable anti delete message put yes else put no",
+      "value": "yes",
+      "required": false
     }
   },
 
