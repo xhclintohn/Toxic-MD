@@ -10,6 +10,7 @@
 |---------|------|
 | **QR Pairing** | [Scan Here](https://toxic-pair-code.onrender.com) |
 | **Official Channel** | [Join Channel](https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19) |
+| **Support Group** | [Join Support Group](https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI) |
 | **Developer Contact** | [![WhatsApp](https://img.shields.io/badge/WhatsApp-Contact-brightgreen?logo=whatsapp)](https://api.whatsapp.com/send?phone=254735342808) |
 | **GitHub Repo** | [xhclintohn/Toxic-MD](https://github.com/xhclintohn/Toxic-MD) |
 
@@ -27,13 +28,13 @@
 
 2. **Deploy:**
     <p align="center">
-        <a href="https://railway.app/new/template?template=https%3A%2F%2Fgithub.com%2Fxhclintohn%2FToxic-MD" style="margin: 0 10px;">
+        <a href="https://railway.app/new/template?template=https%3A%2F%2Fgithub.com%2Fxhclintohn%2FToxic-MD" style="margin: 0 20px;">
             <img src="https://railway.app/button.svg" alt="Deploy on Railway" width="200">
         </a>
-        <a href="https://dashboard.heroku.com/new?template=https://github.com/xhclintohn/Toxic-MD" style="margin: 0 10px;">
+        <a href="https://dashboard.heroku.com/new?template=https://github.com/xhclintohn/Toxic-MD" style="margin: 0 20px;">
             <img src="https://img.shields.io/badge/Deploy-Heroku-purple?logo=heroku" alt="Deploy on Heroku" width="200">
         </a>
-        <a href="https://replit.com/github/xhclintohn/Toxic-MD" style="margin: 0 10px;">
+        <a href="https://replit.com/github/xhclintohn/Toxic-MD" style="margin: 0 20px;">
             <img src="https://img.shields.io/badge/Deploy-Replit-blue?logo=replit" alt="Deploy on Replit" width="200">
         </a>
     </p>
