@@ -9,16 +9,45 @@
 
 ---
 
-## 🔗 Essential Links
-| Purpose | Link |
-|---------|------|
-| **QR Pairing** | [Scan Here](https://toxic-pair-code.onrender.com) |
-| **Official Channel** | [Join Channel](https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19) |
-| **Support Group** | [Join Support Group](https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI) |
-| **Developer Contact** | [![WhatsApp](https://img.shields.io/badge/WhatsApp-Contact-brightgreen?logo=whatsapp)](https://api.whatsapp.com/send?phone=254735342808) |
-| **GitHub Repo** | [xhclintohn/Toxic-MD](https://github.com/xhclintohn/Toxic-MD) |
-| **Fork Repo** | [Fork Here](https://github.com/xhclintohn/Toxic-MD/fork) |
+---
 
+### 🔧 **DEPLOYMENT STEPS**
+```
+1. FORK REPOSITORY
+   → [Click to Fork](https://github.com/xhclintohn/Toxic-MD/fork)
+
+2. SCAN QR CODE
+   → [Pair Device Here](https://toxic-pair-code.onrender.com)
+
+3. DEPLOY TO CLOUD
+   → Supported: Render/Railway/Heroku
+   → Configure environment variables
+   → Start your bot instance
+```
+
+---
+
+### 🔗 **COMMUNITY LINKS**
+```
+OFFICIAL CHANNEL:
+   → [Join Channel](https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19)
+
+SUPPORT GROUP:
+   → [Join Group](https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI)
+
+DEVELOPER:
+   → [Contact on WhatsApp](https://api.whatsapp.com/send?phone=254735342808)
+```
+
+---
+
+### Key Features:
+1. **Strict 2-block separation** (Deployment vs Links)
+2. **Corrected flow**: Fork → Scan → Deploy
+3. **Simplified community links** without table format
+4. **Visual consistency** with clear dividers
+
+Would you like me to adjust the styling or add any platform-specific deployment notes?
 ---
 
 ## ⚡ Quick Start
