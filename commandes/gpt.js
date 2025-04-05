@@ -1,7 +1,3 @@
-require("dotenv").config();
-const { zokou } = require("../framework/zokou");
-const axios = require("axios");
-
 zokou({
   nomCom: "gpt",
   categorie: "AI",
@@ -15,54 +11,42 @@ zokou({
    𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐀𝐈
 ╰───── • ─────╯
 
-🤖 𝐏𝐥𝐞𝐚𝐬𝐞 𝐩𝐫𝐨𝐯𝐢𝐝𝐞 𝐚 𝐪𝐮𝐞𝐬𝐭𝐢𝐨𝐧
+🤖 𝐇𝐞𝐥𝐥𝐨 𝐭𝐡𝐞𝐫𝐞, 𝐰𝐡𝐚𝐭'𝐬 𝐲𝐨𝐮𝐫 𝐪𝐮𝐞𝐬𝐭𝐢𝐨𝐧?
 👑 𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
 
 ╰── ⋅ ⋅ ⋅ ── ✦ ── ⋅ ⋅ ⋅ ──╯`);
   }
 
   try {
-    const question = arg.join(" ");
-    const apiUrl = `https://api.dreaded.site/api/chatgpt?text=${encodeURIComponent(question)}`;
+    const text = arg.join(" ");
+    const apiUrl = `https://bk9.fun/ai/jeeves-chat2?q=${encodeURIComponent(text)}`;
 
-    // Show processing message
-    await repondre(`
-╭───── • ─────╮
-   𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐀𝐈
-╰───── • ─────╯
+    const response = await fetch(apiUrl);
+    const d = await response.json();
 
-⏳ 𝐏𝐫𝐨𝐜𝐞𝐬𝐬𝐢𝐧𝐠 𝐲𝐨𝐮𝐫 𝐫𝐞𝐪𝐮𝐞𝐬𝐭...
-👑 𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
-
-╰── ⋅ ⋅ ⋅ ── ✦ ── ⋅ ⋅ ⋅ ──╯`);
-
-    const response = await axios.get(apiUrl);
-    const data = response.data;
-
-    // Handle empty responses
-    if (!data || !data.result || data.result.trim() === "") {
+    if (!d.BK9) {
       return repondre(`
 ╭───── • ─────╮
    𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐀𝐈
 ╰───── • ─────╯
 
-🤖 𝐍𝐨 𝐫𝐞𝐬𝐩𝐨𝐧𝐬𝐞 𝐫𝐞𝐜𝐞𝐢𝐯𝐞𝐝
-💡 𝐓𝐫𝐲 𝐚𝐬𝐤𝐢𝐧𝐠 𝐝𝐢𝐟𝐟𝐞𝐫𝐞𝐧𝐭𝐥𝐲
+⚠️ 𝐀𝐧 𝐞𝐫𝐫𝐨𝐫 𝐨𝐜𝐜𝐮𝐫𝐫𝐞𝐝
+💡 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫
 👑 𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
 
 ╰── ⋅ ⋅ ⋅ ── ✦ ── ⋅ ⋅ ⋅ ──╯`);
     }
 
-    // Format response with same style as play command
+    // Format the response with fancy styling
     await repondre(`
 ╭───── • ─────╮
    𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐀𝐈
 ╰───── • ─────╯
 
-🗣️ 𝐐𝐮𝐞𝐬𝐭𝐢𝐨𝐧: ${question}
+🗣️ 𝐐𝐮𝐞𝐬𝐭𝐢𝐨𝐧: ${text}
 
 🤖 𝐑𝐞𝐬𝐩𝐨𝐧𝐬𝐞:
-${data.result}
+${d.BK9}
 
 👑 𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
 
@@ -75,8 +59,7 @@ ${data.result}
    𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐀𝐈
 ╰───── • ─────╯
 
-⚠️ 𝐄𝐫𝐫𝐨𝐫: ${error.response?.status === 429 ? 'Too many requests' : 'Service unavailable'}
-💡 𝐓𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫
+⚠️ 𝐀𝐈 𝐬𝐞𝐫𝐯𝐢𝐜𝐞 𝐭𝐞𝐦𝐩𝐨𝐫𝐚𝐫𝐢𝐥𝐲 𝐮𝐧𝐚𝐯𝐚𝐢𝐥𝐚𝐛𝐥𝐞
 👑 𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
 
 ╰── ⋅ ⋅ ⋅ ── ✦ ── ⋅ ⋅ ⋅ ──╯`);
