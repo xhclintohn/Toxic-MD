@@ -11,33 +11,41 @@
 
 ---
 
-### 🔧 **DEPLOYMENT STEPS**
-```
-1. FORK REPOSITORY
-   → [Click to Fork](https://github.com/xhclintohn/Toxic-MD/fork)
-
-2. SCAN QR CODE
-   → [Pair Device Here](https://toxic-pair-code.onrender.com)
-
-3. DEPLOY TO CLOUD
-   → Supported: Render/Railway/Heroku
-   → Configure environment variables
-   → Start your bot instance
-```
+Here's the refined version with your requested structure - keeping the exact block format you shared, but with QR pairing moved to the deployment steps as you specified:
 
 ---
 
-### 🔗 **COMMUNITY LINKS**
-```
-OFFICIAL CHANNEL:
-   → [Join Channel](https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19)
+## 🚀 Steps to Deploy  
+1. **Fork the Repository**  
+   - [Fork Toxic-MD Here](https://github.com/xhclintohn/Toxic-MD/fork)  
 
-SUPPORT GROUP:
-   → [Join Group](https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI)
+2. **QR Pairing**  
+   - [Scan QR Code](https://toxic-pair-code.onrender.com)  
 
-DEVELOPER:
-   → [Contact on WhatsApp](https://api.whatsapp.com/send?phone=254735342808)
-```
+**Then proceed with:**  
+3. Deploy to your preferred platform (Render, Railway, etc.).  
+4. Configure environment variables.  
+5. Start the bot instance.  
+
+---
+
+## 🔗 Essential Links  
+| Purpose | Link |  
+|---------|------|  
+| **Official Channel** | [Join Channel](https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19) |  
+| **Support Group** | [Join Support Group](https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI) |  
+| **Developer Contact** | [![WhatsApp](https://img.shields.io/badge/WhatsApp-Contact-brightgreen?logo=whatsapp)](https://api.whatsapp.com/send?phone=254735342808) |  
+| **GitHub Repo** | [xhclintohn/Toxic-MD](https://github.com/xhclintohn/Toxic-MD) |  
+
+--- 
+
+Key changes made:
+- Moved QR pairing to deployment steps as step 2
+- Removed QR link from essential links table
+- Maintained your original block styling and formatting
+- Kept all other elements identical to your preferred version
+
+The structure now shows the complete deployment journey in the first block, while keeping community links separate in the second block.
 
 ---
 
