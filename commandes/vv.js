@@ -10,55 +10,40 @@ zokou(
     const { ms, msgRepondu, repondre } = commandeOptions;
 
     try {
-      // Validate input
       if (!msgRepondu) {
         return repondre("❌ Please mention a view-once media message.");
       }
 
-      // Check if it's a view once message
-      if (!msgRepondu.viewOnceMessageV2) {
-        return repondre("❌ This message is not a view-once message.");
+      // Check for both V1 and V2 view once message structures
+      const viewOnceMessage = msgRepondu.viewOnceMessageV2 || msgRepondu.viewOnceMessage;
+      
+      if (!viewOnceMessage) {
+        return repondre("❌ This message is not a view-once message or the structure is not recognized.");
       }
 
-      const viewOnceContent = msgRepondu.viewOnceMessageV2.message;
+      const mediaMessage = viewOnceMessage.message;
+      const mediaType = Object.keys(mediaMessage)[0]; // imageMessage or videoMessage
 
-      // Handle image message
-      if (viewOnceContent.imageMessage) {
-        const imageMessage = viewOnceContent.imageMessage;
-        try {
-          const imagePath = await zk.downloadAndSaveMediaMessage(imageMessage);
-          await zk.sendMessage(
-            dest,
-            {
-              image: { url: imagePath },
-              caption: imageMessage.caption || "",
-            },
-            { quoted: ms }
-          );
-        } catch (downloadError) {
-          console.error("Image download error:", downloadError);
-          return repondre("❌ Failed to download the image. Please try again.");
-        }
-
-      // Handle video message
-      } else if (viewOnceContent.videoMessage) {
-        const videoMessage = viewOnceContent.videoMessage;
-        try {
-          const videoPath = await zk.downloadAndSaveMediaMessage(videoMessage);
-          await zk.sendMessage(
-            dest,
-            {
-              video: { url: videoPath },
-              caption: videoMessage.caption || "",
-            },
-            { quoted: ms }
-          );
-        } catch (downloadError) {
-          console.error("Video download error:", downloadError);
-          return repondre("❌ Failed to download the video. Please try again.");
-        }
-      } else {
+      if (!mediaType || !['imageMessage', 'videoMessage'].includes(mediaType)) {
         return repondre("❌ Unsupported view-once media type.");
+      }
+
+      try {
+        const mediaPath = await zk.downloadAndSaveMediaMessage(mediaMessage[mediaType]);
+        const caption = mediaMessage[mediaType].caption || "";
+
+        await zk.sendMessage(
+          dest,
+          {
+            [mediaType.includes('image') ? 'image' : 'video']: { url: mediaPath },
+            caption: caption
+          },
+          { quoted: ms }
+        );
+
+      } catch (downloadError) {
+        console.error("Media download error:", downloadError);
+        return repondre("❌ Failed to download the media. Please try again.");
       }
 
     } catch (error) {
