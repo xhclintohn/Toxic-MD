@@ -11,68 +11,38 @@ zokou({
   const { ms, repondre, arg } = command;
 
   if (!arg[0]) {
-    return repondre(`
-╭───── • ─────╮
-   𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐌𝐔𝐒𝐈𝐂
-╰───── • ─────╯
-
-🎵 𝐏𝐥𝐞𝐚𝐬𝐞 𝐩𝐫𝐨𝐯𝐢𝐝𝐞 𝐚 𝐬𝐨𝐧𝐠 𝐧𝐚𝐦𝐞 𝐨𝐫 𝐘𝐨𝐮𝐓𝐮𝐛𝐞 𝐔𝐑𝐋
-👑 𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
-
-╰── ⋅ ⋅ ⋅ ── ✦ ── ⋅ ⋅ ⋅ ──╯`);
+    return repondre("Please provide a song name or YouTube URL");
   }
 
   try {
     // Search YouTube
     const search = await yts(arg.join(" "));
     if (!search.videos.length) {
-      return repondre(`
-╭───── • ─────╮
-   𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐌𝐔𝐒𝐈𝐂
-╰───── • ─────╯
-
-🔍 𝐍𝐨 𝐬𝐨𝐧𝐠𝐬 𝐟𝐨𝐮𝐧𝐝
-👑 𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
-
-╰── ⋅ ⋅ ⋅ ── ✦ ── ⋅ ⋅ ⋅ ──╯`);
+      return repondre("No songs found");
     }
 
     const video = search.videos[0];
     const apiUrl = `https://api.dreaded.site/api/ytdl/audio?url=${encodeURIComponent(video.url)}`;
 
-    // Create stylish caption
-    const caption = `
-╭───── • ─────╮
-   𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐌𝐔𝐒𝐈𝐂
-╰───── • ─────╯
+    // Download audio as buffer
+    const response = await axios.get(apiUrl, {
+      responseType: 'arraybuffer',
+      headers: {
+        'Content-Type': 'audio/mpeg'
+      }
+    });
+    
+    const audioBuffer = Buffer.from(response.data);
 
-🎶 𝐓𝐢𝐭𝐥𝐞: ${video.title}
-🎤 𝐀𝐫𝐭𝐢𝐬𝐭: ${video.author.name}
-⏳ 𝐃𝐮𝐫𝐚𝐭𝐢𝐨𝐧: ${video.duration.timestamp}
-👑 𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
-
-╰── ⋅ ⋅ ⋅ ── ✦ ── ⋅ ⋅ ⋅ ──╯`;
-
-    // Send audio immediately with caption
+    // Send only audio without caption
     await zk.sendMessage(dest, {
-      audio: { url: apiUrl },
+      audio: audioBuffer,
       mimetype: 'audio/mpeg',
-      ptt: false,
-      fileName: `${video.title.replace(/[^\w\s]/gi, '')}.mp3`,
-      caption: caption
+      ptt: false
     }, { quoted: ms });
 
   } catch (error) {
     console.error('Play Error:', error);
-    await repondre(`
-╭───── • ─────╮
-   𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐌𝐔𝐒𝐈𝐂
-╰───── • ─────╯
-
-⚠️ 𝐄𝐫𝐫𝐨𝐫: ${error.message.includes('timeout') ? 'Request timed out' : 'Failed to process audio'}
-💡 𝐓𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫
-👑 𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
-
-╰── ⋅ ⋅ ⋅ ── ✦ ── ⋅ ⋅ ⋅ ──╯`);
+    await repondre("Error: Failed to process audio");
   }
 });
