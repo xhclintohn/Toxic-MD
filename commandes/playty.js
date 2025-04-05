@@ -1,65 +1,76 @@
+require("dotenv").config();
+const { zokou } = require("../framework/zokou");
+const yts = require("yt-search");
+const axios = require("axios");
+
 zokou({
-  nomCom: "gpt",
-  categorie: "AI",
-  reaction: "🤖"
+  nomCom: "play",
+  categorie: "Download",
+  reaction: "🎵"
 }, async (dest, zk, command) => {
   const { ms, repondre, arg } = command;
 
   if (!arg[0]) {
     return repondre(`
 ╭───── • ─────╮
-   𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐀𝐈
+   𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐌𝐔𝐒𝐈𝐂
 ╰───── • ─────╯
 
-🤖 𝐇𝐞𝐥𝐥𝐨 𝐭𝐡𝐞𝐫𝐞, 𝐰𝐡𝐚𝐭'𝐬 𝐲𝐨𝐮𝐫 𝐪𝐮𝐞𝐬𝐭𝐢𝐨𝐧?
+🎵 𝐏𝐥𝐞𝐚𝐬𝐞 𝐩𝐫𝐨𝐯𝐢𝐝𝐞 𝐚 𝐬𝐨𝐧𝐠 𝐧𝐚𝐦𝐞 𝐨𝐫 𝐘𝐨𝐮𝐓𝐮𝐛𝐞 𝐔𝐑𝐋
 👑 𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
 
 ╰── ⋅ ⋅ ⋅ ── ✦ ── ⋅ ⋅ ⋅ ──╯`);
   }
 
   try {
-    const text = arg.join(" ");
-    const apiUrl = `https://bk9.fun/ai/jeeves-chat2?q=${encodeURIComponent(text)}`;
-    
-    const response = await fetch(apiUrl);
-    const d = await response.json();
-
-    if (!d.BK9) {
+    // Search YouTube
+    const search = await yts(arg.join(" "));
+    if (!search.videos.length) {
       return repondre(`
 ╭───── • ─────╮
-   𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐀𝐈
+   𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐌𝐔𝐒𝐈𝐂
 ╰───── • ─────╯
 
-⚠️ 𝐀𝐧 𝐞𝐫𝐫𝐨𝐫 𝐨𝐜𝐜𝐮𝐫𝐫𝐞𝐝
-💡 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫
+🔍 𝐍𝐨 𝐬𝐨𝐧𝐠𝐬 𝐟𝐨𝐮𝐧𝐝
 👑 𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
 
 ╰── ⋅ ⋅ ⋅ ── ✦ ── ⋅ ⋅ ⋅ ──╯`);
     }
 
-    // Format the response with fancy styling
-    await repondre(`
+    const video = search.videos[0];
+    const apiUrl = `https://api.dreaded.site/api/ytdl/audio?url=${encodeURIComponent(video.url)}`;
+
+    // Create stylish caption
+    const caption = `
 ╭───── • ─────╮
-   𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐀𝐈
+   𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐌𝐔𝐒𝐈𝐂
 ╰───── • ─────╯
 
-🗣️ 𝐐𝐮𝐞𝐬𝐭𝐢𝐨𝐧: ${text}
-
-🤖 𝐑𝐞𝐬𝐩𝐨𝐧𝐬𝐞:
-${d.BK9}
-
+🎶 𝐓𝐢𝐭𝐥𝐞: ${video.title}
+🎤 𝐀𝐫𝐭𝐢𝐬𝐭: ${video.author.name}
+⏳ 𝐃𝐮𝐫𝐚𝐭𝐢𝐨𝐧: ${video.duration.timestamp}
 👑 𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
 
-╰── ⋅ ⋅ ⋅ ── ✦ ── ⋅ ⋅ ⋅ ──╯`);
+╰── ⋅ ⋅ ⋅ ── ✦ ── ⋅ ⋅ ⋅ ──╯`;
+
+    // Send audio immediately with caption
+    await zk.sendMessage(dest, {
+      audio: { url: apiUrl },
+      mimetype: 'audio/mpeg',
+      ptt: false,
+      fileName: `${video.title.replace(/[^\w\s]/gi, '')}.mp3`,
+      caption: caption
+    }, { quoted: ms });
 
   } catch (error) {
-    console.error("GPT Error:", error);
+    console.error('Play Error:', error);
     await repondre(`
 ╭───── • ─────╮
-   𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐀𝐈
+   𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐌𝐔𝐒𝐈𝐂
 ╰───── • ─────╯
 
-⚠️ 𝐀𝐈 𝐬𝐞𝐫𝐯𝐢𝐜𝐞 𝐭𝐞𝐦𝐩𝐨𝐫𝐚𝐫𝐢𝐥𝐲 𝐮𝐧𝐚𝐯𝐚𝐢𝐥𝐚𝐛𝐥𝐞
+⚠️ 𝐄𝐫𝐫𝐨𝐫: ${error.message.includes('timeout') ? 'Request timed out' : 'Failed to process audio'}
+💡 𝐓𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫
 👑 𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
 
 ╰── ⋅ ⋅ ⋅ ── ✦ ── ⋅ ⋅ ⋅ ──╯`);
