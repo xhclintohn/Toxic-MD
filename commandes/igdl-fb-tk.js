@@ -12,13 +12,13 @@ zokou({nomCom : "instagram" , categorie : "Download"},async (dest , zk , command
 
   try {
      
-    let igvid = await axios('https://vihangayt.me/download/instagram?url='+link)
+    let igvid = await axios('https://api.dreaded.site/api/igdl?url='+link)
 
     if (igvid.data.data.data[0].type == 'video') {
-    zk.sendMessage(dest,{video : {url : igvid.data.data.data[0].url},caption : "ig video downloader powered by *popkid-Md*",gifPlayback : false },{quoted : ms}) 
+    zk.sendMessage(dest,{video : {url : igvid.data.data.data[0].url},caption : "ig video downloader powered by Toxic-MD",gifPlayback : false },{quoted : ms}) 
     }
     else {
-        zk.sendMessage(dest,{image : {url : igvid.data.data.data[0].url},caption : "ig image downloader powered by *Toxic-Md*"})
+        zk.sendMessage(dest,{image : {url : igvid.data.data.data[0].url},caption : "ig image downloader powered by Toxic-Md"})
     }
   
   } catch (e) {repondre("erreur survenue lors du téléchargement \n " + e)}
@@ -74,7 +74,7 @@ zokou({ nomCom: "tiktok", categorie: "Download", reaction: "🎵" }, async (dest
 
   const videoUrl = arg.join(" ");
 
- let data = await axios.get('https://vihangayt.me/download/tiktok?url='+ videoUrl) ;
+ let data = await axios.get('https://api.dreaded.site/api/tiktok?url='+ videoUrl) ;
 
   let tik = data.data.data
 
