@@ -1,7 +1,6 @@
 require("dotenv").config();
 const { zokou } = require("../framework/zokou");
 
-// API Constants (like in play command)
 const GPT_API = "https://api.dreaded.site/api/chatgpt?text=";
 
 zokou({
@@ -19,28 +18,21 @@ zokou({
     const question = args.join(" ");
     const apiUrl = `${GPT_API}${encodeURIComponent(question)}`;
 
-    // Debug: Log the API URL being called
-    console.log("[GPT] Calling API:", apiUrl);
+    console.log("[GPT] Calling API:", apiUrl); // Debug log
 
     const response = await fetch(apiUrl);
-    
-    // Debug: Log raw response
-    console.log("[GPT] Response status:", response.status);
-    
-    if (!response.ok) {
-      throw new Error(`API returned ${response.status} status`);
-    }
-
     const data = await response.json();
-    
-    // Debug: Log full API response
-    console.log("[GPT] Full response:", JSON.stringify(data, null, 2));
 
-    if (!data?.result?.prompt) {
-      throw new Error("API response missing expected data");
+    console.log("[GPT] API Response:", JSON.stringify(data)); // Debug log
+
+    // Handle different possible response structures
+    const aiResponse = data.response || data.message || data.result?.response || data.result?.prompt || JSON.stringify(data);
+
+    if (!aiResponse) {
+      throw new Error("API returned empty response");
     }
 
-    await reply(`🤖 *𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 𝐀𝐈*:\n\n${data.result.prompt}\n\n👑 *𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧*`);
+    await reply(`🤖 *𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 𝐀𝐈*:\n\n${aiResponse}\n\n👑 *𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧*`);
 
   } catch (error) {
     console.error("[GPT Error]", error);
