@@ -18,24 +18,25 @@ zokou({
     const question = args.join(" ");
     const apiUrl = `${GPT_API}${encodeURIComponent(question)}`;
 
-    console.log("[GPT] Calling API:", apiUrl); // Debug log
-
     const response = await fetch(apiUrl);
     const data = await response.json();
 
-    console.log("[GPT] API Response:", JSON.stringify(data)); // Debug log
+    // Debug: Uncomment to see full API response
+    // console.log("API Response:", JSON.stringify(data, null, 2));
 
-    // Handle different possible response structures
-    const aiResponse = data.response || data.message || data.result?.response || data.result?.prompt || JSON.stringify(data);
-
-    if (!aiResponse) {
-      throw new Error("API returned empty response");
+    if (!data.success || !data.result) {
+      return reply("⚠️ *𝐀𝐈 𝐄𝐫𝐫𝐨𝐫*:\nThe API returned an empty response\n\n👑 *𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧*");
     }
 
-    await reply(`🤖 *𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 𝐀𝐈*:\n\n${aiResponse}\n\n👑 *𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧*`);
+    // If result exists but is empty
+    if (data.result === "") {
+      return reply("🤖 *𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 𝐀𝐈*:\n\nI couldn't generate a response for that question.\nPlease try a different query.\n\n👑 *𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧*");
+    }
+
+    await reply(`🤖 *𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 𝐀𝐈*:\n\n${data.result}\n\n👑 *𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧*`);
 
   } catch (error) {
-    console.error("[GPT Error]", error);
+    console.error("GPT Error:", error);
     reply(`⚠️ *𝐄𝐫𝐫𝐨𝐫*:\n${error.message}\n\nPlease try again later.`);
   }
 });
