@@ -1,31 +1,49 @@
+require("dotenv").config();
+const { zokou } = require("../framework/zokou");
+
+// API Constants (like in play command)
+const GPT_API = "https://api.dreaded.site/api/chatgpt?text=";
+
 zokou({
   nomCom: "gpt",
   categorie: "AI",
   reaction: "🤖"
 }, async (dest, zk, command) => {
-  const { ms, repondre, arg } = command;
+  const { ms: quotedMessage, repondre: reply, arg: args } = command;
 
-  if (!arg || arg.length === 0) {
-    return repondre("𝐏𝐥𝐞𝐚𝐬𝐞 𝐩𝐫𝐨𝐯𝐢𝐝𝐞 𝐚 𝐪𝐮𝐞𝐬𝐭𝐢𝐨𝐧 𝐟𝐨𝐫 𝐂𝐡𝐚𝐭𝐆𝐏𝐓.\n𝐄𝐱𝐚𝐦𝐩𝐥𝐞: !𝐠𝐩𝐭 𝐇𝐨𝐰 𝐝𝐨𝐞𝐬 𝐩𝐡𝐨𝐭𝐨𝐬𝐲𝐧𝐭𝐡𝐞𝐬𝐢𝐬 𝐰𝐨𝐫𝐤?");
+  if (!args || args.length === 0) {
+    return reply("𝐏𝐥𝐞𝐚𝐬𝐞 𝐩𝐫𝐨𝐯𝐢𝐝𝐞 𝐚 𝐪𝐮𝐞𝐬𝐭𝐢𝐨𝐧.\n𝐄𝐱𝐚𝐦𝐩𝐥𝐞: !𝐠𝐩𝐭 𝐇𝐨𝐰 𝐭𝐨 𝐦𝐚𝐤𝐞 𝐩𝐚𝐬𝐭𝐚?");
   }
 
   try {
-    const question = arg.join(" ");
-    const apiUrl = `https://api.dreaded.site/api/chatgpt?text=${encodeURIComponent(question)}`;
+    const question = args.join(" ");
+    const apiUrl = `${GPT_API}${encodeURIComponent(question)}`;
+
+    // Debug: Log the API URL being called
+    console.log("[GPT] Calling API:", apiUrl);
 
     const response = await fetch(apiUrl);
-    if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
+    
+    // Debug: Log raw response
+    console.log("[GPT] Response status:", response.status);
+    
+    if (!response.ok) {
+      throw new Error(`API returned ${response.status} status`);
+    }
 
     const data = await response.json();
     
+    // Debug: Log full API response
+    console.log("[GPT] Full response:", JSON.stringify(data, null, 2));
+
     if (!data?.result?.prompt) {
-      return repondre("⚠️ 𝐈𝐧𝐯𝐚𝐥𝐢𝐝 𝐫𝐞𝐬𝐩𝐨𝐧𝐬𝐞 𝐟𝐨𝐫𝐦𝐚𝐭 𝐟𝐫𝐨𝐦 𝐀𝐏𝐈");
+      throw new Error("API response missing expected data");
     }
 
-    await repondre(`🤖 *𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 𝐀𝐈 𝐑𝐞𝐬𝐩𝐨𝐧𝐬𝐞*:\n\n${data.result.prompt}\n\n👑 *𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧*`);
+    await reply(`🤖 *𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 𝐀𝐈*:\n\n${data.result.prompt}\n\n👑 *𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧*`);
 
   } catch (error) {
-    console.error("GPT Command Error:", error);
-    repondre(`⚠️ *𝐄𝐫𝐫𝐨𝐫*:\n${error.message}\n\n𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫.`);
+    console.error("[GPT Error]", error);
+    reply(`⚠️ *𝐄𝐫𝐫𝐨𝐫*:\n${error.message}\n\nPlease try again later.`);
   }
 });
