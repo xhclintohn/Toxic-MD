@@ -11,7 +11,7 @@ const readmore = more.repeat(4001);
 zokou({ 
     nomCom: "menu", 
     categorie: "General", 
-    reaction: "🔥" 
+    reaction: "⚡" 
 }, async (dest, zk, commandeOptions) => {
     let { ms, repondre, prefixe, nomAuteurMessage, mybotpic } = commandeOptions;
     let { cm } = require(__dirname + "/../framework/zokou");
@@ -53,51 +53,50 @@ zokou({
     moment.tz.setDefault('EAT');
     const temps = moment().format('HH:mm:ss');
 
-    // Premium menu design
+    // Premium menu design with your fancy font
     let infoMsg = `
 ◈━━━━━━━━━━━━━━━━◈
-  ⃝⃪⃕🥀𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥
-  ✧⋆°‌⁪𓆩𝖍𓆪ꪾ°‌⋆⋆➴┼✗𝗗✧
   
-  ⚡ 𝙏𝙤𝙭𝙞𝙘-𝙈𝘿 𝙑2⸙ ⚡
+     𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐕𝟐
   
->  ✦ Owner: 
+> ✦ 𝐎𝐰𝐧𝐞𝐫: 
 @254735342808
 
->  ✦ Mode: 
+> ✦ 𝐌𝐨𝐝𝐞: 
 ${mode}
 
->  ✦ Time: 
+> ✦ 𝐓𝐢𝐦𝐞: 
 ${temps} (EAT)
 
- > ✦ RAM: 
+> ✦ 𝐑𝐀𝐌: 
 ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
+
 ◈━━━━━━━━━━━━━━━━◈
 `;
 
     let menuMsg = `
 ◈━━━━━━━━━━━━━━━━◈
-    𝘾𝙊𝙈𝙈𝘼𝙉𝘿𝙎 𝙈𝙀𝙉𝙐
+  ⚡ 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐌𝐄𝐍𝐔 ⚡
   
-  Use ${prefixe}help <command>
-  for detailed information
+  𝐔𝐬𝐞 ${prefixe}help <command>
+  𝐟𝐨𝐫 𝐝𝐞𝐭𝐚𝐢𝐥𝐬
   
   ✦✦✦✦✦✦✦✦✦✦✦✦✦✦
 `;
 
-    // Enhanced category styling
+    // Enhanced category styling with your preferred emojis
     const categoryStyles = {
-        "General": { icon: "◈", decor: "✦" },
-        "Group": { icon: "◉", decor: "✧" },
-        "Mods": { icon: "◆", decor: "✪" },
-        "Fun": { icon: "◊", decor: "✺" },
-        "Search": { icon: "◎", decor: "✧" }
+        "General": { icon: "🌟", decor: "꧂" },
+        "Group": { icon: "👥", decor: "ᨖ" },
+        "Mods": { icon: "🛡️", decor: "࿇" },
+        "Fun": { icon: "🎭", decor: "᯼" },
+        "Search": { icon: "🔍", decor: "✧" }
     };
 
     for (const cat in coms) {
-        const style = categoryStyles[cat] || { icon: "✦", decor: "✧" };
+        const style = categoryStyles[cat] || { icon: "✨", decor: "⳺" };
         menuMsg += `\n  ${style.decor} ${style.icon} *${cat.toUpperCase()}* ${style.icon} ${style.decor}\n`;
-        
+
         // Organized commands with stylish bullets
         const chunkSize = 3;
         for (let i = 0; i < coms[cat].length; i += chunkSize) {
@@ -108,12 +107,12 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
 
     menuMsg += `
 ◈━━━━━━━━━━━━━━━━◈
-  ✦ *DEVELOPERS* ✦
+> 𝐃𝐄𝐕𝐄𝐋𝐎𝐏𝐄𝐑𝐒
   
-  @254735342808 (xh_clinton)
-  @254799283147 (TOXIC-MD)
+  @254735342808 (𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧)
+  @254799283147 (𝐓𝐎𝐗𝐈𝐂-𝐌𝐃)
   
-  ⃝⃪⃕🥀𝐈𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥
+ ⃝⃪⃕🥀-〭⃛〬𓆩〭⃛〬❥
 ◈━━━━━━━━━━━━━━━━◈
 `;
 
@@ -138,7 +137,7 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
                 { 
                     video: { url: lien }, 
                     caption: infoMsg + menuMsg,
-                    footer: "◄⏤͟͞ꭙͯ͢³➤⃝ ⃝⃪⃕🥀𝐈𝛕ᷟ͢𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥",
+                    footer: "◄⏤͟͞ꭙͯ͢³➤⃝ ⃝⃪⃕𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥",
                     mentions: mentionedJids,
                     gifPlayback: true
                 },
@@ -150,7 +149,7 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
                 { 
                     image: { url: lien }, 
                     caption: infoMsg + menuMsg,
-                    footer: "◄⏤͟͞ꭙͯ͢³➤⃝ ⃝⃪⃕🥀𝐈𝛕ᷟ͢𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥",
+                    footer: "◄⏤͟͞ꭙͯ͢³➤⃝ ⃝⃪⃕𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥",
                     mentions: mentionedJids
                 },
                 { quoted: ms }
@@ -175,17 +174,17 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
                     audio: { url: audioPath },
                     mimetype: 'audio/mp4',
                     ptt: false,
-                    fileName: "⃝⃪⃕🥀 TOXIC THEME ✧.mp3",
-                    caption: "✦⋆°‌⁪𓆩𝖍𓆪ꪾ°‌⋆⋆➴┼✗𝗗"
+                    fileName: "⃝⃪⃕🥀 𝐓𝐎𝐗𝐈𝐂 𝐓𝐇𝐄𝐌𝐄 ✧.mp3",
+                    caption: "✦⋆✗𝗗"
                 },
                 { quoted: ms }
             );
         }
 
     } catch (e) {
-        console.error("◈ ERROR ◈", e);
+        console.error("◈ 𝐄𝐑𝐑𝐎𝐑 ◈", e);
         await zk.sendMessage(dest, {
-            text: "◈ 𝐅𝐀𝐈𝐋𝐄𝐃 𝐓𝐎 𝐋𝐎𝐀𝐃 𝐌𝐄𝐍𝐔 ◈\nPlease try again later",
+            text: "◈ 𝐅𝐀𝐈𝐋𝐄𝐃 𝐓𝐎 𝐋𝐎𝐀𝐃 𝐌𝐄𝐍𝐔 ◈\n𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫",
             edit: loadingMsg.key
         });
     }
