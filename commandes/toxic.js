@@ -1,30 +1,36 @@
+require("dotenv").config();
 const { zokou } = require("../framework/zokou");
 
-// Constants for easy maintenance
-const BOT_RESPONSE = `
-╭───── • ─────╮
-   𝐓𝐎𝐗𝐈𝐂-𝐌𝐃
-╰───── • ─────╯
+// Consts
+const BOT_NAME = "Toxic-MD";
+const OWNER_NAME = "𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧";
+const VERSION = "2.0";
 
-◄⏤͟͞𝐇𝐞𝐥𝐥𝐨! 𝐇𝐨𝐰 𝐜𝐚𝐧 𝐈 𝐡𝐞𝐥𝐩 𝐲𝐨𝐮 𝐭𝐨𝐝𝐚𝐲? 🙂🤚🏻
+zokou({
+  nomCom: "bot",
+  categorie: "General",
+  reaction: "🤖"
+}, async (dest, zk, command) => {
+  const { ms: quotedMessage, repondre: reply } = command;
 
-> ✗D:
-> ✗𝗩𝗲𝗿𝘀𝗶𝗼𝗻: 2.0
+  const response = `╭─
+  ${BOT_NAME}
 
-`;
 
+◄⏤͟͞𝐇𝐞𝐥𝐥𝐨! 𝐈'𝐦 ${BOT_NAME}  
+𝐀 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐛𝐨𝐭 𝐝𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐝 𝐛𝐲 ${OWNER_NAME}
+
+> ✗𝐕𝐞𝐫𝐬𝐢𝐨𝐧: ${VERSION}
+> ✗𝐓𝐲𝐩𝐞 ".menu" 𝐟𝐨𝐫 𝐜𝐨𝐦𝐦𝐚𝐧𝐝𝐬
+╰───── • ─────╯`;
+
+  await reply(response);
+});
+
+// Export (like play command)
 module.exports = {
-    name: "bot",
-    description: "Greets the user", 
-    usage: ".bot", 
-    enable: true,
-
-    zokou({ 
-        nomCom: "bot",
-        categorie: "General",
-        reaction: "🤖" 
-    }, async (dest, zk, commandeOptions) => {
-        const { repondre } = commandeOptions;
-        await repondre(BOT_RESPONSE);
-    })
+  name: "bot",
+  description: "Displays bot information",
+  usage: ".bot",
+  enable: true
 };
