@@ -16,23 +16,21 @@ zokou({
     let { ms, repondre, prefixe, nomAuteurMessage, mybotpic } = commandeOptions;
     let { cm } = require(__dirname + "/../framework/zokou");
 
-    // Create battery-style loading message
+    // Stylish loading animation
     let loadingMsg = await zk.sendMessage(dest, { 
-        text: "🔄 𝐋𝐨𝐚𝐝𝐢𝐧𝐠 𝐌𝐞𝐧𝐮...\n▰▱▱▱▱▱▱▱▱▱ 10%"
+        text: "◄⏤͟͞ꭙͯ͢³➤⃝ 𝐋𝐎𝐀𝐃𝐈𝐍𝐆...\n▰▱▱▱▱▱▱▱▱▱ 10%"
     }, { quoted: ms });
 
-    // Update progress in battery style
     const updateProgress = async (percent) => {
         const filled = Math.floor(percent/10);
         const empty = 10 - filled;
         const batteryBar = '▰'.repeat(filled) + '▱'.repeat(empty);
         await zk.sendMessage(dest, {
-            text: `🔄 𝐋𝐨𝐚𝐝𝐢𝐧𝐠 𝐌𝐞𝐧𝐮...\n${batteryBar} ${percent}%`,
+            text: `◄⏤͟͞ꭙͯ͢³➤⃝ 𝐋𝐎𝐀𝐃𝐈𝐍𝐆...\n${batteryBar} ${percent}%`,
             edit: loadingMsg.key
         });
     };
 
-    // Simulate loading process
     for (let i = 10; i <= 100; i += 10) {
         await new Promise(resolve => setTimeout(resolve, 300));
         await updateProgress(i);
@@ -54,56 +52,69 @@ zokou({
 
     moment.tz.setDefault('EAT');
     const temps = moment().format('HH:mm:ss');
-    const date = moment().format('DD/MM/YYYY');
 
+    // Premium menu design
     let infoMsg = `
-╔══════◇ *𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐕𝟐* ◇══════╗
-╠══════◇ *𝐒𝐘𝐒𝐓𝐄𝐌 𝐈𝐍𝐅𝐎* ◇══════╣
-│🎭 *𝐎𝐰𝐧𝐞𝐫*: @254735342808
-│⚡ *𝐌𝐨𝐝𝐞*: ${mode}
-│⏰ *𝐓𝐢𝐦𝐞*: ${temps} (EAT)
-│💾 *𝐑𝐀𝐌*: ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
-╚══════◇ *𝐒𝐓𝐀𝐓𝐔𝐒* ◇══════╝
+◈━━━━━━━━━━━━━━━━◈
+  ⃝⃪⃕🥀𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥
+  ✧⋆°‌⁪𓆩𝖍𓆪ꪾ°‌⋆⋆➴┼✗𝗗✧
+  
+  ⚡ 𝙏𝙤𝙭𝙞𝙘-𝙈𝘿 𝙑2⸙ ⚡
+  
+>  ✦ Owner: 
+@254735342808
+
+>  ✦ Mode: 
+${mode}
+
+>  ✦ Time: 
+${temps} (EAT)
+
+ > ✦ RAM: 
+${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
+◈━━━━━━━━━━━━━━━━◈
 `;
 
     let menuMsg = `
-╔══════◇ *𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐌𝐄𝐍𝐔* ◇══════╗
-│
-│ *𝐔𝐬𝐞 ${prefixe}help <command>*
-│ *𝐟𝐨𝐫 𝐝𝐞𝐭𝐚𝐢𝐥𝐬*
-│
-╠══════◇ *𝐂𝐀𝐓𝐄𝐆𝐎𝐑𝐈𝐄𝐒* ◇══════╣
+◈━━━━━━━━━━━━━━━━◈
+    𝘾𝙊𝙈𝙈𝘼𝙉𝘿𝙎 𝙈𝙀𝙉𝙐
+  
+  Use ${prefixe}help <command>
+  for detailed information
+  
+  ✦✦✦✦✦✦✦✦✦✦✦✦✦✦
 `;
 
-    // Category colors and icons
+    // Enhanced category styling
     const categoryStyles = {
-        "General": { icon: "🌟", color: "#FFD700" },
-        "Group": { icon: "👥", color: "#00BFFF" },
-        "Mods": { icon: "🛡️", color: "#FF4500" },
-        "Fun": { icon: "🎭", color: "#9370DB" },
-        "Search": { icon: "🔍", color: "#32CD32" }
+        "General": { icon: "◈", decor: "✦" },
+        "Group": { icon: "◉", decor: "✧" },
+        "Mods": { icon: "◆", decor: "✪" },
+        "Fun": { icon: "◊", decor: "✺" },
+        "Search": { icon: "◎", decor: "✧" }
     };
 
     for (const cat in coms) {
-        const style = categoryStyles[cat] || { icon: "✨", color: "#FFFFFF" };
-        menuMsg += `│\n│ ${style.icon} *${cat.toUpperCase()}* ${style.icon}\n│\n`;
-
-        // Split commands into chunks of 3 for better layout
+        const style = categoryStyles[cat] || { icon: "✦", decor: "✧" };
+        menuMsg += `\n  ${style.decor} ${style.icon} *${cat.toUpperCase()}* ${style.icon} ${style.decor}\n`;
+        
+        // Organized commands with stylish bullets
         const chunkSize = 3;
         for (let i = 0; i < coms[cat].length; i += chunkSize) {
             const chunk = coms[cat].slice(i, i + chunkSize);
-            menuMsg += `│ ➤ ${chunk.join(" • ")}\n`;
+            menuMsg += `  ➺ ${chunk.join("  ✦  ")}\n`;
         }
     }
 
     menuMsg += `
-╠══════◇ *𝐂𝐑𝐄𝐃𝐈𝐓𝐒* ◇══════╣
-│
-│ *𝐃𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐝 𝐛𝐲:*
-│ @254735342808 (𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧)
-│ @254799283147 (𝐓𝐎𝐗𝐈𝐂-𝐌𝐃)
-│
-╚══════◇ *𝐄𝐍𝐃* ◇══════╝
+◈━━━━━━━━━━━━━━━━◈
+  ✦ *DEVELOPERS* ✦
+  
+  @254735342808 (xh_clinton)
+  @254799283147 (TOXIC-MD)
+  
+  ⃝⃪⃕🥀𝐈𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥
+◈━━━━━━━━━━━━━━━━◈
 `;
 
     try {
@@ -113,13 +124,12 @@ zokou({
             '254799283147@s.whatsapp.net'
         ];
 
-        // Final loading update
+        // Final loading animation
         await zk.sendMessage(dest, {
-            text: "✅ 𝐌𝐞𝐧𝐮 𝐑𝐞𝐚𝐝𝐲!\n▰▰▰▰▰▰▰▰▰▰ 100%",
+            text: "◄⏤͟͞ꭙͯ͢³➤⃝ 𝐌𝐄𝐍𝐔 𝐑𝐄𝐀𝐃𝐘!\n▰▰▰▰▰▰▰▰▰▰ 100%",
             edit: loadingMsg.key
         });
 
-        // Small delay before showing menu
         await new Promise(resolve => setTimeout(resolve, 500));
 
         if (lien.match(/\.(mp4|gif)$/i)) {
@@ -128,7 +138,7 @@ zokou({
                 { 
                     video: { url: lien }, 
                     caption: infoMsg + menuMsg,
-                    footer: "🔥 𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 - 𝐓𝐡𝐞 𝐌𝐨𝐬𝐭 𝐏𝐨𝐰𝐞𝐫𝐟𝐮𝐥 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐁𝐨𝐭",
+                    footer: "◄⏤͟͞ꭙͯ͢³➤⃝ ⃝⃪⃕🥀𝐈𝛕ᷟ͢𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥",
                     mentions: mentionedJids,
                     gifPlayback: true
                 },
@@ -140,7 +150,7 @@ zokou({
                 { 
                     image: { url: lien }, 
                     caption: infoMsg + menuMsg,
-                    footer: "🔥 𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 - 𝐓𝐡𝐞 𝐌𝐨𝐬𝐭 𝐏𝐨𝐰𝐞𝐫𝐟𝐮𝐥 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐁𝐨𝐭",
+                    footer: "◄⏤͟͞ꭙͯ͢³➤⃝ ⃝⃪⃕🥀𝐈𝛕ᷟ͢𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥",
                     mentions: mentionedJids
                 },
                 { quoted: ms }
@@ -156,7 +166,7 @@ zokou({
             );
         }
 
-        // Send the audio file after the menu
+        // Send audio with stylish caption
         const audioPath = __dirname + "/../MIDDLE OF THE NIGHT.m4a";
         if (fs.existsSync(audioPath)) {
             await zk.sendMessage(
@@ -164,16 +174,18 @@ zokou({
                 {
                     audio: { url: audioPath },
                     mimetype: 'audio/mp4',
-                    ptt: false
+                    ptt: false,
+                    fileName: "⃝⃪⃕🥀 TOXIC THEME ✧.mp3",
+                    caption: "✦⋆°‌⁪𓆩𝖍𓆪ꪾ°‌⋆⋆➴┼✗𝗗"
                 },
                 { quoted: ms }
             );
         }
 
     } catch (e) {
-        console.error("❌ 𝐄𝐫𝐫𝐨𝐫:", e);
+        console.error("◈ ERROR ◈", e);
         await zk.sendMessage(dest, {
-            text: "❌ 𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐥𝐨𝐚𝐝 𝐦𝐞𝐧𝐮. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫.",
+            text: "◈ 𝐅𝐀𝐈𝐋𝐄𝐃 𝐓𝐎 𝐋𝐎𝐀𝐃 𝐌𝐄𝐍𝐔 ◈\nPlease try again later",
             edit: loadingMsg.key
         });
     }
