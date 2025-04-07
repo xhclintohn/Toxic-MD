@@ -10,24 +10,18 @@ zokou({
     reaction: "❤️" 
 }, async (dest, zk, commandeOptions) => {
     const { ms, repondre, mybotpic } = commandeOptions;
-    
+
     const mode = (s.MODE.toLowerCase() !== "yes") ? "private" : "public";
     moment.tz.setDefault('Etc/GMT');
     const temps = moment().format('HH:mm:ss');
     const date = moment().format('DD/MM/YYYY');
 
-    
- ░                  ░                          
-    `;
-
     const infoMsg = `
 ╔══════════════════════════╗
-  ${banner}
-╠══════════════════════════╣
 ║  🚀 *𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐑𝐄𝐏𝐎𝐒𝐈𝐓𝐎𝐑𝐘*  ║
 ╠══════════════════════════╣
 ║  🔗 *𝐆𝐢𝐭𝐇𝐮𝐛 𝐋𝐢𝐧𝐤*:        
-║  https://github.com/xhclintohn/Toxic-MD/fork
+║  https://github.com/xhclinton/Toxic-MD
 ║
 ╠══════════════════════════╣
 ║  💻 *𝐒𝐲𝐬𝐭𝐞𝐦 𝐈𝐧𝐟𝐨*        
@@ -40,7 +34,7 @@ zokou({
 ║  • @254735342808 (𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧)
 ║  • @254799283147 (𝐓𝐎𝐗𝐈𝐂-𝐌𝐃)
 ╚══════════════════════════╝
-    `;
+`.trim();
 
     try {
         const lien = mybotpic();
