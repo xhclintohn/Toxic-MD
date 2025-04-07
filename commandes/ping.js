@@ -5,7 +5,7 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 zokou({ 
     nomCom: "test", 
-    reaction: "🧒", 
+    reaction: "⚡", 
     nomFichier: __filename 
 }, async (dest, zk, commandeOptions) => {
     const { repondre, ms } = commandeOptions;
@@ -41,7 +41,6 @@ zokou({
 ╰───── • ─────╯
 
 ⭕ 𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐈𝐒 𝐎𝐍𝐋𝐈𝐍𝐄 ⭕
-✨ 𝐀𝐋𝐖𝐀𝐘𝐒 𝐀𝐖𝐀𝐊𝐄 ⏰
 
 ╭───── • ─────╮
    𝐒𝐘𝐒𝐓𝐄𝐌 𝐇𝐄𝐀𝐋𝐓𝐇
