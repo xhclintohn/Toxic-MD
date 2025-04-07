@@ -6,21 +6,27 @@ const s = require("../set");
 const fs = require("fs");
 const path = require("path");
 
-zokou({ 
-    nomCom: "bot", 
-    categorie: "General", 
-    reaction: "🤖" 
-}, async (dest, zk, commandeOptions) => {
-    const { ms, repondre, mybotpic } = commandeOptions;
+module.exports = {
+    name: "bot",
+    description: "Displays bot information",
+    usage: ".bot",
+    enable: true,
 
-    // Get system info
-    moment.tz.setDefault('EAT');
-    const temps = moment().format('HH:mm:ss');
-    const mode = (s.MODE).toLowerCase() === "yes" ? "public" : "private";
-    const ramUsage = `${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}`;
+    zokou({ 
+        nomCom: "bot", 
+        categorie: "General", 
+        reaction: "🤖" 
+    }, async (dest, zk, commandeOptions) => {
+        const { repondre, ms, mybotpic } = commandeOptions;
 
-    // Create bot info message
-    const botInfo = `
+        // Get system info
+        moment.tz.setDefault('EAT');
+        const temps = moment().format('HH:mm:ss');
+        const mode = (s.MODE).toLowerCase() === "yes" ? "public" : "private";
+        const ramUsage = `${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}`;
+
+        // Create bot info message
+        const botInfo = `
 ◈━━━━━━━━━━━━━━━━◈
      𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐕𝟐
 ◈━━━━━━━━━━━━━━━━◈
@@ -34,58 +40,32 @@ zokou({
 ✦ Type *.help* for commands
 ✦ Bot developed by @254735342808
 ◈━━━━━━━━━━━━━━━━◈
-    `;
+        `;
 
-    try {
-        // Send bot info with media if available
-        const lien = mybotpic();
-        const mentionedJids = ['254735342808@s.whatsapp.net'];
-
-        if (lien.match(/\.(mp4|gif)$/i)) {
-            await zk.sendMessage(
-                dest,
-                { 
-                    video: { url: lien },
-                    caption: botInfo,
-                    mentions: mentionedJids,
-                    gifPlayback: true
-                },
-                { quoted: ms }
-            );
-        } else if (lien.match(/\.(jpeg|png|jpg)$/i)) {
-            await zk.sendMessage(
-                dest,
-                { 
-                    image: { url: lien },
-                    caption: botInfo,
-                    mentions: mentionedJids
-                },
-                { quoted: ms }
-            );
-        } else {
+        try {
+            // Send bot info
             await repondre(botInfo);
-        }
 
-        // Send Royalty.m4a audio
-        const audioPath = path.join(__dirname, '../media/Royalty.m4a');
-        if (fs.existsSync(audioPath)) {
-            await zk.sendMessage(
-                dest,
-                {
-                    audio: { url: audioPath },
-                    mimetype: 'audio/mp4',
-                    ptt: false,
-                    fileName: "Toxic-MD Theme.m4a",
-                    caption: "🎧 Toxic-MD Official Theme"
-                },
-                { quoted: ms }
-            );
-        } else {
-            console.warn("Royalty.m4a not found in media folder");
-        }
+            // Send Royalty.m4a audio
+            const audioPath = path.join(__dirname, '../../media/Royalty.m4a');
+            if (fs.existsSync(audioPath)) {
+                await zk.sendMessage(
+                    dest,
+                    {
+                        audio: { url: audioPath },
+                        mimetype: 'audio/mp4',
+                        ptt: false,
+                        fileName: "Toxic-MD Theme.m4a"
+                    },
+                    { quoted: ms }
+                );
+            } else {
+                console.warn("Audio file not found at path:", audioPath);
+            }
 
-    } catch (e) {
-        console.error("Bot Command Error:", e);
-        await repondre("⚠️ Failed to load bot information");
-    }
-});
+        } catch (e) {
+            console.error("Bot Command Error:", e);
+            await repondre("⚠️ Failed to load bot information");
+        }
+    })
+};
