@@ -10,9 +10,7 @@
 ---
 
 ---
-
-Here's the refined version with your requested structure - keeping the exact block format you shared, but with QR pairing moved to the deployment steps as you specified:
-
+𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧™
 ---
 
 ## 🚀 Steps to Deploy  
@@ -42,13 +40,6 @@ Here's the refined version with your requested structure - keeping the exact blo
 
 ---
 
-### Key Features:
-1. **Strict 2-block separation** (Deployment vs Links)
-2. **Corrected flow**: Fork → Scan → Deploy
-3. **Simplified community links** without table format
-4. **Visual consistency** with clear dividers
-
-Would you like me to adjust the styling or add any platform-specific deployment notes?
 ---
 
 ## ⚡ Quick Start
