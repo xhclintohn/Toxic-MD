@@ -1,134 +1,74 @@
 require("dotenv").config();
 const { zokou } = require("../framework/zokou");
 const yts = require("yt-search");
-const axios = require("axios");
-
-const BaseUrl = "https://api.bwmxmd.online/api/download";
-const giftedapikey = "ibraah-help";
+const BaseUrl = process.env.GITHUB_GIT;
+const giftedapikey = process.env.BOT_OWNER;
 
 // Validate configuration
-function validateConfig() {
-  if (!BaseUrl || !giftedapikey) {
-    throw new Error("Configuration error: Missing BaseUrl or API key.");
-  }
+if (!BaseUrl || !giftedapikey) {
+  throw new Error("𝐂𝐨𝐧𝐟𝐢𝐠𝐮𝐫𝐚𝐭𝐢𝐨𝐧 𝐞𝐫𝐫𝐨𝐫: 𝐌𝐢𝐬𝐬𝐢𝐧𝐠 𝐁𝐚𝐬𝐞𝐔𝐫𝐥 𝐨𝐫 𝐀𝐏𝐈 𝐤𝐞𝐲.");
 }
-validateConfig();
 
-king({
+// PLAY COMMAND (OPTIMIZED TO WORK LIKE YOUR EXAMPLE)
+zokou({
   nomCom: "play",
-  categorie: "Search",
-  reaction: "🎶"
+  categorie: "Download",
+  reaction: "🎧"
 }, async (dest, zk, command) => {
-  const {
-    ms: message,
-    repondre: reply,
-    arg: args,
-    auteurMessage: sender
-  } = command;
-  
+  const { ms: quotedMessage, repondre: reply, arg: args } = command;
+
   if (!args[0]) {
-    return reply("Please provide a song name or keyword.");
+    return reply("𝐏𝐥𝐞𝐚𝐬𝐞 𝐞𝐧𝐭𝐞𝐫 𝐚 𝐬𝐨𝐧𝐠 𝐧𝐚𝐦𝐞.");
   }
 
   try {
-    const searchQuery = args.join(" ");
-    const searchResults = await yts(searchQuery);
+    const searchResults = await yts(args.join(" "));
     const videos = searchResults.videos;
-    
+
     if (!videos || videos.length === 0) {
-      return reply("No songs found for the given name.");
+      return reply("𝐍𝐨 𝐬𝐨𝐧𝐠𝐬 𝐟𝐨𝐮𝐧𝐝!");
     }
 
-    const selectedVideo = videos[0];
-    const videoUrl = selectedVideo.url;
+    const videoUrl = videos[0].url;
+    const videoTitle = videos[0].title;
 
-    // Send video info
-    await zk.sendMessage(dest, {
-      image: { url: selectedVideo.thumbnail },
-      caption: `╭─────═━┈┈━═──━┈⊷\n┇ 『 *DOWLODER* 』\n┇ *Bot name : FLASH-MD* \n┇ *Owner: France King* \n╰─────═━┈┈━═──━┈⊷\n\n` +
-               `*Title:* ${selectedVideo.title}\n` +
-               `*Duration:* ${selectedVideo.timestamp}\n` +
-               `*Views:* ${selectedVideo.views}\n` +
-               `*Uploaded:* ${selectedVideo.ago}\n` +
-               `*Channel:* ${selectedVideo.author.name}\n\n` +
-               `*YouTube URL:* ${videoUrl}`
-    }, { quoted: message });
+    // Send "downloading" message
+    await reply(`_𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐢𝐧𝐠 ${videoTitle}_`);
 
-    // Get download URL
-    const apiUrl = `${BaseUrl}/ytmp3?apikey=${giftedapikey}&url=${encodeURIComponent(videoUrl)}`;
-    const response = await axios.get(apiUrl);
-    
-    if (response.data && response.data.success) {
-      const downloadUrl = response.data.result.download_url;
-      
-      // Send audio
-      await zk.sendMessage(dest, {
-        audio: { url: downloadUrl },
-        mimetype: "audio/mpeg"
-      }, { quoted: message });
-      
-      reply("Downloaded Successfully ✅");
+    // Fetch audio from your API
+    const apiResponse = await fetch(`${BaseUrl}/api/download/ytmp3?url=${encodeURIComponent(videoUrl)}&apikey=${giftedapikey}`);
+    const data = await apiResponse.json();
+
+    if (data.status === 200 && data.success) {
+      const audioUrl = data.result.download_url;
+
+      // Send audio as a document (like your working example)
+      await zk.sendMessage(
+        dest,
+        {
+          document: { url: audioUrl },
+          mimetype: "audio/mpeg",
+          fileName: `${videoTitle}.mp3`,
+        },
+        { quoted: quotedMessage }
+      );
+
+      // Optional: Send thumbnail with caption
+      await zk.sendMessage(
+        dest,
+        {
+          image: { url: videos[0].thumbnail },
+          caption: `╭─────═━┈┈━═──━┈⊷\n┇ 『 *𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃𝐄𝐑* 』\n┇ *𝐁𝐨𝐭 𝐧𝐚𝐦𝐞 : Toxic-MD* \n┇ *𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧* \n╰─────═━┈┈━═──━┈⊷`
+        },
+        { quoted: quotedMessage }
+      );
     } else {
-      reply("Failed to download the audio.");
+      reply("𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐟𝐚𝐢𝐥𝐞𝐝: 𝐀𝐏𝐈 𝐞𝐫𝐫𝐨𝐫.");
     }
   } catch (error) {
-    console.error("Error:", error);
-    reply("An error occurred while processing your request.");
+    console.error("𝐄𝐫𝐫𝐨𝐫:", error);
+    reply("𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐟𝐚𝐢𝐥𝐞𝐝\n" + error.message);
   }
 });
 
-king({
-  nomCom: "video",
-  categorie: "Search",
-  reaction: "🎥"
-}, async (dest, zk, command) => {
-  const {
-    ms: message,
-    repondre: reply,
-    arg: args
-  } = command;
-  
-  if (!args[0]) {
-    return reply("Please insert a video name.");
-  }
-
-  try {
-    const searchQuery = args.join(" ");
-    const searchResults = await yts(searchQuery);
-    const videos = searchResults.videos;
-    
-    if (videos.length === 0) {
-      return reply("No videos found.");
-    }
-
-    const selectedVideo = videos[0];
-    const videoUrl = selectedVideo.url;
-
-    // Get download URL
-    const apiUrl = `${BaseUrl}/ytmp4?apikey=${giftedapikey}&url=${encodeURIComponent(videoUrl)}`;
-    const response = await axios.get(apiUrl);
-    
-    if (response.data && response.data.success) {
-      const downloadUrl = response.data.result.download_url;
-      
-      // Send video info
-      await zk.sendMessage(dest, {
-        image: { url: selectedVideo.thumbnail },
-        caption: `╭─────═━┈┈━═──━┈⊷\n┇ 『 *DOWLODER* 』\n┇ *Bot name : FLASH-MD* \n┇ *Owner: France King* \n╰─────═━┈┈━═──━┈⊷`
-      }, { quoted: message });
-      
-      // Send video
-      await zk.sendMessage(dest, {
-        video: { url: downloadUrl },
-        mimetype: "video/mp4"
-      }, { quoted: message });
-      
-      reply("Downloaded Successfully ✅");
-    } else {
-      reply("Failed to download the video.");
-    }
-  } catch (error) {
-    console.error("Error:", error);
-    reply("An error occurred while processing your request.");
-  }
-});
+// ... (Keep your other commands below, if needed)
