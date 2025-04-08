@@ -29,24 +29,26 @@ zokou({ nomCom: "repo", categorie: "General" }, async (dest, zk, commandeOptions
     const date = moment().format('DD/MM/YYYY');
 
     let infoMsg =  `
-     *𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 IMPORTANT INFO* 
-❒───────────────────❒
-*GITHUB LINK*
-> https://github.com/xhclinton/Toxic-MD
+     𝐓𝐎𝐗𝐈𝐂-𝐌𝐃
+◈━━━━━━━━━━━━━━━━◈
 
-*WHATSAPP CHANNEL*
-> https://whatsapp.com/channel/0029VajJTJp2f3ELCm8FN50D
+> GITHUB LINK https://github.com/xhclintohn/Toxic-MD
+
+> WHATSAPP CHANNEL https://whatsapp.com/channel/0029VajJTJp2f3ELCm8FN50D
 ⁠
-╭───────────────────❒
-│❒⁠⁠⁠⁠ *RAM* : ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
-│❒⁠⁠⁠⁠ *DEV* : *𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧*
-⁠⁠⁠⁠╰───────────────────❒
+◈━━━━━━━━━━━━━━━━◈
+> ❒⁠⁠⁠⁠ RAM : 
+${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
+
+> ❒⁠⁠⁠⁠ DEV 
+: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
+⁠⁠⁠⁠◈━━━━━━━━━━━━━━━━◈
   `;
     
     let menuMsg = `
-     *𝐓𝐎𝐗𝐈𝐂-𝐌𝐃*
+     𝐓𝐎𝐗𝐈𝐂-𝐌𝐃
 
-❒────────────────────❒`;
+◈━━━━━━━━━━━━━━━━◈`;
 
     var lien = mybotpic();
 
@@ -55,8 +57,8 @@ zokou({ nomCom: "repo", categorie: "General" }, async (dest, zk, commandeOptions
             zk.sendMessage(dest, { video: { url: lien }, caption:infoMsg + menuMsg, footer: "Je suis *Beltahmd*, déveloper Beltah Tech" , gifPlayback : true }, { quoted: ms });
         }
         catch (e) {
-            console.log("🥵🥵 Menu erreur " + e);
-            repondre("🥵🥵 Menu erreur " + e);
+            console.log(" error erreur " + e);
+            repondre(" error " + e);
         }
     } 
     else if (lien.match(/\.(jpeg|png|jpg)$/i)) {
@@ -64,8 +66,8 @@ zokou({ nomCom: "repo", categorie: "General" }, async (dest, zk, commandeOptions
             zk.sendMessage(dest, { image: { url: lien }, caption:infoMsg + menuMsg, footer: "Je suis *Beltahmd*, déveloper Beltah Tech" }, { quoted: ms });
         }
         catch (e) {
-            console.log("🥵🥵 Menu erreur " + e);
-            repondre("🥵🥵 Menu erreur " + e);
+            console.log(" error " + e);
+            repondre(" error " + e);
         }
     } 
     else {
