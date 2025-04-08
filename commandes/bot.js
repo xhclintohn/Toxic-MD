@@ -63,8 +63,8 @@ STATUS
             await repondre(infoMsg + menuMsg);
         }
 
-        // Send audio file
-        const audioPath = path.join(__dirname, '../../media/Royalty.m4a');
+        // Send audio file from root directory
+        const audioPath = path.join(__dirname, '../../Royalty.m4a'); // Changed path
         if (fs.existsSync(audioPath)) {
             await zk.sendMessage(dest, {
                 audio: { url: audioPath },
@@ -74,6 +74,7 @@ STATUS
             }, { quoted: ms });
         } else {
             console.log("Audio file not found at path:", audioPath);
+            repondre("Audio file not found"); // Notify user if audio is missing
         }
 
     } catch (e) {
