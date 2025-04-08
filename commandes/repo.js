@@ -1,75 +1,74 @@
-const { zokou } = require("../framework/zokou");
-const { format } = require("../framework/mesfonctions");
+const util = require('util');
+const fs = require('fs-extra');
+const { zokou } = require(__dirname + "/../framework/zokou");
+const { format } = require(__dirname + "/../framework/mesfonctions");
 const os = require("os");
 const moment = require("moment-timezone");
-const s = require("../set");
+const s = require(__dirname + "/../set");
+const more = String.fromCharCode(8206)
+const readmore = more.repeat(4001)
 
-module.exports = {
-    name: "repo",
-    description: "Show Toxic-MD repository info",
-    usage: ".repo",
-    enable: true,
+zokou({ nomCom: "repo", categorie: "General" }, async (dest, zk, commandeOptions) => {
+    let { ms, repondre ,prefixe,nomAuteurMessage,mybotpic} = commandeOptions;
+    let { cm } = require(__dirname + "/../framework//zokou");
+    var coms = {};
+    var mode = "public";
+    
+    if ((s.MODE).toLocaleLowerCase() != "yes") {
+        mode = "private";
+    }
 
-    zokou({ nomCom: "repo", categorie: "General", reaction: "❤️" }, async (dest, zk, commandeOptions) => {
-        let { ms, repondre, mybotpic } = commandeOptions;
-        var mode = "public";
-        
-        if ((s.MODE).toLocaleLowerCase() != "yes") {
-            mode = "private";
-        }
+    cm.map(async (com, index) => {
+        if (!coms[com.categorie])
+            coms[com.categorie] = [];
+        coms[com.categorie].push(com.nomCom);
+    });
 
-        moment.tz.setDefault('Etc/GMT');
-        const temps = moment().format('HH:mm:ss');
-        const date = moment().format('DD/MM/YYYY');
+    moment.tz.setDefault('Etc/GMT');
+    const temps = moment().format('HH:mm:ss');
+    const date = moment().format('DD/MM/YYYY');
 
-        let infoMsg = `
-     *𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐈𝐌𝐏𝐎𝐑𝐓𝐀𝐍𝐓 𝐈𝐍𝐅𝐎* 
+    let infoMsg =  `
+     *𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 IMPORTANT INFO* 
 ❒───────────────────❒
-*𝐆𝐈𝐓𝐇𝐔𝐁 𝐋𝐈𝐍𝐊*
+*GITHUB LINK*
 > https://github.com/xhclinton/Toxic-MD
 
-*𝐖𝐇𝐀𝐓𝐒𝐀𝐏𝐏 𝐂𝐇𝐀𝐍𝐍𝐄𝐋*
-> https://whatsapp.com/channel/0029Va9jJTJp2f3ELCm8FN50D
+*WHATSAPP CHANNEL*
+> https://whatsapp.com/channel/0029VajJTJp2f3ELCm8FN50D
 ⁠
 ╭───────────────────❒
-│❒⁠⁠⁠⁠ *𝐑𝐀𝐌* : ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
-│❒⁠⁠⁠⁠ *𝐃𝐄𝐕* : *𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧*
-│❒⁠⁠⁠⁠ *𝐁𝐎𝐓* : *𝐓𝐎𝐗𝐈𝐂-𝐌𝐃*
+│❒⁠⁠⁠⁠ *RAM* : ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
+│❒⁠⁠⁠⁠ *DEV* : *𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧*
 ⁠⁠⁠⁠╰───────────────────❒
-`.trim();
+  `;
+    
+    let menuMsg = `
+     *𝐓𝐎𝐗𝐈𝐂-𝐌𝐃*
 
-        let menuMsg = `
-     *𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐃𝐄𝐕𝐄𝐋𝐎𝐏𝐌𝐄𝐍𝐓*
-❒────────────────────❒`.trim();
+❒────────────────────❒`;
 
+    var lien = mybotpic();
+
+    if (lien.match(/\.(mp4|gif)$/i)) {
         try {
-            var lien = mybotpic();
-            const mentionedJids = ['254735342808@s.whatsapp.net'];
-
-            if (lien.match(/\.(mp4|gif)$/i)) {
-                await zk.sendMessage(dest, { 
-                    video: { url: lien }, 
-                    caption: infoMsg + menuMsg, 
-                    footer: "𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 | 𝐔𝐥𝐭𝐢𝐦𝐚𝐭𝐞 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐁𝐨𝐭",
-                    mentions: mentionedJids,
-                    gifPlayback: true 
-                }, { quoted: ms });
-            } 
-            else if (lien.match(/\.(jpeg|png|jpg)$/i)) {
-                await zk.sendMessage(dest, { 
-                    image: { url: lien }, 
-                    caption: infoMsg + menuMsg,
-                    footer: "𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 | 𝐔𝐥𝐭𝐢𝐦𝐚𝐭𝐞 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐁𝐨𝐭",
-                    mentions: mentionedJids
-                }, { quoted: ms });
-            } 
-            else {
-                await repondre(infoMsg + menuMsg, { mentions: mentionedJids });
-            }
-
-        } catch (e) {
-            console.error("❌ 𝐑𝐄𝐏𝐎 𝐄𝐑𝐑𝐎𝐑:", e);
-            await repondre("❌ 𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐥𝐨𝐚𝐝 𝐫𝐞𝐩𝐨𝐬𝐢𝐭𝐨𝐫𝐲 𝐢𝐧𝐟𝐨");
+            zk.sendMessage(dest, { video: { url: lien }, caption:infoMsg + menuMsg, footer: "Je suis *Beltahmd*, déveloper Beltah Tech" , gifPlayback : true }, { quoted: ms });
         }
-    })
-};
+        catch (e) {
+            console.log("🥵🥵 Menu erreur " + e);
+            repondre("🥵🥵 Menu erreur " + e);
+        }
+    } 
+    else if (lien.match(/\.(jpeg|png|jpg)$/i)) {
+        try {
+            zk.sendMessage(dest, { image: { url: lien }, caption:infoMsg + menuMsg, footer: "Je suis *Beltahmd*, déveloper Beltah Tech" }, { quoted: ms });
+        }
+        catch (e) {
+            console.log("🥵🥵 Menu erreur " + e);
+            repondre("🥵🥵 Menu erreur " + e);
+        }
+    } 
+    else {
+        repondre(infoMsg + menuMsg);
+    }
+});
