@@ -29,24 +29,27 @@ zokou({ nomCom: "repo", categorie: "General" }, async (dest, zk, commandeOptions
     const date = moment().format('DD/MM/YYYY');
 
     let infoMsg =  `
-     𝐓𝐎𝐗𝐈𝐂-𝐌𝐃
+     𝐓𝐎𝐗𝐈𝐂-𝐌𝐃-𝐑𝐄𝐏𝐎
+
 ◈━━━━━━━━━━━━━━━━◈
 
-> GITHUB LINK https://github.com/xhclintohn/Toxic-MD
+> GITHUB LINK
+ https://github.com/xhclintohn/Toxic-MD
 
-> WHATSAPP CHANNEL https://whatsapp.com/channel/0029VajJTJp2f3ELCm8FN50D
+> WHATSAPP CHANNEL
+ https://whatsapp.com/channel/0029VajJTJp2f3ELCm8FN50D
 ⁠
 ◈━━━━━━━━━━━━━━━━◈
 > ❒⁠⁠⁠⁠ RAM : 
 ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
 
-> ❒⁠⁠⁠⁠ DEV 
-: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
+> ❒⁠⁠⁠⁠ DEV : 
+𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
 ⁠⁠⁠⁠◈━━━━━━━━━━━━━━━━◈
   `;
     
     let menuMsg = `
-     𝐓𝐎𝐗𝐈𝐂-𝐌𝐃
+     𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 2025™
 
 ◈━━━━━━━━━━━━━━━━◈`;
 
