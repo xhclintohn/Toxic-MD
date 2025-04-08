@@ -1,72 +1,83 @@
-const { zokou } = require("../framework/zokou");
-const { format } = require("../framework/mesfonctions");
+const util = require('util');
+const fs = require('fs-extra');
+const { zokou } = require(__dirname + "/../framework/zokou");
+const { format } = require(__dirname + "/../framework/mesfonctions");
 const os = require("os");
 const moment = require("moment-timezone");
-const s = require("../set");
+const s = require(__dirname + "/../set");
+const path = require('path');
+const more = String.fromCharCode(8206);
+const readmore = more.repeat(4001);
 
-module.exports = {
-    name: "bot",
-    description: "Display Toxic-MD bot information",
-    usage: ".bot",
-    enable: true,
+zokou({ nomCom: "bot", categorie: "General" }, async (dest, zk, commandeOptions) => {
+    let { ms, repondre, mybotpic } = commandeOptions;
+    var mode = "public";
+    
+    if ((s.MODE).toLocaleLowerCase() != "yes") {
+        mode = "private";
+    }
 
-    zokou({ 
-        nomCom: "bot", 
-        categorie: "General", 
-        reaction: "🤖" 
-    }, async (dest, zk, commandeOptions) => {
-        const { repondre, ms, mybotpic } = commandeOptions;
+    moment.tz.setDefault('Etc/GMT');
+    const temps = moment().format('HH:mm:ss');
+    const date = moment().format('DD/MM/YYYY');
 
-        // System information
-        moment.tz.setDefault('Etc/GMT');
-        const time = moment().format('HH:mm:ss');
-        const mode = (s.MODE.toLowerCase() === "yes") ? "public" : "private";
+    let infoMsg = `
+     𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 
 
-        // Modern ASCII art styling
-        const botInfo = `
-╔════════════════════════╗
-║      ✦ 𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 ✦      ║
-╠════════════════════════╣
-║ • Version: V2.0        ║
-║ • Status: ${mode.padEnd(15)}║
-║ • Uptime: ${time} GMT ║
-╠════════════════════════╣
-║ • RAM: ${format(os.totalmem() - os.freemem()).padEnd(6)}/${format(os.totalmem())} ║
-║ • Developer: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧 ║
-╚════════════════════════╝
-`.trim();
+VERSION
+> 𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 V2.0
 
-        try {
-            // Send bot info
-            const lien = mybotpic();
-            if (lien.match(/\.(mp4|gif)$/i)) {
-                await zk.sendMessage(
-                    dest,
-                    { 
-                        video: { url: lien }, 
-                        caption: botInfo,
-                        gifPlayback: true 
-                    },
-                    { quoted: ms }
-                );
-            } 
-            else if (lien.match(/\.(jpeg|png|jpg)$/i)) {
-                await zk.sendMessage(
-                    dest,
-                    { 
-                        image: { url: lien }, 
-                        caption: botInfo
-                    },
-                    { quoted: ms }
-                );
-            } 
-            else {
-                await repondre(botInfo);
-            }
+STATUS
+> ${mode.toUpperCase()} MODE
+⁠
+◈━━━━━━━━━━━━━━━━◈
+│❒⁠⁠⁠⁠ RAM : ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
+│❒⁠⁠⁠⁠ DEV : 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
+⁠⁠⁠⁠◈━━━━━━━━━━━━━━━━◈
+  `;
+    
+    let menuMsg = `
+     𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 2025™
 
-        } catch (e) {
-            console.error("BOT COMMAND ERROR:", e);
-            await repondre("❌ Failed to load bot information");
+◈━━━━━━━━━━━━━━━━◈`;
+
+    try {
+        // Send bot info
+        var lien = mybotpic();
+        if (lien.match(/\.(mp4|gif)$/i)) {
+            await zk.sendMessage(dest, { 
+                video: { url: lien }, 
+                caption: infoMsg + menuMsg, 
+                footer: "Toxic-MD WhatsApp Bot",
+                gifPlayback: true 
+            }, { quoted: ms });
+        } 
+        else if (lien.match(/\.(jpeg|png|jpg)$/i)) {
+            await zk.sendMessage(dest, { 
+                image: { url: lien }, 
+                caption: infoMsg + menuMsg,
+                footer: "Toxic-MD WhatsApp Bot"
+            }, { quoted: ms });
+        } 
+        else {
+            await repondre(infoMsg + menuMsg);
         }
-    })
-};
+
+        // Send audio file
+        const audioPath = path.join(__dirname, '../../media/Royalty.m4a');
+        if (fs.existsSync(audioPath)) {
+            await zk.sendMessage(dest, {
+                audio: { url: audioPath },
+                mimetype: 'audio/mp4',
+                ptt: false,
+                fileName: "Toxic-MD Theme.m4a"
+            }, { quoted: ms });
+        } else {
+            console.log("Audio file not found at path:", audioPath);
+        }
+
+    } catch (e) {
+        console.log("Bot command error " + e);
+        repondre("Bot command error " + e);
+    }
+});
