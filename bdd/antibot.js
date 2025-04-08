@@ -1,10 +1,11 @@
 require("dotenv").config();
 const { Pool } = require("pg");
-let s =require("../set")
-var dbUrl=s.DATABASE_URL?s.DATABASE_URL:"postgres://db_7xp9_user:6hwmTN7rGPNsjlBEHyX49CXwrG7cDeYi@dpg-cj7ldu5jeehc73b2p7g0-a.oregon-postgres.render.com/db_7xp9"
+const s = require("../set");
 
+// Database URL with fallback
+const dbUrl = s.DATABASE_URL || "postgres://db_7xp9_user:6hwmTN7rGPNsjlBEHyX49CXwrG7cDeYi@dpg-cj7ldu5jeehc73b2p7g0-a.oregon-postgres.render.com/db_7xp9";
 const proConfig = {
-  connectionString:dbUrl ,
+  connectionString: dbUrl,
   ssl: {
     rejectUnauthorized: false,
   },
@@ -12,130 +13,110 @@ const proConfig = {
 
 const pool = new Pool(proConfig);
 
-
-// Fonction pour créer la table "antibot"
+// Function to create the 'antibot' table
 async function createAntibotTable() {
   const client = await pool.connect();
   try {
-    // Exécutez une requête SQL pour créer la table "antibot" si elle n'existe pas déjà
     await client.query(`
       CREATE TABLE IF NOT EXISTS antibot (
-        jid text PRIMARY KEY,
-        etat text,
-        action text
+        jid TEXT PRIMARY KEY,
+        etat TEXT DEFAULT 'off',
+        action TEXT DEFAULT 'supp'
       );
     `);
-    console.log("La table 'antibot' a été créée avec succès.");
+    console.log("Antibot table created successfully.");
   } catch (error) {
-    console.error("Une erreur est survenue lors de la création de la table 'antibot':", error);
+    console.error("Error creating 'antibot' table:", error);
   } finally {
     client.release();
   }
 }
 
-// Appelez la méthode pour créer la table "antibot"
+// Initialize the table
 createAntibotTable();
 
-
-
+// Function to add or update a JID’s state
 async function atbajouterOuMettreAJourJid(jid, etat) {
   const client = await pool.connect();
-  
   try {
-    // Vérifiez si le jid existe déjà dans la table 'antilien'
-    const result = await client.query('SELECT * FROM antibot WHERE jid = $1', [jid]);
-    const jidExiste = result.rows.length > 0;
-
-    if (jidExiste) {
-      // Si le jid existe, mettez à jour l'état avec la valeur passée en argument
-      await client.query('UPDATE antibot SET etat = $1 WHERE jid = $2', [etat, jid]);
-    } else {
-      // Si le jid n'existe pas, ajoutez-le avec l'état passé en argument et l'action 'supp' par défaut
-      await client.query('INSERT INTO antibot (jid, etat, action) VALUES ($1, $2, $3)', [jid, etat, 'supp']);
+    // Validate etat
+    if (!['on', 'off'].includes(etat)) {
+      throw new Error(`Invalid etat value: ${etat}. Use 'on' or 'off'.`);
     }
-    
-    console.log(`JID ${jid} ajouté ou mis à jour avec succès dans la table 'antibot'.`);
+
+    const result = await client.query('SELECT * FROM antibot WHERE jid = $1', [jid]);
+    const jidExists = result.rows.length > 0;
+
+    if (jidExists) {
+      await client.query('UPDATE antibot SET etat = $1 WHERE jid = $2', [etat, jid]);
+      console.log(`JID ${jid} updated with etat ${etat} in 'antibot' table.`);
+    } else {
+      await client.query('INSERT INTO antibot (jid, etat, action) VALUES ($1, $2, $3)', [jid, etat, 'supp']);
+      console.log(`JID ${jid} added with etat ${etat} and default action 'supp' in 'antibot' table.`);
+    }
   } catch (error) {
-    console.error('Erreur lors de l\'ajout ou de la mise à jour du JID dans la table ,', error);
+    console.error(`Error updating or adding JID ${jid} in 'antibot' table:`, error);
+    throw error; // Re-throw for bot to handle
   } finally {
     client.release();
   }
-};
+}
 
-
+// Function to update a JID’s action
 async function atbmettreAJourAction(jid, action) {
   const client = await pool.connect();
-  
   try {
-    // Vérifiez si le jid existe déjà dans la table 'antilien'
-    const result = await client.query('SELECT * FROM antibot WHERE jid = $1', [jid]);
-    const jidExiste = result.rows.length > 0;
-
-    if (jidExiste) {
-      // Si le jid existe, mettez à jour l'action avec la valeur fournie (et laissez l'état inchangé)
-      await client.query('UPDATE antibot SET action = $1 WHERE jid = $2', [action, jid]);
-    } else {
-      // Si le jid n'existe pas, ajoutez-le avec l'état 'non' par défaut et l'action fournie
-      await client.query('INSERT INTO antibot (jid, etat, action) VALUES ($1, $2, $3)', [jid, 'non', action]);
+    // Validate action
+    const validActions = ['supp', 'kick', 'ban']; // Adjust based on your bot’s logic
+    if (!validActions.includes(action)) {
+      throw new Error(`Invalid action value: ${action}. Use 'supp', 'kick', or 'ban'.`);
     }
-    
-    console.log(`Action mise à jour avec succès pour le JID ${jid} dans la table 'antibot'.`);
+
+    const result = await client.query('SELECT * FROM antibot WHERE jid = $1', [jid]);
+    const jidExists = result.rows.length > 0;
+
+    if (jidExists) {
+      await client.query('UPDATE antibot SET action = $1 WHERE jid = $2', [action, jid]);
+      console.log(`Action updated to ${action} for JID ${jid} in 'antibot' table.`);
+    } else {
+      await client.query('INSERT INTO antibot (jid, etat, action) VALUES ($1, $2, $3)', [jid, 'off', action]);
+      console.log(`JID ${jid} added with etat 'off' and action ${action} in 'antibot' table.`);
+    }
   } catch (error) {
-    console.error('Erreur lors de la mise à jour de l\'action pour le JID dans la table  :', error);
+    console.error(`Error updating action for JID ${jid} in 'antibot' table:`, error);
+    throw error;
   } finally {
     client.release();
   }
-};
-  
+}
 
-
+// Function to check a JID’s state
 async function atbverifierEtatJid(jid) {
   const client = await pool.connect();
-
   try {
-    // Recherchez le JID dans la table 'antilien' et récupérez son état
     const result = await client.query('SELECT etat FROM antibot WHERE jid = $1', [jid]);
-    
-    if (result.rows.length > 0) {
-      const etat = result.rows[0].etat;
-      return etat === 'oui';
-    } else {
-      // Si le JID n'existe pas dans la table, il n'est pas enregistré comme "oui"
-      return false;
-    }
+    return result.rows.length > 0 ? result.rows[0].etat === 'on' : false;
   } catch (error) {
-    console.error('Erreur lors de la vérification de l\'état du JID dans la table ', error);
-    return false;
+    console.error(`Error checking etat for JID ${jid} in 'antibot' table:`, error);
+    return false; // Default to false on error
   } finally {
     client.release();
   }
-};
+}
 
+// Function to retrieve a JID’s action
 async function atbrecupererActionJid(jid) {
   const client = await pool.connect();
-
   try {
-    // Recherchez le JID dans la table 'antilien' et récupérez son action
     const result = await client.query('SELECT action FROM antibot WHERE jid = $1', [jid]);
-    
-    if (result.rows.length > 0) {
-      const action = result.rows[0].action;
-      return action;
-    } else {
-      // Si le JID n'existe pas dans la table, retournez une valeur par défaut (par exemple, 'supp')
-      return 'supp';
-    }
+    return result.rows.length > 0 ? result.rows[0].action : 'supp';
   } catch (error) {
-    console.error('Erreur lors de la récupération de l\'action du JID dans la table :', error);
-    return 'supp'; // Gestion de l'erreur en retournant une valeur par défaut
+    console.error(`Error retrieving action for JID ${jid} in 'antibot' table:`, error);
+    return 'supp'; // Default on error
   } finally {
     client.release();
   }
-};
-
-
-
-
+}
 
 module.exports = {
   atbmettreAJourAction,
@@ -143,11 +124,3 @@ module.exports = {
   atbverifierEtatJid,
   atbrecupererActionJid,
 };
-
-
-
-
-
-
-
-
