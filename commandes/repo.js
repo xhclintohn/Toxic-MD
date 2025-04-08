@@ -12,7 +12,12 @@ module.exports = {
 
     zokou({ nomCom: "repo", categorie: "General", reaction: "❤️" }, async (dest, zk, commandeOptions) => {
         let { ms, repondre, mybotpic } = commandeOptions;
+        var mode = "public";
         
+        if ((s.MODE).toLocaleLowerCase() != "yes") {
+            mode = "private";
+        }
+
         moment.tz.setDefault('Etc/GMT');
         const temps = moment().format('HH:mm:ss');
         const date = moment().format('DD/MM/YYYY');
