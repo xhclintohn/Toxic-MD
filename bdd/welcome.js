@@ -1,13 +1,9 @@
-// Importez dotenv et chargez les variables d'environnement depuis le fichier .env
 require("dotenv").config();
-
 const { Pool } = require("pg");
-
-// Utilisez le module 'set' pour obtenir la valeur de DATABASE_URL depuis vos configurations
 const s = require("../set");
 
-// Récupérez l'URL de la base de données de la variable s.DATABASE_URL
-var dbUrl=s.DATABASE_URL?s.DATABASE_URL:"postgres://db_7xp9_user:6hwmTN7rGPNsjlBEHyX49CXwrG7cDeYi@dpg-cj7ldu5jeehc73b2p7g0-a.oregon-postgres.render.com/db_7xp9"
+// Get the database URL from s.DATABASE_URL or use a fallback
+const dbUrl = s.DATABASE_URL || "postgres://db_7xp9_user:6hwmTN7rGPNsjlBEHyX49CXwrG7cDeYi@dpg-cj7ldu5jeehc73b2p7g0-a.oregon-postgres.render.com/db_7xp9";
 const proConfig = {
   connectionString: dbUrl,
   ssl: {
@@ -15,80 +11,83 @@ const proConfig = {
   },
 };
 
-// Créez une pool de connexions PostgreSQL
+// Create a PostgreSQL connection pool
 const pool = new Pool(proConfig);
 
-// Vous pouvez maintenant utiliser 'pool' pour interagir avec votre base de données PostgreSQL.
-const creerTableevents = async () => {
+// Create the 'events' table if it doesn’t exist
+const createEventsTable = async () => {
   try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS events (
-        Id serial PRIMARY KEY,
-        jid text UNIQUE,
-        welcome text DEFAULT 'non',
-        goodbye text DEFAULT 'non',
-        antipromote text DEFAULT 'non',
-        antidemote text DEFAULT 'non'
+        id SERIAL PRIMARY KEY,
+        jid TEXT UNIQUE,
+        welcome TEXT DEFAULT 'off',
+        goodbye TEXT DEFAULT 'off',
+        antipromote TEXT DEFAULT 'off',
+        antidemote TEXT DEFAULT 'off'
       );
     `);
-    console.log("La table 'events' a été créée avec succès.");
-  } catch (e) {
-    console.error("Une erreur est survenue lors de la création de la table 'events':", e);
+    console.log("Events table created successfully.");
+  } catch (error) {
+    console.error("Error creating 'events' table:", error);
   }
 };
 
-// Appelez la méthode pour créer la table "banUser"
-creerTableevents();
+// Initialize the table
+createEventsTable();
 
-
-
-// Fonction pour ajouter un utilisateur à la liste des bannis
+// Function to set or update a value in the events table
 async function attribuerUnevaleur(jid, row, valeur) {
-    const client = await pool.connect();
-
-    try {
-        // Vérifions si le jid existe dans la table
-        const result = await client.query('SELECT * FROM events WHERE jid = $1', [jid]);
-        
-        // Vérifiez la longueur des lignes (rows) pour déterminer si le jid existe
-        const jidExiste = result.rows.length > 0;
-
-        if (jidExiste) {
-            // Si le jid existe, mettez à jour la valeur de la colonne spécifiée (row)
-            await client.query(`UPDATE events SET ${row} = $1 WHERE jid = $2`, [valeur, jid]);
-            console.log(`La colonne ${row} a été actualisée sur ${valeur} pour le jid ${jid}`);
-        } else {
-            // Si le jid n'existe pas, ajoutez une nouvelle ligne avec le jid et la valeur spécifiés
-            await client.query(`INSERT INTO events (jid, ${row}) VALUES ($1, $2)`, [jid, valeur]);
-            console.log(`Nouveau jid ${jid} ajouté avec la colonne ${row} ayant la valeur ${valeur}`);
-        }
-    } catch (error) {
-        console.error("Erreur lors de l'actualisation de events :", error);
-    } finally {
-        client.release();
+  const client = await pool.connect();
+  try {
+    // Validate the row to prevent SQL injection
+    const validRows = ['welcome', 'goodbye', 'antipromote', 'antidemote'];
+    if (!validRows.includes(row)) {
+      throw new Error(`Invalid column name: ${row}`);
     }
-};
 
+    // Check if the jid already exists
+    const result = await client.query('SELECT * FROM events WHERE jid = $1', [jid]);
+    const jidExists = result.rows.length > 0;
 
-async function recupevents(jid, row) {
-     const client = await pool.connect()
-    try {
-        const result = await client.query('SELECT ' + row + ' FROM events WHERE jid = $1', [jid]);
-        const jidExists = result.rows.length > 0;
-
-        if (jidExists) {
-            return result.rows[0][row];
-        } else {
-            return 'non';
-        }
-    } catch (e) {
-        console.error(e);
-    } finally {
-        client.release();
+    if (jidExists) {
+      // Update the existing row
+      await client.query(`UPDATE events SET ${row} = $1 WHERE jid = $2`, [valeur, jid]);
+      console.log(`${row} updated to ${valeur} for jid ${jid}`);
+    } else {
+      // Insert a new row
+      await client.query(`INSERT INTO events (jid, ${row}) VALUES ($1, $2)`, [jid, valeur]);
+      console.log(`New jid ${jid} added with ${row} set to ${valeur}`);
     }
+  } catch (error) {
+    console.error(`Error updating events for ${row}:`, error);
+    throw error; // Re-throw to let the caller handle it
+  } finally {
+    client.release();
+  }
 }
 
+// Function to retrieve a value from the events table
+async function recupevents(jid, row) {
+  const client = await pool.connect();
+  try {
+    // Validate the row
+    const validRows = ['welcome', 'goodbye', 'antipromote', 'antidemote'];
+    if (!validRows.includes(row)) {
+      throw new Error(`Invalid column name: ${row}`);
+    }
 
+    const result = await client.query(`SELECT ${row} FROM events WHERE jid = $1`, [jid]);
+    const jidExists = result.rows.length > 0;
+
+    return jidExists ? result.rows[0][row] : 'off';
+  } catch (error) {
+    console.error(`Error retrieving ${row} for jid ${jid}:`, error);
+    return 'off'; // Default fallback on error
+  } finally {
+    client.release();
+  }
+}
 
 module.exports = {
   attribuerUnevaleur,
