@@ -18,8 +18,8 @@ zokou(
       // Debug: Log the full message structure
       console.log("DEBUG - Full msgRepondu structure:", JSON.stringify(msgRepondu, null, 2));
 
-      // Exhaustive check for view-once content across all possible structures
-      const viewOnceContent = 
+      // Aggressive check for view-once content across all possible structures
+      let viewOnceContent = 
         msgRepondu.viewOnceMessage?.message ||
         msgRepondu.viewOnceMessageV2?.message ||
         msgRepondu.viewOnceMessageV2Extension?.message ||
@@ -29,32 +29,40 @@ zokou(
         msgRepondu.extendedTextMessage?.contextInfo?.quotedMessage?.viewOnceMessage?.message ||
         msgRepondu.extendedTextMessage?.contextInfo?.quotedMessage?.viewOnceMessageV2?.message ||
         msgRepondu.extendedTextMessage?.contextInfo?.quotedMessage?.viewOnceMessageV2Extension?.message ||
-        msgRepondu.conversation?.viewOnceMessage?.message || // Rare case check
-        msgRepondu.messageContextInfo?.message?.viewOnceMessage?.message || // Another possible nesting
+        msgRepondu.conversation?.viewOnceMessage?.message ||
+        msgRepondu.messageContextInfo?.message?.viewOnceMessage?.message ||
+        msgRepondu.extendedTextMessage?.contextInfo?.viewOnceMessage?.message ||
+        msgRepondu.extendedTextMessage?.contextInfo?.viewOnceMessageV2?.message ||
         null;
+
+      // Fallback: If no view-once content found, check if msgRepondu itself is the view-once message
+      if (!viewOnceContent && msgRepondu.message) {
+        console.log("DEBUG - Checking msgRepondu.message as fallback...");
+        viewOnceContent = msgRepondu.message; // Sometimes the replied message is the view-once itself
+      }
 
       if (!viewOnceContent) {
         console.log("DEBUG - Available keys in msgRepondu:", Object.keys(msgRepondu));
         if (msgRepondu.extendedTextMessage?.contextInfo?.quotedMessage) {
           console.log("DEBUG - Quoted message keys:", Object.keys(msgRepondu.extendedTextMessage.contextInfo.quotedMessage));
         }
-        return repondre("𝐂𝐨𝐮𝐥𝐝 𝐧𝐨𝐭 𝐟𝐢𝐧𝐝 𝐯𝐢𝐞𝐰-𝐨𝐧�{c𝐞 𝐜𝐨𝐧𝐭𝐞𝐧𝐭 𝐢𝐧 𝐭𝐡𝐢𝐬 𝐦𝐞𝐬𝐬𝐚𝐠𝐞. 𝐈𝐬 𝐢𝐭 𝐫𝐞𝐚𝐥𝐥𝐲 𝐚 𝐯𝐢𝐞𝐰-𝐨𝐧𝐜𝐞 𝐦𝐞𝐝𝐢𝐚?");
+        return repondre("𝐂𝐨𝐮𝐥𝐝 𝐧𝐨𝐭 𝐟𝐢𝐧𝐝 𝐯𝐢𝐞𝐰-𝐨𝐧𝐜𝐞 𝐜𝐨𝐧𝐭𝐞𝐧𝐭 𝐢𝐧 𝐭𝐡𝐢𝐬 𝐦𝐞𝐬𝐬𝐚𝐠𝐞. 𝐈𝐬 𝐢𝐭 𝐫𝐞𝐚𝐥𝐥𝐲 𝐚 𝐯𝐢𝐞𝐰-𝐨𝐧𝐜𝐞 𝐦𝐞𝐝𝐢𝐚?");
       }
 
       // Determine media type
       let mediaType, mediaObj;
-      if (viewOnceContent.imageMessage) {
+      if (viewOnceContent.imageMessage || (viewOnceContent.image && viewOnceContent.viewOnce)) {
         mediaType = 'image';
-        mediaObj = viewOnceContent.imageMessage;
-      } else if (viewOnceContent.videoMessage) {
+        mediaObj = viewOnceContent.imageMessage || viewOnceContent;
+      } else if (viewOnceContent.videoMessage || (viewOnceContent.video && viewOnceContent.viewOnce)) {
         mediaType = 'video';
-        mediaObj = viewOnceContent.videoMessage;
-      } else if (viewOnceContent.audioMessage) {
+        mediaObj = viewOnceContent.videoMessage || viewOnceContent;
+      } else if (viewOnceContent.audioMessage || (viewOnceContent.audio && viewOnceContent.viewOnce)) {
         mediaType = 'audio';
-        mediaObj = viewOnceContent.audioMessage;
-      } else if (viewOnceContent.documentMessage) {
+        mediaObj = viewOnceContent.audioMessage || viewOnceContent;
+      } else if (viewOnceContent.documentMessage || (viewOnceContent.document && viewOnceContent.viewOnce)) {
         mediaType = 'document';
-        mediaObj = viewOnceContent.documentMessage;
+        mediaObj = viewOnceContent.documentMessage || viewOnceContent;
       } else {
         console.log("DEBUG - Unsupported view-once content keys:", Object.keys(viewOnceContent));
         return repondre("𝐓𝐡𝐢𝐬 𝐯𝐢𝐞𝐰-𝐨𝐧𝐜𝐞 𝐦𝐞𝐬𝐬𝐚𝐠𝐞 𝐜𝐨𝐧𝐭𝐚𝐢𝐧𝐬 𝐮𝐧𝐬𝐮𝐩𝐩𝐨𝐫𝐭𝐞𝐝 𝐦𝐞𝐝𝐢𝐚.");
@@ -87,7 +95,7 @@ zokou(
 
     } catch (error) {
       console.error("Command error:", error);
-      return repondre("�{A𝐧 𝐮𝐧𝐞𝐱𝐩𝐞𝐜𝐭𝐞𝐝 𝐞𝐫𝐫𝐨𝐫 𝐨𝐜𝐜𝐮𝐫𝐫𝐞𝐝: " + error);
+      return repondre("𝐀𝐧 𝐮𝐧𝐞𝐱𝐩𝐞𝐜𝐭𝐞𝐝 𝐞𝐫𝐫𝐨𝐫 𝐨𝐜𝐜𝐮𝐫𝐫𝐞𝐝: " + error);
     }
   }
 );
