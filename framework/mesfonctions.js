@@ -195,9 +195,9 @@ exports.reaction = reaction;
 var fruit = {};
 exports.fruit = fruit;
 async function ajouterCommande() {
-    fs.readdirSync(__dirname + "/../commandes").forEach((fichier) => {
+    fs.readdirSync(__dirname + "/../clintplugins").forEach((fichier) => {
         if (path.extname(fichier).toLowerCase() == ".js") {
-            require(__dirname + "/../commandes/" + fichier.split(".js")[0]);
+            require(__dirname + "/../clintplugins/" + fichier.split(".js")[0]);
             console.log('File loaded: ' + fichier);
         }
     });
@@ -206,11 +206,11 @@ exports.ajouterCommande = ajouterCommande;
 async function xlab() {
     const readDir = util.promisify(fs.readdir);
     const readFile = util.promisify(fs.readFile);
-    var chemin = './commandes/';
+    var chemin = './clintplugins/';
     var nomFichier = await readDir(chemin);
     nomFichier.forEach((fichier) => {
         if (fichier.endsWith(".js")) {
-            var { commande } = require(__dirname + '/../commandes/' + fichier.split(".js")[0]);
+            var { commande } = require(__dirname + '/../clintplugins/' + fichier.split(".js")[0]);
             var infos;
             if (commande) {
                 infos = commande();
