@@ -677,7 +677,7 @@ function mybotpic() {
          
             /////////////////////////
             
-            //execution des commandes   
+            //execution des clintplugins   
             if (verifCom) {
                 //await await zk.readMessages(ms.key);
                 const cd = evt.cm.find((zokou) => zokou.nomCom === (com));
@@ -893,12 +893,12 @@ zk.ev.on('group-participants.update', async (group) => {
                 await (0, baileys_1.delay)(300);
                 console.log("------------------/-----");
                 console.log("Toxic MD is Online ✅\n\n");
-                //chargement des commandes 
+                //chargement des clintplugins 
                 console.log("Loading Toxic Commands ...\n");
-                fs.readdirSync(__dirname + "/commandes").forEach((fichier) => {
+                fs.readdirSync(__dirname + "/clintplugins").forEach((fichier) => {
                     if (path.extname(fichier).toLowerCase() == (".js")) {
                         try {
-                            require(__dirname + "/commandes/" + fichier);
+                            require(__dirname + "/clintplugins/" + fichier);
                             console.log(fichier + " Installed Successfully✔️");
                         }
                         catch (e) {
