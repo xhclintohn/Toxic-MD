@@ -1,11 +1,8 @@
 const { zokou } = require("../framework/zokou");
 const axios = require("axios");
 
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━//
-//                   𝐔𝐓𝐈𝐋𝐈𝐓𝐈𝐄𝐒 𝐌𝐎𝐃𝐔𝐋𝐄             //
-//               𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐛𝐲 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃                //
-//             𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧                   //
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━//
+// 𝐔𝐭𝐢𝐥𝐢𝐭𝐢𝐞𝐬 𝐌𝐨𝐝𝐮𝐥𝐞
+// 𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐛𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
 
 zokou(
   {
@@ -16,59 +13,59 @@ zokou(
   async (dest, zk, commandeOptions) => {
     const { repondre, ms, arg, prefixe, nomAuteurMessage } = commandeOptions;
 
-   
+    // Define owner
     const ownerNumber = "254735342808@s.whatsapp.net";
     const sender = ms.key.participant || ms.key.remoteJid;
 
-    
+    // Restrict to owner only
     if (sender !== ownerNumber) {
       return repondre(
-        `❌ 𝐎𝐰𝐧𝐞𝐫 𝐎𝐧𝐥𝐲!\n\n𝐓𝐡𝐢𝐬 𝐜𝐨𝐦𝐦𝐚𝐧𝐝 𝐢𝐬 𝐫𝐞𝐬𝐭𝐫𝐢𝐜𝐭𝐞𝐝 𝐭𝐨 𝐭𝐡𝐞 𝐛𝐨𝐭 𝐨𝐰𝐧𝐞𝐫 (@${ownerNumber.split("@")[0]}).`
+        `𝐎𝐰𝐧𝐞𝐫 𝐎𝐧𝐥𝐲!\n\n𝐓𝐡𝐢𝐬 𝐜𝐨𝐦𝐦𝐚𝐧𝐝 𝐢𝐬 𝐫𝐞𝐬𝐭𝐫𝐢𝐜𝐭𝐞𝐝 𝐭𝐨 𝐭𝐡𝐞 𝐛𝐨𝐭 𝐨𝐰𝐧𝐞𝐫 (@${ownerNumber.split("@")[0]}).`
       );
     }
 
     // Check for filename argument
     if (!arg || arg.length === 0) {
       return repondre(
-        `🛠 𝐄𝐱𝐚𝐦𝐩𝐥𝐞: ${prefixe}getcmd logo.js\n\n𝐏𝐥𝐞𝐚𝐬𝐞 𝐩𝐫𝐨𝐯𝐢𝐝𝐞 𝐚 𝐟𝐢𝐥𝐞𝐧𝐚𝐦�(e 𝐭𝐨 𝐫�(e𝐭𝐫𝐢�(e𝐯�(e 𝐟𝐫𝐨𝐦 𝐭𝐡�(e 𝐩𝐥𝐮𝐠𝐢𝐧𝐬 𝐫𝐞𝐩𝐨!`
+        `𝐄𝐱𝐚𝐦𝐩𝐥𝐞: ${prefixe}𝐠𝐞𝐭𝐜𝐦𝐝 𝐥𝐨𝐠𝐨.𝐣𝐳\n\n𝐏𝐥𝐞𝐚𝐬𝐞 𝐩𝐫𝐨𝐯𝐢𝐝𝐞 𝐚 𝐟𝐢𝐥𝐞𝐧𝐚𝐦𝐞 𝐭𝐨 𝐫𝐞𝐭𝐫𝐢𝐞𝐯𝐞 𝐟𝐫𝐨𝐦 𝐭𝐡𝐞 𝐩𝐥𝐮𝐠𝐢𝐧𝐬 𝐫𝐞𝐩𝐨!`
       );
     }
 
     const fileName = arg.join(" ").trim();
     if (!fileName.endsWith(".js")) {
       return repondre(
-        `❌ 𝐈𝐧𝐯𝐚𝐥𝐢𝐝 𝐅𝐢�(l𝐞𝐧𝐚𝐦�(e!\n\n𝐏�(l𝐞𝐚𝐬�(e 𝐮𝐬�(e 𝐚 .𝐣𝐬 𝐟𝐢(l𝐞 𝐧𝐚𝐦�(e (𝐞.𝐠., 𝐥𝐨𝐠𝐨.𝐣𝐬).`
+        `𝐈𝐧𝐯𝐚𝐥𝐢𝐝 𝐅𝐢𝐥𝐞𝐧𝐚𝐦𝐞!\n\n𝐏𝐥𝐞𝐚𝐬𝐞 𝐮𝐬𝐞 𝐚 .𝐣𝐬 𝐟𝐢𝐥𝐞 𝐧𝐚𝐦𝐞 (𝐞.𝐠., 𝐥𝐨𝐠𝐨.𝐣𝐬).`
       );
     }
 
     // GitHub repo details (replace with your actual repo)
-    const repoOwner = "xhclintohn"; 
-    const repoName = "Toxic-MD";   // Replace with your repo name
+    const repoOwner = "xhclinton"; // Replace with your GitHub username
+    const repoName = "toxic-md";   // Replace with your repo name
     const folder = "clintplugins";
     const rawUrl = `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/${folder}/${fileName}`;
 
     try {
-      repondre(`🔄 𝐅𝐞𝐭𝐜𝐡𝐢𝐧�(g 𝐜𝐨𝐧𝐭�(e𝐧𝐭𝐬 𝐨𝐟 "${fileName}"...`);
+      repondre(`𝐅𝐞𝐭𝐜𝐡𝐢𝐧𝐠 𝐜𝐨𝐧𝐭𝐞𝐧𝐭𝐬 𝐨𝐟 "${fileName}"...`);
 
       // Fetch file content from GitHub
       const response = await axios.get(rawUrl);
       const fileContent = response.data;
 
-      // Format response
+      // Format response with fancy font
       const message = `
-◈━━━━━━━━━━━━━━━━◈
-  🛠 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐅𝐈𝐋𝐄 𝐑𝐄𝐓𝐑𝐈�(E𝐕𝐀𝐋 ⚡️
+━━━━━━━━━━━━━━━━━━━
+  🛠 𝐂𝐨𝐦𝐦𝐚𝐧𝐝 𝐅𝐢𝐥𝐞 𝐑𝐞𝐭𝐫𝐢𝐞𝐯𝐚𝐥 ⚡️
 
-> 𝐅𝐢�(l𝐞𝐧�(a𝐦�(e: *${fileName}*
-> 𝐒𝐨𝐮𝐫�(c�(e: 𝐆𝐢𝐭𝐇𝐮𝐛 𝐑�(e𝐩𝐨
+> 𝐅𝐢𝐥𝐞𝐧𝐚𝐦𝐞: *${fileName}*
+> 𝐒𝐨𝐮𝐫𝐜𝐞: 𝐆𝐢𝐭𝐇𝐮𝐛 𝐑𝐞𝐩𝐨
 
 \`\`\`javascript
 ${fileContent}
 \`\`\`
 
-◈━━━━━━━━━━━━━━━━◈
-�(P�(o𝐰�(e𝐫�(e𝐝 𝐛𝐲 𝐓𝐨𝐱�(i𝐜-𝐌�(D
-�(O𝐰�(n�(e�(r: �(x𝐡_�(c𝐥𝐢𝐧�(t�(o𝐧
+━━━━━━━━━━━━━━━━━━━
+�{P𝐨𝐰𝐞𝐫𝐞𝐝 𝐛𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭�{o𝐧
+�{O𝐰𝐧𝐞�{r: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭�{o𝐧
 `;
 
       // Send the file content
@@ -80,12 +77,12 @@ ${fileContent}
         { quoted: ms }
       );
     } catch (error) {
-      console.error("Erreur lors de la récupération du fichier :", error);
-      let errorMsg = "❌ �(E𝐫𝐫�(o�(r 𝐫�(e𝐭�(r𝐢�(e�(v𝐢�(n�(g 𝐟�(i�(l�(e!";
+      console.error("Error retrieving file:", error);
+      let errorMsg = "�{E𝐫𝐫�{o𝐫 �{r𝐞𝐭�{r𝐢𝐞�{v𝐢�{n�{g �{f𝐢𝐥�{e!";
       if (error.response && error.response.status === 404) {
-        errorMsg = `❌ �(F𝐢�(l�(e "${fileName}" 𝐧�(o𝐭 𝐟�(o�(u�(n�(d 𝐢�(n 𝐭�(h�(e 𝐫�(e𝐩�(o!`;
+        errorMsg = `�{F𝐢𝐥�{e "${fileName}" �{n�{o𝐭 �{f�{o𝐮�{n�{d �{i�{n �{t�{h�{e �{r�{e𝐩�{o!`;
       } else {
-        errorMsg += `\n�(D�(e�(t�(a�(i�(l�(s: ${error.message}`;
+        errorMsg += `\n�{D�{e𝐭�{a𝐢�{l�{s: ${error.message}`;
       }
       repondre(errorMsg);
     }
