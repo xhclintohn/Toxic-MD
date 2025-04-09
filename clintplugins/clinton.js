@@ -1,5 +1,4 @@
 const { zokou } = require('../framework/zokou');
-const s = require("../set");
 
 zokou(
   {
@@ -8,19 +7,7 @@ zokou(
     reaction: '🤝'
   },
   async (dest, zk, commandeOptions) => {
-    const { ms, repondre, superUser, auteurMessage, idBot, prefix } = commandeOptions;
-
-    // Identify the user and the bot's connected JID
-    const userJid = auteurMessage; // The user sending the command
-    const botJid = idBot; // The JID of the WhatsApp account hosting the bot
-    const ownerNumber = s.OWNER_NUMBER || 'default_owner_number'; // Fallback if not set
-    const isOwner = userJid === ownerNumber + '@s.whatsapp.net';
-    const isConnectedUser = userJid === botJid; // Check if the user is the one hosting the bot
-
-    // Restrict to the connected user (bot host) or owner
-    if (!isConnectedUser && !isOwner && !superUser) {
-      return repondre("𝐎𝐧𝐥𝐲 𝐭𝐡𝐞 𝐜𝐨𝐧𝐧𝐞𝐜𝐭𝐞𝐝 𝐛𝐨𝐭 𝐮𝐬𝐞𝐫 𝐨𝐫 𝐭𝐡𝐞 𝐨𝐰𝐧𝐞𝐫 𝐜𝐚𝐧 𝐮𝐬𝐞 𝐭𝐡𝐢𝐬 𝐜𝐨𝐦𝐦𝐚𝐧𝐝!");
-    }
+    const { ms, repondre, prefix } = commandeOptions;
 
     try {
       // Group and Channel links
@@ -37,17 +24,18 @@ zokou(
         },
       ];
       const buttonMessage = {
-        text: captionText,
+        contentText: captionText,
+        footerText: "Powered by Toxic-MD",
         buttons: buttons,
-        headerType: 1, // Simple text header
+        headerType: 1,
       };
 
-      // Send the text message with button
+      // Send the button message
       await zk.sendMessage(dest, buttonMessage, { quoted: ms });
 
     } catch (error) {
-      console.error("Error in clint command:", error);
-      repondre(`𝐒𝐨𝐦𝐞𝐭𝐡𝐢𝐧�(g 𝐰𝐞𝐧𝐭 �(w𝐫𝐨𝐧�(g: ${error.message}`);
+      console.error("Error in clint command:", error.stack);
+      repondre(`𝐒𝐨𝐦𝐞𝐭𝐡𝐢𝐧𝐠 𝐰𝐞𝐧𝐭 𝐰𝐫𝐨𝐧𝐠: ${error.message}`);
     }
   }
 );
