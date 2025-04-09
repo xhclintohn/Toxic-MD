@@ -34,7 +34,7 @@ zokou({ nomCom: "repo", categorie: "General" }, async (dest, zk, commandeOptions
 ◈━━━━━━━━━━━━━━━━◈
 
 > GITHUB LINK
- https://github.com/xhclintohn/Toxic-MD
+ https://github.com/xhclintohn/Toxic-MD/fork
 
 > WHATSAPP CHANNEL
  https://whatsapp.com/channel/0029VajJTJp2f3ELCm8FN50D
