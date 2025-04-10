@@ -3,7 +3,7 @@ const moment = require("moment-timezone");
 const speed = require("performance-now");
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Ping command with reduced graphics and fancy font
+
 zokou({
   nomCom: "ping",
   desc: "Check bot response speed",
@@ -12,7 +12,7 @@ zokou({
   fromMe: true
 }, async (dest, zk, { repondre, ms }) => {
     try {
-        // Initial message without animation
+       
         let loadingMsg = await zk.sendMessage(dest, { 
             text: "𝐓𝐞𝐬𝐭𝐢𝐧𝐠 𝐜𝐨𝐧𝐧𝐞𝐜𝐭𝐢𝐨𝐧..."
         }, { quoted: ms });
