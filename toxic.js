@@ -725,7 +725,7 @@ function mybotpic() {
                         cd.fonction(origineMessage, zk, commandeOptions);
                     }
                     catch (e) {
-                        console.log("😡😡 " + e);
+                        console.log("😡r😡 " + e);
                         zk.sendMessage(origineMessage, { text: "😡😡 " + e }, { quoted: ms });
                     }
                 }
