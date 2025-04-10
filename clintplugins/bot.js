@@ -9,7 +9,7 @@ const path = require('path');
 const more = String.fromCharCode(8206);
 const readmore = more.repeat(4001);
 
-zokou({ nomCom: "bot", categorie: "General" }, async (dest, zk, commandeOptions) => {
+zokou({ nomCom: "bo", categorie: "General" }, async (dest, zk, commandeOptions) => {
     let { ms, repondre, mybotpic } = commandeOptions;
     var mode = "public";
     
