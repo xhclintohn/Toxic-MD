@@ -1,4 +1,4 @@
-const fs = equire('fs-extra');
+const fs = require('fs-extra');
 const { Sequelize } = require('sequelize');
 if (fs.existsSync('set.env'))
     require('dotenv').config({ path: __dirname + '/set.env' });
