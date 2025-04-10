@@ -5,7 +5,7 @@
         pkgs.nodePackages.typescript
         pkgs.ffmpeg
         pkgs.imagemagick
-        pkgs.git
+        pkgs.gi
         pkgs.neofetch
         pkgs.libwebp
         pkgs.speedtest-cli
