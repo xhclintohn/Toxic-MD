@@ -32,8 +32,10 @@ zokou({
         else if (pingResult < 600) quality = "𝐅𝐚𝐢𝐫";
         else quality = "𝐒𝐥𝐨𝐰";
 
-        // Mature and minimal response with fancy font
-        const resultMessage = `𝐑𝐞𝐬𝐩𝐨𝐧𝐬𝐞 𝐓𝐢𝐦𝐞: ${pingResult} 𝐦𝐬\n𝐂𝐨𝐧𝐧𝐞𝐜𝐭𝐢𝐨𝐧 𝐐𝐮𝐚𝐥𝐢𝐭𝐲: ${quality}\n𝐒𝐞𝐫𝐯𝐞𝐫 𝐒𝐭𝐚𝐭𝐮𝐬: 𝐎𝐩𝐞𝐫𝐚𝐭𝐢𝐨𝐧𝐚𝐥\n𝐔𝐩𝐭𝐢𝐦𝐞: 𝟏𝟎𝟎%`;
+       
+        const resultMessage = `𝐑𝐞𝐬𝐩𝐨𝐧𝐬𝐞 𝐓𝐢𝐦𝐞⚡: ${pingResult} 𝐦𝐬\n
+
+𝐂𝐨𝐧𝐧𝐞𝐜𝐭𝐢𝐨𝐧 𝐐𝐮𝐚𝐥𝐢𝐭𝐲🖥️: ${quality}\n`;
 
         // Update the initial message with the result
         await zk.sendMessage(dest, {
