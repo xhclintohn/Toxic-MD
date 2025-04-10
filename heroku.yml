@@ -2,6 +2,6 @@ build:
   docker:
       worker: Dockerfile
 run:
-   worker:   npm run toxictec
+   worker:   npm run toxictech
    
    
