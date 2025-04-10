@@ -4,7 +4,7 @@ zokou(
   {
     nomCom: 'clint',
     categorie: 'General',
-    reaction: '🤝'
+    reaction: '🗿'
   },
   async (dest, zk, commandeOptions) => {
     const { ms, repondre, prefix } = commandeOptions;
