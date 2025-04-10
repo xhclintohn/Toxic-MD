@@ -64,7 +64,7 @@ STATUS
         }
 
         // Send audio file from root directory
-        const audioPath = path.join(__dirname, '/../Royalty.m4a'); // Changed path
+        const audioPath = path.join(__dirname, './𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧/bot.m4a'); // Changed path
         if (fs.existsSync(audioPath)) {
             await zk.sendMessage(dest, {
                 audio: { url: audioPath },
