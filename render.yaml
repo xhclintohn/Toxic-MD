@@ -1,5 +1,5 @@
 services:
-  - type: we
+  - type: web
     name: Toxic-MD
     env: docker
     region: Frankfurt
