@@ -188,7 +188,7 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
       }
 
       // Send audio with stylish caption
-      const audioPath = __dirname + "./𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧/menu.m4a";
+      const audioPath = __dirname + "/../𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧/menu.m4a";
       if (fs.existsSync(audioPath)) {
         await zk.sendMessage(
           dest,
