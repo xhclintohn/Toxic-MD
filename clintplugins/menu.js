@@ -36,7 +36,7 @@ zokou(
       await zk.sendMessage(
         dest,
         {
-          text: `𝐋𝐨𝐚𝐝𝐢𝐧�{g...\n${batteryBar} ${percent}%`,
+          text: `𝐋𝐨𝐚𝐝𝐢𝐧𝐠...\n${batteryBar} ${percent}%`,
           edit: loadingMsg.key,
         },
         { quoted: ms }
@@ -77,13 +77,13 @@ zokou(
 > ✦ 𝐎𝐰𝐧𝐞𝐫: 
 @254735342808
 
-> ✦ 𝐌�{o𝐝𝐞: 
+> ✦ 𝐌𝐨𝐝𝐞: 
 ${mode}
 
 > ✦ 𝐓𝐢𝐦𝐞: 
 ${temps} (EAT)
 
-> ✦ �{R𝐀𝐌: 
+> ✦ 𝐑𝐀𝐌: 
 ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
 
 ◈━━━━━━━━━━━━━━━━◈
@@ -189,43 +189,63 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
 
       // Send random audio as a voice note
       const audioFolder = __dirname + "/../xh_clinton/";
-      const audioFiles = Array.from({ length: 9 }, (_, i) => `menu${i + 1}.mp3`);
+      console.log("Audio folder path:", audioFolder);
+
+      // Check if folder exists
+      if (!fs.existsSync(audioFolder)) {
+        console.log("Audio folder does not exist:", audioFolder);
+        repondre(`𝐀𝐮𝐝𝐢𝐨 𝐟𝐨𝐥𝐝𝐞𝐫 𝐧𝐨𝐭 𝐟𝐨𝐮𝐧𝐝: ${audioFolder}`);
+        return;
+      }
+
+      // Get all MP3 files in the folder (in case names differ)
+      const audioFiles = fs.readdirSync(audioFolder).filter(f => f.endsWith(".mp3"));
+      console.log("Available audio files:", audioFiles);
+
+      if (audioFiles.length === 0) {
+        console.log("No MP3 files found in folder");
+        repondre(`𝐍𝐨 𝐚𝐮𝐝𝐢𝐨 𝐟𝐢𝐥𝐞𝐬 𝐟𝐨𝐮𝐧𝐝 𝐢𝐧 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧 𝐟𝐨𝐥𝐝𝐞𝐫`);
+        return;
+      }
+
+      // Randomly select an audio file
       const randomAudio = audioFiles[Math.floor(Math.random() * audioFiles.length)];
       const audioPath = audioFolder + randomAudio;
 
-      console.log("Audio folder:", audioFolder);
-      console.log("Selected audio:", randomAudio);
+      console.log("Randomly selected audio:", randomAudio);
       console.log("Full audio path:", audioPath);
 
+      // Verify file exists (redundant but for safety)
       if (fs.existsSync(audioPath)) {
-        console.log("Audio file found, sending as voice note...");
+        console.log("Audio file exists, sending as voice note...");
         try {
-          await zk.sendMessage(
+          const audioMessage = await zk.sendMessage(
             dest,
             {
               audio: { url: audioPath },
-              mimetype: "audio/mpeg", // Changed to mpeg for MP3 compatibility
-              ptt: true, // Voice note appearance
+              mimetype: "audio/mpeg", // MP3 files use audio/mpeg
+              ptt: true, // Voice note appearance (waveform, duration)
               fileName: `𝐓𝐎𝐗𝐈𝐂 𝐕𝐎𝐈𝐂𝐄 ✧`,
               caption: "✦⋆✗𝐓𝐎𝐗𝐈𝐂",
             },
             { quoted: ms }
           );
           console.log("Audio sent successfully:", randomAudio);
+          console.log("Audio message details:", audioMessage);
         } catch (audioError) {
           console.error("Error sending audio:", audioError);
           repondre(`𝐄𝐫𝐫𝐨𝐫 𝐬𝐞𝐧𝐝𝐢𝐧𝐠 𝐯𝐨𝐢𝐜𝐞 𝐧𝐨𝐭𝐞: ${audioError.message}`);
         }
       } else {
-        console.log("Audio file not found at:", audioPath);
-        repondre(`𝐀𝐮𝐝𝐢�{o 𝐟𝐢𝐥𝐞 𝐧�{o𝐭 𝐟�{o𝐮𝐧𝐝: ${randomAudio}`);
+        console.log("Selected audio file not found at:", audioPath);
+        repondre(`𝐀𝐮𝐝𝐢𝐨 𝐟𝐢𝐥𝐞 𝐧𝐨𝐭 𝐟𝐨𝐮𝐧𝐝: ${randomAudio}\n𝐀𝐯𝐚𝐢𝐥𝐚𝐛𝐥𝐞 𝐟𝐢𝐥𝐞𝐬: ${audioFiles.join(", ")}`);
       }
     } catch (e) {
       console.error("◈ 𝐄𝐑𝐑𝐎𝐑 ◈", e);
       await zk.sendMessage(
         dest,
         {
-          text: "◈ 𝐅𝐀𝐈𝐋𝐄𝐃 𝐓𝐎 𝐋𝐎𝐀�{D 𝐌𝐄𝐍𝐔 ◈\n�{P𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫",
+          text: "◈ 𝐅𝐀𝐈𝐋𝐄𝐃 𝐓𝐎 𝐋𝐎𝐀𝐃 𝐌𝐄𝐍𝐔 ◈\n�{P𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫",
           edit: loadingMsg.key,
         },
         { quoted: ms }
