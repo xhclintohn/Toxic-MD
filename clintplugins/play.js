@@ -17,17 +17,17 @@ zokou({
   try {
     const searchResults = await yts(searchQuery);
     if (!searchResults.videos || searchResults.videos.length === 0) {
-      return reply(`𝐍�{o 𝐫𝐞𝐬𝐮𝐥𝐭𝐬 𝐟𝐨𝐮𝐧𝐝 𝐟𝐨𝐫 "${searchQuery}".`);
+      return reply(`𝐍𝐨 𝐫𝐞𝐬𝐮𝐥𝐭𝐬 𝐟𝐨𝐮𝐧𝐝 𝐟𝐨𝐫 "${searchQuery}".`);
     }
 
     const firstResult = searchResults.videos[0];
     const videoUrl = firstResult.url;
 
-    const apiUrl = `https://api.davidcyriltech.my.id/download/ytmp3?url=${videoUrl}`;
+    const apiUrl = `https://api.davidcyriltech.my.id/youtube/mp3?url=${encodeURIComponent(videoUrl)}`;
     const response = await axios.get(apiUrl);
 
     if (!response.data.success) {
-      return reply(`𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐟𝐞𝐭𝐜𝐡 𝐚𝐮𝐝𝐢𝐨 𝐟𝐨𝐫 "${searchQuery}".`);
+      return reply(`𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐟𝐞𝐭𝐜𝐡 𝐚𝐮𝐝𝐢�{o 𝐟𝐨𝐫 "${searchQuery}".`);
     }
 
     const { title, download_url } = response.data.result;
@@ -46,6 +46,6 @@ zokou({
     reply(`𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐞𝐝: ${title}`);
   } catch (error) {
     console.error("Play error:", error);
-    reply("𝐀𝐧 𝐞𝐫𝐫𝐨𝐫 𝐨𝐜𝐜𝐮𝐫𝐫𝐞�{d 𝐰𝐡𝐢𝐥𝐞 𝐩𝐫𝐨𝐜𝐞𝐬𝐬𝐢𝐧𝐠 𝐲𝐨𝐮𝐫 𝐫𝐞𝐪𝐮𝐞𝐬𝐭.");
+    reply("𝐀𝐧 𝐞𝐫𝐫𝐨𝐫 𝐨𝐜𝐜𝐮𝐫𝐫𝐞𝐝 𝐰𝐡𝐢𝐥𝐞 𝐩𝐫𝐨𝐜𝐞𝐬𝐬𝐢𝐧𝐠 𝐲𝐨𝐮𝐫 𝐫𝐞𝐪𝐮𝐞𝐬𝐭.");
   }
 });
