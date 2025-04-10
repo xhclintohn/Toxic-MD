@@ -9,7 +9,7 @@
   "env":{
     "PREFIX":
     {
-      "description":"choose your prefix of bot",
+      "description":"choose your prefix for the bot",
       "value":".",
       "required":true
     },
