@@ -1,13 +1,13 @@
-// Importez dotenv et chargez les variables d'environnement depuis le fichier .env
+// Import dotenv and load environment variables from the .env file
 require("dotenv").config();
 
 const { Pool } = require("pg");
 
-// Utilisez le module 'set' pour obtenir la valeur de DATABASE_URL depuis vos configurations
+// Use the 'set' module to get the DATABASE_URL value from your configurations
 const s = require("../set");
 
-// Récupérez l'URL de la base de données de la variable s.DATABASE_URL
-var dbUrl=s.DATABASE_URL?s.DATABASE_URL:"postgres://db_7xp9_user:6hwmTN7rGPNsjlBEHyX49CXwrG7cDeYi@dpg-cj7ldu5jeehc73b2p7g0-a.oregon-postgres.render.com/db_7xp9"
+// Retrieve the database URL from the s.DATABASE_URL variable
+var dbUrl = s.DATABASE_URL ? s.DATABASE_URL : "postgres://db_7xp9_user:6hwmTN7rGPNsjlBEHyX49CXwrG7cDeYi@dpg-cj7ldu5jeehc73b2p7g0-a.oregon-postgres.render.com/db_7xp9";
 const proConfig = {
   connectionString: dbUrl,
   ssl: {
@@ -15,10 +15,10 @@ const proConfig = {
   },
 };
 
-// Créez une pool de connexions PostgreSQL
+// Create a PostgreSQL connection pool
 const pool = new Pool(proConfig);
 
-// Vous pouvez maintenant utiliser 'pool' pour interagir avec votre base de données PostgreSQL.
+// You can now use 'pool' to interact with your PostgreSQL database.
 const creerTableBanUser = async () => {
   try {
     await pool.query(`
@@ -26,66 +26,62 @@ const creerTableBanUser = async () => {
         jid text PRIMARY KEY
       );
     `);
-    console.log("La table 'banUser' a été créée avec succès.");
+    console.log("The 'banUser' table has been successfully created.");
   } catch (e) {
-    console.error("Une erreur est survenue lors de la création de la table 'banUser':", e);
+    console.error("An error occurred while creating the 'banUser' table:", e);
   }
 };
 
-// Appelez la méthode pour créer la table "banUser"
+// Call the method to create the "banUser" table
 creerTableBanUser();
 
-
-
-// Fonction pour ajouter un utilisateur à la liste des bannis
+// Function to add a user to the banned list
 async function addUserToBanList(jid) {
   const client = await pool.connect();
   try {
-    // Insérez l'utilisateur dans la table "banUser"
+    // Insert the user into the "banUser" table
     const query = "INSERT INTO banUser (jid) VALUES ($1)";
     const values = [jid];
 
     await client.query(query, values);
-    console.log(`JID ${jid} ajouté à la liste des bannis.`);
+    console.log(`JID ${jid} added to the banned list.`);
   } catch (error) {
-    console.error("Erreur lors de l'ajout de l'utilisateur banni :", error);
+    console.error("Error while adding the banned user:", error);
   } finally {
     client.release();
   }
 }
 
-
-
-// Fonction pour vérifier si un utilisateur est banni
+// Function to check if a user is banned
 async function isUserBanned(jid) {
   const client = await pool.connect();
   try {
-    // Vérifiez si l'utilisateur existe dans la table "banUser"
+    // Check if the user exists in the "banUser" table
     const query = "SELECT EXISTS (SELECT 1 FROM banUser WHERE jid = $1)";
     const values = [jid];
 
     const result = await client.query(query, values);
     return result.rows[0].exists;
   } catch (error) {
-    console.error("Erreur lors de la vérification de l'utilisateur banni :", error);
+    console.error("Error while checking the banned user:", error);
     return false;
   } finally {
     client.release();
   }
 }
 
-// Fonction pour supprimer un utilisateur de la liste des bannis
+// Function to remove a user from the banned list
 async function removeUserFromBanList(jid) {
   const client = await pool.connect();
   try {
-    // Supprimez l'utilisateur de la table "banUser"
+    // Delete the user from the "banUser" table
     const query = "DELETE FROM banUser WHERE jid = $1";
     const values = [jid];
 
     await client.query(query, values);
-    console.log(`JID ${jid} supprimé de la liste des bannis.`);
+    console.log(`JID ${jid} removed from the banned list.`);
   } catch (error) {
-    console.error("Erreur lors de la suppression de l'utilisateur banni :", error);
+    console.error("Error while removing the banned user:", error);
   } finally {
     client.release();
   }

@@ -1,13 +1,13 @@
-// Importez dotenv et chargez les variables d'environnement depuis le fichier .env
+// Import dotenv and load environment variables from the .env file
 require("dotenv").config();
 
 const { Pool } = require("pg");
 
-// Utilisez le module 'set' pour obtenir la valeur de DATABASE_URL depuis vos configurations
+// Use the 'set' module to get the DATABASE_URL value from your configurations
 const s = require("../set");
 
-// Récupérez l'URL de la base de données de la variable s.DATABASE_URL
-var dbUrl=s.DATABASE_URL?s.DATABASE_URL:"postgres://db_7xp9_user:6hwmTN7rGPNsjlBEHyX49CXwrG7cDeYi@dpg-cj7ldu5jeehc73b2p7g0-a.oregon-postgres.render.com/db_7xp9"
+// Retrieve the database URL from the s.DATABASE_URL variable
+var dbUrl = s.DATABASE_URL ? s.DATABASE_URL : "postgres://db_7xp9_user:6hwmTN7rGPNsjlBEHyX49CXwrG7cDeYi@dpg-cj7ldu5jeehc73b2p7g0-a.oregon-postgres.render.com/db_7xp9";
 const proConfig = {
   connectionString: dbUrl,
   ssl: {
@@ -15,10 +15,10 @@ const proConfig = {
   },
 };
 
-// Créez une pool de connexions PostgreSQL
+// Create a PostgreSQL connection pool
 const pool = new Pool(proConfig);
 
-// Fonction pour créer la table "onlyAdmin"
+// Function to create the "onlyAdmin" table
 const creerTableOnlyAdmin = async () => {
   try {
     await pool.query(`
@@ -26,62 +26,62 @@ const creerTableOnlyAdmin = async () => {
         groupeJid text PRIMARY KEY
       );
     `);
-    console.log("La table 'onlyAdmin' a été créée avec succès.");
+    console.log("The 'onlyAdmin' table has been successfully created.");
   } catch (e) {
-    console.error("Une erreur est survenue lors de la création de la table 'onlyAdmin':", e);
+    console.error("An error occurred while creating the 'onlyAdmin' table:", e);
   }
 };
 
-// Appelez la méthode pour créer la table "onlyAdmin"
+// Call the method to create the "onlyAdmin" table
 creerTableOnlyAdmin();
 
-// Fonction pour ajouter un groupe à la liste des groupes autorisés uniquement aux administrateurs
+// Function to add a group to the list of admin-only groups
 async function addGroupToOnlyAdminList(groupeJid) {
   const client = await pool.connect();
   try {
-    // Insérez le groupe dans la table "onlyAdmin"
+    // Insert the group into the "onlyAdmin" table
     const query = "INSERT INTO onlyAdmin (groupeJid) VALUES ($1)";
     const values = [groupeJid];
 
     await client.query(query, values);
-    console.log(`Groupe JID ${groupeJid} ajouté à la liste des groupes onlyAdmin.`);
+    console.log(`Group JID ${groupeJid} added to the onlyAdmin groups list.`);
   } catch (error) {
-    console.error("Erreur lors de l'ajout du groupe onlyAdmin :", error);
+    console.error("Error while adding the onlyAdmin group:", error);
   } finally {
     client.release();
   }
 }
 
-// Fonction pour vérifier si un groupe est autorisé uniquement aux administrateurs
+// Function to check if a group is restricted to admins only
 async function isGroupOnlyAdmin(groupeJid) {
   const client = await pool.connect();
   try {
-    // Vérifiez si le groupe existe dans la table "onlyAdmin"
+    // Check if the group exists in the "onlyAdmin" table
     const query = "SELECT EXISTS (SELECT 1 FROM onlyAdmin WHERE groupeJid = $1)";
     const values = [groupeJid];
 
     const result = await client.query(query, values);
     return result.rows[0].exists;
   } catch (error) {
-    console.error("Erreur lors de la vérification du groupe onlyAdmin :", error);
+    console.error("Error while checking the onlyAdmin group:", error);
     return false;
   } finally {
     client.release();
   }
 }
 
-// Fonction pour supprimer un groupe de la liste des groupes onlyAdmin
+// Function to remove a group from the onlyAdmin groups list
 async function removeGroupFromOnlyAdminList(groupeJid) {
   const client = await pool.connect();
   try {
-    // Supprimez le groupe de la table "onlyAdmin"
+    // Delete the group from the "onlyAdmin" table
     const query = "DELETE FROM onlyAdmin WHERE groupeJid = $1";
     const values = [groupeJid];
 
     await client.query(query, values);
-    console.log(`Groupe JID ${groupeJid} supprimé de la liste des groupes onlyAdmin.`);
+    console.log(`Group JID ${groupeJid} removed from the onlyAdmin groups list.`);
   } catch (error) {
-    console.error("Erreur lors de la suppression du groupe onlyAdmin :", error);
+    console.error("Error while removing the onlyAdmin group:", error);
   } finally {
     client.release();
   }

@@ -1,68 +1,63 @@
-const {zokou }= require ('../framework/zokou') ;
-const {addstickcmd, deleteCmd, getCmdById, inStickCmd , getAllStickCmds} = require('../bdd/stickcmd') ;
-
-
+const { zokou } = require('../framework/zokou');
+const { addstickcmd, deleteCmd, getCmdById, inStickCmd, getAllStickCmds } = require('../bdd/stickcmd');
 
 zokou(
     {
-        nomCom : 'setcmd',
-        categorie : 'stickcmd'
-        
-    }, async (dest,zk,commandeOptions) => { 
+        nomCom: 'setcmd',
+        categorie: 'stickcmd'
+    }, 
+    async (dest, zk, commandeOptions) => { 
+        const { ms, arg, repondre, superUser, msgRepondu } = commandeOptions;
 
-   const {ms , arg, repondre,superUser , msgRepondu} = commandeOptions;
+        if (!superUser) { 
+            repondre('You can\'t use this command'); 
+            return; 
+        }
 
-    if (!superUser) { repondre('you can\'t use this command') ; return} ;
-
-      if(msgRepondu && msgRepondu.stickerMessage )  {
-  
-         if(!arg || !arg[0]) { repondre('put the name of the command') ; return} ;
+        if (msgRepondu && msgRepondu.stickerMessage) {  
+            if (!arg || !arg[0]) { 
+                repondre('Please provide the name of the command'); 
+                return; 
+            }
           
-        
-         await addstickcmd(arg[0].toLowerCase() , msgRepondu.stickerMessage.url ) ;
+            await addstickcmd(arg[0].toLowerCase(), msgRepondu.stickerMessage.url);
+            repondre('Sticker command saved successfully');
+        } else {
+            repondre('Please mention a sticker');
+        }
+    }
+); 
 
-         repondre('Stick cmd save successfully')
+zokou(
+    {
+        nomCom: 'delcmd',
+        categorie: 'stickcmd'
+    },
+    async (dest, zk, commandeOptions) => {
+        const { ms, arg, repondre, superUser } = commandeOptions;
 
-      } else {
+        if (!superUser) {
+            repondre('Only mods can use this command');
+            return;
+        }
 
-        repondre('mention a sticker')
-      }
+        if (!arg || !arg[0]) {
+            repondre('Please provide the name of the command you want to delete');
+            return;
+        }
 
-    }) ; 
+        const cmdToDelete = arg[0];
 
-    zokou(
-      {
-          nomCom: 'delcmd',
-          categorie: 'stickcmd'
-      },
-      async (dest, zk, commandeOptions) => {
-  
-          const { ms, arg, repondre, superUser } = commandeOptions;
-  
-          if (!superUser) {
-              repondre('only Mods can use this command');
-              return;
-          }
-  
-          if (!arg || !arg[0]) {
-              repondre('put the name of the command that you want to delete');
-              return;
-          }
-  
-          const cmdToDelete = arg[0];
+        try {
+            await deleteCmd(cmdToDelete.toLowerCase());
+            repondre(`The command ${cmdToDelete} has been deleted successfully.`);
+        } catch {
+            repondre(`The command ${cmdToDelete} doesn\'t exist`);
+        }
+    }
+);
 
-  
-          try {
-              await deleteCmd(cmdToDelete.toLowerCase());
-              repondre(`the commande ${cmdToDelete} is deleted successfully.`);
-          } catch {
-              repondre(`the command ${cmdToDelete} don't existe`);
-          }
-      }
-  );
-  
-
-  zokou(
+zokou(
     {
         nomCom: 'allcmd',
         categorie: 'stickcmd'
@@ -71,7 +66,7 @@ zokou(
         const { repondre, superUser } = commandeOptions;
 
         if (!superUser) {
-            repondre('only Mods can use this command');
+            repondre('Only mods can use this command');
             return;
         }
 
@@ -79,10 +74,9 @@ zokou(
 
         if (allCmds.length > 0) {
             const cmdList = allCmds.map(cmd => cmd.cmd).join(', ');
-            repondre(`*List of all stickcmd :*
- ${cmdList}`);
+            repondre(`*List of all stick commands:*\n${cmdList}`);
         } else {
-            repondre('No stickcmd save');
+            repondre('No stick commands saved');
         }
     }
 );

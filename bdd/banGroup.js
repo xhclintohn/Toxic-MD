@@ -1,13 +1,13 @@
-// Importez dotenv et chargez les variables d'environnement depuis le fichier .env
+// Import dotenv and load environment variables from the .env file
 require("dotenv").config();
 
 const { Pool } = require("pg");
 
-// Utilisez le module 'set' pour obtenir la valeur de DATABASE_URL depuis vos configurations
+// Use the 'set' module to get the DATABASE_URL value from your configurations
 const s = require("../set");
 
-// Récupérez l'URL de la base de données de la variable s.DATABASE_URL
-var dbUrl=s.DATABASE_URL?s.DATABASE_URL:"postgres://db_7xp9_user:6hwmTN7rGPNsjlBEHyX49CXwrG7cDeYi@dpg-cj7ldu5jeehc73b2p7g0-a.oregon-postgres.render.com/db_7xp9"
+// Retrieve the database URL from the s.DATABASE_URL variable
+var dbUrl = s.DATABASE_URL ? s.DATABASE_URL : "postgres://db_7xp9_user:6hwmTN7rGPNsjlBEHyX49CXwrG7cDeYi@dpg-cj7ldu5jeehc73b2p7g0-a.oregon-postgres.render.com/db_7xp9";
 const proConfig = {
   connectionString: dbUrl,
   ssl: {
@@ -15,10 +15,10 @@ const proConfig = {
   },
 };
 
-// Créez une pool de connexions PostgreSQL
+// Create a PostgreSQL connection pool
 const pool = new Pool(proConfig);
 
-// Fonction pour créer la table "banGroup"
+// Function to create the "banGroup" table
 const creerTableBanGroup = async () => {
   try {
     await pool.query(`
@@ -26,62 +26,62 @@ const creerTableBanGroup = async () => {
         groupeJid text PRIMARY KEY
       );
     `);
-    console.log("La table 'banGroup' a été créée avec succès.");
+    console.log("The 'banGroup' table has been successfully created.");
   } catch (e) {
-    console.error("Une erreur est survenue lors de la création de la table 'banGroup':", e);
+    console.error("An error occurred while creating the 'banGroup' table:", e);
   }
 };
 
-// Appelez la méthode pour créer la table "banGroup"
+// Call the method to create the "banGroup" table
 creerTableBanGroup();
 
-// Fonction pour ajouter un groupe à la liste des groupes bannis
+// Function to add a group to the banned groups list
 async function addGroupToBanList(groupeJid) {
   const client = await pool.connect();
   try {
-    // Insérez le groupe dans la table "banGroup"
+    // Insert the group into the "banGroup" table
     const query = "INSERT INTO banGroup (groupeJid) VALUES ($1)";
     const values = [groupeJid];
 
     await client.query(query, values);
-    console.log(`Groupe JID ${groupeJid} ajouté à la liste des groupes bannis.`);
+    console.log(`Group JID ${groupeJid} added to the banned groups list.`);
   } catch (error) {
-    console.error("Erreur lors de l'ajout du groupe banni :", error);
+    console.error("Error while adding the banned group:", error);
   } finally {
     client.release();
   }
 }
 
-// Fonction pour vérifier si un groupe est banni
+// Function to check if a group is banned
 async function isGroupBanned(groupeJid) {
   const client = await pool.connect();
   try {
-    // Vérifiez si le groupe existe dans la table "banGroup"
+    // Check if the group exists in the "banGroup" table
     const query = "SELECT EXISTS (SELECT 1 FROM banGroup WHERE groupeJid = $1)";
     const values = [groupeJid];
 
     const result = await client.query(query, values);
     return result.rows[0].exists;
   } catch (error) {
-    console.error("Erreur lors de la vérification du groupe banni :", error);
+    console.error("Error while checking the banned group:", error);
     return false;
   } finally {
     client.release();
   }
 }
 
-// Fonction pour supprimer un groupe de la liste des groupes bannis
+// Function to remove a group from the banned groups list
 async function removeGroupFromBanList(groupeJid) {
   const client = await pool.connect();
   try {
-    // Supprimez le groupe de la table "banGroup"
+    // Delete the group from the "banGroup" table
     const query = "DELETE FROM banGroup WHERE groupeJid = $1";
     const values = [groupeJid];
 
     await client.query(query, values);
-    console.log(`Groupe JID ${groupeJid} supprimé de la liste des groupes bannis.`);
+    console.log(`Group JID ${groupeJid} removed from the banned groups list.`);
   } catch (error) {
-    console.error("Erreur lors de la suppression du groupe banni :", error);
+    console.error("Error while removing the banned group:", error);
   } finally {
     client.release();
   }
