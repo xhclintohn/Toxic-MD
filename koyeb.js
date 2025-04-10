@@ -5,7 +5,7 @@ RUN sudo dnf -y update &&\
     sudo dnf install -y git ffmpeg ImageMagick nodejs yarnpkg libwebp &&\
     sudo dnf clean all -y
 
-RUN git clone https://github.com/xhclintohn/Toxic-MD
+RUN git clone https://github.com/xhclintoh/Toxic-MD
 
 
 WORKDIR /root/Toxic-MD
