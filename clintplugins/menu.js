@@ -36,7 +36,7 @@ zokou(
       await zk.sendMessage(
         dest,
         {
-          text: `𝐋𝐨𝐚𝐝𝐢𝐧𝐠...\n${batteryBar} ${percent}%`,
+          text: `𝐋𝐨𝐚𝐝𝐢𝐧�{g...\n${batteryBar} ${percent}%`,
           edit: loadingMsg.key,
         },
         { quoted: ms }
@@ -77,13 +77,13 @@ zokou(
 > ✦ 𝐎𝐰𝐧𝐞𝐫: 
 @254735342808
 
-> ✦ 𝐌𝐨𝐝𝐞: 
+> ✦ 𝐌�{o𝐝𝐞: 
 ${mode}
 
 > ✦ 𝐓𝐢𝐦𝐞: 
 ${temps} (EAT)
 
-> ✦ 𝐑𝐀𝐌: 
+> ✦ �{R𝐀𝐌: 
 ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
 
 ◈━━━━━━━━━━━━━━━━◈
@@ -94,7 +94,7 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
 ◈━━━━━━━━━━━━━━━━◈
   ⚡ 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐌𝐄𝐍𝐔 ⚡
   
-  𝐔𝐬�{e ${prefixe}help <command>
+  𝐔𝐬𝐞 ${prefixe}help <command>
   𝐟𝐨𝐫 𝐝𝐞𝐭𝐚𝐢𝐥𝐬
   
   ✦✦✦✦✦✦✦✦✦✦✦✦✦✦
@@ -144,7 +144,7 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
       await zk.sendMessage(
         dest,
         {
-          text: "𝐌𝐄𝐍𝐔 𝐑𝐄𝐀𝐃�{Y!✅\n▰▰▰▰▰▰▰▰▰▰ 100%",
+          text: "𝐌𝐄𝐍𝐔 𝐑𝐄𝐀𝐃𝐘!✅\n▰▰▰▰▰▰▰▰▰▰ 100%",
           edit: loadingMsg.key,
         },
         { quoted: ms }
@@ -187,27 +187,45 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
         );
       }
 
-      // Send audio as a voice note
-      const audioPath = __dirname + "/../𝐱𝐡_�{c𝐥𝐢𝐧𝐭𝐨𝐧/menu.mp3";
+      // Send random audio as a voice note
+      const audioFolder = __dirname + "/../xh_clinton/";
+      const audioFiles = Array.from({ length: 9 }, (_, i) => `menu${i + 1}.mp3`);
+      const randomAudio = audioFiles[Math.floor(Math.random() * audioFiles.length)];
+      const audioPath = audioFolder + randomAudio;
+
+      console.log("Audio folder:", audioFolder);
+      console.log("Selected audio:", randomAudio);
+      console.log("Full audio path:", audioPath);
+
       if (fs.existsSync(audioPath)) {
-        await zk.sendMessage(
-          dest,
-          {
-            audio: { url: audioPath },
-            mimetype: "audio/mp4",
-            ptt: true, // Set to true for voice note appearance
-            fileName: "𝐓𝐎𝐗𝐈𝐂 𝐕𝐎𝐈𝐂𝐄 ✧",
-            caption: "✦⋆✗𝐓𝐎𝐗𝐈𝐂",
-          },
-          { quoted: ms }
-        );
+        console.log("Audio file found, sending as voice note...");
+        try {
+          await zk.sendMessage(
+            dest,
+            {
+              audio: { url: audioPath },
+              mimetype: "audio/mpeg", // Changed to mpeg for MP3 compatibility
+              ptt: true, // Voice note appearance
+              fileName: `𝐓𝐎𝐗𝐈𝐂 𝐕𝐎𝐈𝐂𝐄 ✧`,
+              caption: "✦⋆✗𝐓𝐎𝐗𝐈𝐂",
+            },
+            { quoted: ms }
+          );
+          console.log("Audio sent successfully:", randomAudio);
+        } catch (audioError) {
+          console.error("Error sending audio:", audioError);
+          repondre(`𝐄𝐫𝐫𝐨𝐫 𝐬𝐞𝐧𝐝𝐢𝐧𝐠 𝐯𝐨𝐢𝐜𝐞 𝐧𝐨𝐭𝐞: ${audioError.message}`);
+        }
+      } else {
+        console.log("Audio file not found at:", audioPath);
+        repondre(`𝐀𝐮𝐝𝐢�{o 𝐟𝐢𝐥𝐞 𝐧�{o𝐭 𝐟�{o𝐮𝐧𝐝: ${randomAudio}`);
       }
     } catch (e) {
       console.error("◈ 𝐄𝐑𝐑𝐎𝐑 ◈", e);
       await zk.sendMessage(
         dest,
         {
-          text: "◈ 𝐅𝐀𝐈�{L𝐄𝐃 𝐓𝐎 𝐋𝐎𝐀𝐃 𝐌𝐄𝐍𝐔 ◈\n𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫",
+          text: "◈ 𝐅𝐀𝐈𝐋𝐄𝐃 𝐓𝐎 𝐋𝐎𝐀�{D 𝐌𝐄𝐍𝐔 ◈\n�{P𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫",
           edit: loadingMsg.key,
         },
         { quoted: ms }
