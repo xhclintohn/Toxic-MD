@@ -5,7 +5,7 @@ services:
     region: Frankfurt
     plan: free
     buildCommand: "npm install"
-    startCommand: "npm run toshtech"
+    startCommand: "npm run toxictech"
     envVars:
       - key: PORT
         value: "3000"
