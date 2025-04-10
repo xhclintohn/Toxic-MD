@@ -16,7 +16,7 @@ async (dest, zk, commandeOptions) => {
   }
 
   const gifSearchTerm = arg.join(" ");
-  const tenorApiKey = "AIzaSyCyouca1_KKy4W_MG1xsPzuku5oa8W358c"; // Remplacez par votre clé d'API Tenor
+  const tenorApiKey = "AIzaSyCyouca1_KKy4W_MG1xsPzuku5oa8W358c";
 
   try { for ( i = 0 ; i < 5 ; i++) {
     const gif = await axios.get(
@@ -28,12 +28,12 @@ async (dest, zk, commandeOptions) => {
     
    
 
-    // Assurez-vous de remplacer les valeurs manquantes dans la création du sticker
-    const packname = nomAuteurMessage; // Remplacez par le nom de votre pack de stickers
+   
+    const packname = nomAuteurMessage;
 
     const stickerMess = new Sticker(gifUrl, {
       pack: packname,
-      author: 'Zokou-MD',
+      author: '𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧',
       type: StickerTypes.FULL,
       categories: ["🤩", "🎉"],
       id: "12345",
