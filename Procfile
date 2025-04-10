@@ -1,1 +1,1 @@
-web: npm run toshtech
+web: npm run toxictech
