@@ -7,7 +7,7 @@ zokou(
     {
         nomCom: 'alive',
         categorie: 'General',
-        reaction: "💀"
+        reaction: "⚡"
     },
     async (dest, zk, { ms, arg, repondre, superUser }) => {
         const data = await getDataFromAlive();
