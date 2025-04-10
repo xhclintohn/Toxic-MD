@@ -1,12 +1,7 @@
-require("dotenv").config();
 const { zokou } = require("../framework/zokou");
 const yts = require("yt-search");
+const axios = require("axios");
 
-// Consts
-const AUDIO_API = "https://api.dreaded.site/api/ytdl/audio?url=";
-const VIDEO_API = "https://api.dreaded.site/api/ytdl/video?url=";
-
-// PLAY CMD
 zokou({
   nomCom: "play",
   categorie: "Download",
@@ -14,124 +9,43 @@ zokou({
 }, async (dest, zk, command) => {
   const { ms: quotedMessage, repondre: reply, arg: args } = command;
 
-  if (!args[0]) return reply("𝐏𝐥𝐞𝐚𝐬𝐞 𝐞𝐧𝐭𝐞𝐫 𝐚 𝐬𝐨𝐧𝐠 𝐧𝐚𝐦𝐞.");
+  if (!args[0]) return reply("𝐏𝐥𝐞𝐚𝐬𝐞 𝐩𝐫𝐨𝐯𝐢𝐝𝐞 𝐚 𝐬𝐨𝐧𝐠 𝐧𝐚𝐦𝐞 𝐨𝐫 𝐤𝐞𝐲𝐰𝐨𝐫𝐝𝐬 𝐭𝐨 𝐬𝐞𝐚𝐫𝐜𝐡 𝐟𝐨𝐫.");
+
+  const searchQuery = args.join(" ");
+  reply("𝐒𝐞𝐚𝐫𝐜𝐡𝐢𝐧𝐠 𝐟𝐨𝐫 𝐭𝐡𝐞 𝐬𝐨𝐧𝐠...");
 
   try {
-    const { videos } = await yts(args.join(" "));
-    if (!videos?.length) return reply("𝐍𝐨 𝐬𝐨𝐧𝐠𝐬 𝐟𝐨𝐮𝐧𝐝!");
+    const searchResults = await yts(searchQuery);
+    if (!searchResults.videos || searchResults.videos.length === 0) {
+      return reply(`𝐍�{o 𝐫𝐞𝐬𝐮𝐥𝐭𝐬 𝐟𝐨𝐮𝐧𝐝 𝐟𝐨𝐫 "${searchQuery}".`);
+    }
 
-    const video = videos[0];
-    await reply(`_𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐢𝐧𝐠: ${video.title}_`);
+    const firstResult = searchResults.videos[0];
+    const videoUrl = firstResult.url;
 
-    // Fetch audio
-    const audioData = await fetch(`${AUDIO_API}${encodeURIComponent(video.url)}`);
-    const { result } = await audioData.json();
+    const apiUrl = `https://api.davidcyriltech.my.id/download/ytmp3?url=${videoUrl}`;
+    const response = await axios.get(apiUrl);
+
+    if (!response.data.success) {
+      return reply(`𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐟𝐞𝐭𝐜𝐡 𝐚𝐮𝐝𝐢𝐨 𝐟𝐨𝐫 "${searchQuery}".`);
+    }
+
+    const { title, download_url } = response.data.result;
 
     await zk.sendMessage(
       dest,
       {
-        document: { url: result.url },
-        mimetype: "audio/mpeg",
-        fileName: `${video.title}.mp3`
+        audio: { url: download_url },
+        mimetype: "audio/mp4",
+        fileName: `${title}.mp3`,
+        ptt: false
       },
       { quoted: quotedMessage }
     );
 
-    // Send thumbnail
-    await zk.sendMessage(
-      dest,
-      {
-        image: { url: video.thumbnail },
-        caption: `╭─────═━┈┈━═──━┈⊷\n┇ 『 *𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃𝐄𝐑* 』\n┇ *𝐁𝐨𝐭 𝐧𝐚𝐦𝐞 : Toxic-MD* \n┇ *𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧* \n╰─────═━┈┈━═──━┈⊷`
-      },
-      { quoted: quotedMessage }
-    );
-
+    reply(`𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐞𝐝: ${title}`);
   } catch (error) {
-    console.error("𝐀𝐮𝐝𝐢𝐨 𝐄𝐫𝐫𝐨𝐫:", error);
-    reply("𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐟𝐚𝐢𝐥𝐞𝐝: " + error.message);
-  }
-});
-
-// VIDEO COMMAND
-zokou({
-  nomCom: "video",
-  categorie: "Download",
-  reaction: "🎥"
-}, async (dest, zk, command) => {
-  const { ms: quotedMessage, repondre: reply, arg: args } = command;
-
-  if (!args[0]) return reply("𝐏𝐥𝐞𝐚𝐬𝐞 𝐞𝐧𝐭𝐞𝐫 𝐚 𝐯𝐢𝐝𝐞𝐨 𝐧𝐚𝐦𝐞.");
-
-  try {
-    const { videos } = await yts(args.join(" "));
-    if (!videos?.length) return reply("𝐍𝐨 𝐯𝐢𝐝𝐞𝐨𝐬 𝐟𝐨𝐮𝐧𝐝!");
-
-    const video = videos[0];
-    await reply(`_𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐢𝐧𝐠: ${video.title}_`);
-
-    // Fetch video
-    const videoData = await fetch(`${VIDEO_API}${encodeURIComponent(video.url)}`);
-    const { result } = await videoData.json();
-
-    await zk.sendMessage(
-      dest,
-      {
-        video: { url: result.url },
-        mimetype: "video/mp4",
-        caption: `╭─────═━┈┈━═──━┈⊷\n┇ 『 *𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃𝐄𝐑* 』\n┇ *𝐁𝐨𝐭 𝐧𝐚𝐦𝐞 : Toxic-MD* \n┇ *𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧* \n╰─────═━┈┈━═──━┈⊷`
-      },
-      { quoted: quotedMessage }
-    );
-
-  } catch (error) {
-    console.error("𝐕𝐢𝐝𝐞𝐨 𝐄𝐫𝐫𝐨𝐫:", error);
-    reply("𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐟𝐚𝐢𝐥𝐞𝐝: " + error.message);
-  }
-});
-
-// SONG COMMAND (ALIAS FOR PLAY)
-zokou({
-  nomCom: "song",
-  categorie: "Download",
-  reaction: "🎸"
-}, async (dest, zk, command) => {
-  // Reuse play command logic
-  const { ms: quotedMessage, repondre: reply, arg: args } = command;
-
-  if (!args[0]) return reply("𝐏𝐥𝐞𝐚𝐬𝐞 𝐞𝐧𝐭𝐞𝐫 𝐚 𝐬𝐨𝐧𝐠 𝐧𝐚𝐦𝐞.");
-
-  try {
-    const { videos } = await yts(args.join(" "));
-    if (!videos?.length) return reply("𝐍𝐨 𝐬𝐨𝐧𝐠𝐬 𝐟𝐨𝐮𝐧𝐝!");
-
-    const video = videos[0];
-    await reply(`_𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐢𝐧𝐠: ${video.title}_`);
-
-    const audioData = await fetch(`${AUDIO_API}${encodeURIComponent(video.url)}`);
-    const { result } = await audioData.json();
-
-    await zk.sendMessage(
-      dest,
-      {
-        document: { url: result.url },
-        mimetype: "audio/mpeg",
-        fileName: `${video.title}.mp3`
-      },
-      { quoted: quotedMessage }
-    );
-
-    await zk.sendMessage(
-      dest,
-      {
-        image: { url: video.thumbnail },
-        caption: `╭─────═━┈┈━═──━┈⊷\n┇ 『 *𝐃𝐎𝐖𝐍𝐋𝐎𝐀𝐃𝐄𝐑* 』\n┇ *𝐁𝐨𝐭 𝐧𝐚𝐦𝐞 : Toxic-MD* \n┇ *𝐎𝐰𝐧𝐞𝐫: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧* \n╰─────═━┈┈━═──━┈⊷`
-      },
-      { quoted: quotedMessage }
-    );
-
-  } catch (error) {
-    console.error("𝐒𝐨𝐧𝐠 𝐄𝐫𝐫𝐨𝐫:", error);
-    reply("𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐟𝐚𝐢𝐥𝐞𝐝: " + error.message);
+    console.error("Play error:", error);
+    reply("𝐀𝐧 𝐞𝐫𝐫𝐨𝐫 𝐨𝐜𝐜𝐮𝐫𝐫𝐞�{d 𝐰𝐡𝐢𝐥𝐞 𝐩𝐫𝐨𝐜𝐞𝐬𝐬𝐢𝐧𝐠 𝐲𝐨𝐮𝐫 𝐫𝐞𝐪𝐮𝐞𝐬𝐭.");
   }
 });
