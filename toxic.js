@@ -71,10 +71,47 @@ async function authentification() {
         return;
     }
 }
+const { default: makeWASocket, DisconnectReason, useMultiFileAuthState } = require('@whiskeysockets/baileys');
+const pino = require('pino');
+
+
+const logger = pino().child({ level: "silent", stream: "store" });
+
+authentification function
 authentification();
-const store = (0, baileys_1.makeInMemoryStore)({
-    logger: pino().child({ level: "silent", stream: "store" }),
-});
+
+
+const startSock = async () => {
+  const { state, saveCreds } = await useMultiFileAuthState('auth_info');
+
+  const sock = makeWASocket({
+    logger,
+    printQRInTerminal: true,
+    auth: state,
+  });
+
+ 
+  sock.ev.on('connection.update', (update) => {
+    const { connection, lastDisconnect } = update;
+    if (connection === 'close') {
+      const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
+      console.log('Connection closed due to', lastDisconnect?.error, ', reconnecting:', shouldReconnect);
+      if (shouldReconnect) {
+        startSock();
+      }
+    } else if (connection === 'open') {
+      console.log('Connection opened');
+    }
+  });
+
+  // Save credentials whenever they are updated
+  sock.ev.on('creds.update', saveCreds);
+
+  return sock;
+};
+
+// Start the socket
+startSock();
 setTimeout(() => {
     async function main() {
         const { version, isLatest } = await (0, baileys_1.fetchLatestBaileysVersion)();
