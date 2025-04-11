@@ -93,14 +93,14 @@ const startSock = async () => {
         syncFullHistory: true,
         generateHighQualityLinkPreview: true,
         markOnlineOnConnect: false,
-        keepAliveIntervalMs: 30_000,
+        keepAliveIntervalMs: 30000,
         auth: state,
         getMessage: async (key) => {
             // Since we removed the in-memory store, return a default message for unsupported cases
             return {
                 conversation: 'An error occurred, please repeat the command!'
             };
-        }
+        },
     });
 
     // Handle connection updates
@@ -125,11 +125,6 @@ const startSock = async () => {
 
 // Start the socket
 startSock();
-            ///////
-        };
-        const zk = (0, baileys_1.default)(sockOptions);
-        store.bind(zk.ev);
-        setInterval(() => { store.writeToFile("store.json"); }, 3000);
                    
 const loveEmojis = ["❤️", "💖", "💘", "💝", "💓", "💌", "💕", "😎", "🔥", "💥", "💯", "✨", "🌟", "🌈", "⚡", "💎", "🌀", "👑", "🎉", "🎊", "🦄", "👽", "🛸", 
   "🚀", "🦋", "💫", "🍀", "🎶", "🎧", "🎸", "🎤", "🏆", "🏅", "🌍", "🌎", "🌏", "🎮", "🎲", "💪", 
