@@ -95,7 +95,7 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
 ◈━━━━━━━━━━━━━━━━◈
   ⚡ 𝐂𝐀𝐓𝐄𝐆𝐎𝐑𝐈𝐄𝐒 ⚡
   
-  𝐒𝐞𝐥𝐞𝐜𝐭 𝐚 𝐜𝐚𝐭𝐞𝐠𝐨𝐫𝐲 𝐛𝐲 𝐧𝐮𝐦𝐛𝐞𝐫
+  𝐑𝐞𝐩𝐥𝐲 𝐰𝐢𝐭𝐡 𝐚 𝐧𝐮𝐦𝐛𝐞𝐫 𝐭𝐨 𝐯𝐢𝐞𝐰 𝐜𝐨𝐦𝐦𝐚𝐧𝐝𝐬
   
   ✦✦✦✦✦✦✦✦✦✦✦✦✦✦
 `;
@@ -169,28 +169,32 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
       );
     }
 
-    // Listen for the user's reply to the category message
+    // Temporary message handler to capture the user's reply
     let userInput = null;
     const filter = (message) => message.sender === nomAuteurMessage && message.quoted && message.quoted.key.id === categoryMessage.key.id;
 
-    zk.on("message", (message) => {
+    const messageHandler = (message) => {
       if (filter(message)) {
         userInput = message.conversation.trim();
+        zk.removeListener("message", messageHandler); // Remove the listener after capturing the reply
       }
-    });
+    };
+
+    zk.on("message", messageHandler);
 
     // Wait for 30 seconds to collect the response
     await new Promise((resolve) => setTimeout(resolve, 30000));
 
     if (!userInput) {
       repondre("𝐓𝐢𝐦𝐞𝐨𝐮𝐭! 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐰𝐢𝐭𝐡 .𝐦𝐞𝐧𝐮.");
+      zk.removeListener("message", messageHandler); // Clean up the listener
       return;
     }
 
     const categoryIndex = parseInt(userInput) - 1;
 
     if (isNaN(categoryIndex) || categoryIndex < 0 || categoryIndex >= categories.length) {
-      repondre(`𝐈𝐧𝐯𝐚𝐥𝐢𝐝 𝐜𝐚𝐭𝐞𝐠𝐨𝐫𝐲 𝐧𝐮𝐦𝐛𝐞𝐫. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐬𝐞𝐥𝐞𝐜𝐭 𝐚 𝐯𝐚𝐥𝐢𝐝 𝐧𝐮𝐦𝐛𝐞𝐫 𝐟𝐫�{o𝐦 𝐭𝐡𝐞 𝐥𝐢𝐬𝐭.`);
+      repondre(`𝐈𝐧𝐯𝐚𝐥𝐢𝐝 𝐜𝐚𝐭𝐞𝐠𝐨𝐫𝐲 𝐧𝐮�{m𝐛𝐞𝐫. 𝐔𝐬𝐞 .𝐦𝐞𝐧𝐮 𝐭𝐨 𝐬𝐞𝐞 𝐭𝐡𝐞 𝐥𝐢𝐬𝐭.`);
       return;
     }
 
@@ -215,7 +219,7 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
 ◈━━━━━━━━━━━━━━━━◈
 > 𝐃𝐄𝐕𝐄𝐋𝐎𝐏𝐄𝐑𝐒
   
-  @254735342808 (𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧)
+  @254735342808 (𝐱𝐡_�{c𝐥𝐢𝐧𝐭𝐨𝐧)
   @254799283147 (𝐓𝐎𝐗𝐈𝐂-𝐌𝐃)
   
  ⃝⃪⃕🥀-〭⃛〬𓆩〭⃛〬❥
@@ -272,7 +276,7 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
 
     if (audioFiles.length === 0) {
       console.log("No MP3 files found in folder");
-      repondre(`𝐍𝐨 𝐚𝐮𝐝𝐢𝐨 𝐟𝐢𝐥𝐞𝐬 𝐟𝐨𝐮𝐧𝐝 𝐢𝐧 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧 𝐟𝐨𝐥𝐝𝐞𝐫`);
+      repondre(`𝐍𝐨 𝐚𝐮𝐝𝐢𝐨 𝐟𝐢𝐥𝐞𝐬 𝐟𝐨𝐮𝐧𝐝 𝐢𝐧 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭�{o𝐧 𝐟𝐨𝐥𝐝𝐞𝐫`);
       return;
     }
 
@@ -300,11 +304,11 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
         console.log("Audio message details:", audioMessage);
       } catch (audioError) {
         console.error("Error sending audio:", audioError);
-        repondre(`𝐄𝐫𝐫𝐨𝐫 𝐬𝐞𝐧𝐝𝐢𝐧𝐠 𝐯𝐨𝐢𝐜𝐞 𝐧�{o𝐭𝐞: ${audioError.message}`);
+        repondre(`𝐄𝐫𝐫𝐨𝐫 𝐬𝐞𝐧�{d𝐢𝐧𝐠 𝐯�{o𝐢𝐜𝐞 𝐧𝐨𝐭𝐞: ${audioError.message}`);
       }
     } else {
       console.log("Selected audio file not found at:", audioPath);
-      repondre(`𝐀𝐮𝐝𝐢𝐨 𝐟𝐢𝐥𝐞 𝐧𝐨𝐭 𝐟𝐨𝐮𝐧𝐝: ${randomAudio}\n𝐀𝐯𝐚𝐢𝐥𝐚𝐛𝐥𝐞 𝐟𝐢𝐥𝐞𝐬: ${audioFiles.join(", ")}`);
+      repondre(`𝐀𝐮𝐝𝐢�{o 𝐟𝐢𝐥𝐞 𝐧�{o𝐭 𝐟�{o𝐮𝐧𝐝: ${randomAudio}\n𝐀𝐯𝐚𝐢𝐥𝐚𝐛𝐥𝐞 𝐟𝐢𝐥𝐞�{s: ${audioFiles.join(", ")}`);
     }
   }
 );
