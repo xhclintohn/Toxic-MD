@@ -89,40 +89,22 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
 ◈━━━━━━━━━━━━━━━━◈
 `;
 
-    // Menu section
-    let menuMsg = `
+    // Categories list with numbers
+    const categories = Object.keys(coms).sort();
+    let categoriesMsg = `
 ◈━━━━━━━━━━━━━━━━◈
-  ⚡ 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐌𝐄𝐍𝐔 ⚡
+  ⚡ 𝐂𝐀𝐓𝐄𝐆𝐎𝐑𝐈𝐄𝐒 ⚡
   
-  𝐔𝐬𝐞 ${prefixe}help <command>
-  𝐟𝐨𝐫 𝐝𝐞𝐭𝐚𝐢𝐥𝐬
+  𝐒𝐞𝐥𝐞𝐜𝐭 𝐚 𝐜𝐚𝐭𝐞𝐠𝐨𝐫𝐲 𝐛𝐲 𝐧𝐮𝐦𝐛𝐞𝐫
   
   ✦✦✦✦✦✦✦✦✦✦✦✦✦✦
 `;
 
-    // Category styles with mature, realistic decor
-    const categoryStyles = {
-      General: { icon: "🌟", decor: "─" },
-      Group: { icon: "👥", decor: "═" },
-      Mods: { icon: "🛡️", decor: "≡" },
-      Fun: { icon: "🎭", decor: "—" },
-      Search: { icon: "🔍", decor: "┄" },
-      Logo: { icon: "🎨", decor: "┈" },
-      Utilities: { icon: "🛠", decor: "┃" },
-    };
+    categories.forEach((cat, index) => {
+      categoriesMsg += `  ${index + 1}. ${cat}\n`;
+    });
 
-    // Build menu with all categories and vertical command listing
-    for (const cat in coms) {
-      const style = categoryStyles[cat] || { icon: "✨", decor: "⋯" };
-      menuMsg += `\n  ${style.decor} ${style.icon} *${cat.toUpperCase()}* ${style.icon} ${style.decor}\n`;
-
-      // List commands vertically with a bullet point
-      coms[cat].forEach((cmd) => {
-        menuMsg += `  • ${cmd}\n`;
-      });
-    }
-
-    menuMsg += `
+    categoriesMsg += `
 ◈━━━━━━━━━━━━━━━━◈
 > 𝐃𝐄𝐕𝐄𝐋𝐎𝐏𝐄𝐑𝐒
   
@@ -152,13 +134,13 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
 
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // Send menu based on media type
+      // Send categories list based on media type
       if (lien.match(/\.(mp4|gif)$/i)) {
         await zk.sendMessage(
           dest,
           {
             video: { url: lien },
-            caption: infoMsg + menuMsg,
+            caption: infoMsg + categoriesMsg,
             footer: "◄⏤͟͞ꭙͯ͢³➤⃝ ⃝⃪⃕𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥",
             mentions: mentionedJids,
             gifPlayback: true,
@@ -170,7 +152,7 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
           dest,
           {
             image: { url: lien },
-            caption: infoMsg + menuMsg,
+            caption: infoMsg + categoriesMsg,
             footer: "◄⏤͟͞ꭙͯ͢³➤⃝ ⃝⃪⃕𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥",
             mentions: mentionedJids,
           },
@@ -180,7 +162,85 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
         await zk.sendMessage(
           dest,
           {
-            text: infoMsg + menuMsg,
+            text: infoMsg + categoriesMsg,
+            mentions: mentionedJids,
+          },
+          { quoted: ms }
+        );
+      }
+
+      // Wait for user response to select a category
+      const filter = (response) => response.sender === nomAuteurMessage && response.conversation;
+      const collected = await zk.waitForMessage(dest, filter, 30000); // 30 seconds timeout
+
+      if (!collected) {
+        return repondre("𝐓𝐢𝐦𝐞𝐨𝐮𝐭! 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐰𝐢𝐭𝐡 .𝐦𝐞𝐧𝐮.");
+      }
+
+      const userInput = collected.conversation.trim();
+      const categoryIndex = parseInt(userInput) - 1;
+
+      if (isNaN(categoryIndex) || categoryIndex < 0 || categoryIndex >= categories.length) {
+        return repondre(`𝐈𝐧𝐯𝐚𝐥𝐢𝐝 𝐜𝐚𝐭𝐞𝐠𝐨𝐫𝐲 𝐧𝐮𝐦𝐛𝐞𝐫. 𝐏𝐥𝐞𝐚�{s𝐞 𝐬𝐞𝐥𝐞𝐜𝐭 𝐚 𝐯𝐚𝐥𝐢𝐝 𝐧𝐮𝐦𝐛�{e𝐫 𝐟𝐫𝐨𝐦 𝐭𝐡𝐞 𝐥𝐢𝐬𝐭.`);
+      }
+
+      const selectedCategory = categories[categoryIndex];
+
+      // Build menu for the selected category
+      let categoryMenuMsg = `
+◈━━━━━━━━━━━━━━━━◈
+  ⚡ ${selectedCategory.toUpperCase()} 𝐂𝐎𝐌𝐌𝐀𝐍𝐃𝐒 ⚡
+  
+  𝐔𝐬�{e ${prefixe}help <command>
+  𝐟𝐨𝐫 𝐝𝐞𝐭𝐚𝐢𝐥𝐬
+  
+  ✦✦✦✦✦✦✦✦✦✦✦✦✦✦
+`;
+
+      coms[selectedCategory].forEach((cmd) => {
+        categoryMenuMsg += `  • ${cmd}\n`;
+      });
+
+      categoryMenuMsg += `
+◈━━━━━━━━━━━━━━━━◈
+> 𝐃𝐄𝐕𝐄𝐋𝐎𝐏𝐄𝐑𝐒
+  
+  @254735342808 (𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧)
+  @254799283147 (𝐓𝐎𝐗𝐈𝐂-𝐌𝐃)
+  
+ ⃝⃪⃕🥀-〭⃛〬𓆩〭⃛〬❥
+◈━━━━━━━━━━━━━━━━◈
+`;
+
+      // Send the selected category's commands
+      if (lien.match(/\.(mp4|gif)$/i)) {
+        await zk.sendMessage(
+          dest,
+          {
+            video: { url: lien },
+            caption: infoMsg + categoryMenuMsg,
+            footer: "◄⏤͟͞ꭙͯ͢³➤⃝ ⃝⃪⃕𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥",
+            mentions: mentionedJids,
+            gifPlayback: true,
+          },
+          { quoted: ms }
+        );
+      } else if (lien.match(/\.(jpeg|png|jpg)$/i)) {
+        await zk.sendMessage(
+          dest,
+          {
+            image: { url: lien },
+            caption: infoMsg + categoryMenuMsg,
+            footer: "◄⏤͟͞ꭙͯ͢³➤⃝ ⃝⃪⃕𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥",
+            mentions: mentionedJids,
+          },
+          { quoted: ms }
+        );
+      } else {
+        await zk.sendMessage(
+          dest,
+          {
+            text: infoMsg + categoryMenuMsg,
             mentions: mentionedJids,
           },
           { quoted: ms }
@@ -191,31 +251,27 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
       const audioFolder = __dirname + "/../xh_clinton/";
       console.log("Audio folder path:", audioFolder);
 
-      // Check if folder exists
       if (!fs.existsSync(audioFolder)) {
         console.log("Audio folder does not exist:", audioFolder);
         repondre(`𝐀𝐮𝐝𝐢𝐨 𝐟𝐨𝐥𝐝𝐞𝐫 𝐧𝐨𝐭 𝐟𝐨𝐮𝐧𝐝: ${audioFolder}`);
         return;
       }
 
-      // Get all MP3 files in the folder (in case names differ)
       const audioFiles = fs.readdirSync(audioFolder).filter(f => f.endsWith(".mp3"));
       console.log("Available audio files:", audioFiles);
 
       if (audioFiles.length === 0) {
         console.log("No MP3 files found in folder");
-        repondre(`𝐍𝐨 𝐚𝐮𝐝𝐢𝐨 𝐟𝐢𝐥𝐞𝐬 𝐟𝐨𝐮𝐧𝐝 𝐢𝐧 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧 𝐟𝐨𝐥𝐝𝐞𝐫`);
+        repondre(`𝐍𝐨 𝐚𝐮𝐝𝐢𝐨 𝐟𝐢𝐥𝐞𝐬 𝐟�{o𝐮𝐧𝐝 𝐢𝐧 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧 𝐟𝐨𝐥𝐝�{e𝐫`);
         return;
       }
 
-      // Randomly select an audio file
       const randomAudio = audioFiles[Math.floor(Math.random() * audioFiles.length)];
       const audioPath = audioFolder + randomAudio;
 
       console.log("Randomly selected audio:", randomAudio);
       console.log("Full audio path:", audioPath);
 
-      // Verify file exists (redundant but for safety)
       if (fs.existsSync(audioPath)) {
         console.log("Audio file exists, sending as voice note...");
         try {
@@ -223,8 +279,8 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
             dest,
             {
               audio: { url: audioPath },
-              mimetype: "audio/mpeg", // MP3 files use audio/mpeg
-              ptt: true, // Voice note appearance (waveform, duration)
+              mimetype: "audio/mpeg",
+              ptt: true,
               fileName: `𝐓𝐎𝐗𝐈𝐂 𝐕𝐎𝐈𝐂𝐄 ✧`,
               caption: "✦⋆✗𝐓𝐎𝐗𝐈𝐂",
             },
@@ -238,14 +294,14 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
         }
       } else {
         console.log("Selected audio file not found at:", audioPath);
-        repondre(`𝐀𝐮𝐝𝐢𝐨 𝐟𝐢𝐥𝐞 𝐧𝐨𝐭 𝐟𝐨𝐮𝐧𝐝: ${randomAudio}\n𝐀𝐯𝐚𝐢𝐥𝐚𝐛𝐥𝐞 𝐟𝐢𝐥𝐞𝐬: ${audioFiles.join(", ")}`);
+        repondre(`𝐀𝐮𝐝𝐢�{o 𝐟𝐢𝐥𝐞 𝐧𝐨𝐭 𝐟𝐨𝐮𝐧𝐝: ${randomAudio}\n𝐀𝐯𝐚𝐢𝐥𝐚𝐛𝐥�{e 𝐟𝐢𝐥𝐞𝐬: ${audioFiles.join(", ")}`);
       }
     } catch (e) {
       console.error("◈ 𝐄𝐑𝐑𝐎𝐑 ◈", e);
       await zk.sendMessage(
         dest,
         {
-          text: "◈ 𝐅𝐀𝐈𝐋𝐄𝐃 𝐓𝐎 𝐋𝐎𝐀𝐃 𝐌𝐄𝐍𝐔 ◈\n�{P𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫",
+          text: "◈ 𝐅𝐀𝐈𝐋𝐄𝐃 𝐓𝐎 𝐋𝐎𝐀𝐃 𝐌𝐄𝐍𝐔 ◈\n𝐏𝐥𝐞𝐚𝐬�{e 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫",
           edit: loadingMsg.key,
         },
         { quoted: ms }
