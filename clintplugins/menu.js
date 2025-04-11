@@ -36,7 +36,7 @@ zokou(
       await zk.sendMessage(
         dest,
         {
-          text: `𝐋𝐨𝐚𝐝𝐢𝐧𝐠...\n${batteryBar} ${percent}%`,
+          text: `𝐋𝐨𝐚�{d𝐢𝐧𝐠...\n${batteryBar} ${percent}%`,
           edit: loadingMsg.key,
         },
         { quoted: ms }
@@ -169,19 +169,29 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
         );
       }
 
-      // Wait for user response to select a category
-      const filter = (response) => response.sender === nomAuteurMessage && response.conversation;
-      const collected = await zk.waitForMessage(dest, filter, 30000); // 30 seconds timeout
+      // Create a message collector to capture the user's response
+      const filter = (message) => message.sender === nomAuteurMessage && message.conversation;
+      let collected = false;
+      let userInput = null;
 
-      if (!collected) {
+      zk.on("message", (message) => {
+        if (filter(message)) {
+          userInput = message.conversation.trim();
+          collected = true;
+        }
+      });
+
+      // Wait for 30 seconds to collect the response
+      await new Promise((resolve) => setTimeout(resolve, 30000));
+
+      if (!collected || !userInput) {
         return repondre("𝐓𝐢𝐦𝐞𝐨𝐮𝐭! 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐰𝐢𝐭𝐡 .𝐦𝐞𝐧𝐮.");
       }
 
-      const userInput = collected.conversation.trim();
       const categoryIndex = parseInt(userInput) - 1;
 
       if (isNaN(categoryIndex) || categoryIndex < 0 || categoryIndex >= categories.length) {
-        return repondre(`𝐈𝐧𝐯𝐚𝐥𝐢𝐝 𝐜𝐚𝐭𝐞𝐠𝐨𝐫𝐲 𝐧𝐮𝐦𝐛𝐞𝐫. 𝐏𝐥𝐞𝐚�{s𝐞 𝐬𝐞𝐥𝐞𝐜𝐭 𝐚 𝐯𝐚𝐥𝐢𝐝 𝐧𝐮𝐦𝐛�{e𝐫 𝐟𝐫𝐨𝐦 𝐭𝐡𝐞 𝐥𝐢𝐬𝐭.`);
+        return repondre(`𝐈𝐧𝐯𝐚𝐥𝐢𝐝 𝐜𝐚𝐭𝐞𝐠𝐨𝐫𝐲 𝐧𝐮𝐦𝐛𝐞𝐫. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐬𝐞𝐥𝐞𝐜𝐭 𝐚 𝐯𝐚𝐥𝐢𝐝 𝐧𝐮𝐦𝐛𝐞𝐫 𝐟𝐫𝐨𝐦 𝐭𝐡𝐞 𝐥𝐢𝐬𝐭.`);
       }
 
       const selectedCategory = categories[categoryIndex];
@@ -191,7 +201,7 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
 ◈━━━━━━━━━━━━━━━━◈
   ⚡ ${selectedCategory.toUpperCase()} 𝐂𝐎𝐌𝐌𝐀𝐍𝐃𝐒 ⚡
   
-  𝐔𝐬�{e ${prefixe}help <command>
+  𝐔𝐬𝐞 ${prefixe}help <command>
   𝐟𝐨𝐫 𝐝𝐞𝐭𝐚𝐢𝐥𝐬
   
   ✦✦✦✦✦✦✦✦✦✦✦✦✦✦
@@ -262,7 +272,7 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
 
       if (audioFiles.length === 0) {
         console.log("No MP3 files found in folder");
-        repondre(`𝐍𝐨 𝐚𝐮𝐝𝐢𝐨 𝐟𝐢𝐥𝐞𝐬 𝐟�{o𝐮𝐧𝐝 𝐢𝐧 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧 𝐟𝐨𝐥𝐝�{e𝐫`);
+        repondre(`𝐍𝐨 𝐚𝐮𝐝𝐢𝐨 𝐟𝐢𝐥𝐞𝐬 𝐟𝐨𝐮𝐧𝐝 𝐢𝐧 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧 𝐟𝐨𝐥𝐝𝐞𝐫`);
         return;
       }
 
@@ -294,14 +304,14 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
         }
       } else {
         console.log("Selected audio file not found at:", audioPath);
-        repondre(`𝐀𝐮𝐝𝐢�{o 𝐟𝐢𝐥𝐞 𝐧𝐨𝐭 𝐟𝐨𝐮𝐧𝐝: ${randomAudio}\n𝐀𝐯𝐚𝐢𝐥𝐚𝐛𝐥�{e 𝐟𝐢𝐥𝐞𝐬: ${audioFiles.join(", ")}`);
+        repondre(`𝐀𝐮𝐝𝐢�{o 𝐟𝐢𝐥𝐞 𝐧𝐨𝐭 𝐟𝐨𝐮𝐧𝐝: ${randomAudio}\n𝐀𝐯𝐚𝐢𝐥𝐚𝐛𝐥�{e 𝐟𝐢𝐥𝐞�{s: ${audioFiles.join(", ")}`);
       }
     } catch (e) {
       console.error("◈ 𝐄𝐑𝐑𝐎𝐑 ◈", e);
       await zk.sendMessage(
         dest,
         {
-          text: "◈ 𝐅𝐀𝐈𝐋𝐄𝐃 𝐓𝐎 𝐋𝐎𝐀𝐃 𝐌𝐄𝐍𝐔 ◈\n𝐏𝐥𝐞𝐚𝐬�{e 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫",
+          text: "◈ 𝐅𝐀𝐈𝐋𝐄𝐃 𝐓𝐎 𝐋𝐎𝐀𝐃 𝐌𝐄𝐍𝐔 ◈\n�{P𝐥𝐞𝐚�{s𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢�{n 𝐥𝐚𝐭𝐞�{r",
           edit: loadingMsg.key,
         },
         { quoted: ms }
