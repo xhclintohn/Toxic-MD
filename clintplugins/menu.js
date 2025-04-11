@@ -36,7 +36,7 @@ zokou(
       await zk.sendMessage(
         dest,
         {
-          text: `𝐋𝐨𝐚�{d𝐢𝐧𝐠...\n${batteryBar} ${percent}%`,
+          text: `𝐋𝐨𝐚𝐝𝐢𝐧𝐠...\n${batteryBar} ${percent}%`,
           edit: loadingMsg.key,
         },
         { quoted: ms }
@@ -115,89 +115,89 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
 ◈━━━━━━━━━━━━━━━━◈
 `;
 
-    try {
-      const lien = mybotpic();
-      const mentionedJids = [
-        "254735342808@s.whatsapp.net",
-        "254799283147@s.whatsapp.net",
-      ];
+    const lien = mybotpic();
+    const mentionedJids = [
+      "254735342808@s.whatsapp.net",
+      "254799283147@s.whatsapp.net",
+    ];
 
-      // Final loading confirmation
-      await zk.sendMessage(
+    // Final loading confirmation
+    await zk.sendMessage(
+      dest,
+      {
+        text: "𝐌𝐄𝐍𝐔 𝐑𝐄𝐀𝐃𝐘!✅\n▰▰▰▰▰▰▰▰▰▰ 100%",
+        edit: loadingMsg.key,
+      },
+      { quoted: ms }
+    );
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Send categories list based on media type
+    let categoryMessage;
+    if (lien.match(/\.(mp4|gif)$/i)) {
+      categoryMessage = await zk.sendMessage(
         dest,
         {
-          text: "𝐌𝐄𝐍𝐔 𝐑𝐄𝐀𝐃𝐘!✅\n▰▰▰▰▰▰▰▰▰▰ 100%",
-          edit: loadingMsg.key,
+          video: { url: lien },
+          caption: infoMsg + categoriesMsg,
+          footer: "◄⏤͟͞ꭙͯ͢³➤⃝ ⃝⃪⃕𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥",
+          mentions: mentionedJids,
+          gifPlayback: true,
         },
         { quoted: ms }
       );
+    } else if (lien.match(/\.(jpeg|png|jpg)$/i)) {
+      categoryMessage = await zk.sendMessage(
+        dest,
+        {
+          image: { url: lien },
+          caption: infoMsg + categoriesMsg,
+          footer: "◄⏤͟͞ꭙͯ͢³➤⃝ ⃝⃪⃕𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥",
+          mentions: mentionedJids,
+        },
+        { quoted: ms }
+      );
+    } else {
+      categoryMessage = await zk.sendMessage(
+        dest,
+        {
+          text: infoMsg + categoriesMsg,
+          mentions: mentionedJids,
+        },
+        { quoted: ms }
+      );
+    }
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
+    // Listen for the user's reply to the category message
+    let userInput = null;
+    const filter = (message) => message.sender === nomAuteurMessage && message.quoted && message.quoted.key.id === categoryMessage.key.id;
 
-      // Send categories list based on media type
-      if (lien.match(/\.(mp4|gif)$/i)) {
-        await zk.sendMessage(
-          dest,
-          {
-            video: { url: lien },
-            caption: infoMsg + categoriesMsg,
-            footer: "◄⏤͟͞ꭙͯ͢³➤⃝ ⃝⃪⃕𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥",
-            mentions: mentionedJids,
-            gifPlayback: true,
-          },
-          { quoted: ms }
-        );
-      } else if (lien.match(/\.(jpeg|png|jpg)$/i)) {
-        await zk.sendMessage(
-          dest,
-          {
-            image: { url: lien },
-            caption: infoMsg + categoriesMsg,
-            footer: "◄⏤͟͞ꭙͯ͢³➤⃝ ⃝⃪⃕𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥",
-            mentions: mentionedJids,
-          },
-          { quoted: ms }
-        );
-      } else {
-        await zk.sendMessage(
-          dest,
-          {
-            text: infoMsg + categoriesMsg,
-            mentions: mentionedJids,
-          },
-          { quoted: ms }
-        );
+    zk.on("message", (message) => {
+      if (filter(message)) {
+        userInput = message.conversation.trim();
       }
+    });
 
-      // Create a message collector to capture the user's response
-      const filter = (message) => message.sender === nomAuteurMessage && message.conversation;
-      let collected = false;
-      let userInput = null;
+    // Wait for 30 seconds to collect the response
+    await new Promise((resolve) => setTimeout(resolve, 30000));
 
-      zk.on("message", (message) => {
-        if (filter(message)) {
-          userInput = message.conversation.trim();
-          collected = true;
-        }
-      });
+    if (!userInput) {
+      repondre("𝐓𝐢𝐦𝐞𝐨𝐮𝐭! 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐰𝐢𝐭𝐡 .𝐦𝐞𝐧𝐮.");
+      return;
+    }
 
-      // Wait for 30 seconds to collect the response
-      await new Promise((resolve) => setTimeout(resolve, 30000));
+    const categoryIndex = parseInt(userInput) - 1;
 
-      if (!collected || !userInput) {
-        return repondre("𝐓𝐢𝐦𝐞𝐨𝐮𝐭! 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐰𝐢𝐭𝐡 .𝐦𝐞𝐧𝐮.");
-      }
+    if (isNaN(categoryIndex) || categoryIndex < 0 || categoryIndex >= categories.length) {
+      repondre(`𝐈𝐧𝐯𝐚𝐥𝐢𝐝 𝐜𝐚𝐭𝐞𝐠𝐨𝐫𝐲 𝐧𝐮𝐦𝐛𝐞𝐫. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐬𝐞𝐥𝐞𝐜𝐭 𝐚 𝐯𝐚𝐥𝐢𝐝 𝐧𝐮𝐦𝐛𝐞𝐫 𝐟𝐫�{o𝐦 𝐭𝐡𝐞 𝐥𝐢𝐬𝐭.`);
+      return;
+    }
 
-      const categoryIndex = parseInt(userInput) - 1;
+    const selectedCategory = categories[categoryIndex];
 
-      if (isNaN(categoryIndex) || categoryIndex < 0 || categoryIndex >= categories.length) {
-        return repondre(`𝐈𝐧𝐯𝐚𝐥𝐢𝐝 𝐜𝐚𝐭𝐞𝐠𝐨𝐫𝐲 𝐧𝐮𝐦𝐛𝐞𝐫. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐬𝐞𝐥𝐞𝐜𝐭 𝐚 𝐯𝐚𝐥𝐢𝐝 𝐧𝐮𝐦𝐛𝐞𝐫 𝐟𝐫𝐨𝐦 𝐭𝐡𝐞 𝐥𝐢𝐬𝐭.`);
-      }
-
-      const selectedCategory = categories[categoryIndex];
-
-      // Build menu for the selected category
-      let categoryMenuMsg = `
+    // Build menu for the selected category
+    let categoryMenuMsg = `
 ◈━━━━━━━━━━━━━━━━◈
   ⚡ ${selectedCategory.toUpperCase()} 𝐂𝐎𝐌𝐌𝐀𝐍𝐃𝐒 ⚡
   
@@ -207,11 +207,11 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
   ✦✦✦✦✦✦✦✦✦✦✦✦✦✦
 `;
 
-      coms[selectedCategory].forEach((cmd) => {
-        categoryMenuMsg += `  • ${cmd}\n`;
-      });
+    coms[selectedCategory].forEach((cmd) => {
+      categoryMenuMsg += `  • ${cmd}\n`;
+    });
 
-      categoryMenuMsg += `
+    categoryMenuMsg += `
 ◈━━━━━━━━━━━━━━━━◈
 > 𝐃𝐄𝐕𝐄𝐋𝐎𝐏𝐄𝐑𝐒
   
@@ -222,100 +222,89 @@ ${format(os.totalmem() - os.freemem())}/${format(os.totalmem())}
 ◈━━━━━━━━━━━━━━━━◈
 `;
 
-      // Send the selected category's commands
-      if (lien.match(/\.(mp4|gif)$/i)) {
-        await zk.sendMessage(
-          dest,
-          {
-            video: { url: lien },
-            caption: infoMsg + categoryMenuMsg,
-            footer: "◄⏤͟͞ꭙͯ͢³➤⃝ ⃝⃪⃕𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥",
-            mentions: mentionedJids,
-            gifPlayback: true,
-          },
-          { quoted: ms }
-        );
-      } else if (lien.match(/\.(jpeg|png|jpg)$/i)) {
-        await zk.sendMessage(
-          dest,
-          {
-            image: { url: lien },
-            caption: infoMsg + categoryMenuMsg,
-            footer: "◄⏤͟͞ꭙͯ͢³➤⃝ ⃝⃪⃕𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥",
-            mentions: mentionedJids,
-          },
-          { quoted: ms }
-        );
-      } else {
-        await zk.sendMessage(
-          dest,
-          {
-            text: infoMsg + categoryMenuMsg,
-            mentions: mentionedJids,
-          },
-          { quoted: ms }
-        );
-      }
-
-      // Send random audio as a voice note
-      const audioFolder = __dirname + "/../xh_clinton/";
-      console.log("Audio folder path:", audioFolder);
-
-      if (!fs.existsSync(audioFolder)) {
-        console.log("Audio folder does not exist:", audioFolder);
-        repondre(`𝐀𝐮𝐝𝐢𝐨 𝐟𝐨𝐥𝐝𝐞𝐫 𝐧𝐨𝐭 𝐟𝐨𝐮𝐧𝐝: ${audioFolder}`);
-        return;
-      }
-
-      const audioFiles = fs.readdirSync(audioFolder).filter(f => f.endsWith(".mp3"));
-      console.log("Available audio files:", audioFiles);
-
-      if (audioFiles.length === 0) {
-        console.log("No MP3 files found in folder");
-        repondre(`𝐍𝐨 𝐚𝐮𝐝𝐢𝐨 𝐟𝐢𝐥𝐞𝐬 𝐟𝐨𝐮𝐧𝐝 𝐢𝐧 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧 𝐟𝐨𝐥𝐝𝐞𝐫`);
-        return;
-      }
-
-      const randomAudio = audioFiles[Math.floor(Math.random() * audioFiles.length)];
-      const audioPath = audioFolder + randomAudio;
-
-      console.log("Randomly selected audio:", randomAudio);
-      console.log("Full audio path:", audioPath);
-
-      if (fs.existsSync(audioPath)) {
-        console.log("Audio file exists, sending as voice note...");
-        try {
-          const audioMessage = await zk.sendMessage(
-            dest,
-            {
-              audio: { url: audioPath },
-              mimetype: "audio/mpeg",
-              ptt: true,
-              fileName: `𝐓𝐎𝐗𝐈𝐂 𝐕𝐎𝐈𝐂𝐄 ✧`,
-              caption: "✦⋆✗𝐓𝐎𝐗𝐈𝐂",
-            },
-            { quoted: ms }
-          );
-          console.log("Audio sent successfully:", randomAudio);
-          console.log("Audio message details:", audioMessage);
-        } catch (audioError) {
-          console.error("Error sending audio:", audioError);
-          repondre(`𝐄𝐫𝐫𝐨𝐫 𝐬𝐞𝐧𝐝𝐢𝐧𝐠 𝐯𝐨𝐢𝐜𝐞 𝐧𝐨𝐭𝐞: ${audioError.message}`);
-        }
-      } else {
-        console.log("Selected audio file not found at:", audioPath);
-        repondre(`𝐀𝐮𝐝𝐢�{o 𝐟𝐢𝐥𝐞 𝐧𝐨𝐭 𝐟𝐨𝐮𝐧𝐝: ${randomAudio}\n𝐀𝐯𝐚𝐢𝐥𝐚𝐛𝐥�{e 𝐟𝐢𝐥𝐞�{s: ${audioFiles.join(", ")}`);
-      }
-    } catch (e) {
-      console.error("◈ 𝐄𝐑𝐑𝐎𝐑 ◈", e);
+    // Send the selected category's commands
+    if (lien.match(/\.(mp4|gif)$/i)) {
       await zk.sendMessage(
         dest,
         {
-          text: "◈ 𝐅𝐀𝐈𝐋𝐄𝐃 𝐓𝐎 𝐋𝐎𝐀𝐃 𝐌𝐄𝐍𝐔 ◈\n�{P𝐥𝐞𝐚�{s𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢�{n 𝐥𝐚𝐭𝐞�{r",
-          edit: loadingMsg.key,
+          video: { url: lien },
+          caption: infoMsg + categoryMenuMsg,
+          footer: "◄⏤͟͞ꭙͯ͢³➤⃝ ⃝⃪⃕𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥",
+          mentions: mentionedJids,
+          gifPlayback: true,
         },
         { quoted: ms }
       );
+    } else if (lien.match(/\.(jpeg|png|jpg)$/i)) {
+      await zk.sendMessage(
+        dest,
+        {
+          image: { url: lien },
+          caption: infoMsg + categoryMenuMsg,
+          footer: "◄⏤͟͞ꭙͯ͢³➤⃝ ⃝⃪⃕𝚣⃪ꙴ-〭⃛〬𓆩〭⃛〬❥",
+          mentions: mentionedJids,
+        },
+        { quoted: ms }
+      );
+    } else {
+      await zk.sendMessage(
+        dest,
+        {
+          text: infoMsg + categoryMenuMsg,
+          mentions: mentionedJids,
+        },
+        { quoted: ms }
+      );
+    }
+
+    // Send random audio as a voice note
+    const audioFolder = __dirname + "/../xh_clinton/";
+    console.log("Audio folder path:", audioFolder);
+
+    if (!fs.existsSync(audioFolder)) {
+      console.log("Audio folder does not exist:", audioFolder);
+      repondre(`𝐀𝐮𝐝𝐢𝐨 𝐟𝐨𝐥𝐝𝐞𝐫 𝐧𝐨𝐭 𝐟𝐨𝐮𝐧𝐝: ${audioFolder}`);
+      return;
+    }
+
+    const audioFiles = fs.readdirSync(audioFolder).filter(f => f.endsWith(".mp3"));
+    console.log("Available audio files:", audioFiles);
+
+    if (audioFiles.length === 0) {
+      console.log("No MP3 files found in folder");
+      repondre(`𝐍𝐨 𝐚𝐮𝐝𝐢𝐨 𝐟𝐢𝐥𝐞𝐬 𝐟𝐨𝐮𝐧𝐝 𝐢𝐧 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧 𝐟𝐨𝐥𝐝𝐞𝐫`);
+      return;
+    }
+
+    const randomAudio = audioFiles[Math.floor(Math.random() * audioFiles.length)];
+    const audioPath = audioFolder + randomAudio;
+
+    console.log("Randomly selected audio:", randomAudio);
+    console.log("Full audio path:", audioPath);
+
+    if (fs.existsSync(audioPath)) {
+      console.log("Audio file exists, sending as voice note...");
+      try {
+        const audioMessage = await zk.sendMessage(
+          dest,
+          {
+            audio: { url: audioPath },
+            mimetype: "audio/mpeg",
+            ptt: true,
+            fileName: `𝐓𝐎𝐗𝐈𝐂 𝐕𝐎𝐈𝐂𝐄 ✧`,
+            caption: "✦⋆✗𝐓𝐎𝐗𝐈𝐂",
+          },
+          { quoted: ms }
+        );
+        console.log("Audio sent successfully:", randomAudio);
+        console.log("Audio message details:", audioMessage);
+      } catch (audioError) {
+        console.error("Error sending audio:", audioError);
+        repondre(`𝐄𝐫𝐫𝐨𝐫 𝐬𝐞𝐧𝐝𝐢𝐧𝐠 𝐯𝐨𝐢𝐜𝐞 𝐧�{o𝐭𝐞: ${audioError.message}`);
+      }
+    } else {
+      console.log("Selected audio file not found at:", audioPath);
+      repondre(`𝐀𝐮𝐝𝐢𝐨 𝐟𝐢𝐥𝐞 𝐧𝐨𝐭 𝐟𝐨𝐮𝐧𝐝: ${randomAudio}\n𝐀𝐯𝐚𝐢𝐥𝐚𝐛𝐥𝐞 𝐟𝐢𝐥𝐞𝐬: ${audioFiles.join(", ")}`);
     }
   }
 );
