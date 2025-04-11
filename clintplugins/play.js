@@ -23,11 +23,11 @@ zokou({
     const firstResult = searchResults.videos[0];
     const videoUrl = firstResult.url;
 
-    const apiUrl = `https://api.davidcyriltech.my.id/youtube/mp3?url=${encodeURIComponent(videoUrl)}`;
+    const apiUrl = `https://api.davidcyriltech.my.id/download/ytmp3?url=${encodeURIComponent(videoUrl)}`;
     const response = await axios.get(apiUrl);
 
     if (!response.data.success) {
-      return reply(`𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐟𝐞𝐭𝐜𝐡 𝐚𝐮𝐝𝐢�{o 𝐟𝐨𝐫 "${searchQuery}".`);
+      return reply(`𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐟𝐞𝐭𝐜𝐡 𝐚𝐮𝐝𝐢𝐨 𝐟𝐨𝐫 "${searchQuery}".`);
     }
 
     const { title, download_url } = response.data.result;
