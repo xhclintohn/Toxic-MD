@@ -1,7 +1,7 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-  var desc = Object.getOwnPropertyDescriptor(m, k);
+    var desc = Object.getOwnPropertyDescriptor(m, k);
     if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
       desc = { enumerable: true, get: function() { return m[k]; } };
     }
@@ -26,6 +26,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+
+// Imports
 const baileys_1 = __importStar(require("@whiskeysockets/baileys"));
 const logger_1 = __importDefault(require("@whiskeysockets/baileys/lib/Utils/logger"));
 const logger = logger_1.default.child({});
@@ -38,111 +40,91 @@ let fs = require("fs-extra");
 let path = require("path");
 const FileType = require('file-type');
 const { Sticker, createSticker, StickerTypes } = require('wa-sticker-formatter');
-//import chalk from 'chalk'
-const { verifierEtatJid , recupererActionJid } = require("./bdd/antilien");
-const { atbverifierEtatJid , atbrecupererActionJid } = require("./bdd/antibot");
+// const chalk = require('chalk');
+const { verifierEtatJid, recupererActionJid } = require("./bdd/antilien");
+const { atbverifierEtatJid, atbrecupererActionJid } = require("./bdd/antibot");
 let evt = require(__dirname + "/framework/zokou");
-const {isUserBanned , addUserToBanList , removeUserFromBanList} = require("./bdd/banUser");
-const  {addGroupToBanList,isGroupBanned,removeGroupFromBanList} = require("./bdd/banGroup");
-const {isGroupOnlyAdmin,addGroupToOnlyAdminList,removeGroupFromOnlyAdminList} = require("./bdd/onlyAdmin");
-//const //{loadCmd}=require("/framework/mesfonctions")
+const { isUserBanned, addUserToBanList, removeUserFromBanList } = require("./bdd/banUser");
+const { addGroupToBanList, isGroupBanned, removeGroupFromBanList } = require("./bdd/banGroup");
+const { isGroupOnlyAdmin, addGroupToOnlyAdminList, removeGroupFromOnlyAdminList } = require("./bdd/onlyAdmin");
 let { reagir } = require(__dirname + "/framework/app");
-var session = conf.session.replace(/Zokou-MD-WHATSAPP-BOT;;;=>/g,"");
+
 const prefixe = conf.PREFIXE;
-const more = String.fromCharCode(8206)
-const readmore = more.repeat(4001)
+const more = String.fromCharCode(8206);
+const readmore = more.repeat(4001);
 
-
+// Authentication function
 async function authentification() {
     try {
-       
-        //console.log("le data "+data)
         if (!fs.existsSync(__dirname + "/auth/creds.json")) {
-            console.log("connexion en cour ...");
-            await fs.writeFileSync(__dirname + "/auth/creds.json", atob(session), "utf8");
-            //console.log(session)
+            console.log("Connecting...");
+            await fs.writeFileSync(__dirname + "/auth/creds.json", atob(conf.session.replace(/Zokou-MD-WHATSAPP-BOT;;;=>/g, "")), "utf8");
+        } else if (fs.existsSync(__dirname + "/auth/creds.json") && conf.session != "zokk") {
+            await fs.writeFileSync(__dirname + "/auth/creds.json", atob(conf.session.replace(/Zokou-MD-WHATSAPP-BOT;;;=>/g, "")), "utf8");
         }
-        else if (fs.existsSync(__dirname + "/auth/creds.json") && session != "zokk") {
-            await fs.writeFileSync(__dirname + "/auth/creds.json", atob(session), "utf8");
-        }
-    }
-    catch (e) {
-        console.log("Session Invalid " + e);
+    } catch (e) {
+        console.log("Invalid session: " + e);
         return;
     }
 }
-const { default: makeWASocket, DisconnectReason, useMultiFileAuthState } = require('@whiskeysockets/baileys');
-const pino = require('pino');
 
+// Baileys connection setup
+const { default: makeWASocket, DisconnectReason, useMultiFileAuthState, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
 
-const logger = pino().child({ level: "silent", stream: "store" });
+// Set up the logger using the existing pino variable
+const loggerInstance = pino().child({ level: "silent", stream: "store" });
 
-authentification function
+// Call the authentication function
 authentification();
 
-
+// Start the WhatsApp socket connection
 const startSock = async () => {
-  const { state, saveCreds } = await useMultiFileAuthState('auth_info');
+    const { version, isLatest } = await fetchLatestBaileysVersion();
+    const { state, saveCreds } = await useMultiFileAuthState(__dirname + "/auth");
 
-  const sock = makeWASocket({
-    logger,
-    printQRInTerminal: true,
-    auth: state,
-  });
+    const sock = makeWASocket({
+        version,
+        logger: loggerInstance,
+        browser: ['Toxic-MD', "Safari", "1.0.0"],
+        printQRInTerminal: true,
+        fireInitQueries: false,
+        shouldSyncHistoryMessage: true,
+        downloadHistory: true,
+        syncFullHistory: true,
+        generateHighQualityLinkPreview: true,
+        markOnlineOnConnect: false,
+        keepAliveIntervalMs: 30_000,
+        auth: state,
+        getMessage: async (key) => {
+            // Since we removed the in-memory store, return a default message for unsupported cases
+            return {
+                conversation: 'An error occurred, please repeat the command!'
+            };
+        }
+    });
 
- 
-  sock.ev.on('connection.update', (update) => {
-    const { connection, lastDisconnect } = update;
-    if (connection === 'close') {
-      const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
-      console.log('Connection closed due to', lastDisconnect?.error, ', reconnecting:', shouldReconnect);
-      if (shouldReconnect) {
-        startSock();
-      }
-    } else if (connection === 'open') {
-      console.log('Connection opened');
-    }
-  });
+    // Handle connection updates
+    sock.ev.on('connection.update', (update) => {
+        const { connection, lastDisconnect } = update;
+        if (connection === 'close') {
+            const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
+            console.log('Connection closed due to', lastDisconnect?.error, ', reconnecting:', shouldReconnect);
+            if (shouldReconnect) {
+                startSock();
+            }
+        } else if (connection === 'open') {
+            console.log('Connection opened successfully');
+        }
+    });
 
-  // Save credentials whenever they are updated
-  sock.ev.on('creds.update', saveCreds);
+    // Save credentials whenever they are updated
+    sock.ev.on('creds.update', saveCreds);
 
-  return sock;
+    return sock;
 };
 
 // Start the socket
 startSock();
-setTimeout(() => {
-    async function main() {
-        const { version, isLatest } = await (0, baileys_1.fetchLatestBaileysVersion)();
-        const { state, saveCreds } = await (0, baileys_1.useMultiFileAuthState)(__dirname + "/auth");
-        const sockOptions = {
-            version,
-            logger: pino({ level: "silent" }),
-            browser: ['Toxic-MD', "safari", "1.0.0"],
-            printQRInTerminal: true,
-            fireInitQueries: false,
-            shouldSyncHistoryMessage: true,
-            downloadHistory: true,
-            syncFullHistory: true,
-            generateHighQualityLinkPreview: true,
-            markOnlineOnConnect: false,
-            keepAliveIntervalMs: 30_000,
-            /* auth: state*/ auth: {
-                creds: state.creds,
-                /** caching makes the store faster to send/recv messages */
-                keys: (0, baileys_1.makeCacheableSignalKeyStore)(state.keys, logger),
-            },
-            //////////
-            getMessage: async (key) => {
-                if (store) {
-                    const msg = await store.loadMessage(key.remoteJid, key.id, undefined);
-                    return msg.message || undefined;
-                }
-                return {
-                    conversation: 'An Error Occurred, Repeat Command!'
-                };
-            }
             ///////
         };
         const zk = (0, baileys_1.default)(sockOptions);
