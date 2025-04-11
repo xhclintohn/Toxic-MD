@@ -23,7 +23,7 @@ zokou({
     const firstResult = searchResults.videos[0];
     const videoUrl = firstResult.url;
 
-    const apiUrl = `https://api.davidcyriltech.my.id/download/ytmp3?url=${encodeURIComponent(videoUrl)}`;
+    const apiUrl = `https://api.giftedtech.web.id/api/download/dlmp3?apikey=gifted&url=${encodeURIComponent(videoUrl)}`;
     const response = await axios.get(apiUrl);
 
     if (!response.data.success) {
