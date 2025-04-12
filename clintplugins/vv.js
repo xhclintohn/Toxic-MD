@@ -12,66 +12,51 @@ zokou(
 
     try {
       if (!msgRepondu) {
-        return repondre("𝐏𝐥𝐞𝐚𝐬𝐞 𝐦𝐞𝐧𝐭𝐢𝐨𝐧 𝐚 𝐯𝐢𝐞𝐰-𝐨𝐧𝐜𝐞 𝐦𝐞𝐝𝐢𝐚 𝐦𝐞𝐬𝐬𝐚𝐠𝐞.");
+        return repondre("𝗛𝗲𝘆, 𝘆𝗼𝘂 𝗻𝗲𝗲𝗱 𝘁𝗼 𝗿𝗲𝗽𝗹𝘆 𝘁𝗼 𝗮 𝘃𝗶𝗲𝘄-𝗼𝗻𝗰𝗲 𝗺𝗲𝗱𝗶𝗮 𝗺𝗲𝘀𝘀𝗮𝗴𝗲 𝗳𝗶𝗿𝘀𝘁! 😅");
       }
 
-      // Debug: Log the full message structure
+      // Debug: Log the full message structure for troubleshooting
       console.log("DEBUG - Full msgRepondu structure:", JSON.stringify(msgRepondu, null, 2));
 
-      // Aggressive check for view-once content across all possible structures
-      let viewOnceContent = 
-        msgRepondu.viewOnceMessage?.message ||
-        msgRepondu.viewOnceMessageV2?.message ||
-        msgRepondu.viewOnceMessageV2Extension?.message ||
-        msgRepondu.message?.viewOnceMessage?.message ||
-        msgRepondu.message?.viewOnceMessageV2?.message ||
-        msgRepondu.message?.viewOnceMessageV2Extension?.message ||
-        msgRepondu.extendedTextMessage?.contextInfo?.quotedMessage?.viewOnceMessage?.message ||
-        msgRepondu.extendedTextMessage?.contextInfo?.quotedMessage?.viewOnceMessageV2?.message ||
-        msgRepondu.extendedTextMessage?.contextInfo?.quotedMessage?.viewOnceMessageV2Extension?.message ||
-        msgRepondu.conversation?.viewOnceMessage?.message ||
-        msgRepondu.messageContextInfo?.message?.viewOnceMessage?.message ||
-        msgRepondu.extendedTextMessage?.contextInfo?.viewOnceMessage?.message ||
-        msgRepondu.extendedTextMessage?.contextInfo?.viewOnceMessageV2?.message ||
-        null;
+      // Generic function to recursively search for viewOnce media in the message object
+      const findViewOnceMedia = (obj) => {
+        if (!obj || typeof obj !== 'object') return null;
 
-      // Fallback: If no view-once content found, check if msgRepondu itself is the view-once message
-      if (!viewOnceContent && msgRepondu.message) {
-        console.log("DEBUG - Checking msgRepondu.message as fallback...");
-        viewOnceContent = msgRepondu.message; // Sometimes the replied message is the view-once itself
-      }
+        // Check if the current object has a viewOnce flag and media content
+        if (obj.viewOnce === true) {
+          if (obj.image || obj.imageMessage) return { type: 'image', media: obj.image || obj.imageMessage };
+          if (obj.video || obj.videoMessage) return { type: 'video', media: obj.video || obj.videoMessage };
+          if (obj.audio || obj.audioMessage) return { type: 'audio', media: obj.audio || obj.audioMessage };
+          if (obj.document || obj.documentMessage) return { type: 'document', media: obj.document || obj.documentMessage };
+        }
 
-      if (!viewOnceContent) {
+        // Recursively search through all nested objects
+        for (const key in obj) {
+          const result = findViewOnceMedia(obj[key]);
+          if (result) return result;
+        }
+        return null;
+      };
+
+      // Search for view-once media in the replied message
+      const mediaInfo = findViewOnceMedia(msgRepondu);
+
+      if (!mediaInfo) {
         console.log("DEBUG - Available keys in msgRepondu:", Object.keys(msgRepondu));
         if (msgRepondu.extendedTextMessage?.contextInfo?.quotedMessage) {
           console.log("DEBUG - Quoted message keys:", Object.keys(msgRepondu.extendedTextMessage.contextInfo.quotedMessage));
         }
-        return repondre("𝐂𝐨𝐮𝐥𝐝 𝐧𝐨𝐭 𝐟𝐢𝐧𝐝 𝐯𝐢𝐞𝐰-𝐨𝐧𝐜𝐞 𝐜𝐨𝐧𝐭𝐞𝐧𝐭 𝐢𝐧 𝐭𝐡𝐢𝐬 𝐦𝐞𝐬𝐬𝐚𝐠𝐞. 𝐈𝐬 𝐢𝐭 𝐫𝐞𝐚𝐥𝐥𝐲 𝐚 𝐯𝐢𝐞𝐰-𝐨𝐧𝐜𝐞 𝐦𝐞𝐝𝐢𝐚?");
+        return repondre("𝗜 𝗰𝗼𝘂𝗹𝗱𝗻’𝘁 𝗳𝗶𝗻𝗱 𝗮𝗻𝘆 𝘃𝗶𝗲𝘄-𝗼𝗻𝗰𝗲 𝗺𝗲𝗱𝗶𝗮 𝗶𝗻 𝘁𝗵𝗮𝘁 𝗺𝗲𝘀𝘀𝗮𝗴𝗲. 𝗔𝗿𝗲 𝘆𝗼𝘂 𝘀𝘂𝗿𝗲 𝗶𝘁’𝘀 𝘃𝗶𝗲𝘄-𝗼𝗻𝗰𝗲? 🤔");
       }
 
-      // Determine media type
-      let mediaType, mediaObj;
-      if (viewOnceContent.imageMessage || (viewOnceContent.image && viewOnceContent.viewOnce)) {
-        mediaType = 'image';
-        mediaObj = viewOnceContent.imageMessage || viewOnceContent;
-      } else if (viewOnceContent.videoMessage || (viewOnceContent.video && viewOnceContent.viewOnce)) {
-        mediaType = 'video';
-        mediaObj = viewOnceContent.videoMessage || viewOnceContent;
-      } else if (viewOnceContent.audioMessage || (viewOnceContent.audio && viewOnceContent.viewOnce)) {
-        mediaType = 'audio';
-        mediaObj = viewOnceContent.audioMessage || viewOnceContent;
-      } else if (viewOnceContent.documentMessage || (viewOnceContent.document && viewOnceContent.viewOnce)) {
-        mediaType = 'document';
-        mediaObj = viewOnceContent.documentMessage || viewOnceContent;
-      } else {
-        console.log("DEBUG - Unsupported view-once content keys:", Object.keys(viewOnceContent));
-        return repondre("𝐓𝐡𝐢𝐬 𝐯𝐢𝐞𝐰-𝐨𝐧𝐜𝐞 𝐦𝐞𝐬𝐬𝐚𝐠𝐞 𝐜𝐨𝐧𝐭𝐚𝐢𝐧𝐬 𝐮𝐧𝐬𝐮𝐩𝐩𝐨𝐫𝐭𝐞𝐝 𝐦𝐞𝐝𝐢𝐚.");
-      }
+      const { type: mediaType, media: mediaObj } = mediaInfo;
 
       try {
+        // Download the media
         const mediaPath = await zk.downloadAndSaveMediaMessage(mediaObj);
-        const caption = mediaObj.caption || "𝐑𝐞𝐭𝐫𝐢𝐞𝐯𝐞𝐝 𝐛𝐲 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃";
+        const caption = mediaObj.caption || "𝐑𝐞𝐭𝐫𝐢𝐞𝐯𝐞𝐝 𝐛𝐲 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 | 𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐛𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧";
 
+        // Send the media back without view-once restriction
         await zk.sendMessage(
           dest,
           {
@@ -83,19 +68,19 @@ zokou(
           { quoted: ms }
         );
 
-        // Cleanup the downloaded file
+        // Clean up the downloaded file
         fs.unlink(mediaPath, (err) => {
           if (err) console.error('Cleanup failed:', err);
         });
 
       } catch (downloadError) {
         console.error("Media download error:", downloadError);
-        return repondre("𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐩𝐫𝐨𝐜𝐞𝐬𝐬 𝐭𝐡𝐞 𝐦𝐞𝐝𝐢𝐚. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧.");
+        return repondre("𝗦𝗼𝗿𝗿𝘆, 𝗜 𝗰𝗼𝘂𝗹𝗱𝗻’𝘁 𝗽𝗿𝗼𝗰𝗲𝘀𝘀 𝘁𝗵𝗮𝘁 𝗺𝗲𝗱𝗶𝗮. 𝗖𝗮𝗻 𝘆𝗼𝘂 𝘁𝗿𝘆 𝗮𝗴𝗮𝗶𝗻? 😓");
       }
 
     } catch (error) {
       console.error("Command error:", error);
-      return repondre("𝐀𝐧 𝐮𝐧𝐞𝐱𝐩𝐞𝐜𝐭𝐞𝐝 𝐞𝐫𝐫𝐨𝐫 𝐨𝐜𝐜𝐮𝐫𝐫𝐞𝐝: " + error);
+      return repondre("𝗢𝗼𝗽𝘀, 𝘀𝗼𝗺𝗲𝘁𝗵𝗶𝗻𝗴 𝘄𝗲𝗻𝘁 𝘄𝗿𝗼𝗻𝗴: " + error.message);
     }
   }
 );
