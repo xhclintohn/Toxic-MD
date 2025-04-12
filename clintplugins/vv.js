@@ -18,16 +18,35 @@ zokou(
       // Debug: Log the full message structure for troubleshooting
       console.log("DEBUG - Full msgRepondu structure:", JSON.stringify(msgRepondu, null, 2));
 
-      // Generic function to recursively search for viewOnce media in the message object
+      // Generic function to find any media message and check for view-once indicators
       const findViewOnceMedia = (obj) => {
         if (!obj || typeof obj !== 'object') return null;
 
-        // Check if the current object has a viewOnce flag and media content
-        if (obj.viewOnce === true) {
-          if (obj.image || obj.imageMessage) return { type: 'image', media: obj.image || obj.imageMessage };
-          if (obj.video || obj.videoMessage) return { type: 'video', media: obj.video || obj.videoMessage };
-          if (obj.audio || obj.audioMessage) return { type: 'audio', media: obj.audio || obj.audioMessage };
-          if (obj.document || obj.documentMessage) return { type: 'document', media: obj.document || obj.documentMessage };
+        // Check for media types directly (image, video, audio, document)
+        const mediaTypes = [
+          { type: 'image', key: 'imageMessage', altKey: 'image' },
+          { type: 'video', key: 'videoMessage', altKey: 'video' },
+          { type: 'audio', key: 'audioMessage', altKey: 'audio' },
+          { type: 'document', key: 'documentMessage', altKey: 'document' },
+        ];
+
+        for (const mediaType of mediaTypes) {
+          const mediaObj = obj[mediaType.key] || obj[mediaType.altKey];
+          if (mediaObj) {
+            // Check for viewOnce flag in the media object or its parent
+            const isViewOnce = obj.viewOnce === true || 
+                              obj.message?.viewOnce === true || 
+                              (obj.contextInfo && obj.contextInfo.viewOnce === true) ||
+                              (obj.messageContextInfo && obj.messageContextInfo.viewOnce === true) ||
+                              // Fallback: Check if the message type is known to be view-once
+                              (obj.messageType && obj.messageType.includes('viewOnce')) ||
+                              // Fallback: Check for ephemeral settings (sometimes used with view-once)
+                              (obj.ephemeralExpiration !== undefined && obj.ephemeralExpiration > 0);
+
+            if (isViewOnce) {
+              return { type: mediaType.type, media: mediaObj };
+            }
+          }
         }
 
         // Recursively search through all nested objects
@@ -42,7 +61,11 @@ zokou(
       const mediaInfo = findViewOnceMedia(msgRepondu);
 
       if (!mediaInfo) {
+        // Additional debug info
         console.log("DEBUG - Available keys in msgRepondu:", Object.keys(msgRepondu));
+        if (msgRepondu.message) {
+          console.log("DEBUG - Keys in msgRepondu.message:", Object.keys(msgRepondu.message));
+        }
         if (msgRepondu.extendedTextMessage?.contextInfo?.quotedMessage) {
           console.log("DEBUG - Quoted message keys:", Object.keys(msgRepondu.extendedTextMessage.contextInfo.quotedMessage));
         }
