@@ -1,6 +1,6 @@
 const { zokou } = require("../framework/zokou");
 const yts = require("yt-search");
-const fetch = require("node-fetch");
+const axios = require("axios"); // Replaced node-fetch with axios
 
 zokou({
   nomCom: "play",
@@ -28,8 +28,8 @@ zokou({
     const videoUrl = video.url;
 
     const apiUrl = `https://api.giftedtech.web.id/api/download/dlmp3?apikey=gifted&url=${encodeURIComponent(videoUrl)}`;
-    const response = await fetch(apiUrl);
-    const data = await response.json();
+    const response = await axios.get(apiUrl); // Use axios instead of fetch
+    const data = response.data; // axios uses .data instead of .json()
 
     if (data.status === 200 && data.success) {
       const downloadUrl = data.result.download_url;
@@ -40,10 +40,10 @@ zokou({
         mimetype: "audio/mp4"
       }, { quoted: ms });
     } else {
-      repondre("𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐚𝐮𝐝𝐢𝐨. 𝐓𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫.");
+      repondre("𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐚𝐮𝐝𝐢𝐨. 𝐓𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞�(r.");
     }
   } catch (error) {
     console.error("Error:", error);
-    repondre("𝐀𝐧 𝐞𝐫𝐫𝐨𝐫 𝐨𝐜𝐜𝐮𝐫𝐫𝐞𝐝 𝐰𝐡𝐢𝐥𝐞 𝐩𝐫𝐨𝐜𝐞𝐬𝐬𝐢𝐧𝐠 𝐲𝐨𝐮𝐫 𝐫𝐞𝐪𝐮𝐞𝐬𝐭.");
+    repondre("𝐀𝐧 𝐞𝐫𝐫𝐨𝐫 𝐨𝐜𝐜𝐮𝐫𝐫�(e𝐝 𝐰𝐡𝐢𝐥𝐞 𝐩𝐫𝐨𝐜𝐞𝐬𝐬𝐢𝐧𝐠 𝐲𝐨𝐮𝐫 𝐫𝐞𝐪𝐮𝐞𝐬�(t.");
   }
 });
