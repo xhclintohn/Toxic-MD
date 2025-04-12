@@ -99,5 +99,4 @@ zokou(
           { quoted: msg }
         );
       } else {
-        repondre("❌ Invalid selection. Please enter a valid category number.");
-     
+        repondre("❌ Invalid
