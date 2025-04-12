@@ -65,7 +65,7 @@ zokou(
     for (const cat in coms) {
       categoryMenu += `  ${categoryIndex++}. *${cat}*\n`;
     }
-    categoryMenu += "◈━━━━━━━━━━━━━━━━◈\n> 𝐓𝐲𝐩𝐞 .help <number> 𝐭𝐨 𝐬𝐞𝐞 𝐜𝐨𝐦𝐦𝐚𝐧𝐝𝐬 𝐢𝐧 𝐭𝐡𝐚𝐭 𝐜𝐚𝐭𝐞𝐠𝐨𝐫𝐲\n";
+    categoryMenu += "◈━━━━━━━━━━━━━━━━◈\n> 𝐓𝐲𝐩𝐞 𝐚 𝐧𝐮𝐦𝐛𝐞𝐫 𝐭𝐨 𝐬𝐞𝐞 𝐜𝐨𝐦𝐦𝐚𝐧𝐝𝐬 𝐢𝐧 𝐭𝐡𝐚𝐭 𝐜𝐚𝐭𝐞𝐠𝐨𝐫𝐲\n";
 
     // Send category menu
     await zk.sendMessage(
@@ -76,11 +76,12 @@ zokou(
       { quoted: ms }
     );
 
-    // Listen for user input for category selection
+    // Listen for user input for category selection without prefix
     zk.onMessage(async (msg) => {
       const selectedCategory = msg.body.trim();
       const categoryNumber = parseInt(selectedCategory);
 
+      // Check if the input is a valid number and within the range of categories
       if (!isNaN(categoryNumber) && categoryNumber > 0 && categoryNumber <= Object.keys(coms).length) {
         const selectedCat = Object.keys(coms)[categoryNumber - 1];
         let commandList = `◈━━━━━━━━━━━━━━━━◈\n  ⚡ 𝐂𝐎𝐌𝐌𝐀𝐍𝐃𝐒 𝐈𝐍 *${selectedCat}* ⚡\n\n`;
@@ -99,7 +100,4 @@ zokou(
         );
       } else {
         repondre("❌ Invalid selection. Please enter a valid category number.");
-      }
-    });
-  }
-);
+     
