@@ -24,7 +24,7 @@
     "@adiwajshing/keyed-db": "^0.2.4",
     "@hapi/boom": "^10.0.1",
     "@types/node": "^18.0.6",
-                            "@whiskeysockets/baileys": "github:franceking1/Baileys-",
+                        "@whiskeysockets/baileys": "github:franceking1/Baileys",
     "ytdl-core": "github:franceking1/flash-dls",
     "@xaviabot/fb-downloader": "^1.0.14",
     "aptoide-scraper": "^1.0.1",
