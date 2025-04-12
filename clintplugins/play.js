@@ -1,6 +1,6 @@
 const { zokou } = require("../framework/zokou");
 const yts = require("yt-search");
-const axios = require("axios"); // Replaced node-fetch with axios
+const axios = require("axios");
 
 zokou({
   nomCom: "play",
@@ -10,26 +10,26 @@ zokou({
   const { ms, repondre, arg } = commandeOptions;
 
   if (!arg[0]) {
-    return repondre("𝐏𝐥𝐞𝐚𝐬𝐞 𝐢𝐧𝐬𝐞𝐫𝐭 𝐚 𝐬𝐨𝐧𝐠 𝐧𝐚𝐦𝐞.");
+    return repondre("𝗣𝗹𝗲𝗮𝘀𝗲 𝗶𝗻𝘀𝗲𝗿𝘁 𝗮 𝘀𝗼𝗻𝗴 𝗻𝗮𝗺𝗲.");
   }
 
   try {
     const searchQuery = arg.join(" ");
-    repondre("𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 𝐬𝐞𝐚𝐫𝐜𝐡𝐢𝐧𝐠 𝐟𝐨𝐫 𝐭𝐡𝐞 𝐬𝐨𝐧𝐠");
+    repondre("𝗧𝗼𝘅𝗶𝗰-𝗠𝗗 𝘀𝗲𝗮𝗿𝗰𝗵𝗶𝗻𝗴 𝗳𝗼𝗿 𝘁𝗵𝗲 𝘀𝗼𝗻𝗴 🎵");
 
     const searchResults = await yts(searchQuery);
     const videos = searchResults.videos;
 
     if (videos.length === 0) {
-      return repondre("𝐍𝐨 𝐚𝐮𝐝𝐢𝐨 𝐟𝐨𝐮𝐧𝐝.");
+      return repondre("𝗡𝗼 𝗮𝘂𝗱𝗶𝗼 𝗳𝗼𝘂𝗻𝗱. 𝗧𝗿𝘆 𝗮 𝗱𝗶𝗳𝗳𝗲𝗿𝗲𝗻𝘁 𝘀𝗼𝗻𝗴! 😕");
     }
 
     const video = videos[0];
     const videoUrl = video.url;
 
     const apiUrl = `https://api.giftedtech.web.id/api/download/dlmp3?apikey=gifted&url=${encodeURIComponent(videoUrl)}`;
-    const response = await axios.get(apiUrl); // Use axios instead of fetch
-    const data = response.data; // axios uses .data instead of .json()
+    const response = await axios.get(apiUrl);
+    const data = response.data;
 
     if (data.status === 200 && data.success) {
       const downloadUrl = data.result.download_url;
@@ -39,11 +39,16 @@ zokou({
         audio: { url: downloadUrl },
         mimetype: "audio/mp4"
       }, { quoted: ms });
+
+      // Send the follow-up message with the link
+      await zk.sendMessage(dest, {
+        text: "𝗝𝗼𝗶𝗻 𝗳𝗼𝗿 𝘂𝗽𝗱𝗮𝘁𝗲𝘀 📢\nhttps://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI"
+      }, { quoted: ms });
     } else {
-      repondre("𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐚𝐮𝐝𝐢𝐨. 𝐓𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞�(r.");
+      repondre("𝗙𝗮𝗶𝗹𝗲𝗱 𝘁𝗼 𝗱𝗼𝘄𝗻𝗹𝗼𝗮𝗱 𝗮𝘂𝗱𝗶𝗼. 𝗧𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗹𝗮𝘁𝗲𝗿. 😓");
     }
   } catch (error) {
     console.error("Error:", error);
-    repondre("𝐀𝐧 𝐞𝐫𝐫𝐨𝐫 𝐨𝐜𝐜𝐮𝐫𝐫�(e𝐝 𝐰𝐡𝐢𝐥𝐞 𝐩𝐫𝐨𝐜𝐞𝐬𝐬𝐢𝐧𝐠 𝐲𝐨𝐮𝐫 𝐫𝐞𝐪𝐮𝐞𝐬�(t.");
+    repondre("𝗔𝗻 𝗲𝗿𝗿𝗼𝗿 𝗼𝗰𝗰𝘂𝗿𝗿𝗲𝗱 𝘄𝗵𝗶𝗹𝗲 𝗽𝗿𝗼𝗰𝗲𝘀𝘀𝗶𝗻𝗴 𝘆𝗼𝘂𝗿 𝗿𝗲𝗾𝘂𝗲𝘀𝘁. 😵");
   }
 });
