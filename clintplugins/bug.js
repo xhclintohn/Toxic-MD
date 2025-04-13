@@ -11,9 +11,30 @@ zokou(
     const { ms, repondre, arg, sender } = commandeOptions;
 
     try {
+      // Function to normalize phone numbers (remove spaces, ensure country code starts with +)
+      const normalizePhoneNumber = (number) => {
+        // Remove spaces and non-digit characters except +
+        let normalized = number.replace(/[^+\d]/g, '');
+        // If the number starts with a country code without +, add +
+        if (normalized.match(/^\d/)) {
+          normalized = '+' + normalized;
+        }
+        // Ensure the number starts with + and is followed by digits
+        if (!normalized.match(/^\+\d{10,15}$/)) {
+          return null; // Invalid number
+        }
+        return normalized;
+      };
+
+      // Normalize the sender's number (remove @s.whatsapp.net and normalize)
+      const senderNumber = normalizePhoneNumber(sender.split('@')[0]);
+      if (!senderNumber) {
+        return repondre("𝗘𝗿𝗿𝗼𝗿: 𝗖𝗼𝘂𝗹𝗱 𝗻𝗼𝘁 𝘃𝗲𝗿𝗶𝗳𝘆 𝘆𝗼𝘂𝗿 𝗻𝘂𝗺𝗯𝗲𝗿. 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗹𝗮𝘁𝗲𝗿. 😓");
+      }
+
       // Restrict the command to the owner (+254735342808)
-      const ownerNumber = "+254735342808";
-      if (sender !== ownerNumber + "@s.whatsapp.net") {
+      const ownerNumber = normalizePhoneNumber("+254735342808");
+      if (senderNumber !== ownerNumber) {
         return repondre("𝗦𝗼𝗿𝗿𝘆, 𝘁𝗵𝗶𝘀 𝗰𝗼𝗺𝗺𝗮𝗻𝗱 𝗶𝘀 𝗼𝗻𝗹𝘆 𝗳𝗼𝗿 𝘁𝗵𝗲 𝗼𝘄𝗻𝗲𝗿 (+𝟮𝟱𝟰𝟳𝟯𝟱𝟯𝟰𝟮𝟴𝟬𝟴)! 🚫");
       }
 
@@ -22,16 +43,16 @@ zokou(
         return repondre("𝗣𝗹𝗲𝗮𝘀𝗲 𝗽𝗿𝗼𝘃𝗶𝗱𝗲 𝗮 𝗽𝗵𝗼𝗻𝗲 𝗻𝘂𝗺𝗯𝗲𝗿 𝘄𝗶𝘁𝗵 𝗰𝗼𝘂𝗻𝘁𝗿𝘆 𝗰𝗼𝗱𝗲! 𝗘.𝗴., .𝗯𝘂𝗴 +𝟮𝟱𝟰𝟳𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴 😊");
       }
 
-      // Validate the phone number format (must start with a country code, e.g., +254)
-      const phoneNumber = arg[0].replace(/\s/g, ''); // Remove spaces
-      if (!phoneNumber.startsWith('+') || !/^\+\d{10,15}$/.test(phoneNumber)) {
-        return repondre("𝗜𝗻𝘃𝗮𝗹𝗶𝗱 𝗽𝗵𝗼𝗻𝗲 𝗻𝘂𝗺𝗯𝗲𝗿! 𝗜𝘁 𝗺𝘂𝘀𝘁 𝘀𝘁𝗮𝗿𝘁 𝘄𝗶𝘁𝗵 𝗮 𝗰𝗼𝘂𝗻𝘁𝗿𝘆 𝗰𝗼𝗱𝗲 𝗹𝗶𝗸𝗲 +𝟮𝟱𝟰 𝗮𝗻𝗱 𝗯𝗲 𝟭𝟴-𝟭𝟱 𝗱𝗶𝗴𝗶𝘁𝘀 𝗹𝗼𝗻𝗴. 🤔");
+      // Normalize the target phone number
+      const phoneNumber = normalizePhoneNumber(arg[0]);
+      if (!phoneNumber) {
+        return repondre("𝗜𝗻𝘃𝗮𝗹𝗶𝗱 𝗽𝗵𝗼𝗻𝗲 𝗻𝘂𝗺𝗯𝗲𝗿! 𝗜𝘁 𝗺𝘂𝘀𝘁 𝘀𝘁𝗮𝗿𝘁 𝘄𝗶𝘁𝗵 𝗮 𝗰𝗼𝘂𝗻𝘁𝗿𝘆 𝗰𝗼𝗱𝗲 𝗹𝗶𝗸𝗲 +𝟮𝟱𝟰 𝗼𝗿 𝟮𝟱𝟰 𝗮𝗻𝗱 𝗯𝗲 𝟭𝟬-𝟭𝟱 𝗱𝗶𝗴𝗶𝘁𝘀 𝗹𝗼𝗻𝗴. 🤔");
       }
 
-      // Verify if the number is on WhatsApp
+      // Verify if the target number is on WhatsApp
       const [result] = await zk.onWhatsApp(phoneNumber);
       if (!result.exists) {
-        return repondre("𝗧𝗵𝗮𝘁 𝗻𝘂𝗺𝗯�_e𝗿 𝗶𝘀𝗻’𝘁 𝗼𝗻 𝗪𝗵𝗮𝘁𝘀𝗔𝗽𝗽! 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝗿𝘆 𝗮 𝗱𝗶𝗳𝗳𝗲𝗿𝗲𝗻𝘁 𝗻𝘂𝗺𝗯𝗲𝗿. 😓");
+        return repondre("𝗧𝗵𝗮𝘁 𝗻𝘂𝗺𝗯𝗲𝗿 𝗶𝘀𝗻’𝘁 𝗼𝗻 𝗪𝗵𝗮𝘁𝘀𝗔𝗽𝗽! 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝗿𝘆 𝗮 𝗱𝗶𝗳𝗳𝗲𝗿𝗲𝗻𝘁 𝗻𝘂𝗺𝗯𝗲𝗿. 😓");
       }
 
       // The JID (WhatsApp ID) of the target number
