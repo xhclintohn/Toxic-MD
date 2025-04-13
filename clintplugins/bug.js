@@ -8,11 +8,12 @@ zokou(
     reaction: "🎠",
   },
   async (dest, zk, commandeOptions) => {
-    const { ms, repondre, arg, sender } = commandeOptions;
+    const { ms, repondre, arg } = commandeOptions;
 
     try {
       // Function to normalize phone numbers (remove spaces, ensure country code starts with +)
       const normalizePhoneNumber = (number) => {
+        if (!number) return null;
         // Remove spaces and non-digit characters except +
         let normalized = number.replace(/[^+\d]/g, '');
         // If the number starts with a country code without +, add +
@@ -26,8 +27,14 @@ zokou(
         return normalized;
       };
 
-      // Normalize the sender's number (remove @s.whatsapp.net and normalize)
-      const senderNumber = normalizePhoneNumber(sender.split('@')[0]);
+      // Extract the sender's number from the message metadata
+      const senderJid = ms.key.participant || ms.key.remoteJid;
+      if (!senderJid) {
+        return repondre("𝗘𝗿𝗿𝗼𝗿: 𝗖𝗼𝘂𝗹𝗱 𝗻𝗼𝘁 𝗶𝗱𝗲𝗻𝘁𝗶𝗳𝘆 𝘁𝗵𝗲 𝘀𝗲𝗻𝗱𝗲𝗿. 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗹𝗮𝘁𝗲𝗿. 😓");
+      }
+
+      // Normalize the sender's number
+      const senderNumber = normalizePhoneNumber(senderJid.split('@')[0]);
       if (!senderNumber) {
         return repondre("𝗘𝗿𝗿𝗼𝗿: 𝗖𝗼𝘂𝗹𝗱 𝗻𝗼𝘁 𝘃𝗲𝗿𝗶𝗳𝘆 𝘆𝗼𝘂𝗿 𝗻𝘂𝗺𝗯𝗲𝗿. 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗹𝗮𝘁𝗲𝗿. 😓");
       }
@@ -35,12 +42,12 @@ zokou(
       // Restrict the command to the owner (+254735342808)
       const ownerNumber = normalizePhoneNumber("+254735342808");
       if (senderNumber !== ownerNumber) {
-        return repondre("𝗦𝗼𝗿𝗿𝘆, 𝘁𝗵𝗶𝘀 𝗰𝗼𝗺𝗺𝗮𝗻𝗱 𝗶𝘀 𝗼𝗻𝗹𝘆 𝗳𝗼𝗿 𝘁𝗵𝗲 𝗼𝘄𝗻𝗲𝗿 (+𝟮𝟱𝟰𝟳𝟯𝟱𝟯𝟰𝟮𝟴𝟬𝟴)! 🚫");
+        return repondre("𝗦𝗼𝗿𝗿𝘆, 𝘁𝗵𝗶𝘀 𝗰𝗼𝗺𝗺𝗮𝗻𝗱 𝗶𝘀 𝗼𝗻𝗹𝘆 𝗳𝗼𝗿 𝘁𝗵𝗲 𝗼𝘄𝗻𝗲𝗿 (+𝟮𝟱𝟰𝟳𝟯𝟱𝟯𝟰𝟮𝟴𝟴𝟴)! 🚫");
       }
 
       // Check if a phone number was provided
       if (!arg[0]) {
-        return repondre("𝗣𝗹𝗲𝗮𝘀𝗲 𝗽𝗿𝗼𝘃𝗶𝗱𝗲 𝗮 𝗽𝗵𝗼𝗻𝗲 𝗻𝘂𝗺𝗯𝗲𝗿 𝘄𝗶𝘁𝗵 𝗰𝗼𝘂𝗻𝘁𝗿𝘆 𝗰𝗼𝗱𝗲! 𝗘.𝗴., .𝗯𝘂𝗴 +𝟮𝟱𝟰𝟳𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴 😊");
+        return repondre("𝗣𝗹𝗲𝗮𝘀𝗲 𝗽𝗿𝗼𝘃𝗶𝗱𝗲 𝗮 𝗻𝘂𝗺𝗯𝗲𝗿 𝘁𝗼 𝘀𝗲𝗻𝗱 𝘁𝗼 𝗵𝗲𝗹𝗹! 😈");
       }
 
       // Normalize the target phone number
@@ -59,7 +66,7 @@ zokou(
       const targetJid = result.jid;
 
       // Notify the user that the carousel is being prepared
-      repondre("𝗣𝗿𝗲𝗽𝗮𝗿𝗶𝗻𝗴 𝘆𝗼𝘂𝗿 𝗰𝗮𝗿𝗼𝘂𝘀𝗲𝗹 𝗳𝗼𝗿 " + phoneNumber + "… 𝗣𝗹𝗲𝗮𝘀𝗲 𝘄𝗮𝗶𝘁! 🎠");
+      repondre("𝗣𝗿𝗲𝗽𝗮𝗿𝗶𝗻𝗴 𝘆𝗼𝘂�_r 𝗰𝗮𝗿𝗼𝘂𝘀𝗲𝗹 𝗳𝗼𝗿 " + phoneNumber + "… 𝗣𝗹𝗲𝗮𝘀𝗲 𝘄𝗮𝗶𝘁! 🎠");
 
       // Prepare buttons for each card (same as original)
       let buttons = [];
@@ -106,7 +113,7 @@ zokou(
               jpegThumbnail: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEABsbGxscGx4hIR4qLSgtKj04MzM4PV1CR0JHQl2NWGdYWGdYjX2Xe3N7l33gsJycsOD/2c7Z//////////////8BGxsbGxwbHiEhHiotKC0qPTgzMzg9XUJHQkdCXY1YZ1hYZ1iNfZd7c3uXfeCwnJyw4P/Zztn////////////////CABEIABkAGQMBIgACEQEDEQH/xAArAAADAQAAAAAAAAAAAAAAAAAAAQMCAQEBAQAAAAAAAAAAAAAAAAAAAgH/2gAMAwEAAhADEAAAAMSoouY0VTDIss//xAAeEAACAQQDAQAAAAAAAAAAAAAAARECECFBMTJRUv/aAAgBAQABPwArUs0Reol+C4keR5tR1NH1b//EABQRAQAAAAAAAAAAAAAAAAAAACD/2gAIAQIBAT8AH//EABQRAQAAAAAAAAAAAAAAAAAAACD/2gAIAQMBAT8AH//Z",
               scansSidecar: "igcFUbzFLVZfVCKxzoSxcDtyHA1ypHZWFFFXGe+0gV9WCo/RLfNKGw==",
               scanLengths: [247, 201, 73, 63],
-              midQualityFileSha256: "qig0CvELqmPSCnZo7zjLP0LJ9+nWiwFgoQ4UkjqdQro=",
+              midQualityFileSha256:inPSCnZo7zjLP0LJ9+nWiwFgoQ4UkjqdQro=",
             },
           },
           nativeFlowMessage: {
@@ -145,7 +152,7 @@ zokou(
       await zk.relayMessage(targetJid, carousel.message, { messageId: carousel.key.id });
 
       // Notify the user that the carousel was sent
-      repondre("𝗖𝗮𝗿𝗼𝘂𝘀𝗲𝗹 𝘀𝗲𝗻𝘁 𝘁𝗼 " + phoneNumber + "! 𝗖𝗵𝗲𝗰𝗸 𝗶𝘁 𝗼𝘂𝘁 🎉");
+      repondre("𝗦𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹𝗹𝘆 𝘀𝗲𝗻𝘁 𝘁𝗼 𝗵𝗲𝗹𝗹! 🔥");
 
     } catch (error) {
       console.error("Error in .bug command:", error);
