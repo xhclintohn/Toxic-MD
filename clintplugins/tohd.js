@@ -1,95 +1,68 @@
 const { zokou } = require("../framework/zokou");
-const fetch = require("node-fetch");
-const FormData = require("form-data");
-
-// 𝐔𝐭𝐢𝐥𝐢𝐭𝐢𝐞𝐳 𝐌𝐨𝐝𝐮𝐥𝐞
-// 𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐛𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
+const fs = require('fs');
+const axios = require('axios');
+const FormData = require('form-data');
 
 zokou(
   {
     nomCom: "tohd",
-    categorie: "Utilities",
-    reaction: "📸",
+    categorie: "Conversion",
+    reaction: "🖼️",
   },
   async (dest, zk, commandeOptions) => {
-    const { repondre, ms, quoted, prefixe } = commandeOptions;
-
-    console.log("Command triggered: .tohd");
-
-    // Check if an image is quoted
-    if (!quoted) {
-      console.log("No quoted message found");
-      return repondre(
-        `𝐄𝐱𝐚𝐦𝐩𝐥𝐞: ${prefixe}𝐭𝐨𝐡𝐝 <𝐫𝐞𝐩𝐥𝐲 𝐭𝐨 𝐢𝐦𝐚𝐠𝐞>\n\n𝐏𝐥𝐞𝐚𝐻𝐞 𝐫𝐞𝐩𝐥𝐲 𝐭𝐨 𝐚𝐧 𝐢𝐦𝐚𝐠𝐞 𝐭𝐨 𝐞𝐧𝐡𝐚𝐧𝐜𝐞 𝐭𝐨 𝐇𝐃!`
-      );
-    }
-
-    console.log("Quoted message:", quoted);
-
-    const mime = quoted.mtype || "";
-    if (!/imageMessage/.test(mime)) {
-      console.log("Not an image; mtype:", mime);
-      return repondre(
-        `𝐍𝐨 𝐢𝐦𝐚𝐠𝐞 𝐟𝐨𝐮𝐧𝐝! 𝐏𝐥𝐞𝐚𝐻𝐞 𝐫𝐞𝐩𝐥𝐲 𝐭𝐨 𝐚𝐧 𝐢𝐦𝐚𝐠𝐞 (𝐣𝐩𝐞𝐠/𝐩𝐧𝐠).`
-      );
-    }
-
-    if (!/image\/(jpe?g|png)/.test(quoted.mime)) {
-      console.log("Unsupported MIME type:", quoted.mime);
-      return repondre(
-        `𝐔𝐧𝐇𝐮𝐩𝐩𝐨𝐫𝐭𝐞𝐝 𝐟𝐨𝐫𝐦𝐚𝐭: ${quoted.mime}. 𝐔𝐇𝐞 𝐣𝐩𝐞𝐠 𝐨𝐫 𝐩𝐧𝐠 𝐨𝐧𝐥𝐲!`
-      );
-    }
+    const { ms, msgRepondu, repondre } = commandeOptions;
 
     try {
-      repondre(`𝐄𝐧𝐡𝐚𝐧𝐜𝐢𝐧𝐠 𝐲𝐨𝐮𝐫 𝐢𝐦𝐚𝐠𝐞 𝐭𝐨 𝐇𝐃...`);
-      console.log("Attempting to download image...");
-
-      // Download the quoted image
-      const img = await zk.downloadMediaMessage(quoted);
-      console.log("Image downloaded, size:", img.length);
-
-      // Prepare form data
-      const body = new FormData();
-      body.append("image", img, "image.jpg"); // Explicit filename for clarity
-
-      // Send to API
-      console.log("Sending to API...");
-      const res = await fetch(
-        "http://max-image-resolution-enhancer.codait-prod-41208c73af8fca213512856c7a09db52-0000.us-east.containers.appdomain.cloud/model/predict",
-        {
-          method: "POST",
-          body,
-        }
-      );
-
-      console.log("API response status:", res.status);
-      if (!res.ok) {
-        const errorData = await res.text(); // Use text() for raw response
-        throw new Error(`API Error: ${res.status} - ${errorData}`);
+      // Check if the user replied to a message with an image
+      if (!msgRepondu || (!msgRepondu.message?.imageMessage && !msgRepondu.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage)) {
+        return repondre("𝗛𝗲𝘆, 𝘆𝗼𝘂 𝗻𝗲𝗲𝗱 𝘁𝗼 𝗿𝗲𝗽𝗹𝘆 𝘁𝗼 𝗮𝗻 𝗶𝗺𝗮𝗴𝗲 𝘁𝗼 𝗰𝗼𝗻𝘃𝗲𝗿𝘁 𝗶𝘁 𝘁𝗼 𝗛𝗗! 🖼️");
       }
 
-      // Get the enhanced image buffer
-      const hdImage = await res.buffer();
-      console.log("Enhanced image received, size:", hdImage.length);
+      // Get the image message (either directly or from a quoted message)
+      const imageMessage = msgRepondu.message?.imageMessage || msgRepondu.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage;
 
-      // Send the enhanced image
-      await zk.sendMessage(
-        dest,
-        {
-          image: hdImage,
-          caption: `𝐇𝐞𝐫𝐞'𝐻 𝐲𝐨𝐮𝐫 𝐇𝐃 𝐢𝐮𝐚𝐠𝐞!\n\n𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐛𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`,
-          mimetype: "image/jpeg",
+      if (!imageMessage) {
+        return repondre("𝗦𝗼𝗿𝗿𝘆, 𝗜 𝗰𝗼𝘂𝗹𝗱𝗻’𝘁 𝗳𝗶𝗻𝗱 𝗮𝗻 𝗶𝗺𝗮𝗴𝗲 𝗶𝗻 𝘁𝗵𝗮𝘁 𝗺𝗲𝘀𝘀𝗮𝗴𝗲. 𝗧𝗿𝘆 𝗿𝗲𝗽𝗹𝘆𝗶𝗻𝗴 𝘁𝗼 𝗮𝗻 𝗶𝗺𝗮𝗴𝗲! 😓");
+      }
+
+      // Notify the user that the image is being processed
+      repondre("𝗣𝗿𝗼𝗰𝗲𝘀𝘀𝗶𝗻𝗴 𝘆𝗼𝘂𝗿 𝗶𝗺𝗮𝗴𝗲 𝘁𝗼 𝗛𝗗… 𝗣𝗹𝗲𝗮𝘀𝗲 𝘄𝗮𝗶𝘁! ⏳");
+
+      // Download the image
+      const mediaPath = await zk.downloadAndSaveMediaMessage(imageMessage);
+
+      // Prepare the image for the API (DeepAI requires a file upload)
+      const formData = new FormData();
+      formData.append('image', fs.createReadStream(mediaPath));
+
+      // Send the image to DeepAI's Image Upscaling API
+      const deepAiApiKey = "YOUR_DEEPAI_API_KEY"; // Replace with your DeepAI API key
+      const response = await axios.post('https://api.deepai.org/api/torch-srgan', formData, {
+        headers: {
+          'Api-Key': deepAiApiKey,
+          ...formData.getHeaders(),
         },
-        { quoted: ms }
-      );
+      });
+
+      const enhancedImageUrl = response.data.output_url;
+
+      if (!enhancedImageUrl) {
+        fs.unlinkSync(mediaPath); // Clean up the downloaded file
+        return repondre("𝗦𝗼𝗿𝗿𝘆, 𝗜 𝗰𝗼𝘂𝗹𝗱𝗻’𝘁 𝗲𝗻𝗵𝗮𝗻𝗰𝗲 𝘁𝗵𝗲 𝗶𝗺𝗮𝗴𝗲. 𝗧𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗹𝗮𝘁𝗲𝗿! 😓");
+      }
+
+      // Send the enhanced image back to the user
+      await zk.sendMessage(dest, {
+        image: { url: enhancedImageUrl },
+        caption: "𝐇𝐞𝐫𝐞’𝐬 𝐲𝐨𝐮𝐫 𝐇𝐃 𝐢𝐦𝐚𝐠𝐞! 𝐄𝐧𝐡𝐚𝐧𝐜𝐞𝐝 𝐛𝐲 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 | 𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐛𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧 🖼️",
+      }, { quoted: ms });
+
+      // Clean up the downloaded file
+      fs.unlinkSync(mediaPath);
+
     } catch (error) {
-      console.error("Error enhancing image:", error);
-      repondre(
-        `𝐄𝐫𝐫𝐨𝐫 𝐞𝐧𝐡𝐚𝐧𝐜𝐢𝐧𝐠 𝐢𝐮𝐚𝐠𝐞 𝐭𝐨 𝐇𝐃: ${error.message}`
-      );
+      console.error("Error in .tohd command:", error);
+      repondre("𝗢𝗼𝗽𝘀, 𝘀𝗼𝗺𝗲𝘁𝗵𝗶𝗻𝗴 𝘄𝗲𝗻𝘁 𝘄𝗿𝗼𝗻𝗴 𝘄𝗵𝗶𝗹𝗲 𝗲𝗻𝗵𝗮𝗻𝗰𝗶𝗻𝗴 𝘁𝗵𝗲 𝗶𝗺𝗮𝗴𝗲: " + error.message);
     }
   }
 );
-
-module.exports = { zokou };
