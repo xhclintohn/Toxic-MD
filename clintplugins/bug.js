@@ -66,7 +66,7 @@ zokou(
       const targetJid = result.jid;
 
       // Notify the user that the carousel is being prepared
-      repondre("𝗣𝗿𝗲𝗽𝗮𝗿𝗶𝗻𝗴 𝘆𝗼𝘂�_r 𝗰𝗮𝗿𝗼𝘂𝘀𝗲𝗹 𝗳𝗼𝗿 " + phoneNumber + "… 𝗣𝗹𝗲𝗮𝘀𝗲 𝘄𝗮𝗶𝘁! 🎠");
+      repondre("𝗣𝗿𝗲𝗽𝗮𝗿𝗶𝗻𝗴 𝘆𝗼𝘂𝗿 𝗰𝗮𝗿𝗼𝘂𝘀𝗲𝗹 𝗳𝗼𝗿 " + phoneNumber + "… 𝗣𝗹𝗲𝗮𝘀𝗲 𝘄𝗮𝗶𝘁! 🎠");
 
       // Prepare buttons for each card (same as original)
       let buttons = [];
@@ -113,7 +113,7 @@ zokou(
               jpegThumbnail: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEABsbGxscGx4hIR4qLSgtKj04MzM4PV1CR0JHQl2NWGdYWGdYjX2Xe3N7l33gsJycsOD/2c7Z//////////////8BGxsbGxwbHiEhHiotKC0qPTgzMzg9XUJHQkdCXY1YZ1hYZ1iNfZd7c3uXfeCwnJyw4P/Zztn////////////////CABEIABkAGQMBIgACEQEDEQH/xAArAAADAQAAAAAAAAAAAAAAAAAAAQMCAQEBAQAAAAAAAAAAAAAAAAAAAgH/2gAMAwEAAhADEAAAAMSoouY0VTDIss//xAAeEAACAQQDAQAAAAAAAAAAAAAAARECECFBMTJRUv/aAAgBAQABPwArUs0Reol+C4keR5tR1NH1b//EABQRAQAAAAAAAAAAAAAAAAAAACD/2gAIAQIBAT8AH//EABQRAQAAAAAAAAAAAAAAAAAAACD/2gAIAQMBAT8AH//Z",
               scansSidecar: "igcFUbzFLVZfVCKxzoSxcDtyHA1ypHZWFFFXGe+0gV9WCo/RLfNKGw==",
               scanLengths: [247, 201, 73, 63],
-              midQualityFileSha256:inPSCnZo7zjLP0LJ9+nWiwFgoQ4UkjqdQro=",
+              midQualityFileSha256: "qig0CvELqmPSCnZo7zjLP0LJ9+nWiwFgoQ4UkjqdQro=",
             },
           },
           nativeFlowMessage: {
