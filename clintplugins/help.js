@@ -1,8 +1,11 @@
 module.exports = {
     nomCom: "help",
     categorie: "General",
+    reaction: "⭐", // Add the reaction property
     async fonction(origineMessage, zk, commandeOptions) {
         const { repondre, ms } = commandeOptions;
+
+        console.log(`[DEBUG] .help command triggered by ${ms.key.participant || ms.key.remoteJid} in ${origineMessage}`);
 
         // Step 1: Get all unique categories from evt.cm
         const categories = [...new Set(global.evt.cm.map(cmd => cmd.categorie || "Uncategorized"))];
@@ -59,7 +62,7 @@ module.exports = {
             // Step 7: Send the list of commands
             await zk.sendMessage(origineMessage, { text: commandList }, { quoted: reply });
         } catch (error) {
-            // Handle timeout or invalid reply
+            console.log(`[DEBUG] Error in .help command: ${error}`);
             await zk.sendMessage(origineMessage, {
                 text: "⏰ 𝗧𝗶𝗺𝗲’𝘀 𝘂𝗽! 𝗡𝗼 𝘃𝗮𝗹𝗶𝗱 𝗿𝗲𝗽𝗹𝘆 𝗿𝗲𝗰𝗲𝗶𝘃𝗲𝗱. 𝗧𝗿𝘆 ${global.prefixe}help 𝗮𝗴𝗮𝗶𝗻! 😊"
             }, { quoted: ms });
