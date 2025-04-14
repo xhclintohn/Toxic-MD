@@ -1,7 +1,7 @@
 {
   "name": "Toxic-MD",
   "version": "2.0.0",
-  "description": "",
+  "description": "A simple baileys powered WhatsApp bot md",
   "main": "toxic.js",
   "scripts": {
     "test": "node toxic.js",
