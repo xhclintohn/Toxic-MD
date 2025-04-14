@@ -332,53 +332,80 @@ function mybotpic() {
 
             /************************ anti-delete-message */
 
-            if(ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf.ADM).toLocaleLowerCase() === 'yes' ) {
+if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf.ADM).toLocaleLowerCase() === 'yes') {
 
-                if(ms.key.fromMe || ms.message.protocolMessage.key.fromMe) { console.log('Message supprimer me concernant') ; return }
-        
-                                console.log(`Message supprimer`)
-                                let key =  ms.message.protocolMessage.key ;
-                                
-        
-                               try {
-        
-                                  let st = './store.json' ;
-        
-                                const data = fs.readFileSync(st, 'utf8');
-        
-                                const jsonData = JSON.parse(data);
-        
-                                    let message = jsonData.messages[key.remoteJid] ;
-                                
-                                    let msg ;
-        
-                                    for (let i = 0 ; i < message.length ; i++) {
-        
-                                        if (message[i].key.id === key.id) {
-                                            
-                                            msg = message[i] ;
-        
-                                            break 
-                                        }
-        
-                                    } 
-        
-                                  //  console.log(msg)
-        
-                                    if(msg === null || !msg ||msg === 'undefined') {console.log('Message non trouver') ; return } 
-        
-                                await zk.sendMessage(idBot,{ image : { url : './media/deleted-message.jpg'},caption : `        Anti-delete-message\n Message from @${msg.key.participant.split('@')[0]}​` , mentions : [msg.key.participant]},)
-                                .then( () => {
-                                    zk.sendMessage(idBot,{forward : msg},{quoted : msg}) ;
-                                })
-                               
-                              
-        
-                               } catch (e) {
-                                    console.log(e)
-                               }
-                            }
-        
+    if (ms.key.fromMe || ms.message.protocolMessage.key.fromMe) {
+        console.log('Message supprimer me concernant');
+        return;
+    }
+
+    console.log(`Message supprimer`);
+    let key = ms.message.protocolMessage.key;
+
+    try {
+        let st = './store.json';
+        const data = fs.readFileSync(st, 'utf8');
+        const jsonData = JSON.parse(data);
+
+        let message = jsonData.messages[key.remoteJid];
+        let msg;
+
+        // Search for the deleted message in store.json
+        for (let i = 0; i < message.length; i++) {
+            if (message[i].key.id === key.id) {
+                msg = message[i];
+                break;
+            }
+        }
+
+        // If message not found, log more details for debugging
+        if (!msg || msg === null || msg === 'undefined') {
+            console.log('Message non trouver - Key:', key, 'Chat:', key.remoteJid);
+            return;
+        }
+
+        // Get chat info (group name or user name) for the notification
+        let chatName = key.remoteJid.includes('@g.us') ? (await zk.groupMetadata(key.remoteJid)).subject : key.remoteJid.split('@')[0];
+
+        // Get timestamp of the deleted message
+        let timestamp = msg.messageTimestamp ? new Date(msg.messageTimestamp * 1000).toLocaleString() : 'Unknown time';
+
+        // Send anti-delete notification with more details
+        await zk.sendMessage(
+            idBot,
+            {
+                image: { url: './media/deleted-message.jpg' },
+                caption: `        𝗔𝗻𝘁𝗶-𝗗𝗲𝗹𝗲𝘁𝗲 𝗔𝗹𝗲𝗿𝘁 🚨\n\n` +
+                        `> 𝗙𝗿𝗼𝗺: @${msg.key.participant.split('@')[0]}\n` +
+                        `> 𝗖𝗵𝗮𝘁: ${chatName}\n` +
+                        `> 𝗗𝗲𝗹𝗲𝘁𝗲𝗱 𝗔𝘁: ${timestamp}\n\n` +
+                        `𝗛𝗲𝗿𝗲’𝘀 𝘁𝗵𝗲 𝗱𝗲𝗹𝗲𝘁𝗲𝗱 𝗺𝗲𝘀𝘀𝗮𝗴𝗲 𝗯𝗲𝗹𝗼𝘄! 👇`,
+                mentions: [msg.key.participant],
+            }
+        ).then(async () => {
+            // Retry forwarding the deleted message if the first attempt fails
+            try {
+                await zk.sendMessage(idBot, { forward: msg }, { quoted: msg });
+            } catch (retryError) {
+                console.log('Failed to forward message, retrying:', retryError);
+                // Second attempt with a delay
+                setTimeout(async () => {
+                    try {
+                        await zk.sendMessage(idBot, { forward: msg }, { quoted: msg });
+                    } catch (finalError) {
+                        console.log('Final attempt to forward message failed:', finalError);
+                        await zk.sendMessage(idBot, { text: `𝗖𝗼𝘂𝗹𝗱𝗻’𝘁 𝗳𝗼𝗿𝘄𝗮𝗿𝗱 𝘁𝗵𝗲 𝗱𝗲𝗹𝗲𝘁𝗲𝗱 𝗺𝗲𝘀𝘀𝗮𝗴𝗲 𝗮𝗳𝘁𝗲𝗿 𝗿𝗲𝘁𝗿𝘆. 𝗘𝗿𝗿𝗼𝗿: ${finalError.message}` });
+                    }
+                }, 2000); // Retry after 2 seconds
+            }
+        });
+
+    } catch (e) {
+        console.log('Anti-delete error:', e);
+        // Log more details for debugging
+        console.log('Key:', key, 'Chat:', key.remoteJid);
+    }
+}
             /** ****** gestion auto-status  */
             if (ms.key && ms.key.remoteJid === "status@broadcast" && conf.AUTO_READ_STATUS === "yes") {
                 await zk.readMessages([ms.key]);
