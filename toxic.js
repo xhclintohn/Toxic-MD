@@ -671,14 +671,14 @@ zk.ev.on('group-participants.update', async (group) => {
             let msg = `Toxic MD WELCOME MESSAGE*`;
             let membres = group.participants;
             for (let membre of membres) {
-                msg += ` \nHello @${membre.split("@")[0]} WELCOME TO OUR GROUP. \n\n`;
+                msg += ` \n𝐇𝐞𝐥𝐥𝐨 @${membre.split("@")[0]} 𝐀𝐍𝐃 𝐖𝐄𝐋𝐂𝐎𝐌𝐄 𝐓𝐎 𝐎𝐔𝐑 𝐆𝐑𝐎𝐔𝐏 𝐇𝐄𝐑𝐄'𝐒 𝐀 𝐂𝐔𝐏 𝐎𝐅 𝐓𝐄𝐀.⭐ \n\n`;
             }
 
-            msg += `> PLEASE READ THE GROUP DESCRIPTION TO AVOID GETTING REMOVED* `;
+            msg += `> 𝐏𝐋𝐄𝐀𝐒𝐄 𝐑𝐄𝐀𝐃 𝐓𝐇𝐄 𝐆𝐑𝐎𝐔𝐏 𝐃𝐄𝐒𝐂𝐑𝐈𝐏𝐓𝐈𝐎𝐍 𝐓𝐎 𝐀𝐕𝐎𝐈𝐃 𝐆𝐄𝐓𝐓𝐈𝐍𝐆 𝐑𝐄𝐌𝐎𝐕𝐄𝐃* `;
 
             zk.sendMessage(group.id, { image: { url: ppgroup }, caption: msg, mentions: membres });
         } else if (group.action == 'remove' && (await recupevents(group.id, "goodbye") == 'on')) {
-            let msg = `one or somes member(s) left group;\n`;
+            let msg = `𝐒𝐨𝐦𝐞𝐨𝐧𝐞 𝐉𝐮𝐬𝐭 𝐥𝐞𝐟𝐭 𝐮𝐬🥲 𝐁𝐲𝐞𝐞.  𝐖𝐞 𝐩𝐫𝐨𝐛𝐚𝐛𝐥𝐲 𝐧𝐨𝐭 𝐠𝐨𝐧𝐧𝐚 𝐦𝐢𝐬𝐬 𝐲𝐨𝐮😒🚮;\n`;
 
             let membres = group.participants;
             for (let membre of membres) {
