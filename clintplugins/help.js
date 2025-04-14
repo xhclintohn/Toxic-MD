@@ -1,102 +1,68 @@
-const util = require("util");
-const fs = require("fs-extra");
-const { zokou } = require(__dirname + "/../framework/zokou");
-const { format } = require(__dirname + "/../framework/mesfonctions");
-const os = require("os");
-const moment = require("moment-timezone");
-const s = require(__dirname + "/../set");
-const more = String.fromCharCode(8206);
-const readmore = more.repeat(4001);
-
-// Help Command
-zokou(
-  {
+module.exports = {
     nomCom: "help",
     categorie: "General",
-    reaction: "⚡",
-  },
-  async (dest, zk, commandeOptions) => {
-    let { ms, repondre, prefixe } = commandeOptions;
-    let { cm } = require(__dirname + "/../framework/zokou");
+    async fonction(origineMessage, zk, commandeOptions) {
+        const { repondre, ms } = commandeOptions;
 
-    // Initial loading message
-    let loadingMsg = await zk.sendMessage(
-      dest,
-      {
-        text: "𝐋𝐨𝐚𝐝𝐢𝐧𝐠......\n▰▱▱▱▱▱▱▱▱▱ 10%",
-      },
-      { quoted: ms }
-    );
+        // Step 1: Get all unique categories from evt.cm
+        const categories = [...new Set(global.evt.cm.map(cmd => cmd.categorie || "Uncategorized"))];
 
-    // Function to update loading progress
-    const updateProgress = async (percent) => {
-      const filled = Math.floor(percent / 10);
-      const empty = 10 - filled;
-      const batteryBar = "▰".repeat(filled) + "▱".repeat(empty);
-      await zk.sendMessage(
-        dest,
-        {
-          text: `𝐋𝐨𝐚𝐝𝐢𝐧𝐠...\n${batteryBar} ${percent}%`,
-          edit: loadingMsg.key,
-        },
-        { quoted: ms }
-      );
-    };
-
-    // Custom loading steps with skips (10%, 30%, 50%, 70%, 100%)
-    const loadingSteps = [10, 30, 50, 70, 100];
-    for (let percent of loadingSteps) {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      await updateProgress(percent);
-    }
-
-    // Command categorization
-    var coms = {};
-    cm.map(async (com) => {
-      if (!coms[com.categorie]) {
-        coms[com.categorie] = [];
-      }
-      coms[com.categorie].push(com.nomCom);
-    });
-
-    // Build category menu
-    let categoryMenu = "◈━━━━━━━━━━━━━━━━◈\n  ⚡ 𝐂𝐀𝐓𝐄𝐆𝐎𝐑𝐘 𝐌𝐄𝐍𝐔 ⚡\n\n";
-    let categoryIndex = 1;
-    for (const cat in coms) {
-      categoryMenu += `  ${categoryIndex++}. *${cat}*\n`;
-    }
-    categoryMenu += "◈━━━━━━━━━━━━━━━━◈\n> 𝐓𝐲𝐩𝐞 𝐚 𝐧𝐮𝐦𝐛𝐞𝐫 𝐭𝐨 𝐬𝐞𝐞 𝐜𝐨𝐦𝐦𝐚𝐧𝐝𝐬 𝐢𝐧 𝐭𝐡𝐚𝐭 𝐜𝐚𝐭𝐞𝐠𝐨𝐫𝐲\n";
-
-    // Send category menu
-    await zk.sendMessage(
-      dest,
-      {
-        text: categoryMenu,
-      },
-      { quoted: ms }
-    );
-
-    // Listen for user input for category selection without prefix
-    zk.onMessage(async (msg) => {
-      const selectedCategory = msg.body.trim();
-      const categoryNumber = parseInt(selectedCategory);
-
-      // Check if the input is a valid number and within the range of categories
-      if (!isNaN(categoryNumber) && categoryNumber > 0 && categoryNumber <= Object.keys(coms).length) {
-        const selectedCat = Object.keys(coms)[categoryNumber - 1];
-        let commandList = `◈━━━━━━━━━━━━━━━━◈\n  ⚡ 𝐂𝐎𝐌𝐌𝐀𝐍𝐃𝐒 𝐈𝐍 *${selectedCat}* ⚡\n\n`;
-
-        coms[selectedCat].forEach((cmd) => {
-          commandList += `  ➺ ${cmd}\n`;
+        // Step 2: Create a numbered list of categories
+        let categoryList = "🌟 𝗛𝗲𝗹𝗽 𝗠𝗲𝗻𝘂 🌟\n\n" +
+                          "𝗦𝗲𝗹𝗲𝗰𝘁 𝗮 𝗰𝗮𝘁𝗲𝗴𝗼𝗿𝘆 𝗯𝘆 𝗿𝗲𝗽𝗹𝘆𝗶𝗻𝗴 𝘄𝗶𝘁𝗵 𝗶𝘁𝘀 𝗻𝘂𝗺𝗯𝗲𝗿! 📜\n\n";
+        const buttons = [];
+        categories.forEach((cat, index) => {
+            categoryList += `【${index + 1}】 ${cat}\n`;
+            buttons.push({
+                buttonId: `${index + 1}`,
+                buttonText: { displayText: `${index + 1}` },
+                type: 1
+            });
         });
-        commandList += "◈━━━━━━━━━━━━━━━━◈";
+        categoryList += `\n📩 𝗥𝗲𝗽𝗹𝘆 𝘄𝗶𝘁𝗵 𝗮 𝗻𝘂𝗺𝗯𝗲𝗿 𝘁𝗼 𝘀𝗲𝗲 𝗰𝗼𝗺𝗺𝗮𝗻𝗱𝘀!`;
 
-        await zk.sendMessage(
-          dest,
-          {
-            text: commandList,
-          },
-          { quoted: msg }
-        );
-      } else {
-        repondre("❌ Invalid
+        // Step 3: Send the category list with buttons
+        await zk.sendMessage(origineMessage, {
+            text: categoryList,
+            buttons: buttons,
+            headerType: 1
+        }, { quoted: ms });
+
+        // Step 4: Wait for the user's reply
+        try {
+            const reply = await zk.awaitForMessage({
+                sender: ms.key.participant || ms.key.remoteJid,
+                chatJid: origineMessage,
+                timeout: 30000, // 30 seconds timeout
+                filter: (msg) => {
+                    const text = msg.message?.conversation || msg.message?.extendedTextMessage?.text;
+                    return text && /^\d+$/.test(text) && parseInt(text) > 0 && parseInt(text) <= categories.length;
+                }
+            });
+
+            // Step 5: Get the selected category
+            const selectedNumber = parseInt(reply.message?.conversation || reply.message?.extendedTextMessage?.text);
+            const selectedCategory = categories[selectedNumber - 1];
+
+            // Step 6: List commands in the selected category
+            const commandsInCategory = global.evt.cm.filter(cmd => (cmd.categorie || "Uncategorized") === selectedCategory);
+            let commandList = `📋 𝗖𝗼𝗺𝗺𝗮𝗻𝗱𝘀 𝗶𝗻 ${selectedCategory} 📋\n\n`;
+            if (commandsInCategory.length === 0) {
+                commandList += "𝗡𝗼 𝗰𝗼𝗺𝗺𝗮𝗻𝗱𝘀 𝗳𝗼𝘂𝗻𝗱 𝗶𝗻 𝘁𝗵𝗶𝘀 𝗰𝗮𝘁𝗲𝗴𝗼𝗿𝘆. 😔";
+            } else {
+                commandsInCategory.forEach(cmd => {
+                    commandList += `➤ ${global.prefixe}${cmd.nomCom}\n`;
+                });
+                commandList += `\n💡 𝗧𝘆𝗽𝗲 ${global.prefixe}<𝗰𝗼𝗺𝗺𝗮𝗻𝗱> 𝘁𝗼 𝘂𝘀𝗲 𝗶𝘁!`;
+            }
+
+            // Step 7: Send the list of commands
+            await zk.sendMessage(origineMessage, { text: commandList }, { quoted: reply });
+        } catch (error) {
+            // Handle timeout or invalid reply
+            await zk.sendMessage(origineMessage, {
+                text: "⏰ 𝗧𝗶𝗺𝗲’𝘀 𝘂𝗽! 𝗡𝗼 𝘃𝗮𝗹𝗶𝗱 𝗿𝗲𝗽𝗹𝘆 𝗿𝗲𝗰𝗲𝗶𝘃𝗲𝗱. 𝗧𝗿𝘆 ${global.prefixe}help 𝗮𝗴𝗮𝗶𝗻! 😊"
+            }, { quoted: ms });
+        }
+    }
+};
