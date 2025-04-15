@@ -447,32 +447,34 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
             } 
 
 
-     // Antilink - Fixed Version
+    // Antilink - FINAL FIXED VERSION
 try {
-  const isGroup = verifGroupe; // Make sure this is true for groups
+  const isGroup = verifGroupe;
   const antilinkActive = await verifierEtatJid(origineMessage);
-  const linkRegex = /(https?:\/\/|www\.|chat\.whatsapp\.com|t\.me|bit\.ly|tinyurl\.com|lnkd\.in|fb\.me)[\S]+/i;
+  const linkRegex = /(https?:\/\/|www\.|chat\.whatsapp\.com)[^\s]*/i;
 
   if (linkRegex.test(texte) && isGroup && antilinkActive) {
     console.log("🔗 Link detected:", texte);
 
-    // Get FRESH group metadata every time
+    // Get fresh group metadata
     const groupData = await zk.groupMetadata(origineMessage);
-    const allAdmins = groupData.participants.filter(p => p.admin).map(p => p.id);
-    
-    // Debugging logs - VERY IMPORTANT
-    console.log("👑 Admins list:", allAdmins);
-    console.log("🤖 Bot ID:", zk.user.id);
-    console.log("👤 Sender ID:", auteurMessage);
-    console.log("🦸 Superuser:", superUser);
+    const allAdmins = groupData.participants
+      .filter(p => p.admin)
+      .map(p => p.id.split(':')[0] + '@s.whatsapp.net'); // FIX: Normalize JID format
 
-    // Critical checks
+    // Normalize bot JID for comparison
+    const botJID = zk.user.id.split(':')[0] + '@s.whatsapp.net';
+    
+    console.log("👑 Admins list:", allAdmins);
+    console.log("🤖 Bot ID (normalized):", botJID);
+    console.log("👤 Sender ID:", auteurMessage);
+
     const isSenderAdmin = allAdmins.includes(auteurMessage);
-    const isBotAdmin = allAdmins.includes(zk.user.id);
+    const isBotAdmin = allAdmins.includes(botJID); // Use normalized JID
 
     if (!isSenderAdmin && !superUser && isBotAdmin) {
       console.log("🚨 Taking action against non-admin link sender");
-      // ... [rest of your action code] ...
+      // [Your action code here]
     } else {
       console.log("✅ No action taken because:",
         isSenderAdmin ? "Sender is admin" :
@@ -481,7 +483,7 @@ try {
     }
   }
 } catch (e) {
-  console.error("ANTILINK CRASHED:", e);
+  console.error("ANTILINK ERROR:", e);
 }
     
 
