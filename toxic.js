@@ -449,15 +449,28 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
 
      // Anti-link
 try {
-  const yes = await verifierEtatJid(origineMessage)
-  // Improved link detection using regex
+  const yes = await verifierEtatJid(origineMessage);
   const linkRegex = /(https?:\/\/|www\.|t\.me|bit\.ly|tinyurl\.com|lnkd\.in|fb\.me)[\S]+/i;
+  
   if (linkRegex.test(texte) && verifGroupe && yes) {
     console.log("Link detected");
-    const verifZokAdmin = verifGroupe ? admins.includes(zk.user.id) : false; // Use zk.user.id for consistency
+    
+    // Proper admin check
+    const botJid = zk.user.id.split(':')[0] + '@s.whatsapp.net';
+    const verifZokAdmin = admins.includes(botJid);
+    
+    console.log('Bot admin status:', verifZokAdmin);
+    console.log('Admins list:', admins);
 
-    if (superUser || verifAdmin || !verifZokAdmin) {
-      console.log('I will do nothing');
+    if (superUser || verifAdmin) {
+      console.log('Admin/Sudo detected - no action');
+      return;
+    }
+
+    if (!verifZokAdmin) {
+      await zk.sendMessage(origineMessage, {
+        text: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n❌ I'm not admin! Can't delete links.`
+      }, { quoted: ms });
       return;
     }
 
@@ -472,25 +485,17 @@ try {
       pack: '𝐓𝐎𝐗𝐈𝐂-𝐌𝐃',
       author: conf.OWNER_NAME,
       type: StickerTypes.FULL,
-      categories: ['🤩', '🎉'],
+      categories: ['⚠️'],
       id: '12345',
-      quality: 50,
-      background: '#000000'
+      quality: 70,
+      background: '#ff0000'
     });
     await sticker.toFile("st1.webp");
 
-    const action = await recupererActionJid(origineMessage);
+    const action = await recupererActionJid(origineMessage) || 'delete';
 
     if (action === 'remove') {
-      const txt = `
-𝐓𝐎𝐗𝐈𝐂-𝐌𝐃
-
-◈━━━━━━━━━━━━━━━━◈
-│❒ Link detected!
-│❒ Message deleted 📩
-│❒ @${auteurMessage.split("@")[0]} has been removed from the group 🚪
-◈━━━━━━━━━━━━━━━━◈
-      `;
+      const txt = `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ LINK VIOLATION!\n│❒ USER: @${auteurMessage.split("@")[0]}\n│❒ ACTION: REMOVED\n◈━━━━━━━━━━━━━━━━◈`;
       await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
       await (0, baileys_1.delay)(800);
       await zk.sendMessage(origineMessage, { text: txt, mentions: [auteurMessage] }, { quoted: ms });
@@ -498,76 +503,40 @@ try {
         await zk.groupParticipantsUpdate(origineMessage, [auteurMessage], "remove");
       } catch (e) {
         await zk.sendMessage(origineMessage, {
-          text: `
-𝐓𝐎𝐗𝐈𝐂-𝐌𝐃
-
-◈━━━━━━━━━━━━━━━━◈
-│❒ Error removing user: I need admin rights to remove members 😓
-◈━━━━━━━━━━━━━━━━◈
-          `
+          text: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ REMOVAL FAILED!\n│❒ NEED ADMIN POWER\n◈━━━━━━━━━━━━━━━━◈`
         }, { quoted: ms });
-        console.log("Anti-link error: " + e);
       }
       await zk.sendMessage(origineMessage, { delete: key });
       await fs.unlink("st1.webp");
-    } else if (action === 'delete') {
-      const txt = `
-𝐓𝐎𝐗𝐈𝐂-𝐌𝐃
-
-◈━━━━━━━━━━━━━━━━◈
-│❒ Link detected!
-│❒ Message deleted 📩
-│❒ @${auteurMessage.split("@")[0]}, please avoid sending links 🚫
-◈━━━━━━━━━━━━━━━━◈
-      `;
+    } 
+    else if (action === 'delete') {
+      const txt = `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ LINK DELETED!\n│❒ USER: @${auteurMessage.split("@")[0]}\n│❒ NEXT: WARNING\n◈━━━━━━━━━━━━━━━━◈`;
       await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
       await zk.sendMessage(origineMessage, { text: txt, mentions: [auteurMessage] }, { quoted: ms });
       await zk.sendMessage(origineMessage, { delete: key });
       await fs.unlink("st1.webp");
-    } else if (action === 'warn') {
+    }
+    else if (action === 'warn') {
       const { getWarnCountByJID, ajouterUtilisateurAvecWarnCount, resetWarnCountByJID } = require('./bdd/warn');
-
       let warn = await getWarnCountByJID(auteurMessage);
       let warnLimit = conf.WARN_COUNT;
+      
       if (warn >= warnLimit) {
-        const kikmsg = `
-𝐓𝐎𝐗𝐈𝐂-𝐌𝐃
-
-◈━━━━━━━━━━━━━━━━◈
-│❒ Link detected!
-│❒ @${auteurMessage.split("@")[0]}, you have reached the warn limit 🚨
-│❒ You will be removed from the group 🚪
-◈━━━━━━━━━━━━━━━━◈
-        `;
+        const kikmsg = `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ MAX WARNINGS!\n│❒ USER: @${auteurMessage.split("@")[0]}\n│❒ ACTION: BANNED\n◈━━━━━━━━━━━━━━━━◈`;
         await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
         await zk.sendMessage(origineMessage, { text: kikmsg, mentions: [auteurMessage] }, { quoted: ms });
         try {
           await zk.groupParticipantsUpdate(origineMessage, [auteurMessage], "remove");
-          await resetWarnCountByJID(auteurMessage); // Reset warn count after removal
+          await resetWarnCountByJID(auteurMessage);
         } catch (e) {
           await zk.sendMessage(origineMessage, {
-            text: `
-𝐓𝐎𝐗𝐈𝐂-𝐌𝐃
-
-◈━━━━━━━━━━━━━━━━◈
-│❒ Error removing user: I need admin rights to remove members 😓
-◈━━━━━━━━━━━━━━━━◈
-            `
+            text: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ BAN FAILED!\n│❒ NEED ADMIN\n◈━━━━━━━━━━━━━━━━◈`
           }, { quoted: ms });
-          console.log("Anti-link warn error: " + e);
         }
         await zk.sendMessage(origineMessage, { delete: key });
       } else {
         const remaining = warnLimit - warn;
-        const msg = `
-𝐓𝐎𝐗𝐈𝐂-𝐌𝐃
-
-◈━━━━━━━━━━━━━━━━◈
-│❒ Link detected!
-│❒ @${auteurMessage.split("@")[0]}, your warn count has been updated 🚨
-│❒ Warnings remaining: ${remaining}
-◈━━━━━━━━━━━━━━━━◈
-        `;
+        const msg = `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ WARNING #${warn+1}\n│❒ USER: @${auteurMessage.split("@")[0]}\n│❒ LEFT: ${remaining}\n◈━━━━━━━━━━━━━━━━◈`;
         await ajouterUtilisateurAvecWarnCount(auteurMessage);
         await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
         await zk.sendMessage(origineMessage, { text: msg, mentions: [auteurMessage] }, { quoted: ms });
@@ -577,16 +546,9 @@ try {
     }
   }
 } catch (e) {
-  console.log("Database error: " + e);
+  console.log("Anti-link crash:", e);
   await zk.sendMessage(origineMessage, {
-    text: `
-𝐓𝐎𝐗𝐈𝐂-𝐌𝐃
-
-◈━━━━━━━━━━━━━━━━◈
-│❒ Error in anti-link system: ${e.message} 😓
-│❒ Please contact an admin to resolve this issue.
-◈━━━━━━━━━━━━━━━━◈
-    `
+    text: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ SYSTEM ERROR!\n│❒ ${e.message}\n◈━━━━━━━━━━━━━━━━◈`
   }, { quoted: ms });
 }
     
