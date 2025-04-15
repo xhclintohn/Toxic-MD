@@ -447,13 +447,10 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
             } 
 
 
-     // Antilink - FIXED & OPTIMIZED
+     // Antilink - FIXED & MINIMAL
 try {
   const yes = await verifierEtatJid(origineMessage);
   const linkRegex = /(https?:\/\/|www\.|t\.me|bit\.ly|tinyurl\.com|lnkd\.in|fb\.me)[\S]+/i;
-  const MY_NUMBER = "254735342808@s.whatsapp.net";
-  const TOXIC_MD = "𝐓𝐎𝐗𝐈𝐂-𝐌𝐃";
-  const STYLE_LINES = "◈━━━━━━━━━━━━━━━━◈";
 
   // Skip non-groups, inactive antilink, or non-links to avoid blocking commands
   if (!verifGroupe || !yes || !texte || !linkRegex.test(texte)) {
@@ -468,7 +465,7 @@ try {
   // Check if bot and sender are admins, or if sender is your number
   const verifZokAdmin = admins.includes(botJID);
   const isSenderAdmin = admins.includes(auteurMessage);
-  const isMyNumber = auteurMessage === MY_NUMBER;
+  const isMyNumber = auteurMessage === "254735342808@s.whatsapp.net";
 
   // Skip if sender is admin, superuser, your number, or bot isn't admin
   if (superUser || isSenderAdmin || isMyNumber || !verifZokAdmin) {
@@ -500,13 +497,13 @@ try {
 
   if (action === "remove") {
     const txt = `
-${TOXIC_MD}
+𝐓𝐎𝐗𝐈𝐂-𝐌𝐃
 
-${STYLE_LINES}
+◈━━━━━━━━━━━━━━━━◈
 │❒ Link detected!
 │❒ Message deleted 📩
 │❒ @${auteurMessage.split("@")[0]} has been removed from the group 🚪
-${STYLE_LINES}
+◈━━━━━━━━━━━━━━━━◈
     `;
     await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
     await (0, baileys_1.delay)(800);
@@ -523,11 +520,11 @@ ${STYLE_LINES}
             origineMessage,
             {
               text: `
-${TOXIC_MD}
+𝐓𝐎𝐗𝐈𝐂-𝐌𝐃
 
-${STYLE_LINES}
+◈━━━━━━━━━━━━━━━━◈
 │❒ Error removing user: I need admin rights to remove members 😓
-${STYLE_LINES}
+◈━━━━━━━━━━━━━━━━◈
             `,
             },
             { quoted: ms }
@@ -555,13 +552,13 @@ ${STYLE_LINES}
     await fs.unlink("st1.webp");
   } else if (action === "delete") {
     const txt = `
-${TOXIC_MD}
+𝐓𝐎𝐗𝐈𝐂-𝐌𝐃
 
-${STYLE_LINES}
+◈━━━━━━━━━━━━━━━━◈
 │❒ Link detected!
 │❒ Message deleted 📩
 │❒ @${auteurMessage.split("@")[0]}, please avoid sending links 🚫
-${STYLE_LINES}
+◈━━━━━━━━━━━━━━━━◈
     `;
     await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
     await zk.sendMessage(origineMessage, { text: txt, mentions: [auteurMessage] }, { quoted: ms });
@@ -589,13 +586,13 @@ ${STYLE_LINES}
 
     if (warn >= warnLimit) {
       const kikmsg = `
-${TOXIC_MD}
+�	T𝐎𝐗𝐈𝐂-𝐌𝐃
 
-${STYLE_LINES}
+◈━━━━━━━━━━━━━━━━◈
 │❒ Link detected!
 │❒ @${auteurMessage.split("@")[0]}, you have reached the warn limit 🚨
 │❒ You will be removed from the group 🚪
-${STYLE_LINES}
+◈━━━━━━━━━━━━━━━━◈
       `;
       await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
       await zk.sendMessage(origineMessage, { text: kikmsg, mentions: [auteurMessage] }, { quoted: ms });
@@ -613,11 +610,11 @@ ${STYLE_LINES}
               origineMessage,
               {
                 text: `
-${TOXIC_MD}
+𝐓𝐎𝐗𝐈𝐂-𝐌𝐃
 
-${STYLE_LINES}
+◈━━━━━━━━━━━━━━━━◈
 │❒ Error removing user: I need admin rights to remove members 😓
-${STYLE_LINES}
+◈━━━━━━━━━━━━━━━━◈
               `,
               },
               { quoted: ms }
@@ -644,13 +641,13 @@ ${STYLE_LINES}
     } else {
       const remaining = warnLimit - warn;
       const msg = `
-${TOXIC_MD}
+𝐓𝐎𝐗𝐈𝐂-𝐌𝐃
 
-${STYLE_LINES}
+◈━━━━━━━━━━━━━━━━◈
 │❒ Link detected!
 │❒ @${auteurMessage.split("@")[0]}, your warn count has been updated 🚨
 │❒ Warnings remaining: ${remaining}
-${STYLE_LINES}
+◈━━━━━━━━━━━━━━━━◈
       `;
       await ajouterUtilisateurAvecWarnCount(auteurMessage);
       await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
@@ -677,12 +674,12 @@ ${STYLE_LINES}
     origineMessage,
     {
       text: `
-${TOXIC_MD}
+𝐓𝐎𝐗𝐈𝐂-𝐌𝐃
 
-${STYLE_LINES}
+◈━━━━━━━━━━━━━━━━◈
 │❒ Error in anti-link system: ${e.message} 😓
 │❒ Please contact an admin to resolve this issue.
-${STYLE_LINES}
+◈━━━━━━━━━━━━━━━━◈
     `,
     },
     { quoted: ms }
