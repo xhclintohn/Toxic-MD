@@ -1,190 +1,95 @@
 const { zokou } = require("../framework/zokou");
-const mongoose = require('mongoose');
-const Sticker = require('wa-sticker-formatter');
 const fs = require('fs');
+const path = './antilink.json'; // JSON storage file
 
-const TOXIC_MD = "\u{1D413}\u{1D40E}\u{1D417}\u{1D408}\u{1D402}-\u{1D40C}\u{1D403}";
-
-// Improved MongoDB connection with timeout settings
-const connectDB = async () => {
-  try {
-    await mongoose.connect('mongodb+srv://xhclinton1:xclintomwesh1@xhclinton.h9mye.mongodb.net/?retryWrites=true&w=majority&appName=xhclinton', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 30000,
-      socketTimeoutMS: 45000
-    });
-    console.log('MongoDB connected successfully');
-  } catch (err) {
-    console.error('MongoDB connection failed:', err);
-    process.exit(1);
-  }
-};
-
-connectDB();
-
-const AntiLinkSchema = new mongoose.Schema({
-  groupJid: { type: String, required: true, unique: true },
-  enabled: { type: Boolean, default: false },
-  action: { type: String, default: 'delete' }
-});
-
-const AntiLink = mongoose.model('AntiLink', AntiLinkSchema);
-
-// Fallback in-memory storage if DB fails
-const antiLinkCache = new Map();
-
-async function getAntiLinkSettings(groupJid) {
-  try {
-    const settings = await AntiLink.findOne({ groupJid });
-    if (settings) {
-      antiLinkCache.set(groupJid, settings);
-      return settings;
-    }
-    return antiLinkCache.get(groupJid) || { enabled: false, action: 'delete' };
-  } catch {
-    return antiLinkCache.get(groupJid) || { enabled: false, action: 'delete' };
-  }
+// Initialize JSON file if it doesn't exist
+if (!fs.existsSync(path)) {
+  fs.writeFileSync(path, JSON.stringify({}, null, 2));
 }
 
-async function updateAntiLinkSettings(groupJid, update) {
-  try {
-    const settings = await AntiLink.findOneAndUpdate(
-      { groupJid },
-      update,
-      { upsert: true, new: true }
-    );
-    antiLinkCache.set(groupJid, settings);
-    return true;
-  } catch (err) {
-    console.error('DB update failed, using cache:', err);
-    const current = antiLinkCache.get(groupJid) || { enabled: false, action: 'delete' };
-    antiLinkCache.set(groupJid, { ...current, ...update });
-    return false;
-  }
+// Load settings from JSON
+function loadSettings() {
+  return JSON.parse(fs.readFileSync(path));
 }
 
-zokou({ nomCom: "enable", categorie: 'Group', reaction: "🔧" }, async (dest, zk, commandeOptions) => {
-  const { repondre, arg, verifGroupe } = commandeOptions;
-  if (!verifGroupe) return repondre(`${TOXIC_MD}\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Command only works in groups 🚫\n◈━━━━━━━━━━━━━━━━◈`);
+// Save settings to JSON
+function saveSettings(settings) {
+  fs.writeFileSync(path, JSON.stringify(settings, null, 2));
+}
 
-  if (!arg[0] || arg[0].toLowerCase() !== 'antilink') {
-    return repondre(`${TOXIC_MD}\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Usage: .enable antilink\n◈━━━━━━━━━━━━━━━━◈`);
+const TOXIC_MD = "𝐓𝐎𝐗𝐈𝐂-𝐌𝐃";
+
+// Enable/disable anti-link
+zokou({ nomCom: "enable", categorie: 'Group', reaction: "🔧" }, async (dest, zk, cmdOpts) => {
+  const { repondre, arg, verifGroupe } = cmdOpts;
+  if (!verifGroupe) return repondre(`${TOXIC_MD}\nCommand only works in groups!`);
+
+  if (arg[0]?.toLowerCase() !== 'antilink') {
+    return repondre(`${TOXIC_MD}\nUsage: .enable antilink`);
   }
 
-  const success = await updateAntiLinkSettings(dest, { enabled: true });
-  if (success) {
-    repondre(`${TOXIC_MD}\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Anti-link protection enabled ✅\n◈━━━━━━━━━━━━━━━━◈`);
-  } else {
-    repondre(`${TOXIC_MD}\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Anti-link enabled (using temporary storage) ⚠️\n◈━━━━━━━━━━━━━━━━◈`);
-  }
+  const settings = loadSettings();
+  settings[dest] = { enabled: true, action: 'delete' }; // Default action
+  saveSettings(settings);
+
+  repondre(`${TOXIC_MD}\nAnti-link protection enabled ✅`);
 });
 
-zokou({ nomCom: "antilink", categorie: 'Group', reaction: "🔧" }, async (dest, zk, commandeOptions) => {
-  const { repondre, arg, verifGroupe } = commandeOptions;
-  if (!verifGroupe) return repondre(`${TOXIC_MD}\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Command only works in groups 🚫\n◈━━━━━━━━━━━━━━━━◈`);
+// Set action (delete/remove/warn)
+zokou({ nomCom: "antilink", categorie: 'Group', reaction: "🔧" }, async (dest, zk, cmdOpts) => {
+  const { repondre, arg, verifGroupe } = cmdOpts;
+  if (!verifGroupe) return repondre(`${TOXIC_MD}\nCommand only works in groups!`);
 
   const action = arg[0]?.toLowerCase();
   if (!['delete', 'remove', 'warn'].includes(action)) {
-    return repondre(`${TOXIC_MD}\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Usage: .antilink delete/remove/warn\n◈━━━━━━━━━━━━━━━━◈`);
+    return repondre(`${TOXIC_MD}\nUsage: .antilink delete/remove/warn`);
   }
 
-  const success = await updateAntiLinkSettings(dest, { action });
-  if (success) {
-    repondre(`${TOXIC_MD}\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Action set to: ${action} ✅\n◈━━━━━━━━━━━━━━━━◈`);
-  } else {
-    repondre(`${TOXIC_MD}\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Action set (using temporary storage): ${action} ⚠️\n◈━━━━━━━━━━━━━━━━◈`);
-  }
+  const settings = loadSettings();
+  if (!settings[dest]) settings[dest] = { enabled: true }; // Enable if not set
+  settings[dest].action = action;
+  saveSettings(settings);
+
+  repondre(`${TOXIC_MD}\nAction set to: ${action} ✅`);
 });
 
+// Detect links
 zokou.on('message', async (message) => {
-  const { texte, verifGroupe, auteurMessage, ms, zk, superUser, admins, conf } = message;
+  const { texte, verifGroupe, auteurMessage, ms, zk, superUser, admins } = message;
   if (!verifGroupe) return;
 
-  try {
-    const antiLinkSettings = await getAntiLinkSettings(message.origineMessage);
-    if (!antiLinkSettings.enabled) return;
+  const settings = loadSettings();
+  const groupSettings = settings[message.origineMessage];
+  if (!groupSettings?.enabled) return;
 
-    const linkRegex = /(https?:\/\/|www\.|t\.me|bit\.ly|tinyurl\.com|lnkd\.in|fb\.me)[\S]+/i;
-    if (!linkRegex.test(texte)) return;
+  // Link detection regex
+  const linkRegex = /(https?:\/\/|www\.|t\.me|bit\.ly|tinyurl\.com|lnkd\.in|fb\.me)[\S]+/i;
+  if (!linkRegex.test(texte)) return;
 
-    const normalizeJid = (jid) => jid.split(':')[0];
-    const normalizedBotJid = normalizeJid(zk.user.id);
-    const normalizedAdmins = admins.map(normalizeJid);
-    const verifZokAdmin = normalizedAdmins.includes(normalizedBotJid);
-    const normalizedSenderJid = normalizeJid(auteurMessage);
-    const verifAdmin = normalizedAdmins.includes(normalizedSenderJid);
+  // Skip if sender is admin/bot-owner
+  const isAdmin = admins.includes(auteurMessage);
+  if (superUser || isAdmin) return;
 
-    if (superUser || verifAdmin || !verifZokAdmin) return;
+  // Take action
+  const key = { remoteJid: message.origineMessage, id: ms.key.id };
+  switch (groupSettings.action) {
+    case 'delete':
+      await zk.sendMessage(message.origineMessage, { delete: key });
+      break;
 
-    const key = {
-      remoteJid: message.origineMessage,
-      fromMe: false,
-      id: ms.key.id,
-      participant: auteurMessage
-    };
+    case 'remove':
+      try {
+        await zk.groupParticipantsUpdate(message.origineMessage, [auteurMessage], "remove");
+      } catch (e) {
+        console.log("Need admin rights to remove users");
+      }
+      break;
 
-    const sticker = await createSticker(conf.OWNER_NAME);
-    await handleAntiLinkAction(antiLinkSettings.action, message, zk, auteurMessage, key, sticker);
-    
-  } catch (error) {
-    console.error("Anti-link processing error:", error);
+    case 'warn':
+      await zk.sendMessage(message.origineMessage, { 
+        text: `${TOXIC_MD}\n@${auteurMessage.split('@')[0]}, links are not allowed here! ⚠️`,
+        mentions: [auteurMessage]
+      }, { quoted: ms });
+      break;
   }
 });
-
-async function createSticker(ownerName) {
-  const gifLink = "https://raw.githubusercontent.com/xhclintohn/Toxic-MD/main/media/remover.gif";
-  const sticker = new Sticker(gifLink, {
-    pack: 'Toxic-MD',
-    author: ownerName,
-    type: StickerTypes.FULL,
-    categories: ['🤩', '🎉'],
-    id: '12345',
-    quality: 50,
-    background: '#000000'
-  });
-  await sticker.toFile("st1.webp");
-  return sticker;
-}
-
-async function handleAntiLinkAction(action, message, zk, auteurMessage, key, sticker) {
-  const baseMsg = `${TOXIC_MD}\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Link detected! 📩\n`;
-  const mention = `@${auteurMessage.split("@")[0]}`;
-
-  try {
-    await zk.sendMessage(message.origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: message.ms });
-
-    switch (action) {
-      case 'remove':
-        await zk.sendMessage(message.origineMessage, { 
-          text: `${baseMsg}│❒ Removing user... 📩\n│❒ ${mention} has been removed 🚪\n◈━━━━━━━━━━━━━━━━◈`,
-          mentions: [auteurMessage] 
-        }, { quoted: message.ms });
-        try {
-          await zk.groupParticipantsUpdate(message.origineMessage, [auteurMessage], "remove");
-        } catch (e) {
-          await zk.sendMessage(message.origineMessage, {
-            text: `${TOXIC_MD}\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Need admin rights to remove users 😓\n◈━━━━━━━━━━━━━━━━◈`
-          }, { quoted: message.ms });
-        }
-        break;
-
-      case 'warn':
-        await zk.sendMessage(message.origineMessage, { 
-          text: `${baseMsg}│❒ Warning issued 📩\n│❒ ${mention}, don't send links ⚠️\n◈━━━━━━━━━━━━━━━━◈`,
-          mentions: [auteurMessage] 
-        }, { quoted: message.ms });
-        break;
-
-      default: // delete
-        await zk.sendMessage(message.origineMessage, { 
-          text: `${baseMsg}│❒ Message deleted 📩\n│❒ ${mention}, no links allowed 🚫\n◈━━━━━━━━━━━━━━━━◈`,
-          mentions: [auteurMessage] 
-        }, { quoted: message.ms });
-    }
-
-    await zk.sendMessage(message.origineMessage, { delete: key });
-  } finally {
-    fs.unlink("st1.webp", () => {});
-  }
-}
