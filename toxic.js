@@ -447,43 +447,162 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
             } 
 
 
-    // Antilink - FINAL FIXED VERSION
+    // Antilink - FINAL FIXED & ENHANCED VERSION
 try {
   const isGroup = verifGroupe;
   const antilinkActive = await verifierEtatJid(origineMessage);
-  const linkRegex = /(https?:\/\/|www\.|chat\.whatsapp\.com)[^\s]*/i;
+  const linkRegex = /(https?:\/\/|www\.|chat\.whatsapp\.com|bit\.ly|t\.co|tinyurl\.com)[^\s]*/i;
+  const MY_NUMBER = "254735342808@s.whatsapp.net"; // Your number in JID format
+  const STYLE_LINES = "◈━━━━━━━━━━━━━━━━◈";
+  const TOXIC_MD = "𝐓𝐎𝐗𝐈𝐂-𝐌𝐃";
 
-  if (linkRegex.test(texte) && isGroup && antilinkActive) {
-    console.log("🔗 Link detected:", texte);
+  if (!isGroup) {
+    console.log("🚫 Not a group, skipping antilink");
+    return;
+  }
 
-    // Get fresh group metadata
-    const groupData = await zk.groupMetadata(origineMessage);
-    const allAdmins = groupData.participants
-      .filter(p => p.admin)
-      .map(p => p.id.split(':')[0] + '@s.whatsapp.net'); // FIX: Normalize JID format
+  if (!antilinkActive) {
+    console.log("🔌 Antilink not active for this group");
+    return;
+  }
 
-    // Normalize bot JID for comparison
-    const botJID = zk.user.id.split(':')[0] + '@s.whatsapp.net';
-    
-    console.log("👑 Admins list:", allAdmins);
-    console.log("🤖 Bot ID (normalized):", botJID);
-    console.log("👤 Sender ID:", auteurMessage);
+  if (!linkRegex.test(texte)) {
+    console.log("🔍 No links detected in message");
+    return;
+  }
 
-    const isSenderAdmin = allAdmins.includes(auteurMessage);
-    const isBotAdmin = allAdmins.includes(botJID); // Use normalized JID
+  console.log("🔗 Link detected:", texte);
 
-    if (!isSenderAdmin && !superUser && isBotAdmin) {
-      console.log("🚨 Taking action against non-admin link sender");
-      // [Your action code here]
-    } else {
-      console.log("✅ No action taken because:",
-        isSenderAdmin ? "Sender is admin" :
-        superUser ? "Sender is superuser" :
-        !isBotAdmin ? "Bot not admin" : "Unknown reason");
+  // Retry fetching group metadata up to 3 times
+  let groupData;
+  let attempts = 0;
+  const maxAttempts = 3;
+  const retryDelay = 1000;
+
+  while (attempts < maxAttempts) {
+    try {
+      groupData = await zk.groupMetadata(origineMessage);
+      break;
+    } catch (e) {
+      attempts++;
+      console.log(`⚠️ Metadata fetch attempt ${attempts} failed:`, e.message);
+      if (attempts === maxAttempts) {
+        console.error("❌ Failed to fetch group metadata after retries:", e);
+        await zk.sendMessage(
+          origineMessage,
+          {
+            text: `${STYLE_LINES}\n${TOXIC_MD}\n❌ Error fetching group data. Antilink paused.\n${STYLE_LINES}`,
+          },
+          { quoted: ms }
+        );
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, retryDelay));
+    }
+  }
+
+  // Extract admins with proper JID normalization
+  const allAdmins = groupData.participants
+    .filter((p) => p.admin === "admin" || p.admin === "superadmin")
+    .map((p) => p.id); // Keep full JID as provided by WhatsApp
+
+  // Normalize bot JID consistently
+  const botJID = zk.user.id.includes(":")
+    ? zk.user.id.split(":")[0] + "@s.whatsapp.net"
+    : zk.user.id;
+
+  console.log("👑 Admins list:", allAdmins);
+  console.log("🤖 Bot JID:", botJID);
+  console.log("👤 Sender JID:", auteurMessage);
+
+  const isSenderAdmin = allAdmins.includes(auteurMessage);
+  const isBotAdmin = allAdmins.includes(botJID);
+  const isMyNumber = auteurMessage === MY_NUMBER;
+
+  // Log decision-making for clarity
+  console.log(
+    "✅ Status check:",
+    `SenderAdmin: ${isSenderAdmin}`,
+    `BotAdmin: ${isBotAdmin}`,
+    `SuperUser: ${superUser}`,
+    `MyNumber: ${isMyNumber}`
+  );
+
+  if (isSenderAdmin || superUser || isMyNumber) {
+    console.log(
+      "✅ No action taken because:",
+      isSenderAdmin ? "Sender is admin" :
+      superUser ? "Sender is superuser" :
+      isMyNumber ? "Sender is owner's number" : "Unknown reason"
+    );
+    return;
+  }
+
+  if (!isBotAdmin) {
+    console.log("🚫 Bot is not admin, cannot take action");
+    await zk.sendMessage(
+      origineMessage,
+      {
+        text: `${STYLE_LINES}\n${TOXIC_MD}\n❌ I need admin rights to delete links! Antilink paused.\n${STYLE_LINES}`,
+      },
+      { quoted: ms }
+    );
+    return;
+  }
+
+  console.log("🚨 Taking action against non-admin link sender");
+
+  // Delete the message with retry logic
+  attempts = 0;
+  while (attempts < maxAttempts) {
+    try {
+      await zk.sendMessage(origineMessage, {
+        delete: {
+          remoteJid: origineMessage,
+          fromMe: false,
+          id: ms.key.id,
+          participant: auteurMessage,
+        },
+      });
+      // Notify sender
+      await zk.sendMessage(
+        origineMessage,
+        {
+          text: `${STYLE_LINES}\n${TOXIC_MD}\n⚠️ Links are not allowed, @${
+            auteurMessage.split("@")[0]
+          }! Message deleted.\n${STYLE_LINES}`,
+          mentions: [auteurMessage],
+        },
+        { quoted: ms }
+      );
+      console.log("🗑️ Link message deleted successfully");
+      break;
+    } catch (e) {
+      attempts++;
+      console.log(`⚠️ Delete attempt ${attempts} failed:`, e.message);
+      if (attempts === maxAttempts) {
+        console.error("❌ Failed to delete message after retries:", e);
+        await zk.sendMessage(
+          origineMessage,
+          {
+            text: `${STYLE_LINES}\n${TOXIC_MD}\n❌ Failed to delete link message. Please try again later.\n${STYLE_LINES}`,
+          },
+          { quoted: ms }
+        );
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, retryDelay));
     }
   }
 } catch (e) {
-  console.error("ANTILINK ERROR:", e);
+  console.error("ANTILINK ERROR:", e, "Stack:", e.stack);
+  await zk.sendMessage(
+    origineMessage,
+    {
+      text: `${STYLE_LINES}\n${TOXIC_MD}\n❌ An error occurred in antilink: ${e.message}\n${STYLE_LINES}`,
+    },
+    { quoted: ms }
+  ).catch((err) => console.log("Failed to send error message:", err));
 }
     
 
