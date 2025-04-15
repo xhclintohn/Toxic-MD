@@ -447,85 +447,246 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
             } 
 
 
-    // Antilink - CLEANED VERSION (NO LOGS)
+     // Antilink - FIXED & OPTIMIZED
 try {
-  const isGroup = verifGroupe;
-  const antilinkActive = await verifierEtatJid(origineMessage);
-  const linkRegex = /(https?:\/\/|www\.|chat\.whatsapp\.com|bit\.ly|t\.co|tinyurl\.com)[^\s]*/i;
+  const yes = await verifierEtatJid(origineMessage);
+  const linkRegex = /(https?:\/\/|www\.|t\.me|bit\.ly|tinyurl\.com|lnkd\.in|fb\.me)[\S]+/i;
   const MY_NUMBER = "254735342808@s.whatsapp.net";
-  const STYLE_LINES = "◈━━━━━━━━━━━━━━━━◈";
   const TOXIC_MD = "𝐓𝐎𝐗𝐈𝐂-𝐌𝐃";
+  const STYLE_LINES = "◈━━━━━━━━━━━━━━━━◈";
 
-  if (!isGroup || !antilinkActive || !texte || !linkRegex.test(texte)) {
+  // Skip non-groups, inactive antilink, or non-links to avoid blocking commands
+  if (!verifGroupe || !yes || !texte || !linkRegex.test(texte)) {
     return;
   }
 
-  let groupData;
-  let attempts = 0;
-  const maxAttempts = 3;
-  const retryDelay = 1000;
-
-  while (attempts < maxAttempts) {
-    try {
-      groupData = await zk.groupMetadata(origineMessage);
-      break;
-    } catch (e) {
-      attempts++;
-      if (attempts === maxAttempts) {
-        return;
-      }
-      await new Promise((resolve) => setTimeout(resolve, retryDelay));
-    }
-  }
-
-  const allAdmins = groupData.participants
-    .filter((p) => p.admin === "admin" || p.admin === "superadmin")
-    .map((p) => p.id);
-
+  // Normalize bot JID for admin check
   const botJID = zk.user.id.includes(":")
     ? zk.user.id.split(":")[0] + "@s.whatsapp.net"
     : zk.user.id;
 
-  const isSenderAdmin = allAdmins.includes(auteurMessage);
-  const isBotAdmin = allAdmins.includes(botJID);
+  // Check if bot and sender are admins, or if sender is your number
+  const verifZokAdmin = admins.includes(botJID);
+  const isSenderAdmin = admins.includes(auteurMessage);
   const isMyNumber = auteurMessage === MY_NUMBER;
 
-  if (isSenderAdmin || superUser || isMyNumber || !isBotAdmin) {
+  // Skip if sender is admin, superuser, your number, or bot isn't admin
+  if (superUser || isSenderAdmin || isMyNumber || !verifZokAdmin) {
     return;
   }
 
-  attempts = 0;
-  while (attempts < maxAttempts) {
-    try {
-      await zk.sendMessage(origineMessage, {
-        delete: {
-          remoteJid: origineMessage,
-          fromMe: false,
-          id: ms.key.id,
-          participant: auteurMessage,
-        },
-      });
-      await zk.sendMessage(
-        origineMessage,
-        {
-          text: `${STYLE_LINES}\n${TOXIC_MD}\n⚠️ Links are not allowed, @${
-            auteurMessage.split("@")[0]
-          }! Message deleted.\n${STYLE_LINES}`,
-          mentions: [auteurMessage],
-        },
-        { quoted: ms }
-      );
-      break;
-    } catch (e) {
-      attempts++;
-      if (attempts === maxAttempts) {
+  const key = {
+    remoteJid: origineMessage,
+    fromMe: false,
+    id: ms.key.id,
+    participant: auteurMessage,
+  };
+  const gifLink = "https://raw.githubusercontent.com/xhclintohn/Toxic-MD/main/media/remover.gif";
+  const sticker = new Sticker(gifLink, {
+    pack: "Toxic-MD",
+    author: conf.OWNER_NAME,
+    type: StickerTypes.FULL,
+    categories: ["🤩", "🎉"],
+    id: "12345",
+    quality: 50,
+    background: "#000000",
+  });
+  await sticker.toFile("st1.webp");
+
+  const action = await recupererActionJid(origineMessage);
+  let attempts = 0;
+  const maxAttempts = 3;
+  const retryDelay = 1000;
+
+  if (action === "remove") {
+    const txt = `
+${TOXIC_MD}
+
+${STYLE_LINES}
+│❒ Link detected!
+│❒ Message deleted 📩
+│❒ @${auteurMessage.split("@")[0]} has been removed from the group 🚪
+${STYLE_LINES}
+    `;
+    await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
+    await (0, baileys_1.delay)(800);
+    await zk.sendMessage(origineMessage, { text: txt, mentions: [auteurMessage] }, { quoted: ms });
+
+    while (attempts < maxAttempts) {
+      try {
+        await zk.groupParticipantsUpdate(origineMessage, [auteurMessage], "remove");
         break;
+      } catch (e) {
+        attempts++;
+        if (attempts === maxAttempts) {
+          await zk.sendMessage(
+            origineMessage,
+            {
+              text: `
+${TOXIC_MD}
+
+${STYLE_LINES}
+│❒ Error removing user: I need admin rights to remove members 😓
+${STYLE_LINES}
+            `,
+            },
+            { quoted: ms }
+          );
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, retryDelay));
       }
-      await new Promise((resolve) => setTimeout(resolve, retryDelay));
     }
+
+    attempts = 0;
+    while (attempts < maxAttempts) {
+      try {
+        await zk.sendMessage(origineMessage, { delete: key });
+        break;
+      } catch (e) {
+        attempts++;
+        if (attempts === maxAttempts) {
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, retryDelay));
+      }
+    }
+
+    await fs.unlink("st1.webp");
+  } else if (action === "delete") {
+    const txt = `
+${TOXIC_MD}
+
+${STYLE_LINES}
+│❒ Link detected!
+│❒ Message deleted 📩
+│❒ @${auteurMessage.split("@")[0]}, please avoid sending links 🚫
+${STYLE_LINES}
+    `;
+    await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
+    await zk.sendMessage(origineMessage, { text: txt, mentions: [auteurMessage] }, { quoted: ms });
+
+    attempts = 0;
+    while (attempts < maxAttempts) {
+      try {
+        await zk.sendMessage(origineMessage, { delete: key });
+        break;
+      } catch (e) {
+        attempts++;
+        if (attempts === maxAttempts) {
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, retryDelay));
+      }
+    }
+
+    await fs.unlink("st1.webp");
+  } else if (action === "warn") {
+    const { getWarnCountByJID, ajouterUtilisateurAvecWarnCount, resetWarnCountByJID } = require("./bdd/warn");
+
+    let warn = await getWarnCountByJID(auteurMessage);
+    let warnLimit = conf.WARN_COUNT;
+
+    if (warn >= warnLimit) {
+      const kikmsg = `
+${TOXIC_MD}
+
+${STYLE_LINES}
+│❒ Link detected!
+│❒ @${auteurMessage.split("@")[0]}, you have reached the warn limit 🚨
+│❒ You will be removed from the group 🚪
+${STYLE_LINES}
+      `;
+      await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
+      await zk.sendMessage(origineMessage, { text: kikmsg, mentions: [auteurMessage] }, { quoted: ms });
+
+      attempts = 0;
+      while (attempts < maxAttempts) {
+        try {
+          await zk.groupParticipantsUpdate(origineMessage, [auteurMessage], "remove");
+          await resetWarnCountByJID(auteurMessage);
+          break;
+        } catch (e) {
+          attempts++;
+          if (attempts === maxAttempts) {
+            await zk.sendMessage(
+              origineMessage,
+              {
+                text: `
+${TOXIC_MD}
+
+${STYLE_LINES}
+│❒ Error removing user: I need admin rights to remove members 😓
+${STYLE_LINES}
+              `,
+              },
+              { quoted: ms }
+            );
+            break;
+          }
+          await new Promise((resolve) => setTimeout(resolve, retryDelay));
+        }
+      }
+
+      attempts = 0;
+      while (attempts < maxAttempts) {
+        try {
+          await zk.sendMessage(origineMessage, { delete: key });
+          break;
+        } catch (e) {
+          attempts++;
+          if (attempts === maxAttempts) {
+            break;
+          }
+          await new Promise((resolve) => setTimeout(resolve, retryDelay));
+        }
+      }
+    } else {
+      const remaining = warnLimit - warn;
+      const msg = `
+${TOXIC_MD}
+
+${STYLE_LINES}
+│❒ Link detected!
+│❒ @${auteurMessage.split("@")[0]}, your warn count has been updated 🚨
+│❒ Warnings remaining: ${remaining}
+${STYLE_LINES}
+      `;
+      await ajouterUtilisateurAvecWarnCount(auteurMessage);
+      await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
+      await zk.sendMessage(origineMessage, { text: msg, mentions: [auteurMessage] }, { quoted: ms });
+
+      attempts = 0;
+      while (attempts < maxAttempts) {
+        try {
+          await zk.sendMessage(origineMessage, { delete: key });
+          break;
+        } catch (e) {
+          attempts++;
+          if (attempts === maxAttempts) {
+            break;
+          }
+          await new Promise((resolve) => setTimeout(resolve, retryDelay));
+        }
+      }
+    }
+    await fs.unlink("st1.webp");
   }
 } catch (e) {
-  // Silently handle errors
+  await zk.sendMessage(
+    origineMessage,
+    {
+      text: `
+${TOXIC_MD}
+
+${STYLE_LINES}
+│❒ Error in anti-link system: ${e.message} 😓
+│❒ Please contact an admin to resolve this issue.
+${STYLE_LINES}
+    `,
+    },
+    { quoted: ms }
+  );
 }
     
 
