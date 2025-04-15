@@ -379,82 +379,58 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
             
                 /////////////////////////////   Mentions /////////////////////////////////////////
          
-              try {
-        
-                if (ms.message[mtype].contextInfo.mentionedJid && (ms.message[mtype].contextInfo.mentionedJid.includes(idBot) ||  ms.message[mtype].contextInfo.mentionedJid.includes(conf.NUMERO_OWNER + '@s.whatsapp.net'))    /*texte.includes(idBot.split('@')[0]) || texte.includes(conf.NUMERO_OWNER)*/) {
-            
-                    if (origineMessage == "120363158701337904@g.us") {
-                        return;
-                    } ;
-            
-                    if(superUser) {console.log('hummm') ; return ;} 
-                    
-                    let mbd = require('./bdd/mention') ;
-            
-                    let alldata = await mbd.recupererToutesLesValeurs() ;
-            
-                        let data = alldata[0] ;
-            
-                    if ( data.status === 'non') { console.log('mention pas actifs') ; return ;}
-            
-                    let msg ;
-            
-                    if (data.type.toLocaleLowerCase() === 'image') {
-            
-                        msg = {
-                                image : { url : data.url},
-                                caption : data.message
-                        }
-                    } else if (data.type.toLocaleLowerCase() === 'video' ) {
-            
-                            msg = {
-                                    video : {   url : data.url},
-                                    caption : data.message
-                            }
-            
-                    } else if (data.type.toLocaleLowerCase() === 'sticker') {
-            
-                        let stickerMess = new Sticker(data.url, {
-                            pack: conf.NOM_OWNER,
-                            type: StickerTypes.FULL,
-                            categories: ["🤩", "🎉"],
-                            id: "12345",
-                            quality: 70,
-                            background: "transparent",
-                          });
-            
-                          const stickerBuffer2 = await stickerMess.toBuffer();
-            
-                          msg = {
-                                sticker : stickerBuffer2 
-                          }
-            
-                    }  else if (data.type.toLocaleLowerCase() === 'audio' ) {
-            
-                            msg = {
-            
-                                audio : { url : data.url } ,
-                                mimetype:'audio/mp4',
-                                 }
-                        
-                    }
-            
-                    zk.sendMessage(origineMessage,msg,{quoted : ms})
-            
-                }
-            } catch (error) {
-                
-            } 
+try {
+    if (ms.message[mtype].contextInfo.mentionedJid && (ms.message[mtype].contextInfo.mentionedJid.includes(idBot) ||  ms.message[mtype].contextInfo.mentionedJid.includes(conf.NUMERO_OWNER + '@s.whatsapp.net'))    /*texte.includes(idBot.split('@')[0]) || texte.includes(conf.NUMERO_OWNER)*/) {
+        if (origineMessage == "120363158701337904@g.us") {
+            return;
+        } ;
+        if(superUser) {console.log('hummm') ; return ;} 
+        let mbd = require('./bdd/mention') ;
+        let alldata = await mbd.recupererToutesLesValeurs() ;
+        let data = alldata[0] ;
+        if ( data.status === 'non') { console.log('mention pas actifs') ; return ;}
+        let msg ;
+        if (data.type.toLocaleLowerCase() === 'image') {
+            msg = {
+                image : { url : data.url},
+                caption : data.message
+            }
+        } else if (data.type.toLocaleLowerCase() === 'video' ) {
+            msg = {
+                video : {   url : data.url},
+                caption : data.message
+            }
+        } else if (data.type.toLocaleLowerCase() === 'sticker') {
+            let stickerMess = new Sticker(data.url, {
+                pack: conf.NOM_OWNER,
+                type: StickerTypes.FULL,
+                categories: ["🤩", "🎉"],
+                id: "12345",
+                quality: 70,
+                background: "transparent",
+            });
+            const stickerBuffer2 = await stickerMess.toBuffer();
+            msg = {
+                sticker : stickerBuffer2 
+            }
+        } else if (data.type.toLocaleLowerCase() === 'audio' ) {
+            msg = {
+                audio : { url : data.url } ,
+                mimetype:'audio/mp4',
+            }
+        }
+        zk.sendMessage(origineMessage,msg,{quoted : ms})
+    }
+} catch (error) {
+}
 
-
-    // Anti-link - FIXED
+// Anti-link - FIXED
 try {
   const yes = await verifierEtatJid(origineMessage);
-  // Improved link detection using regex
   const linkRegex = /(https?:\/\/|www\.|t\.me|bit\.ly|tinyurl\.com|lnkd\.in|fb\.me)[\S]+/i;
 
-  // Skip non-groups, inactive antilink, or non-links to avoid blocking commands
-  if (!verifGroupe || !yes || !texte || !linkRegex.test(texte)) {
+  // Skip non-groups, inactive antilink, non-links, or commands to avoid blocking
+  if (!verifGroupe || !yes || !texte || texte.startsWith(conf.PREFIX) || !linkRegex.test(texte)) {
     return;
   }
 
@@ -549,7 +525,7 @@ ${TOXIC_MD}
 │❒ @${auteurMessage.split("@")[0]}, you have reached the warn limit 🚨
 │❒ You will be removed from the group 🚪
 ◈━━━━━━━━━━━━━━━━◈
-      `;
+        `;
       await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
       await zk.sendMessage(origineMessage, { text: kikmsg, mentions: [auteurMessage] }, { quoted: ms });
       try {
@@ -563,14 +539,14 @@ ${TOXIC_MD}
 ◈━━━━━━━━━━━━━━━━◈
 │❒ Error removing user: I need admin rights to remove members 😓
 ◈━━━━━━━━━━━━━━━━◈
-        `
-      }, { quoted: ms });
-      console.log("Anti-link warn error: " + e);
-    }
-    await zk.sendMessage(origineMessage, { delete: key });
-  } else {
-    const remaining = warnLimit - warn;
-    const msg = `
+            `
+        }, { quoted: ms });
+        console.log("Anti-link warn error: " + e);
+      }
+      await zk.sendMessage(origineMessage, { delete: key });
+    } else {
+      const remaining = warnLimit - warn;
+      const msg = `
 ${TOXIC_MD}
 
 ◈━━━━━━━━━━━━━━━━◈
@@ -578,14 +554,14 @@ ${TOXIC_MD}
 │❒ @${auteurMessage.split("@")[0]}, your warn count has been updated 🚨
 │❒ Warnings remaining: ${remaining}
 ◈━━━━━━━━━━━━━━━━◈
-    `;
-    await ajouterUtilisateurAvecWarnCount(auteurMessage);
-    await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
-    await zk.sendMessage(origineMessage, { text: msg, mentions: [auteurMessage] }, { quoted: ms });
-    await zk.sendMessage(origineMessage, { delete: key });
+        `;
+      await ajouterUtilisateurAvecWarnCount(auteurMessage);
+      await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
+      await zk.sendMessage(origineMessage, { text: msg, mentions: [auteurMessage] }, { quoted: ms });
+      await zk.sendMessage(origineMessage, { delete: key });
+    }
+    await fs.unlink("st1.webp");
   }
-  await fs.unlink("st1.webp");
-}
 } catch (e) {
   console.log("Database error: " + e);
   await zk.sendMessage(origineMessage, {
@@ -599,47 +575,37 @@ ${TOXIC_MD}
     `
   }, { quoted: ms });
 }
-    
 
-
-    /** *************************anti-bot******************************************** */
-    try {
-        const botMsg = ms.key?.id?.startsWith('BAES') && ms.key?.id?.length === 16;
-        const baileysMsg = ms.key?.id?.startsWith('BAE5') && ms.key?.id?.length === 16;
-        if (botMsg || baileysMsg) {
-
-            if (mtype === 'reactionMessage') { console.log('I dont react to reactions') ; return} ;
-            const antibotactiver = await atbverifierEtatJid(origineMessage);
-            if(!antibotactiver) {return};
-
-            if( verifAdmin || auteurMessage === idBot  ) { console.log('I do nothing'); return};
-                        
-            const key = {
-                remoteJid: origineMessage,
-                fromMe: false,
-                id: ms.key.id,
-                participant: auteurMessage
-            };
-            var txt = "bot detected, \n";
-           // txt += `message supprimé \n @${auteurMessage.split("@")[0]} rétiré du groupe.`;
-            const gifLink = "https://raw.githubusercontent.com/xhclintohn/Toxic-MD/main/media/remover.gif";
-            var sticker = new Sticker(gifLink, {
-                pack: 'Anyway-Md',
-                author: conf.OWNER_NAME,
-                type: StickerTypes.FULL,
-                categories: ['🤩', '🎉'],
-                id: '12345',
-                quality: 50,
-                background: '#000000'
-            });
-            await sticker.toFile("st1.webp");
-            // var txt = `@${auteurMsgRepondu.split("@")[0]} a été rétiré du groupe..\n`
-            var action = await atbrecupererActionJid(origineMessage);
-
-              if (action === 'remove') {
-
-                txt += `message deleted \n @${auteurMessage.split("@")[0]} removed from group.`;
-
+/** *************************anti-bot******************************************** */
+try {
+    const botMsg = ms.key?.id?.startsWith('BAES') && ms.key?.id?.length === 16;
+    const baileysMsg = ms.key?.id?.startsWith('BAE5') && ms.key?.id?.length === 16;
+    if (botMsg || baileysMsg) {
+        if (mtype === 'reactionMessage') { console.log('I dont react to reactions') ; return} ;
+        const antibotactiver = await atbverifierEtatJid(origineMessage);
+        if(!antibotactiver) {return};
+        if( verifAdmin || auteurMessage === idBot  ) { console.log('I do nothing'); return};
+        const key = {
+            remoteJid: origineMessage,
+            fromMe: false,
+            id: ms.key.id,
+            participant: auteurMessage
+        };
+        var txt = "bot detected, \n";
+        const gifLink = "https://raw.githubusercontent.com/xhclintohn/Toxic-MD/main/media/remover.gif";
+        var sticker = new Sticker(gifLink, {
+            pack: 'Anyway-Md',
+            author: conf.OWNER_NAME,
+            type: StickerTypes.FULL,
+            categories: ['🤩', '🎉'],
+            id: '12345',
+            quality: 50,
+            background: '#000000'
+        });
+        await sticker.toFile("st1.webp");
+        var action = await atbrecupererActionJid(origineMessage);
+        if (action === 'remove') {
+            txt += `message deleted \n @${auteurMessage.split("@")[0]} removed from group.`;
             await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") });
             (0, baileys_1.delay)(800);
             await zk.sendMessage(origineMessage, { text: txt, mentions: [auteurMessage] }, { quoted: ms });
@@ -650,46 +616,33 @@ ${TOXIC_MD}
                 console.log("antibot ") + e;
             }
             await zk.sendMessage(origineMessage, { delete: key });
-            await fs.unlink("st1.webp"); } 
-                
-               else if (action === 'delete') {
-                txt += `message delete \n @${auteurMessage.split("@")[0]} Avoid sending link.`;
-                //await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
-               await zk.sendMessage(origineMessage, { text: txt, mentions: [auteurMessage] }, { quoted: ms });
-               await zk.sendMessage(origineMessage, { delete: key });
-               await fs.unlink("st1.webp");
-
-            } else if(action === 'warn') {
-                const {getWarnCountByJID ,ajouterUtilisateurAvecWarnCount} = require('./bdd/warn') ;
-
-    let warn = await getWarnCountByJID(auteurMessage) ; 
-    let warnlimit = conf.WARN_COUNT
- if ( warn >= warnlimit) { 
-  var kikmsg = `bot detected ;you will be remove because of reaching warn-limit`;
-    
-     await zk.sendMessage(origineMessage, { text: kikmsg , mentions: [auteurMessage] }, { quoted: ms }) ;
-
-
-     await zk.groupParticipantsUpdate(origineMessage, [auteurMessage], "remove");
-     await zk.sendMessage(origineMessage, { delete: key });
-
-
-    } else {
-        var rest = warnlimit - warn ;
-      var  msg = `bot detected , your warn_count was upgrade ;\n rest : ${rest} `;
-
-      await ajouterUtilisateurAvecWarnCount(auteurMessage)
-
-      await zk.sendMessage(origineMessage, { text: msg , mentions: [auteurMessage] }, { quoted: ms }) ;
-      await zk.sendMessage(origineMessage, { delete: key });
-
-    }
-                }
+            await fs.unlink("st1.webp"); 
+        } else if (action === 'delete') {
+            txt += `message delete \n @${auteurMessage.split("@")[0]} Avoid sending link.`;
+            await zk.sendMessage(origineMessage, { text: txt, mentions: [auteurMessage] }, { quoted: ms });
+            await zk.sendMessage(origineMessage, { delete: key });
+            await fs.unlink("st1.webp");
+        } else if(action === 'warn') {
+            const {getWarnCountByJID ,ajouterUtilisateurAvecWarnCount} = require('./bdd/warn') ;
+            let warn = await getWarnCountByJID(auteurMessage) ; 
+            let warnlimit = conf.WARN_COUNT
+            if ( warn >= warnlimit) { 
+                var kikmsg = `bot detected ;you will be remove because of reaching warn-limit`;
+                await zk.sendMessage(origineMessage, { text: kikmsg , mentions: [auteurMessage] }, { quoted: ms }) ;
+                await zk.groupParticipantsUpdate(origineMessage, [auteurMessage], "remove");
+                await zk.sendMessage(origineMessage, { delete: key });
+            } else {
+                var rest = warnlimit - warn ;
+                var  msg = `bot detected , your warn_count was upgrade ;\n rest : ${rest} `;
+                await ajouterUtilisateurAvecWarnCount(auteurMessage)
+                await zk.sendMessage(origineMessage, { text: msg , mentions: [auteurMessage] }, { quoted: ms }) ;
+                await zk.sendMessage(origineMessage, { delete: key });
+            }
         }
     }
-    catch (er) {
-        console.log('.... ' + er);
-    }        
+} catch (er) {
+    console.log('.... ' + er);
+}        
              
          
             /////////////////////////
