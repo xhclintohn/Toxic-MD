@@ -45,7 +45,7 @@ const { isUserBanned, addUserToBanList, removeUserFromBanList } = require("./bdd
 const { addGroupToBanList, isGroupBanned, removeGroupFromBanList } = require("./bdd/banGroup");
 const { isGroupOnlyAdmin, addGroupToOnlyAdminList, removeGroupFromOnlyAdminList } = require("./bdd/onlyAdmin");
 let { reagir } = require(__dirname + "/framework/app");
-var session = conf.session.replace(/Zokou-MD-WHATSAPP-BOT;;;=>/g, "");
+var session = conf.session.replace(/Toxic-MD-WHATSAPP-BOT;;;=>/g, "");
 const prefixe = conf.PREFIXE;
 const more = String.fromCharCode(8206);
 const readmore = more.repeat(4001);
@@ -144,7 +144,7 @@ setTimeout(() => {
 
             function repondre(mes) { zk.sendMessage(origineMessage, { text: mes }, { quoted: ms }); }
             console.log("\tToxic-MD ONLINE ⚡");
-            console.log("=========== Message Received ===========");
+            console.log("==== Message Received ======");
             if (verifGroupe) {
                 console.log("Message from group 🗨️: " + nomGroupe);
             }
@@ -225,17 +225,51 @@ setTimeout(() => {
 if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf.ADM).toLocaleLowerCase() === 'yes') {
 
     if (ms.key.fromMe || ms.message.protocolMessage.key.fromMe) {
-        console.log('Message supprimer me concernant');
+        console.log('Delete message about me');
         return;
     }
 
-    console.log(`Message supprimer`);
+    console.log(`Message `);
     let key = ms.message.protocolMessage.key;
 
     try {
-        let st = './store.json';
-        const data = fs.readFileSync(st, 'utf8');
-        const jsonData = JSON.parse(data);
+        let st = './xh_clinton/store.json';
+        let backupSt = './xh_clinton/store_backup.json';
+        let data;
+
+        // Ensure store.json exists, create if missing
+        if (!fs.existsSync(st)) {
+            console.log('store.json not found, creating new file');
+            fs.writeFileSync(st, JSON.stringify({ messages: {} }, null, 2));
+        }
+
+        // Try reading primary store, fallback to backup if it fails
+        try {
+            data = fs.readFileSync(st, 'utf8');
+        } catch (primaryError) {
+            console.log('Failed to read store.json, attempting backup:', primaryError);
+            if (fs.existsSync(backupSt)) {
+                data = fs.readFileSync(backupSt, 'utf8');
+            } else {
+                console.log('Backup store.json not found');
+                throw new Error('No valid store file available');
+            }
+        }
+
+        // Parse JSON with validation
+        let jsonData;
+        try {
+            jsonData = JSON.parse(data);
+        } catch (parseError) {
+            console.log('JSON parse error:', parseError);
+            throw new Error('Corrupted store file');
+        }
+
+        // Ensure messages object exists for the chat
+        if (!jsonData.messages[key.remoteJid]) {
+            console.log('No messages found for chat:', key.remoteJid);
+            return;
+        }
 
         let message = jsonData.messages[key.remoteJid];
         let msg;
@@ -249,8 +283,8 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
         }
 
         // If message not found, log more details for debugging
-        if (!msg || msg === null || msg === 'undefined') {
-            console.log('Message non trouver - Key:', key, 'Chat:', key.remoteJid);
+        if (!msg || msg === null || typeof msg === 'undefined') {
+            console.log('Message not found - Key:', key, 'Chat:', key.remoteJid);
             return;
         }
 
@@ -268,32 +302,39 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
                 caption: `        𝗔𝗻𝘁𝗶-𝗗𝗲𝗹𝗲𝘁𝗲 𝗔𝗹𝗲𝗿𝘁 🚨\n\n` +
                         `> 𝗙𝗿𝗼𝗺: @${msg.key.participant.split('@')[0]}\n` +
                         `> 𝗖𝗵𝗮𝘁: ${chatName}\n` +
-                        `> 𝗗𝗲𝗹𝗲𝘁𝗲𝗱 𝗔𝘁: ${timestamp}\n\n` +
+                        `> D𝗲𝗹𝗲𝘁𝗲𝗱 𝗔𝘁: ${timestamp}\n\n` +
                         `𝗛𝗲𝗿𝗲’𝘀 𝘁𝗵𝗲 𝗱𝗲𝗹𝗲𝘁𝗲𝗱 𝗺𝗲𝘀𝘀𝗮𝗴𝗲 𝗯𝗲𝗹𝗼𝘄! 👇`,
                 mentions: [msg.key.participant],
             }
         ).then(async () => {
-            // Retry forwarding the deleted message if the first attempt fails
-            try {
-                await zk.sendMessage(idBot, { forward: msg }, { quoted: msg });
-            } catch (retryError) {
-                console.log('Failed to forward message, retrying:', retryError);
-                // Second attempt with a delay
-                setTimeout(async () => {
-                    try {
-                        await zk.sendMessage(idBot, { forward: msg }, { quoted: msg });
-                    } catch (finalError) {
-                        console.log('Final attempt to forward message failed:', finalError);
-                        await zk.sendMessage(idBot, { text: `𝗖𝗼𝘂𝗹𝗱𝗻’𝘁 𝗳𝗼𝗿𝘄𝗮𝗿𝗱 𝘁𝗵𝗲 𝗱𝗲𝗹𝗲𝘁𝗲𝗱 𝗺𝗲𝘀𝘀𝗮𝗴𝗲 𝗮𝗳𝘁𝗲𝗿 𝗿𝗲𝘁𝗿𝘆. 𝗘𝗿𝗿𝗼𝗿: ${finalError.message}` });
+            // Retry forwarding the deleted message with exponential backoff
+            let attempts = 0;
+            const maxAttempts = 3;
+            const retryDelay = 2000;
+
+            while (attempts < maxAttempts) {
+                try {
+                    await zk.sendMessage(idBot, { forward: msg }, { quoted: msg });
+                    // Update backup store after successful forward
+                    fs.writeFileSync(backupSt, JSON.stringify(jsonData, null, 2));
+                    break;
+                } catch (retryError) {
+                    attempts++;
+                    console.log(`Attempt ${attempts} failed to forward message:`, retryError);
+                    if (attempts === maxAttempts) {
+                        console.log('Max retry attempts reached');
+                        await zk.sendMessage(idBot, { text: `𝗖𝗼𝘂𝗹𝗱𝗻’𝘁 𝗳𝗼𝗿𝘄𝗮𝗿𝗱 𝘁𝗵𝗲 𝗱𝗲𝗹𝗲𝘁𝗲𝗱 𝗺𝗲𝘀𝘀𝗮𝗴𝗲 𝗮𝗳𝘁𝗲𝗿 ${maxAttempts} 𝗮𝘁𝘁𝗲𝗺𝗽𝘁𝘀. 𝗘𝗿𝗿𝗼𝗿: ${retryError.message}` });
+                        break;
                     }
-                }, 2000); // Retry after 2 seconds
+                    await new Promise(resolve => setTimeout(resolve, retryDelay * Math.pow(2, attempts)));
+                }
             }
         });
 
     } catch (e) {
         console.log('Anti-delete error:', e);
         // Log more details for debugging
-        console.log('Key:', key, 'Chat:', key.remoteJid);
+        console.log('Key:', key, 'Chat:', key.remoteJid, 'Error Stack:', e.stack);
     }
 }
             /** ****** gestion auto-status  */
@@ -406,99 +447,148 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
             } 
 
 
-     //anti-lien
-     try {
-        const yes = await verifierEtatJid(origineMessage)
-        if (texte.includes('https://') && verifGroupe &&  yes  ) {
+     // Anti-link
+try {
+  const yes = await verifierEtatJid(origineMessage)
+  // Improved link detection using regex
+  const linkRegex = /(https?:\/\/|www\.|t\.me|bit\.ly|tinyurl\.com|lnkd\.in|fb\.me)[\S]+/i;
+  if (linkRegex.test(texte) && verifGroupe && yes) {
+    console.log("Link detected");
+    const verifZokAdmin = verifGroupe ? admins.includes(zk.user.id) : false; // Use zk.user.id for consistency
 
-         console.log("lien detected")
-            var verifZokAdmin = verifGroupe ? admins.includes(idBot) : false;
-            
-             if(superUser || verifAdmin || !verifZokAdmin  ) { console.log('je fais rien'); return};
-                        
-                                    const key = {
-                                        remoteJid: origineMessage,
-                                        fromMe: false,
-                                        id: ms.key.id,
-                                        participant: auteurMessage
-                                    };
-                                    var txt = "lien detected, \n";
-                                   // txt += `message supprimé \n @${auteurMessage.split("@")[0]} rétiré du groupe.`;
-                                    const gifLink = "https://raw.githubusercontent.com/xhclintohn/Toxic-MD/main/media/remover.gif";
-                                    var sticker = new Sticker(gifLink, {
-                                        pack: 'Toxic-MD',
-                                        author: conf.OWNER_NAME,
-                                        type: StickerTypes.FULL,
-                                        categories: ['🤩', '🎉'],
-                                        id: '12345',
-                                        quality: 50,
-                                        background: '#000000'
-                                    });
-                                    await sticker.toFile("st1.webp");
-                                    // var txt = `@${auteurMsgRepondu.split("@")[0]} a été rétiré du groupe..\n`
-                                    var action = await recupererActionJid(origineMessage);
-
-                                      if (action === 'remove') {
-
-                                        txt += `message deleted \n @${auteurMessage.split("@")[0]} removed from group.`;
-
-                                    await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") });
-                                    (0, baileys_1.delay)(800);
-                                    await zk.sendMessage(origineMessage, { text: txt, mentions: [auteurMessage] }, { quoted: ms });
-                                    try {
-                                        await zk.groupParticipantsUpdate(origineMessage, [auteurMessage], "remove");
-                                    }
-                                    catch (e) {
-                                        console.log("antiien ") + e;
-                                    }
-                                    await zk.sendMessage(origineMessage, { delete: key });
-                                    await fs.unlink("st1.webp"); } 
-                                        
-                                       else if (action === 'delete') {
-                                        txt += `message deleted \n @${auteurMessage.split("@")[0]} avoid sending link.`;
-                                        // await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
-                                       await zk.sendMessage(origineMessage, { text: txt, mentions: [auteurMessage] }, { quoted: ms });
-                                       await zk.sendMessage(origineMessage, { delete: key });
-                                       await fs.unlink("st1.webp");
-
-                                    } else if(action === 'warn') {
-                                        const {getWarnCountByJID ,ajouterUtilisateurAvecWarnCount} = require('./bdd/warn') ;
-
-                            let warn = await getWarnCountByJID(auteurMessage) ; 
-                            let warnlimit = conf.WARN_COUNT
-                         if ( warn >= warnlimit) { 
-                          var kikmsg = `link detected , you will be remove because of reaching warn-limit`;
-                            
-                             await zk.sendMessage(origineMessage, { text: kikmsg , mentions: [auteurMessage] }, { quoted: ms }) ;
-
-
-                             await zk.groupParticipantsUpdate(origineMessage, [auteurMessage], "remove");
-                             await zk.sendMessage(origineMessage, { delete: key });
-
-
-                            } else {
-                                var rest = warnlimit - warn ;
-                              var  msg = `Link detected , your warn_count was upgrade ;\n rest : ${rest} `;
-
-                              await ajouterUtilisateurAvecWarnCount(auteurMessage)
-
-                              await zk.sendMessage(origineMessage, { text: msg , mentions: [auteurMessage] }, { quoted: ms }) ;
-                              await zk.sendMessage(origineMessage, { delete: key });
-
-                            }
-                                    }
-                                }
-                                
-                            }
-                        
-                    
-                
-            
-        
-    
-    catch (e) {
-        console.log("bdd err " + e);
+    if (superUser || verifAdmin || !verifZokAdmin) {
+      console.log('I will do nothing');
+      return;
     }
+
+    const key = {
+      remoteJid: origineMessage,
+      fromMe: false,
+      id: ms.key.id,
+      participant: auteurMessage
+    };
+    const gifLink = "https://raw.githubusercontent.com/xhclintohn/Toxic-MD/main/media/remover.gif";
+    const sticker = new Sticker(gifLink, {
+      pack: 'Toxic-MD',
+      author: conf.OWNER_NAME,
+      type: StickerTypes.FULL,
+      categories: ['🤩', '🎉'],
+      id: '12345',
+      quality: 50,
+      background: '#000000'
+    });
+    await sticker.toFile("st1.webp");
+
+    const action = await recupererActionJid(origineMessage);
+
+    if (action === 'remove') {
+      const txt = `
+${TOXIC_MD}
+
+◈━━━━━━━━━━━━━━━━◈
+│❒ Link detected!
+│❒ Message deleted 📩
+│❒ @${auteurMessage.split("@")[0]} has been removed from the group 🚪
+◈━━━━━━━━━━━━━━━━◈
+      `;
+      await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
+      await (0, baileys_1.delay)(800);
+      await zk.sendMessage(origineMessage, { text: txt, mentions: [auteurMessage] }, { quoted: ms });
+      try {
+        await zk.groupParticipantsUpdate(origineMessage, [auteurMessage], "remove");
+      } catch (e) {
+        await zk.sendMessage(origineMessage, {
+          text: `
+${TOXIC_MD}
+
+◈━━━━━━━━━━━━━━━━◈
+│❒ Error removing user: I need admin rights to remove members 😓
+◈━━━━━━━━━━━━━━━━◈
+          `
+        }, { quoted: ms });
+        console.log("Anti-link error: " + e);
+      }
+      await zk.sendMessage(origineMessage, { delete: key });
+      await fs.unlink("st1.webp");
+    } else if (action === 'delete') {
+      const txt = `
+${TOXIC_MD}
+
+◈━━━━━━━━━━━━━━━━◈
+│❒ Link detected!
+│❒ Message deleted 📩
+│❒ @${auteurMessage.split("@")[0]}, please avoid sending links 🚫
+◈━━━━━━━━━━━━━━━━◈
+      `;
+      await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
+      await zk.sendMessage(origineMessage, { text: txt, mentions: [auteurMessage] }, { quoted: ms });
+      await zk.sendMessage(origineMessage, { delete: key });
+      await fs.unlink("st1.webp");
+    } else if (action === 'warn') {
+      const { getWarnCountByJID, ajouterUtilisateurAvecWarnCount, resetWarnCountByJID } = require('./bdd/warn');
+
+      let warn = await getWarnCountByJID(auteurMessage);
+      let warnLimit = conf.WARN_COUNT;
+      if (warn >= warnLimit) {
+        const kikmsg = `
+${TOXIC_MD}
+
+◈━━━━━━━━━━━━━━━━◈
+│❒ Link detected!
+│❒ @${auteurMessage.split("@")[0]}, you have reached the warn limit 🚨
+│❒ You will be removed from the group 🚪
+◈━━━━━━━━━━━━━━━━◈
+        `;
+        await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
+        await zk.sendMessage(origineMessage, { text: kikmsg, mentions: [auteurMessage] }, { quoted: ms });
+        try {
+          await zk.groupParticipantsUpdate(origineMessage, [auteurMessage], "remove");
+          await resetWarnCountByJID(auteurMessage); // Reset warn count after removal
+        } catch (e) {
+          await zk.sendMessage(origineMessage, {
+            text: `
+${TOXIC_MD}
+
+◈━━━━━━━━━━━━━━━━◈
+│❒ Error removing user: I need admin rights to remove members 😓
+◈━━━━━━━━━━━━━━━━◈
+            `
+          }, { quoted: ms });
+          console.log("Anti-link warn error: " + e);
+        }
+        await zk.sendMessage(origineMessage, { delete: key });
+      } else {
+        const remaining = warnLimit - warn;
+        const msg = `
+${TOXIC_MD}
+
+◈━━━━━━━━━━━━━━━━◈
+│❒ Link detected!
+│❒ @${auteurMessage.split("@")[0]}, your warn count has been updated 🚨
+│❒ Warnings remaining: ${remaining}
+◈━━━━━━━━━━━━━━━━◈
+        `;
+        await ajouterUtilisateurAvecWarnCount(auteurMessage);
+        await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
+        await zk.sendMessage(origineMessage, { text: msg, mentions: [auteurMessage] }, { quoted: ms });
+        await zk.sendMessage(origineMessage, { delete: key });
+      }
+      await fs.unlink("st1.webp");
+    }
+  }
+} catch (e) {
+  console.log("Database error: " + e);
+  await zk.sendMessage(origineMessage, {
+    text: `
+${TOXIC_MD}
+
+◈━━━━━━━━━━━━━━━━◈
+│❒ Error in anti-link system: ${e.message} 😓
+│❒ Please contact an admin to resolve this issue.
+◈━━━━━━━━━━━━━━━━◈
+    `
+  }, { quoted: ms });
+}
     
 
 
@@ -668,7 +758,7 @@ zk.ev.on('group-participants.update', async (group) => {
         const metadata = await zk.groupMetadata(group.id);
 
         if (group.action == 'add' && (await recupevents(group.id, "welcome") == 'on')) {
-            let msg = `Toxic MD WELCOME MESSAGE*`;
+            let msg = `TOXIC-MD`;
             let membres = group.participants;
             for (let membre of membres) {
                 msg += ` \n𝐇𝐞𝐥𝐥𝐨 @${membre.split("@")[0]} 𝐀𝐍𝐃 𝐖𝐄𝐋𝐂𝐎𝐌𝐄 𝐓𝐎 𝐎𝐔𝐑 𝐆𝐑𝐎𝐔𝐏 𝐇𝐄𝐑𝐄'𝐒 𝐀 𝐂𝐔𝐏 𝐎𝐅 𝐓𝐄𝐀.⭐ \n\n`;
@@ -820,7 +910,7 @@ zk.ev.on('group-participants.update', async (group) => {
                         }
                         catch (e) {
                             console.log(`${fichier} could not be installed due to : ${e}`);
-                        } /* require(__dirname + "/beltah/" + fichier);
+                        } /* require(__dirname + "/xh_clinton/" + fichier);
                          console.log(fichier + " Installed ✔️")*/
                         (0, baileys_1.delay)(300);
                     }
@@ -876,7 +966,7 @@ Toxic-MD
                     main();
                 }   else {
 
-                    console.log('restart on error  ',raisonDeconnexion) ;         
+                    console.log('restart error  ',raisonDeconnexion) ;         
                     //repondre("* Redémarrage du bot en cour ...*");
 
                                 const {exec}=require("child_process") ;
