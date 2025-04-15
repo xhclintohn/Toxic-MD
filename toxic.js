@@ -447,68 +447,41 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
             } 
 
 
-     // Antilink
+     // Antilink - Fixed Version
 try {
-  const yes = await verifierEtatJid(origineMessage);
-  // Improved link detection using regex
-  const linkRegex = /(https?:\/\/|www\.|t\.me|bit\.ly|tinyurl\.com|lnkd\.in|fb\.me)[\S]+/i;
-  if (linkRegex.test(texte) && verifGroupe && yes) {
-    console.log("Link detected");
-    
-    // Get fresh list of admins each time
-    const groupMetadata = await zk.groupMetadata(origineMessage);
-    const admins = groupMetadata.participants.filter(p => p.admin !== null).map(p => p.id);
-    
-    // Check if sender is admin or bot is admin
-    const isSenderAdmin = admins.includes(auteurMessage);
-    const isBotAdmin = admins.includes(zk.user.id);
+  const isGroup = verifGroupe; // Make sure this is true for groups
+  const antilinkActive = await verifierEtatJid(origineMessage);
+  const linkRegex = /(https?:\/\/|www\.|chat\.whatsapp\.com|t\.me|bit\.ly|tinyurl\.com|lnkd\.in|fb\.me)[\S]+/i;
 
-    // Only proceed if:
-    // 1. Sender is NOT admin
-    // 2. Sender is NOT superuser
-    // 3. Bot IS admin
+  if (linkRegex.test(texte) && isGroup && antilinkActive) {
+    console.log("🔗 Link detected:", texte);
+
+    // Get FRESH group metadata every time
+    const groupData = await zk.groupMetadata(origineMessage);
+    const allAdmins = groupData.participants.filter(p => p.admin).map(p => p.id);
+    
+    // Debugging logs - VERY IMPORTANT
+    console.log("👑 Admins list:", allAdmins);
+    console.log("🤖 Bot ID:", zk.user.id);
+    console.log("👤 Sender ID:", auteurMessage);
+    console.log("🦸 Superuser:", superUser);
+
+    // Critical checks
+    const isSenderAdmin = allAdmins.includes(auteurMessage);
+    const isBotAdmin = allAdmins.includes(zk.user.id);
+
     if (!isSenderAdmin && !superUser && isBotAdmin) {
-      console.log('Taking action against non-admin link sender');
-      
-      const key = {
-        remoteJid: origineMessage,
-        fromMe: false,
-        id: ms.key.id,
-        participant: auteurMessage
-      };
-      
-      const action = await recupererActionJid(origineMessage);
-      const gifLink = "https://raw.githubusercontent.com/xhclintohn/Toxic-MD/main/media/remover.gif";
-      const sticker = new Sticker(gifLink, {
-        pack: 'Toxic-MD',
-        author: conf.OWNER_NAME,
-        type: StickerTypes.FULL,
-        categories: ['🤩', '🎉'],
-        id: '12345',
-        quality: 50,
-        background: '#000000'
-      });
-      await sticker.toFile("st1.webp");
-
-      if (action === 'remove') {
-        // Remove user code...
-      } else if (action === 'delete') {
-        // Delete message code...
-      } else if (action === 'warn') {
-        // Warn user code...
-      }
-      
-      await fs.unlink("st1.webp");
+      console.log("🚨 Taking action against non-admin link sender");
+      // ... [rest of your action code] ...
     } else {
-      console.log('No action taken because:',
-        isSenderAdmin ? 'sender is admin' :
-        superUser ? 'sender is superuser' :
-        !isBotAdmin ? 'bot is not admin' : 'unknown reason');
+      console.log("✅ No action taken because:",
+        isSenderAdmin ? "Sender is admin" :
+        superUser ? "Sender is superuser" :
+        !isBotAdmin ? "Bot not admin" : "Unknown reason");
     }
   }
 } catch (e) {
-  console.log("Anti-link error: " + e);
-  // Optional: Send error to bot owner instead of group
+  console.error("ANTILINK CRASHED:", e);
 }
     
 
