@@ -41,14 +41,14 @@ zokou(
         dest,
         {
           image: { url: imageUrl },
-          caption: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ BOOM! Here's your ${query} wallpaper! 🔥\n│❒ Type: ${randomResult.type}\n│❒ Powered by xh_clinton\n◈━━━━━━━━━━━━━━━━◈`
+          caption: `𝐓𝐎𝐗�{I}𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ BOOM! Here's your ${query} wallpaper! 🔥\n│❒ Type: ${randomResult.type}\n│❒ Powered by xh_clinton\n◈━━━━━━━━━━━━━━━━◈`
         },
         { quoted: ms }
       );
 
     } catch (error) {
       console.error('wallpaper error:', error);
-      await repondre(`𝐓𝐎𝐗𝐈𝐂-�{M}𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ EPIC FAIL! Something broke: ${error.message} 😡 Fix it or cry!\n◈━━━━━━━━━━━━━━━━◈`);
+      await repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ EPIC FAIL! Something broke: ${error.message} 😡 Fix it or cry!\n◈━━━━━━━━━━━━━━━━◈`);
     }
   }
 );
