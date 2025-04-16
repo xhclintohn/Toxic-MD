@@ -19,7 +19,7 @@ zokou(
       }
 
       const code = arg.join(' ').trim();
-      await repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌�{D\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Yo ${nomAuteurMessage}, scrambling your code into chaos! 🔍\n◈━━━━━━━━━━━━━━━━◈`);
+      await repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌D\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Yo ${nomAuteurMessage}, scrambling your code into chaos! 🔍\n◈━━━━━━━━━━━━━━━━◈`);
 
       const apiUrl = `https://api.giftedtech.web.id/api/tools/encrypt?apikey=gifted&code=${encodeURIComponent(code)}`;
       const response = await axios.get(apiUrl);
