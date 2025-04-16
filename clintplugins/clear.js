@@ -10,7 +10,7 @@ zokou(
   {
     nomCom: "clear",
     categorie: "Utilities",
-    reaction: "🧹",
+    reaction: "⚡",
   },
   async (dest, zk, commandeOptions) => {
     const { repondre, ms } = commandeOptions;
