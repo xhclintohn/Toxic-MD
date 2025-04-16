@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const { zokou } = require("../framework/zokou");
-const axios = require("axios"); // For uploading media to Telegraph
-const fs = require("fs"); // For handling temporary files
+const axios = require("axios");
+const FormData = require("form-data"); // Explicitly require form-data
+const fs = require("fs");
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Utility function to upload media to Telegraph
@@ -22,6 +23,19 @@ async function uploadToTelegraph(filePath) {
   }
 }
 
+// Utility function to determine file extension from mimetype
+function getFileExtension(mimeType) {
+  const mimeMap = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/gif": "gif",
+    "image/webp": "webp",
+    "video/mp4": "mp4",
+    "video/webm": "webm",
+  };
+  return mimeMap[mimeType] || "jpg"; // Default to jpg if unknown
+}
+
 zokou(
   {
     nomCom: "tourl",
@@ -33,10 +47,33 @@ zokou(
 
     console.log("𝐭𝐨𝐮𝐫𝐥 𝐜𝐨𝐦𝐦𝐚𝐧𝐝 𝐫𝐞𝐜𝐞𝐢𝐯𝐞𝐝!");
 
-    // Check if the message is a reply to an image or video
-    if (!ms.quoted || (!ms.quoted.message.imageMessage && !ms.quoted.message.videoMessage)) {
+    // Check if the message is a reply
+    if (!ms.quoted) {
       return repondre(
-        "❌ 𝐄𝐫𝐫𝐨𝐫: Please reply to an image or video to generate a URL."
+        "❌ 𝐄𝐫𝐫𝐨𝐫: Yo, reply to some media (image, video, or sticker) to generate a URL!"
+      );
+    }
+
+    // Log the quoted message structure for debugging
+    console.log("Quoted message:", JSON.stringify(ms.quoted, null, 2));
+
+    // Aggressive media detection
+    const quotedMsg = ms.quoted.message || {};
+    const isMedia =
+      quotedMsg.imageMessage ||
+      quotedMsg.videoMessage ||
+      quotedMsg.stickerMessage ||
+      (quotedMsg.extendedTextMessage &&
+        quotedMsg.extendedTextMessage.contextInfo &&
+        quotedMsg.extendedTextMessage.contextInfo.quotedMessage &&
+        (quotedMsg.extendedTextMessage.contextInfo.quotedMessage.imageMessage ||
+          quotedMsg.extendedTextMessage.contextInfo.quotedMessage.videoMessage)) ||
+      (ms.quoted.mimetype && ms.quoted.mimetype.startsWith("image/")) ||
+      (ms.quoted.mimetype && ms.quoted.mimetype.startsWith("video/"));
+
+    if (!isMedia) {
+      return repondre(
+        "❌ 𝐄𝐫𝐫𝐨𝐫: That's not media! Reply to an image, video, or sticker, not some random text or whatever!"
       );
     }
 
@@ -44,21 +81,21 @@ zokou(
     let loadingMsg = await zk.sendMessage(
       dest,
       {
-        text: "🔄 𝐈𝐧𝐢𝐭𝐢𝐚𝐥𝐢𝐳𝐢𝐧𝐠 𝐔𝐑𝐋 𝐠𝐞𝐧𝐞𝐫𝐚𝐭𝐢𝐨𝐧... 0%",
+        text: "🔄 𝐈𝐧𝐢𝐭𝐢𝐚𝐥𝐢𝐳𝐢𝐧𝐠 𝐔𝐑𝐋 𝐠𝐞𝐧𝐞�{r𝐚𝐭𝐢𝐨𝐧... 0%",
       },
       { quoted: ms }
     );
 
     // Loading simulation
     const steps = [
-      { percent: 25, text: "📥 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐢𝐧𝐠 𝐦𝐞𝐝𝐢𝐚..." },
-      { percent: 50, text: "🔗 𝐔𝐩𝐥𝐨𝐚𝐝𝐢𝐧𝐠 𝐭𝐨 𝐬𝐞𝐫𝐯𝐞𝐫..." },
-      { percent: 75, text: "⚙️ 𝐆𝐞𝐧𝐞𝐫𝐚𝐭𝐢𝐧�(g 𝐔𝐑𝐋..." },
-      { percent: 100, text: "✅ 𝐔𝐑𝐋 𝐫𝐞𝐚𝐝𝐲!" },
+      { percent: 25, text: "📥 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐢𝐧𝐠 𝐦�{e𝐝𝐢𝐚..." },
+      { percent: 50, text: "🔗 𝐔𝐩𝐥�{o𝐚𝐝𝐢𝐧𝐠 𝐭𝐨 𝐬𝐞𝐫𝐯𝐞𝐫..." },
+      { percent: 75, text: "⚙️ 𝐆𝐞𝐧�{e𝐫𝐚𝐭𝐢𝐧𝐠 𝐔𝐑𝐋..." },
+      { percent: 100, text: "✅ 𝐔𝐑𝐋 𝐫�{e𝐚𝐝𝐲!" },
     ];
 
     for (const step of steps) {
-      await sleep(800); // Realistic delay
+      await sleep(800);
       await zk.sendMessage(
         dest,
         {
@@ -73,8 +110,39 @@ zokou(
 
     try {
       // Download the replied media
-      const mediaData = await ms.quoted.download(); // Assumes zokou provides a download method
-      const filePath = `./temp_media_${Date.now()}.${ms.quoted.message.imageMessage ? "jpg" : "mp4"}`;
+      let mediaData;
+      try {
+        mediaData = await ms.quoted.download();
+      } catch (downloadError) {
+        console.error("Download error:", downloadError);
+        // Fallback: Try downloading from contextInfo if available
+        if (
+          quotedMsg.extendedTextMessage &&
+          quotedMsg.extendedTextMessage.contextInfo &&
+          quotedMsg.extendedTextMessage.contextInfo.quotedMessage
+        ) {
+          const contextMsg = quotedMsg.extendedTextMessage.contextInfo.quotedMessage;
+          mediaData = await zk.downloadMediaMessage(contextMsg);
+        } else {
+          throw new Error("Failed to download media");
+        }
+      }
+
+      if (!mediaData) {
+        throw new Error("No media data received");
+      }
+
+      // Determine file extension
+      const mimeType =
+        ms.quoted.mimetype ||
+        quotedMsg.imageMessage?.mimetype ||
+        quotedMsg.videoMessage?.mimetype ||
+        quotedMsg.stickerMessage?.mimetype ||
+        "image/jpeg";
+      const fileExtension = getFileExtension(mimeType);
+      const filePath = `./temp_media_${Date.now()}.${fileExtension}`;
+
+      // Save media to temporary file
       fs.writeFileSync(filePath, mediaData);
 
       // Upload to Telegraph
@@ -89,7 +157,7 @@ zokou(
    𝐓𝐎𝐗𝐈𝐂-𝐌𝐃 𝐔𝐑𝐋 𝐆𝐄𝐍𝐄𝐑𝐀𝐓𝐎𝐑
 ╰───── • ─────╯
 
-✅ 𝐌𝐞𝐝𝐢𝐚 𝐮𝐩𝐥𝐨𝐚𝐝𝐞𝐝 𝐬𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲!
+✅ �{M𝐞𝐝𝐢𝐚 𝐮𝐩𝐥𝐨𝐚𝐝𝐞𝐝 𝐬𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲!
 🔗 𝐔𝐑𝐋: ${url}
 
 ╭───── • ─────╮
@@ -99,19 +167,15 @@ zokou(
       `;
 
       // Send final message
-      await zk.sendMessage(
-        dest,
-        { text: resultMessage },
-        { quoted: ms }
-      );
+      await zk.sendMessage(dest, { text: resultMessage }, { quoted: ms });
 
-      console.log("𝐭𝐨𝐮𝐫𝐥 𝐜𝐨𝐦𝐦𝐚𝐧𝐝 𝐜𝐨𝐦𝐩𝐥𝐞𝐭�(e𝐝 𝐬𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲");
+      console.log("𝐭𝐨𝐮𝐫𝐥 𝐜𝐨𝐦𝐦𝐚𝐧𝐝 𝐜𝐨𝐦𝐩𝐥𝐞𝐭𝐞𝐝 𝐬𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲");
     } catch (error) {
       console.error("𝐭𝐨𝐮𝐫𝐥 𝐞𝐫𝐫𝐨𝐫:", error);
       await zk.sendMessage(
         dest,
         {
-          text: `❌ 𝐄𝐫𝐫𝐨𝐫: Failed to generate URL. ${error.message}`,
+          text: `❌ 𝐄𝐫𝐫𝐨𝐫: Couldn't generate URL! Something's wrong with the media. Details: ${error.message}`,
           edit: loadingMsg.key,
         },
         { quoted: ms }
@@ -120,4 +184,4 @@ zokou(
   }
 );
 
-console.log("𝐭𝐨𝐮𝐫�(l 𝐜𝐨𝐦𝐦𝐚𝐧𝐝 𝐫𝐞𝐠𝐢𝐬𝐭𝐞𝐫𝐞𝐝");
+console.log("𝐭𝐨𝐮𝐫𝐥 𝐜𝐨𝐦𝐦�{a𝐧𝐝 𝐫𝐞𝐠𝐢𝐬𝐭𝐞𝐫𝐞𝐝");
