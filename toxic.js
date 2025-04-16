@@ -233,8 +233,8 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
     let key = ms.message.protocolMessage.key;
 
     try {
-        let st = './xh_clinton/store.json';
-        let backupSt = './xh_clinton/store_backup.json';
+        let st = './clintondb/store.json';
+        let backupSt = './clintondb/store_backup.json';
         let data;
 
         // Ensure store.json exists, create if missing
