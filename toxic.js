@@ -446,9 +446,48 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
                 
             } 
 
-// Antilink
 
-     try {
+try {
+  // Handle /antilink command
+  if (texte.toLowerCase().startsWith('/antilink')) {
+    if (!verifGroupe) {
+      await zk.sendMessage(origineMessage, {
+        text: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ This command only works in groups!\n◈━━━━━━━━━━━━━━━━◈`
+      }, { quoted: ms });
+      return;
+    }
+    if (!verifAdmin && !superUser) {
+      await zk.sendMessage(origineMessage, {
+        text: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Only admins can use this command!\n◈━━━━━━━━━━━━━━━━◈`
+      }, { quoted: ms });
+      return;
+    }
+
+    const args = texte.split(' ').slice(1);
+    const currentAction = await recupererActionJid(origineMessage) || 'delete';
+    let responseText;
+
+    if (args.length === 0) {
+      // Show current status
+      responseText = `𝐓𝐎𝐗𝐈𝐂-�{M}𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Anti-link: ${currentAction ? 'Enabled' : 'Disabled'}\n│❒ Action: ${currentAction}\n◈━━━━━━━━━━━━━━━━◈`;
+    } else {
+      const subcommand = args[0].toLowerCase();
+      if (['on', 'delete', 'remove', 'warn'].includes(subcommand)) {
+        await setAntilinkAction(origineMessage, subcommand === 'on' ? 'delete' : subcommand); // Assuming setAntilinkAction updates the action
+        responseText = `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Anti-link enabled!\n│❒ Action: ${subcommand === 'on' ? 'delete' : subcommand}\n◈━━━━━━━━━━━━━━━━◈`;
+      } else if (subcommand === 'off') {
+        await setAntilinkAction(origineMessage, null); // Disable anti-link
+        responseText = `�{T}𝐎𝐗𝐈𝐂-�{M}𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Anti-link disabled!\n◈━━━━━━━━━━━━━━━━◈`;
+      } else {
+        responseText = `𝐓�{O}𝐗𝐈𝐂-�{M}𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Invalid option!\n│❒ Use: /antilink [on|off|delete|remove|warn]\n◈━━━━━━━━━━━━━━━━◈`;
+      }
+    }
+
+    await zk.sendMessage(origineMessage, { text: responseText }, { quoted: ms });
+    return;
+  }
+
+  // Original link detection logic
   const yes = await verifierEtatJid(origineMessage);
   const linkRegex = /(https?:\/\/|www\.|t\.me|bit\.ly|tinyurl\.com|lnkd\.in|fb\.me)[\S]+/i;
   
@@ -469,7 +508,7 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
 
     if (!verifZokAdmin) {
       await zk.sendMessage(origineMessage, {
-        text: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ I'm not admin! Can't delete links.\n◈━━━━━━━━━━━━━━━━◈`
+        text: `𝐓𝐎𝐗𝐈𝐂-�{M}𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ I'm not admin! Can't delete links.\n◈━━━━━━━━━━━━━━━━◈`
       }, { quoted: ms });
       return;
     }
@@ -482,7 +521,7 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
     };
     const gifLink = "https://raw.githubusercontent.com/xhclintohn/Toxic-MD/main/media/remover.gif";
     const sticker = new Sticker(gifLink, {
-      pack: '𝐓𝐎𝐗𝐈𝐂-𝐌𝐃',
+      pack: '𝐓𝐎𝐗𝐈𝐂-�{M}𝐃',
       author: conf.OWNER_NAME,
       type: StickerTypes.FULL,
       categories: ['⚠️'],
@@ -495,7 +534,7 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
     const action = await recupererActionJid(origineMessage) || 'delete';
 
     if (action === 'remove') {
-      const txt = `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ LINK VIOLATION!\n│❒ USER: @${auteurMessage.split("@")[0]}\n│❒ ACTION: REMOVED\n◈━━━━━━━━━━━━━━━━◈`;
+      const txt = `𝐓𝐎𝐗𝐈𝐂-�{M}𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ LINK VIOLATION!\n│❒ USER: @${auteurMessage.split("@")[0]}\n│❒ ACTION: REMOVED\n◈━━━━━━━━━━━━━━━━◈`;
       await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
       await (0, baileys_1.delay)(800);
       await zk.sendMessage(origineMessage, { text: txt, mentions: [auteurMessage] }, { quoted: ms });
@@ -503,14 +542,14 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
         await zk.groupParticipantsUpdate(origineMessage, [auteurMessage], "remove");
       } catch (e) {
         await zk.sendMessage(origineMessage, {
-          text: `𝐓𝐎𝐗𝐈𝐂-�{M}𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ REMOVAL FAILED!\n│❒ NEED ADMIN POWER\n◈━━━━━━━━━━━━━━━━◈`
+          text: `𝐓�{O}𝐗𝐈𝐂-�{M}𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ REMOVAL FAILED!\n│❒ NEED ADMIN POWER\n◈━━━━━━━━━━━━━━━━◈`
         }, { quoted: ms });
       }
       await zk.sendMessage(origineMessage, { delete: key });
       await fs.unlink("st1.webp");
     } 
     else if (action === 'delete') {
-      const txt = `𝐓𝐎𝐗𝐈𝐂-�{M}𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ LINK DELETED!\n│❒ USER: @${auteurMessage.split("@")[0]}\n│❒ NEXT: WARNING\n◈━━━━━━━━━━━━━━━━◈`;
+      const txt = `𝐓�{O}𝐗𝐈𝐂-�{M}𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ LINK DELETED!\n│❒ USER: @${auteurMessage.split("@")[0]}\n│❒ NEXT: WARNING\n◈━━━━━━━━━━━━━━━━◈`;
       await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
       await zk.sendMessage(origineMessage, { text: txt, mentions: [auteurMessage] }, { quoted: ms });
       await zk.sendMessage(origineMessage, { delete: key });
@@ -522,7 +561,7 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
       let warnLimit = conf.WARN_COUNT;
       
       if (warn >= warnLimit) {
-        const kikmsg = `𝐓𝐎𝐗𝐈�{C}-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ MAX WARNINGS!\n│❒ USER: @${auteurMessage.split("@")[0]}\n│❒ ACTION: BANNED\n◈━━━━━━━━━━━━━━━━◈`;
+        const kikmsg = `𝐓�{O}𝐗𝐈𝐂-�{M}𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ MAX WARNINGS!\n│❒ USER: @${auteurMessage.split("@")[0]}\n│❒ ACTION: BANNED\n◈━━━━━━━━━━━━━━━━◈`;
         await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
         await zk.sendMessage(origineMessage, { text: kikmsg, mentions: [auteurMessage] }, { quoted: ms });
         try {
@@ -530,13 +569,13 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
           await resetWarnCountByJID(auteurMessage);
         } catch (e) {
           await zk.sendMessage(origineMessage, {
-            text: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ BAN FAILED!\n│❒ NEED ADMIN\n◈━━━━━━━━━━━━━━━━◈`
+            text: `𝐓�{O}�{X}𝐈𝐂-�{M}𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ BAN FAILED!\n│❒ NEED ADMIN\n◈━━━━━━━━━━━━━━━━◈`
           }, { quoted: ms });
         }
         await zk.sendMessage(origineMessage, { delete: key });
       } else {
         const remaining = warnLimit - warn;
-        const msg = `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ WARNING #${warn+1}\n│❒ USER: @${auteurMessage.split("@")[0]}\n│❒ LEFT: ${remaining}\n◈━━━━━━━━━━━━━━━━◈`;
+        const msg = `𝐓�{O}�{X}𝐈𝐂-�{M}𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ WARNING #${warn+1}\n│❒ USER: @${auteurMessage.split("@")[0]}\n│❒ LEFT: ${remaining}\n◈━━━━━━━━━━━━━━━━◈`;
         await ajouterUtilisateurAvecWarnCount(auteurMessage);
         await zk.sendMessage(origineMessage, { sticker: fs.readFileSync("st1.webp") }, { quoted: ms });
         await zk.sendMessage(origineMessage, { text: msg, mentions: [auteurMessage] }, { quoted: ms });
@@ -548,7 +587,7 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
 } catch (e) {
   console.log("Antilink crash:", e);
   await zk.sendMessage(origineMessage, {
-    text: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ SYSTEM ERROR!\n│❒ ${e.message}\n◈━━━━━━━━━━━━━━━━◈`
+    text: `𝐓�{O}�{X}𝐈�{C}-�{M}𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ SYSTEM ERROR!\n│❒ ${e.message}\n◈━━━━━━━━━━━━━━━━◈`
   }, { quoted: ms });
 }
     
