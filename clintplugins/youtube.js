@@ -23,7 +23,7 @@ zokou({ nomCom: "youtube", categorie: "Download", reaction: "🎥" }, async (des
   // Validate URL format (basic check)
   if (!url.includes("youtu.be") && !url.includes("youtube.com")) {
     console.log(`[DEBUG] youtube: Invalid YouTube URL`);
-    repondre(`𝐓�{OX𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ YOU IDIOT, ${userName}! 😡 That’s not a YouTube link! Try again or get lost, moron! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
+    repondre(`𝐓OX𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ YOU IDIOT, ${userName}! 😡 That’s not a YouTube link! Try again or get lost, moron! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
     return;
   }
 
