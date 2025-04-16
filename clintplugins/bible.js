@@ -136,38 +136,3 @@ zokou({
     repondre("❌ 𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐠𝐞𝐭 𝐝𝐞𝐟𝐢𝐧𝐢𝐭𝐢𝐨𝐧. 𝐓𝐫𝐲 𝐚𝐠𝐚𝐢𝐧!");
   }
 });
-
-// ==================== LYRICS COMMAND ====================
-zokou({
-  nomCom: "lyrics",
-  reaction: "🎵",
-  categorie: "Search"
-}, async (message, sender, args) => {
-  const { repondre, arg, ms } = args;
-  
-  if (!arg[0]) {
-    return repondre("𝐏𝐥𝐞𝐚𝐬𝐞 𝐩𝐫𝐨𝐯𝐢𝐝𝐞 𝐚 𝐬𝐨𝐧𝐠 𝐧𝐚𝐦𝐞");
-  }
-
-  try {
-    const songName = arg.join(" ");
-    const songs = await Client.songs.search(songName);
-    const firstSong = songs[0];
-    const lyrics = await firstSong.lyrics();
-    
-    await sender.sendMessage(message, {
-      image: { url: "./media/lyrics.jpg" },
-      caption: `
-╔════◇ *𝐋𝐘𝐑𝐈𝐂𝐒* ◇════╗
-🎶 *𝐓𝐢𝐭𝐥𝐞:* ${firstSong.title}
-🎤 *𝐀𝐫𝐭𝐢𝐬𝐭:* ${firstSong.artist.name}
-
-${lyrics}
-╚════◇ *𝐓𝐎𝐗𝐈𝐂-𝐌𝐃* ◇════╝
-      `
-    }, { quoted: ms });
-  } catch (error) {
-    repondre("❌ 𝐒𝐨𝐧𝐠 𝐧𝐨𝐭 𝐟𝐨𝐮𝐧𝐝 𝐨𝐫 𝐞𝐫𝐫𝐨𝐫 𝐟𝐞𝐭𝐜𝐡𝐢𝐧𝐠 𝐥𝐲𝐫𝐢𝐜𝐬");
-    console.error(error);
-  }
-});
