@@ -5,7 +5,7 @@ const {
   default: axios
 } = require("axios");
 zokou({
-  nomCom: "design",
+  nomCom: "gen",
   reaction: "💥",
   categorie: "Toxic"
 }, async (_0x19b10f, _0x10ca95, _0x5f3b1d) => {
