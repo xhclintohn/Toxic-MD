@@ -100,30 +100,56 @@ zokou(
     const { ms, msgRepondu, repondre } = commandeOptions;
 
     try {
-      if (!msgRepondu || msgRepondu.mtype !== 'imageMessage') {
-        return repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Reply to an image to enhance its quality! Use .tohd\n◈━━━━━━━━━━━━━━━━◈`);
+      // Enhanced validation checks
+      if (!msgRepondu) {
+        return repondre(`TOXIC-MD\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Please reply to an image message to use this command!\n◈━━━━━━━━━━━━━━━━◈`);
+      }
+
+      // Check for different media types
+      if (!['imageMessage', 'stickerMessage', 'documentMessage'].includes(msgRepondu.mtype)) {
+        return repondre(`TOXIC-MD\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Unsupported media type! Please reply to an image or sticker.\n◈━━━━━━━━━━━━━━━━◈`);
+      }
+
+      // Additional check for document messages (must be image)
+      if (msgRepondu.mtype === 'documentMessage' && !msgRepondu.mimetype.includes('image')) {
+        return repondre(`TOXIC-MD\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ The document must be an image file (jpg, png, etc.)\n◈━━━━━━━━━━━━━━━━◈`);
+      }
+
+      // Check file size (max 10MB)
+      if (msgRepondu.size > 10 * 1024 * 1024) {
+        return repondre(`TOXIC-MD\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Image is too large! Maximum size is 10MB.\n◈━━━━━━━━━━━━━━━━◈`);
       }
 
       const media = await zk.downloadMediaMessage(msgRepondu, 'buffer');
+      
+      // Verify the downloaded media is actually an image
+      if (!media || media.length === 0) {
+        return repondre(`TOXIC-MD\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Failed to download the image. Please try again.\n◈━━━━━━━━━━━━━━━━◈`);
+      }
+
       const imgLarger = new ImgLarger();
 
-      await repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Processing your image, please wait... 🖼️\n◈━━━━━━━━━━━━━━━━◈`);
+      await repondre(`TOXIC-MD\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Processing your image, please wait... 🖼️\n◈━━━━━━━━━━━━━━━━◈`);
 
       const result = await imgLarger.processImage(media, 4);
       const enhancedImageUrl = result.data.downloadUrls[0];
+
+      if (!enhancedImageUrl) {
+        throw new Error('No enhanced image URL returned from service');
+      }
 
       await zk.sendMessage(
         dest,
         {
           image: { url: enhancedImageUrl },
-          caption: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Here's your enhanced image! ✨\n│❒ Powered by xh_clinton\n◈━━━━━━━━━━━━━━━━◈`
+          caption: `TOXIC-MD\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Here's your enhanced image! ✨\n│❒ Powered by xh_clinton\n◈━━━━━━━━━━━━━━━━◈`
         },
         { quoted: ms }
       );
 
     } catch (error) {
       console.error('Error processing media:', error);
-      return repondre(`𝐓�{O}𝐗𝐈𝐂-�{M}𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Error processing image: ${error.message}\n◈━━━━━━━━━━━━━━━━◈`);
+      return repondre(`TOXIC-MD\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Error: ${error.message}\n◈━━━━━━━━━━━━━━━━◈`);
     }
   }
 );
