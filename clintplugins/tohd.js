@@ -1,68 +1,129 @@
-const { zokou } = require("../framework/zokou");
-const fs = require('fs');
-const axios = require('axios');
-const FormData = require('form-data');
+import { createRequire } from 'module';
+import path from 'path';
+import axios from 'axios';
+import FormData from 'form-data';
+import fs from 'fs-extra';
+import { zokou } from "../framework/zokou.js";
+
+const require = createRequire(import.meta.url);
+const __filename = new URL(import.meta.url).pathname;
+const __dirname = path.dirname(__filename);
+
+class ImgLarger {
+    constructor() {
+        this.baseURL = 'https://get1.imglarger.com/api/Upscaler';
+        this.headers = {
+            'Accept': 'application/json, text/plain, */*',
+            'Origin': 'https://imgupscaler.com',
+            'Referer': 'https://imgupscaler.com/',
+            'User-Agent': 'Postify/1.0.0',
+            'X-Forwarded-For': Array(4).fill(0).map(() => Math.floor(Math.random() * 256)).join('.')
+        };
+        this.retryLimit = 3;
+    }
+
+    async uploadImage(input, scaleRadio = 2, isLogin = 0) {
+        const formData = new FormData();
+        if (Buffer.isBuffer(input)) {
+            formData.append('myfile', input, { filename: 'uploaded_image.jpg' });
+        } else {
+            throw new Error('Invalid input. Provide a buffer.');
+        }
+        formData.append('scaleRadio', scaleRadio);
+        formData.append('isLogin', isLogin);
+        try {
+            console.log('Uploading image, please wait...');
+            const response = await axios.post(`${this.baseURL}/Upload`, formData, {
+                headers: { ...this.headers, ...formData.getHeaders() },
+                maxContentLength: Infinity,
+                maxBodyLength: Infinity,
+                onUploadProgress: progressEvent => {
+                    this.showProgress(progressEvent.loaded, progressEvent.total);
+                }
+            });
+            if (response.data.code === 999) {
+                throw new Error('API limit exceeded.');
+            }
+            return response.data;
+        } catch (error) {
+            throw new Error('Image upload failed.');
+        }
+    }
+
+    showProgress(loaded, total) {
+        const percentage = Math.round((loaded / total) * 100);
+        process.stdout.write(`\rUploading: ${percentage}%\n`);
+    }
+
+    async checkStatus(code, scaleRadio, isLogin) {
+        const payload = { code, scaleRadio, isLogin };
+        try {
+            const response = await axios.post(`${this.baseURL}/CheckStatus`, payload, { headers: this.headers });
+            return response.data;
+        } catch (error) {
+            throw new Error('Failed to check task status.');
+        }
+    }
+
+    async processImage(input, scaleRadio = 2, isLogin = 0, retries = 0) {
+        try {
+            const { data: { code } } = await this.uploadImage(input, scaleRadio, isLogin);
+            let status;
+            do {
+                status = await this.checkStatus(code, scaleRadio, isLogin);
+                if (status.data.status === 'waiting') {
+                    await this.delay(5000);
+                }
+            } while (status.data.status === 'waiting');
+            return status;
+        } catch (error) {
+            if (retries < this.retryLimit) {
+                return await this.processImage(input, scaleRadio, isLogin, retries + 1);
+            } else {
+                throw new Error('Process failed after multiple attempts.');
+            }
+        }
+    }
+
+    delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+}
 
 zokou(
   {
     nomCom: "tohd",
-    categorie: "Conversion",
+    categorie: "General",
     reaction: "🖼️",
   },
   async (dest, zk, commandeOptions) => {
     const { ms, msgRepondu, repondre } = commandeOptions;
 
     try {
-      // Check if the user replied to a message with an image
-      if (!msgRepondu || (!msgRepondu.message?.imageMessage && !msgRepondu.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage)) {
-        return repondre("𝗛𝗲𝘆, 𝘆𝗼𝘂 𝗻𝗲𝗲𝗱 𝘁𝗼 𝗿𝗲𝗽𝗹𝘆 𝘁𝗼 𝗮𝗻 𝗶𝗺𝗮𝗴𝗲 𝘁𝗼 𝗰𝗼𝗻𝘃𝗲𝗿𝘁 𝗶𝘁 𝘁𝗼 𝗛𝗗! 🖼️");
+      if (!msgRepondu || msgRepondu.mtype !== 'imageMessage') {
+        return repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Reply to an image to enhance its quality! Use .tohd\n◈━━━━━━━━━━━━━━━━◈`);
       }
 
-      // Get the image message (either directly or from a quoted message)
-      const imageMessage = msgRepondu.message?.imageMessage || msgRepondu.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage;
+      const media = await zk.downloadMediaMessage(msgRepondu, 'buffer');
+      const imgLarger = new ImgLarger();
 
-      if (!imageMessage) {
-        return repondre("𝗦𝗼𝗿𝗿𝘆, 𝗜 𝗰𝗼𝘂𝗹𝗱𝗻’𝘁 𝗳𝗶𝗻𝗱 𝗮𝗻 𝗶𝗺𝗮𝗴𝗲 𝗶𝗻 𝘁𝗵𝗮𝘁 𝗺𝗲𝘀𝘀𝗮𝗴𝗲. 𝗧𝗿𝘆 𝗿𝗲𝗽𝗹𝘆𝗶𝗻𝗴 𝘁𝗼 𝗮𝗻 𝗶𝗺𝗮𝗴𝗲! 😓");
-      }
+      await repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Processing your image, please wait... 🖼️\n◈━━━━━━━━━━━━━━━━◈`);
 
-      // Notify the user that the image is being processed
-      repondre("𝗣𝗿𝗼𝗰𝗲𝘀𝘀𝗶𝗻𝗴 𝘆𝗼𝘂𝗿 𝗶𝗺𝗮𝗴𝗲 𝘁𝗼 𝗛𝗗… 𝗣𝗹𝗲𝗮𝘀𝗲 𝘄𝗮𝗶𝘁! ⏳");
+      const result = await imgLarger.processImage(media, 4);
+      const enhancedImageUrl = result.data.downloadUrls[0];
 
-      // Download the image
-      const mediaPath = await zk.downloadAndSaveMediaMessage(imageMessage);
-
-      // Prepare the image for the API (DeepAI requires a file upload)
-      const formData = new FormData();
-      formData.append('image', fs.createReadStream(mediaPath));
-
-      // Send the image to DeepAI's Image Upscaling API
-      const deepAiApiKey = "YOUR_DEEPAI_API_KEY"; // Replace with your DeepAI API key
-      const response = await axios.post('https://api.deepai.org/api/torch-srgan', formData, {
-        headers: {
-          'Api-Key': deepAiApiKey,
-          ...formData.getHeaders(),
+      await zk.sendMessage(
+        dest,
+        {
+          image: { url: enhancedImageUrl },
+          caption: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Here's your enhanced image! ✨\n│❒ Powered by xh_clinton\n◈━━━━━━━━━━━━━━━━◈`
         },
-      });
-
-      const enhancedImageUrl = response.data.output_url;
-
-      if (!enhancedImageUrl) {
-        fs.unlinkSync(mediaPath); // Clean up the downloaded file
-        return repondre("𝗦𝗼𝗿𝗿𝘆, 𝗜 𝗰𝗼𝘂𝗹𝗱𝗻’𝘁 𝗲𝗻𝗵𝗮𝗻𝗰𝗲 𝘁𝗵𝗲 𝗶𝗺𝗮𝗴𝗲. 𝗧𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗹𝗮𝘁𝗲𝗿! 😓");
-      }
-
-      // Send the enhanced image back to the user
-      await zk.sendMessage(dest, {
-        image: { url: enhancedImageUrl },
-        caption: "𝐇𝐞𝐫𝐞’𝐬 𝐲𝐨𝐮𝐫 𝐇𝐃 𝐢𝐦𝐚𝐠𝐞! 𝐄𝐧𝐡𝐚𝐧𝐜𝐞𝐝 𝐛𝐲 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 | 𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐛𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧 🖼️",
-      }, { quoted: ms });
-
-      // Clean up the downloaded file
-      fs.unlinkSync(mediaPath);
+        { quoted: ms }
+      );
 
     } catch (error) {
-      console.error("Error in .tohd command:", error);
-      repondre("𝗢𝗼𝗽𝘀, 𝘀𝗼𝗺𝗲𝘁𝗵𝗶𝗻𝗴 𝘄𝗲𝗻𝘁 𝘄𝗿𝗼𝗻𝗴 𝘄𝗵𝗶𝗹𝗲 𝗲𝗻𝗵𝗮𝗻𝗰𝗶𝗻𝗴 𝘁𝗵𝗲 𝗶𝗺𝗮𝗴𝗲: " + error.message);
+      console.error('Error processing media:', error);
+      return repondre(`𝐓�{O}𝐗𝐈𝐂-�{M}𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Error processing image: ${error.message}\n◈━━━━━━━━━━━━━━━━◈`);
     }
   }
 );
