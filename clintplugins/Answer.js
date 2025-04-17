@@ -1,126 +1,67 @@
-const { zokou } = require('../framework/zokou');
-const traduire = require("../framework/traduction") ;
-const { default: axios } = require('axios');
-//const conf = require('../set');
+const { zokou } = require("../framework/zokou");
+const axios = require("axios");
 
+// 𝐀𝐈 𝐌𝐨𝐝𝐮𝐥𝐞
+// 𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐛𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
 
+zokou(
+  {
+    nomCom: "gemini",
+    categorie: "AI",
+    reaction: "🧠",
+  },
+  async (dest, zk, commandeOptions) => {
+    const { repondre, ms, arg, prefixe } = commandeOptions;
 
+    console.log("Command triggered: .gemini");
 
-zokou({nomCom:"toxic",reaction:"📡",categorie:"AI"},async(dest,zk,commandeOptions)=>{
+    // Check for query
+    if (!arg || arg.length === 0) {
+      console.log("No query provided");
+      return repondre(
+        `𝗧𝗢𝗫𝗜𝗖-𝗠𝗗\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ HEY, ${ms.pushName || "User"}! 😡 No query? Stop wasting my time! 📝\n│❒ Example: ${prefixe}gemini Hello, which model are you?\n◈━━━━━━━━━━━━━━━━� سعيد
+      );
+    }
 
-  const {repondre,ms,arg}=commandeOptions;
-  
-    if(!arg || !arg[0])
-    {return repondre("YES HOW CAN I HELP THIS TIME.")}
-    //var quest = arg.join(' ');
-  try{
-    
-    
-const message = await traduire(arg.join(' '),{ to : 'en'});
- console.log(message)
-fetch(`http://api.brainshop.ai/get?bid=177607&key=NwzhALqeO1kubFVD&uid=[uid]&msg=${message}`)
-.then(response => response.json())
-.then(data => {
-  const botResponse = data.cnt;
-  console.log(botResponse);
+    const query = arg.join(" ");
+    console.log("Query:", query);
 
-  traduire(botResponse, { to: 'en' })
-    .then(translatedResponse => {
-      repondre(translatedResponse);
-    })
-    .catch(error => {
-      console.error('Error when translating into French :', error);
-      repondre('Error when translating into French');
-    });
-})
-.catch(error => {
-  console.error('Error requesting BrainShop :', error);
-  repondre('Error requesting BrainShop');
-});
-
-  }catch(e){ repondre("oops an error : "+e)}
-    
-  
-  });  
-
-
-
-  zokou({ nomCom: "dalle", reaction: "📡", categorie: "AI" }, async (dest, zk, commandeOptions) => {
-    const { repondre, arg, ms } = commandeOptions;
-  
     try {
-      if (!arg || arg.length === 0) {
-        return repondre(`Please enter the necessary information to generate the image.`);
+      repondre(`𝗧𝗢𝗫𝗜𝗖-𝗠𝗗\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Generating response from Gemini... 😈\n◈━━━━━━━━━━━━━━━━◈`);
+      console.log("Fetching from API...");
+
+      // Fetch response from API
+      const url = `https://api.giftedtech.web.id/api/ai/geminiai?apikey=gifted&q=${encodeURIComponent(query)}`;
+      console.log("API URL:", url);
+      const response = await axios.get(url);
+      console.log("API Response Status:", response.status);
+
+      if (response.status !== 200) {
+        const errorText = response.data.error || "Unknown error";
+        throw new Error(`API request failed: ${response.status} - ${errorText}`);
       }
-  
-      // Regrouper les arguments en une seule chaîne séparée par "-"
-      const image = arg.join(' ');
-      const response = await axios.get(`http://api.maher-zubair.tech/ai/photoleap?q=${image}`);
-      
+
       const data = response.data;
-      let caption = '*powered by Toxic-MD*';
-      
-      if (data.status == 200) {
-        // Utiliser les données retournées par le service
-        const imageUrl = data.result;
-        zk.sendMessage(dest, { image: { url: imageUrl }, caption: caption }, { quoted: ms });
+      console.log("API Data:", data);
+
+      if (data && data.success && data.result) {
+        const res = data.result;
+        await repondre(
+          `𝗧𝗢𝗫𝗜𝗖-𝗠𝗗\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Query: ${query}\n│❒ Response: ${res}\n│❒ BOOM! 😈 Answered like a boss! 💪\n│❒ Powered by xh_clinton\n◈━━━━━━━━━━━━━━━━◈`
+        );
       } else {
-        repondre("Error during image generation.");
+        console.log("Invalid API response structure");
+        repondre(
+          `𝗧𝗢𝗫𝗜𝗖-𝗠𝗗\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ THIS IS GARBAGE, ${ms.pushName || "User"}! 😤 Invalid response from API! 🚫\n◈━━━━━━━━━━━━━━━━◈`
+        );
       }
     } catch (error) {
-      console.error('Erreur:', error.message || 'Une erreur s\'est produite');
-      repondre("Oops, an error occurred while processing your request");
+      console.error("Error with Gemini API:", error);
+      repondre(
+        `𝗧𝗢𝗫𝗜𝗖-�_M𝗗\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ THIS SUCKS, ${ms.pushName || "User"}! 😤 Failed: ${error.message}! 🚫\n◈━━━━━━━━━━━━━━━━◈`
+      );
     }
-  });
-  
-  zokou({ nomCom: "ai", reaction: "📡", categorie: "AI" }, async (dest, zk, commandeOptions) => {
-    const { repondre, arg, ms } = commandeOptions;
-  
-    try {
-      if (!arg || arg.length === 0) {
-        return repondre(`Please ask a question.`);
-      }
-  
-      // Regrouper les arguments en une seule chaîne séparée par "-"
-      const question = arg.join(' ');
-      const response = await axios.get(`http://api.maher-zubair.tech/ai/chatgpt4?q=${question}`);
-      
-      const data = response.data;
-      if (data) {
-        repondre(data.result);
-      } else {
-        repondre("Error during response generation.");
-      }
-    } catch (error) {
-      console.error('Erreur:', error.message || 'Une erreur s\'est produite');
-      repondre("Oops, an error occurred while processing your request.");
-    }
-  });
+  }
+);
 
-
-zokou({ nomCom: "clinton", reaction: "🤔", categorie: "AI" }, async (dest, zk, commandeOptions) => {
-    const { repondre, arg, ms } = commandeOptions;
-  
-    try {
-      if (!arg || arg.length === 0) {
-        return repondre(`Please ask a question.`);
-      }
-  
-      // Regrouper les arguments en une seule chaîne séparée par "-"
-      const question = arg.join(' ');
-      const response = await axios.get(`https://gpt4.giftedtech.workers.dev/?prompt=${question}`);
-      
-      const data = response.data;
-      if (data) {
-        repondre(data.result);
-      } else {
-        repondre("Error during response generation.");
-      }
-    } catch (error) {
-      console.error('Erreur:', error.message || 'Une erreur s\'est produite');
-      repondre("Oops, an error occurred while processing your request.");
-    }
-  });
-
-
-  
+module.exports = { zokou };
