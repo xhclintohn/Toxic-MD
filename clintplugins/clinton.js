@@ -7,7 +7,7 @@ zokou(
     reaction: '🗿'
   },
   async (dest, zk, commandeOptions) => {
-    const { ms, repondre, prefix } = commandeOptions;
+    const { ms, repondre, prefix, nomAuteurMessage } = commandeOptions;
 
     try {
       // Group and Channel links
@@ -15,17 +15,17 @@ zokou(
       const channelLink = 'https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19';
 
       // Prepare the button message content
-      const captionText = `𝐇𝐞𝐫𝐞 𝐚𝐫𝐞 𝐭𝐡𝐞 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 𝐥𝐢𝐧𝐤�{s:\n\n𝐆𝐫𝐨𝐮𝐩: ${groupLink}\n𝐂𝐡𝐚𝐧𝐧𝐞𝐥: ${channelLink}`;
+      const captionText = `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Yo ${nomAuteurMessage}, here’s the dope on 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇! 🔥\n│❒ *📩 𝐆𝐫𝐨𝐮𝐩*: ${groupLink}\n│❒ *📢 𝐂𝐡𝐚𝐧𝐧𝐞𝐥*: ${channelLink}\n│❒ Hit the button to vibe with the owner! 😎\n◈━━━━━━━━━━━━━━━━◈`;
 
       // Define the button message
       const buttonMessage = {
         buttonsMessage: {
           contentText: captionText,
-          footerText: "Powered by Toxic-MD",
+          footerText: `Hey ${nomAuteurMessage}! I'm Toxic-MD, created by 𝐱𝐡_�{c𝐥𝐢𝐧𝐭𝐨𝐧 😎`,
           buttons: [
             {
               buttonId: `${prefix}owner`,
-              buttonText: { displayText: "🕯️✨ᴏᴡɴᴇʀ✨🕯️" },
+              buttonText: { displayText: "🕯️✨ 𝐎𝐖𝐍𝐄𝐑 ✨🕯️" },
               type: 1,
             },
           ],
@@ -37,8 +37,8 @@ zokou(
       await zk.sendMessage(dest, buttonMessage, { quoted: ms });
 
     } catch (error) {
-      console.error("Error in clint command:", error.stack);
-      repondre(`𝐒𝐨𝐦𝐞𝐭𝐡𝐢𝐧𝐠 𝐰𝐞𝐧𝐭 𝐰𝐫𝐨𝐧𝐠: ${error.message}`);
+      console.error("Error in info command:", error.stack);
+      await repondre(`𝐓𝐎𝐗𝐈𝐂-�{M𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ TOTAL BUST, ${nomAuteurMessage}! 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇 tripped while dropping the info: ${error.message} 😡 Try again or flop! 😣\n◈━━━━━━━━━━━━━━━━◈`);
     }
   }
 );
