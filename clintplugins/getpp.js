@@ -7,16 +7,16 @@ zokou(
     reaction: "📷",
   },
   async (dest, zk, commandeOptions) => {
-    const { ms, repondre, msgRepondu, auteurMsgRepondu, mybotpic } = commandeOptions;
+    const { ms, repondre, msgRepondu, auteurMsgRepondu, mybotpic, nomAuteurMessage } = commandeOptions;
 
     // Check if the message is a reply
     if (!msgRepondu) {
-      return repondre("𝗛𝗲𝘆, 𝘆𝗼𝘂 𝗻𝗲𝗲𝗱 𝘁𝗼 𝗿𝗲𝗽𝗹𝘆 𝘁𝗼 𝘀𝗼𝗺𝗲𝗼𝗻𝗲’𝘀 𝗺𝗲𝘀𝘀𝗮𝗴𝗲 𝘁𝗼 𝗴𝗲𝘁 𝘁𝗵𝗲𝗶𝗿 𝗽𝗿𝗼𝗳𝗶𝗹𝗲 𝗽𝗶𝗰𝘁𝘂𝗿𝗲! 🤔");
+      return repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Yo ${nomAuteurMessage}, reply to someone’s message to snag their profile pic! 😡 Don’t make 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇 do extra work! 🤔\n◈━━━━━━━━━━━━━━━━◈`);
     }
 
     try {
       // Notify the user that the profile picture is being fetched
-      repondre("𝗙𝗲𝘁𝗰𝗵𝗶𝗻𝗴 𝘁𝗵𝗲 𝗽𝗿𝗼𝗳𝗶𝗹𝗲 𝗽𝗶𝗰𝘁𝘂𝗿𝗲 𝗳𝗼𝗿 𝘆𝗼𝘂… 𝗣𝗹𝗲𝗮𝘀𝗲 𝘄𝗮𝗶𝘁! 📸");
+      await repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌D\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Yo ${nomAuteurMessage}, 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇’s hunting for @${auteurMsgRepondu.split("@")[0]}’s profile pic! 📸 Hold tight! 🔍\n◈━━━━━━━━━━━━━━━━◈`, { mentions: [auteurMsgRepondu] });
 
       // Fetch the profile picture of the replied person
       let ppuser;
@@ -24,7 +24,7 @@ zokou(
         ppuser = await zk.profilePictureUrl(auteurMsgRepondu, 'image');
       } catch {
         ppuser = mybotpic();
-        repondre("𝗖𝗼𝘂𝗹𝗱𝗻’𝘁 𝗴𝗲𝘁 𝘁𝗵𝗲𝗶𝗿 𝗽𝗿𝗼𝗳𝗶𝗹𝗲 𝗽𝗶𝗰𝘁𝘂𝗿𝗲. 𝗧𝗵𝗲𝘆 𝗺𝗶𝗴𝗵𝘁 𝗵𝗮𝘃𝗲 𝗽𝗿𝗶𝘃𝗮𝗰𝘆 𝘀𝗲𝘁𝘁𝗶𝗻𝗴𝘀 𝗲𝗻𝗮𝗯𝗹𝗲𝗱. 𝗛𝗲𝗿𝗲’𝘀 𝗺𝘆 𝗽𝗶𝗰 𝗶𝗻𝘀𝘁𝗲𝗮𝗱! 😅");
+        await repondre(`𝐓O𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Yo ${nomAuteurMessage}, @${auteurMsgRepondu.split("@")[0]}’s profile pic is locked tight! 😣 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇’s got you my pic instead! 😎\n◈━━━━━━━━━━━━━━━━◈`, { mentions: [auteurMsgRepondu] });
       }
 
       // Send the profile picture
@@ -32,7 +32,8 @@ zokou(
         dest,
         {
           image: { url: ppuser },
-          caption: `𝗛𝗲𝗿𝗲’𝘀 𝘁𝗵𝗲 𝗽𝗿𝗼𝗳�_i𝗹𝗲 𝗽𝗶𝗰𝘁𝘂𝗿𝗲 𝗳𝗼𝗿 @${auteurMsgRepondu.split("@")[0]}! 🎉`,
+          caption: `𝐓O𝐗𝐈𝐂-𝐌D\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ BOOM, ${nomAuteurMessage}! Snagged @${auteurMsgRepondu.split("@")[0]}’s profile pic! 🔥\n│❒ Powered by xh_clinton\n◈━━━━━━━━━━━━━━━━◈`,
+          footer: `Hey ${nomAuteurMessage}! I'm Toxic-MD, created by 𝐱𝐡_�{c𝐥𝐢𝐧𝐭𝐨𝐧 😎`,
           mentions: [auteurMsgRepondu],
         },
         { quoted: ms }
@@ -40,7 +41,7 @@ zokou(
 
     } catch (error) {
       console.error("Error in .getpp command:", error);
-      repondre("𝗢𝗼𝗽𝘀, 𝘀𝗼𝗺𝗲𝘁𝗵𝗶𝗻𝗴 𝘄𝗲𝗻𝘁 𝘄𝗿𝗼𝗻𝗴 𝘄𝗵𝗶𝗹𝗲 𝗳𝗲𝘁𝗰𝗵𝗶𝗻𝗴 𝘁𝗵𝗲 𝗽𝗿𝗼𝗳𝗶𝗹𝗲 𝗽𝗶𝗰𝘁𝘂𝗿𝗲: " + error.message);
+      await repondre(`𝐓O𝐗𝐈𝐂-𝐌D\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ TOTAL BUST, ${nomAuteurMessage}! 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇 crashed while grabbing the pic: ${error.message} 😡 Try again or flop! 😣\n◈━━━━━━━━━━━━━━━━◈`);
     }
   }
 );
