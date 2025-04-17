@@ -47,7 +47,7 @@ zokou(
       if (data && data.success && data.result) {
         const res = data.result;
         await repondre(
-          `𝗧𝗢𝗫𝗜𝗖-�_M𝗗\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Query: ${query}\n│❒ Response: ${res}\n│❒ BOOM! 😈 Answered like a boss! 💪\n│❒ Powered by xh_clinton\n◈━━━━━━━━━━━━━━━━◈`
+          `𝗧𝗢𝗫𝗜𝗖_M𝗗\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Query: ${query}\n│❒ Response: ${res}\n│❒ BOOM! 😈 Answered like a boss! 💪\n│❒ Powered by xh_clinton\n◈━━━━━━━━━━━━━━━━◈`
         );
       } else {
         console.log("Invalid API response structure");
