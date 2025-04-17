@@ -1,5 +1,4 @@
 const { zokou } = require("../framework/zokou");
-const fs = require('fs');
 const { downloadMediaMessage } = require('@whiskeysockets/baileys');
 
 zokou(
@@ -9,54 +8,48 @@ zokou(
     reaction: "🗿",
   },
   async (dest, zk, commandeOptions) => {
-    const { ms, msgRepondu, repondre } = commandeOptions;
+    const { ms, msgRepondu, repondre, nomAuteurMessage } = commandeOptions;
 
     try {
       if (!msgRepondu) {
-        return repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Hey, you need to reply to a view-once media message first! 😅\n◈━━━━━━━━━━━━━━━━◈`);
+        return repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Yo ${nomAuteurMessage}, reply to a media message (image, video, or audio) first! 😡 Don’t waste 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇’s time! 🤔\n◈━━━━━━━━━━━━━━━━◈`);
       }
 
-      // Get bot's own number
-      const botNumber = zk.user.id.split(':')[0] + '@s.whatsapp.net';
-
-      // Extract the view-once message
-      let msg = msgRepondu.message;
-      if (msgRepondu.message?.viewOnceMessageV2) {
-        msg = msgRepondu.message.viewOnceMessageV2.message;
-      } else if (msgRepondu.message?.viewOnceMessage) {
-        msg = msgRepondu.message.viewOnceMessage.message;
-      }
-
+      // Extract the message content
+      const msg = msgRepondu.message;
       if (!msg) {
         console.log("DEBUG - Available keys in msgRepondu:", Object.keys(msgRepondu));
-        if (msgRepondu.message) {
-          console.log("DEBUG - Keys in msgRepondu.message:", Object.keys(msgRepondu.message));
-        }
-        return repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ I couldn’t find any view-once media in that message. Are you sure it’s view-once? 🤔\n◈━━━━━━━━━━━━━━━━◈`);
+        return repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Yo ${nomAuteurMessage}, that message has no media! 😕 Reply to an image, video, or audio! 🤦‍♂️\n◈━━━━━━━━━━━━━━━━◈`);
       }
 
+      // Determine the message type
       const messageType = Object.keys(msg)[0];
       if (!['imageMessage', 'videoMessage', 'audioMessage'].includes(messageType)) {
-        return repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ That’s not a supported view-once media type (image, video, or audio)! 😕\n◈━━━━━━━━━━━━━━━━◈`);
+        return repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Yo ${nomAuteurMessage}, that’s not a supported media type (image, video, or audio)! 😣 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇 can’t work with that! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
       }
 
+      // Notify the user that media is being processed
+      await repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Yo ${nomAuteurMessage}, 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇’s cracking open that media! 📦 Hold tight! 🔍\n◈━━━━━━━━━━━━━━━━◈`);
+
       // Download the media
-      const buffer = await downloadMediaMessage(msgRepondu, 'buffer');
+      const buffer = await downloadMediaMessage(msgRepondu, 'buffer', {});
       if (!buffer) {
-        return repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Failed to download the media. Try again! 😓\n◈━━━━━━━━━━━━━━━━◈`);
+        return repondre(`𝐓𝐎𝐗𝐈C-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Yo ${nomAuteurMessage}, 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇 couldn’t download the media! 😓 Try again or check the message! 🚨\n◈━━━━━━━━━━━━━━━━◈`);
       }
 
       // Prepare media details
-      const caption = msg[messageType].caption || `𝐑𝐞𝐭𝐫𝐢𝐞𝐯𝐞𝐝 𝐛𝐲 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃 | 𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐛𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+      const caption = msg[messageType].caption || `BOOM! Retrieved by 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇 | Powered by xh_clinton 🔥`;
       const mediaOptions = {
         caption,
+        footer: `Hey ${nomAuteurMessage}! I'm Toxic-MD, created by 𝐱𝐡_�{c𝐥𝐢𝐧𝐭𝐨𝐧 😎`,
         ...(messageType === 'audioMessage' ? { mimetype: msg.audioMessage.mimetype || 'audio/ogg', ptt: true } : {}),
-        ...(messageType === 'videoMessage' ? { mimetype: 'video/mp4' } : {}),
+        ...(messageType === 'videoMessage' ? { mimetype: msg.videoMessage.mimetype || 'video/mp4' } : {}),
+        ...(messageType === 'imageMessage' ? { mimetype: msg.imageMessage.mimetype || 'image/jpeg' } : {}),
       };
 
-      // Send media to bot's own number
+      // Send media back to the same chat
       await zk.sendMessage(
-        botNumber,
+        dest,
         {
           [messageType.replace('Message', '').toLowerCase()]: buffer,
           ...mediaOptions,
@@ -64,12 +57,12 @@ zokou(
         { quoted: ms }
       );
 
-      // Notify the group
-      await repondre(`𝐓𝐎𝐗𝐈𝐂-�{M}𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ View-once media retrieved and sent to my inbox! 🗿\n◈━━━━━━━━━━━━━━━━◈`);
+      // Notify success
+      await repondre(`𝐓O𝐗𝐈C-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ BOOM, ${nomAuteurMessage}! 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇 decrypted and dropped the media right here! 🗿🔥\n◈━━━━━━━━━━━━━━━━◈`);
 
     } catch (error) {
-      console.error("Command error:", error);
-      return repondre(`𝐓𝐎𝐗𝐈𝐂-�{M}𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Oops, something went wrong: ${error.message}\n◈━━━━━━━━━━━━━━━━◈`);
+      console.error("Error in vv command:", error.stack);
+      await repondre(`𝐓O𝐗𝐈C-𝐌�{D\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ TOTAL BUST, ${nomAuteurMessage}! 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇 tripped while decrypting the media: ${error.message} 😡 Try again or flop! 😣\n◈━━━━━━━━━━━━━━━━◈`);
     }
   }
 );
