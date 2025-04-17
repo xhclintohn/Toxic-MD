@@ -14,31 +14,32 @@ zokou(
       const groupLink = 'https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI';
       const channelLink = 'https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19';
 
-      // Prepare the button message content
-      const captionText = `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Yo ${nomAuteurMessage}, here’s the dope on 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇! 🔥\n│❒ *📩 𝐆𝐫𝐨𝐮𝐩*: ${groupLink}\n│❒ *📢 𝐂𝐡𝐚𝐧𝐧𝐞𝐥*: ${channelLink}\n│❒ Hit the button to vibe with the owner! 😎\n◈━━━━━━━━━━━━━━━━◈`;
+      // Prepare the info message content
+      const infoMsg = `
+𝐓𝐎𝐗𝐈𝐂-𝐌𝐃
 
-      // Define the button message
-      const buttonMessage = {
-        buttonsMessage: {
-          contentText: captionText,
-          footerText: `Hey ${nomAuteurMessage}! I'm Toxic-MD, created by 𝐱𝐡_�{c𝐥𝐢𝐧𝐭𝐨𝐧 😎`,
-          buttons: [
-            {
-              buttonId: `${prefix}owner`,
-              buttonText: { displayText: "🕯️✨ 𝐎𝐖𝐍𝐄𝐑 ✨🕯️" },
-              type: 1,
-            },
-          ],
-          headerType: 1,
+◈━━━━━━━━━━━━━━━━◈
+│❒ Yo ${nomAuteurMessage}, here’s the dope on 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇! 🔥
+│❒ *📩 𝐆𝐫𝐨𝐮𝐩*: ${groupLink}
+│❒ *📢 𝐂𝐡𝐚𝐧𝐧𝐞𝐥*: ${channelLink}
+│❒ Wanna vibe with the owner? Use *${prefix}owner*! 😎
+│❒ Powered by xh_clinton
+◈━━━━━━━━━━━━━━━━◈
+      `;
+
+      // Send the info message
+      await zk.sendMessage(
+        dest,
+        {
+          text: infoMsg,
+          footer: `Hey ${nomAuteurMessage}! I'm Toxic-MD, created by 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧 😎`
         },
-      };
-
-      // Send the button message
-      await zk.sendMessage(dest, buttonMessage, { quoted: ms });
+        { quoted: ms }
+      );
 
     } catch (error) {
       console.error("Error in info command:", error.stack);
-      await repondre(`𝐓𝐎𝐗𝐈𝐂-�{M𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ TOTAL BUST, ${nomAuteurMessage}! 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇 tripped while dropping the info: ${error.message} 😡 Try again or flop! 😣\n◈━━━━━━━━━━━━━━━━◈`);
+      await repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ TOTAL BUST, ${nomAuteurMessage}! 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇 tripped while dropping the info: ${error.message} 😡 Try again or flop! 😣\n◈━━━━━━━━━━━━━━━━◈`);
     }
   }
 );
