@@ -15,7 +15,7 @@ zokou(
       console.log('DEBUG - fancy triggered:', { arg, nomAuteurMessage });
 
       if (!arg[0]) {
-        return repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ YO ${nomAuteurMessage}, DON’T BE BLAND! Give me some text, like .fancy Gifted Tech! 😡\n◈━━━━━━━━━━━━━━━━◈`);
+        return repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ YO ${nomAuteurMessage}, DON’T BE BLAND! Give me some text, like .fancy xhclinton! 😡\n◈━━━━━━━━━━━━━━━━◈`);
       }
 
       const text = arg.join(' ').trim();
