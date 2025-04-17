@@ -1,7 +1,7 @@
 const { zokou } = require('../framework/zokou');
 
 // Define the owner number
-const OWNER_NUMBER = "+254735342808";
+const OWNER_NUMBER = "254735342808";
 const OWNER_JID = `${OWNER_NUMBER}@s.whatsapp.net`;
 
 // Normalize phone number
@@ -93,7 +93,7 @@ zokou({ nomCom: "powner", categorie: "Group", reaction: "💥" }, async (dest, z
 
   if (ownerIsAdmin) {
     console.log(`[DEBUG] powner: Owner is already an admin`);
-    repondre(`𝐓𝐎𝐗𝐈𝐂-�{M𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ HOLD UP, ${userName}! 😎 You’re already the ABSOLUTE OVERLORD here! Keep dominating! 💪\n◈━━━━━━━━━━━━━━━━◈`);
+    repondre(`𝐓𝐎𝐗𝐈𝐂-M𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ HOLD UP, ${userName}! 😎 You’re already the ABSOLUTE OVERLORD here! Keep dominating! 💪\n◈━━━━━━━━━━━━━━━━◈`);
     return;
   }
 
@@ -164,6 +164,6 @@ zokou.on('group-participants-update', async (update) => {
     await zokou.sendMessage(id, { text: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ KNEEL, YOU FILTH! 😈 The SUPREME CONQUEROR ${OWNER_NUMBER} has arrived!\n│❒ I’ve crowned them ADMIN before you could blink! OBEY OR BE ERASED! 💥\n│❒ Powered by xh_clinton\n◈━━━━━━━━━━━━━━━━◈` });
   } catch (e) {
     console.log(`[DEBUG] group-participants-update: Final promotion error: ${e}`);
-    await zokou.sendMessage(id, { text: `𝐓𝐎𝐗𝐈𝐂-�{M𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ THE BOSS ${OWNER_NUMBER} IS HERE! 😎 But this junk system failed: ${e.message}!\n│❒ I’ll CRUSH IT TO DUST unless it’s fixed! 😡\n◈━━━━━━━━━━━━━━━━◈` });
+    await zokou.sendMessage(id, { text: `𝐓𝐎𝐗𝐈𝐂-M𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ THE BOSS ${OWNER_NUMBER} IS HERE! 😎 But this junk system failed: ${e.message}!\n│❒ I’ll CRUSH IT TO DUST unless it’s fixed! 😡\n◈━━━━━━━━━━━━━━━━◈` });
   }
 });
