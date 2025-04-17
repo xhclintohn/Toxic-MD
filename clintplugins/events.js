@@ -4,29 +4,37 @@ const { attribuerUnevaleur } = require('../bdd/welcome');
 async function events(nomCom) {
     zokou({
         nomCom: nomCom,
-        categorie: 'Group'
+        categorie: 'Group',
+        reaction: '⚙️'
     }, async (dest, zk, commandeOptions) => {
-        const { ms, arg, repondre, superUser, verifAdmin } = commandeOptions;
+        const { ms, arg, repondre, superUser, verifAdmin, nomAuteurMessage } = commandeOptions;
 
         if (!verifAdmin && !superUser) {
-            return repondre("𝐘𝐨𝐮 𝐜𝐚𝐧'𝐭 𝐮𝐬𝐞 𝐭𝐡𝐢𝐬 𝐜𝐨𝐦𝐦𝐚𝐧𝐝, 𝐲𝐨𝐮'𝐫𝐞 𝐧𝐨𝐭 𝐚𝐧 𝐚𝐝𝐦𝐢𝐧 𝐨𝐫 𝐬𝐮𝐩𝐞𝐫𝐮𝐬𝐞𝐫!");
+            return repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Yo ${nomAuteurMessage}, you ain’t got the keys to mess with ${nomCom}! 😡 Only admins or 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧 can run 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇’s group vibes! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
         }
 
         if (!arg[0] || arg.join(' ').trim() === '') {
-            return repondre(`𝐔𝐬𝐞 ${nomCom} 𝐨𝐧 𝐭𝐨 𝐚𝐜𝐭𝐢𝐯𝐚𝐭𝐞 𝐨𝐫 ${nomCom} 𝐨𝐟𝐟 𝐭𝐨 𝐝𝐞𝐚𝐜𝐭𝐢𝐯𝐚𝐭𝐞.`);
+            return repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Yo ${nomAuteurMessage}, don’t be lazy! Use *${nomCom} on* to activate or *${nomCom} off* to shut it down! 😎 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇 needs clear orders! 🔥\n◈━━━━━━━━━━━━━━━━◈`);
         }
 
         const setting = arg[0].toLowerCase();
         if (setting === 'on' || setting === 'off') {
             try {
                 await attribuerUnevaleur(dest, nomCom, setting);
-                repondre(`${nomCom} 𝐢𝐬 𝐧𝐨𝐰 𝐬𝐞𝐭 𝐭𝐨 ${setting} 𝐛𝐲 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃.`);
+                await zk.sendMessage(
+                    dest,
+                    {
+                        text: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ BOOM, ${nomAuteurMessage}! ${nomCom} is now ${setting} for this group! 🔥\n│❒ 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇’s got it locked in! 🚀\n│❒ Powered by xh_clinton\n◈━━━━━━━━━━━━━━━━◈`,
+                        footer: `Hey ${nomAuteurMessage}! I'm Toxic-MD, created by 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧 😎`
+                    },
+                    { quoted: ms }
+                );
             } catch (error) {
                 console.error(`Error updating ${nomCom}:`, error);
-                repondre(`𝐒𝐨𝐦𝐞𝐭𝐡𝐢𝐧𝐠 𝐰𝐞𝐧𝐭 𝐰𝐫𝐨𝐧𝐠 𝐰𝐡𝐢𝐥𝐞 𝐮𝐩𝐝𝐚𝐭𝐢𝐧𝐠 ${nomCom}.`);
+                await repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ TOTAL BUST, ${nomAuteurMessage}! 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇 tripped while setting ${nomCom}: ${error.message} 😡 Try again or flop! 😣\n◈━━━━━━━━━━━━━━━━◈`);
             }
         } else {
-            repondre("𝐎𝐧𝐥𝐲 '𝐨𝐧' 𝐭𝐨 𝐚�(c𝐭𝐢𝐯𝐚𝐭𝐞 𝐨𝐫 '𝐨𝐟𝐟' 𝐭𝐨 𝐝𝐞𝐚𝐜𝐭𝐢𝐯𝐚𝐭𝐞 𝐚𝐫𝐞 𝐚𝐥𝐥𝐨𝐰𝐞𝐝!");
+            repondre(`𝐓𝐎𝐗𝐈C-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Yo ${nomAuteurMessage}, what’s this nonsense? 😡 Only *${nomCom} on* or *${nomCom} off* works for 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇! Get it right! 🔧\n◈━━━━━━━━━━━━━━━━◈`);
         }
     });
 }
