@@ -13,94 +13,89 @@ zokou(
   async (dest, zk, commandeOptions) => {
     const { ms, repondre, prefixe, nomAuteurMessage, mybotpic } = commandeOptions;
     const { cm } = require(__dirname + "/../framework/zokou");
-    let coms = {};
-    let mode = "public";
 
-    // Check bot mode (public or private)
-    if ((s.MODE).toLowerCase() !== "yes") {
-      mode = "private";
-    }
+    try {
+      let coms = {};
+      let mode = "public";
 
-    // Map commands by category (though not used in the reply for .repo)
-    cm.map((com) => {
-      if (!coms[com.categorie]) coms[com.categorie] = [];
-      coms[com.categorie].push(com.nomCom);
-    });
-
-    // Set timezone and get current time/date
-    moment.tz.setDefault('Etc/GMT');
-    const time = moment().format('HH:mm:ss');
-    const date = moment().format('DD/MM/YYYY');
-
-    // Prepare the repo message with fancy font and realistic tone
-    const infoMsg = `
-     𝗧𝗢𝗫𝗜𝗖-𝗠𝗗 𝗥𝗘𝗣𝗢 𝗜𝗡𝗙𝗢 📦
-
-◈━━━━━━━━━━━━━━━━◈
-
-> 𝗚𝗜𝗧𝗛𝗨𝗕 𝗟𝗜𝗡𝗞  
-https://github.com/xhclintohn/Toxic-MD/fork
-
-> 𝗪𝗛𝗔𝗧𝗦𝗔𝗣𝗣 𝗚𝗥𝗢𝗨𝗣  
-https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI
-
-◈━━━━━━━━━━━━━━━━◈
-> ❒ 𝗥𝗔𝗠 𝗨𝗦𝗔𝗚𝗘:  
-${format(os.totalmem() - os.freemem())} / ${format(os.totalmem())}
-
-> ❒ 𝗗𝗘𝗩𝗘𝗟𝗢𝗣𝗘𝗥:  
-𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
-
-◈━━━━━━━━━━━━━━━━◈
-    `;
-
-    const menuMsg = `
-     𝗧𝗢𝗫𝗜𝗖-𝗠𝗗 𝟮𝟬𝟮𝟱™ 🔥
-
-◈━━━━━━━━━━━━━━━━◈
-    `;
-
-    // Get the bot's profile picture URL
-    const lien = mybotpic();
-
-    // Send the message with a video if the URL is a video (mp4 or gif)
-    if (lien.match(/\.(mp4|gif)$/i)) {
-      try {
-        await zk.sendMessage(
-          dest,
-          {
-            video: { url: lien },
-            caption: infoMsg + menuMsg,
-            footer: "Hey there! I’m Toxic-MD, created by 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧 😎",
-            gifPlayback: true,
-          },
-          { quoted: ms }
-        );
-      } catch (e) {
-        console.error("Video sending error:", e);
-        repondre("𝗢𝗼𝗽𝘀, 𝗜 𝗰𝗼𝘂𝗹𝗱𝗻’𝘁 𝘀𝗲𝗻𝗱 𝘁𝗵𝗲 𝘃𝗶𝗱𝗲𝗼. 𝗦𝗼𝗺𝗲𝘁𝗵𝗶𝗻𝗴 𝘄𝗲𝗻𝘁 𝘄𝗿𝗼𝗻𝗴! 😓");
+      // Check bot mode (public or private)
+      if ((s.MODE).toLowerCase() !== "yes") {
+        mode = "private";
       }
-    }
-    // Send the message with an image if the URL is an image (jpeg, png, jpg)
-    else if (lien.match(/\.(jpeg|png|jpg)$/i)) {
-      try {
-        await zk.sendMessage(
-          dest,
-          {
-            image: { url: lien },
-            caption: infoMsg + menuMsg,
-            footer: "Hey there! I’m Toxic-MD, created by 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧 😎",
-          },
-          { quoted: ms }
-        );
-      } catch (e) {
-        console.error("Image sending error:", e);
-        repondre("𝗢𝗼𝗽𝘀, 𝗜 𝗰𝗼𝘂𝗹𝗱𝗻’𝘁 𝘀𝗲𝗻𝗱 𝘁𝗵𝗲 𝗶𝗺𝗮𝗴𝗲. 𝗦𝗼𝗺𝗲𝘁𝗵𝗶𝗻𝗴 𝘄𝗲𝗻𝘁 𝘄𝗿𝗼𝗻𝗴! 😓");
+
+      // Map commands by category (though not used in the reply for .repo)
+      cm.map((com) => {
+        if (!coms[com.categorie]) coms[com.categorie] = [];
+        coms[com.categorie].push(com.nomCom);
+      });
+
+      // Set timezone and get current time/date
+      moment.tz.setDefault('Etc/GMT');
+      const time = moment().format('HH:mm:ss');
+      const date = moment().format('DD/MM/YYYY');
+
+      // Prepare the repo message with consistent styling
+      const infoMsg = `
+𝐓𝐎𝐗𝐈𝐂-𝐌𝐃
+
+◈━━━━━━━━━━━━━━━━◈
+│❒ Yo ${nomAuteurMessage}, here’s the 411 on 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇’s repo! 📦
+│❒ *🔗 𝐆𝐢𝐭𝐇𝐮𝐛*: https://github.com/xhclintohn/Toxic-MD/fork
+│❒ *📩 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐆𝐫𝐨𝐮𝐩*: https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI
+│❒ *💾 𝐑𝐀𝐌 𝐔𝐬𝐚𝐠𝐞*: ${format(os.totalmem() - os.freemem())} / ${format(os.totalmem())}
+│❒ *👑 𝐃𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐫*: 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧
+│❒ *🌐 𝐌𝐨𝐝𝐞*: ${mode}
+│❒ *📅 𝐃𝐚𝐭𝐞*: ${date}
+│❒ *⏰ 𝐓𝐢𝐦𝐞 (GMT)*: ${time}
+│❒ Powered by xh_clinton
+◈━━━━━━━━━━━━━━━━◈
+      `;
+
+      // Get the bot's profile picture URL
+      const lien = mybotpic();
+
+      // Send the message with a video if the URL is a video (mp4 or gif)
+      if (lien.match(/\.(mp4|gif)$/i)) {
+        try {
+          await zk.sendMessage(
+            dest,
+            {
+              video: { url: lien },
+              caption: infoMsg,
+              footer: `Hey ${nomAuteurMessage}! I'm Toxic-MD, created by 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧 😎`,
+              gifPlayback: true,
+            },
+            { quoted: ms }
+          );
+        } catch (e) {
+          console.error("Video sending error:", e);
+          await repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Yo ${nomAuteurMessage}, 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇 fumbled the video send: ${e.message} 😡 Here’s the repo info anyway! 😣\n${infoMsg}\n◈━━━━━━━━━━━━━━━━◈`);
+        }
       }
-    }
-    // Fallback to text-only message if no valid media is provided
-    else {
-      repondre(infoMsg + menuMsg + "\nHey there! I’m Toxic-MD, created by 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧 😎");
+      // Send the message with an image if the URL is an image (jpeg, png, jpg)
+      else if (lien.match(/\.(jpeg|png|jpg)$/i)) {
+        try {
+          await zk.sendMessage(
+            dest,
+            {
+              image: { url: lien },
+              caption: infoMsg,
+              footer: `Hey ${nomAuteurMessage}! I'm Toxic-MD, created by 𝐱𝐡_�{c𝐥𝐢𝐧𝐭𝐨𝐧 😎`,
+            },
+            { quoted: ms }
+          );
+        } catch (e) {
+          console.error("Image sending error:", e);
+          await repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ Yo ${nomAuteurMessage}, 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇 botched the image send: ${e.message} 😡 Here’s the repo info anyway! 😣\n${infoMsg}\n◈━━━━━━━━━━━━━━━━◈`);
+        }
+      }
+      // Fallback to text-only message if no valid media is provided
+      else {
+        await repondre(infoMsg);
+      }
+    } catch (e) {
+      console.error("Error in repo command:", e);
+      await repondre(`𝐓𝐎𝐗𝐈𝐂-M𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ TOTAL BUST, ${nomAuteurMessage}! 𝔗𝔬𝔵𝔦𝔠 𝔐𝔇 crashed while fetching repo info: ${e.message} 😡 Try again or flop! 😣\n◈━━━━━━━━━━━━━━━━◈`);
     }
   }
 );
