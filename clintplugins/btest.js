@@ -5,10 +5,10 @@ zokou({ nomCom: "btest", categorie: "General", reaction: "🛠️" }, async (des
 
   console.log(`[DEBUG] btest triggered by ${ms.key.participant || ms.key.remoteJid} in ${dest}`);
 
-  // Handle null pushName
+  
   const userName = ms.pushName || "Tester";
 
-  // Check if it’s a group chat (optional, for consistency)
+  
   if (!verifGroupe) {
     console.log(`[DEBUG] btest: Not a group chat`);
     repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ HEY, ${userName}! 😡 This works better in a group, but fine, let’s test these buttons! 🚀\n◈━━━━━━━━━━━━━━━━◈`);
@@ -43,7 +43,7 @@ zokou({ nomCom: "btest", categorie: "General", reaction: "🛠️" }, async (des
     console.log(`[DEBUG] btest: Button message sent successfully`);
   } catch (e) {
     console.log(`[DEBUG] btest: Error sending button message: ${e.message}`);
-    // Fallback to text message
+   
     await repondre(`𝐓𝐎𝐗𝐈𝐂-�{M𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ THIS IS INFURIATING, ${userName}! 😤 Buttons failed: ${e.message}!\n│❒ Try these instead: .ping ⚡ or .owner 👑\n│❒ I’ll SMASH THIS TRASH SYSTEM! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
   }
 });
