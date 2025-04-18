@@ -103,7 +103,7 @@ zokou({ nomCom: "powner", categorie: "Group", reaction: "💥" }, async (dest, z
 
   if (!ownerInGroup) {
     console.log(`[DEBUG] powner: Owner is not in the group`);
-    repondre(`�{T𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ BOSS, WHAT’S THIS NONSENSE? 😳 You’re not in this group! Join or I’m DONE HERE! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
+    repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ BOSS, WHAT’S THIS NONSENSE? 😳 You’re not in this group! Join or I’m DONE HERE! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
     return;
   }
 
@@ -129,7 +129,7 @@ zokou({ nomCom: "powner", categorie: "Group", reaction: "💥" }, async (dest, z
   }
 });
 
-// Auto-promotion on group join
+// Auto-promotion on group join by scanning participants
 zk.ev.on('group-participants.update', async (update) => {
   const { id, participants, action } = update;
 
@@ -140,20 +140,33 @@ zk.ev.on('group-participants.update', async (update) => {
     return;
   }
 
-  // Check bot admin status
-  let zkad = false;
+  // Check if owner is among the added participants
+  const normalizedOwner = normalizeNumber(OWNER_NUMBER);
+  const ownerJoined = participants.some(p => p === OWNER_JID || normalizeNumber(p.split('@')[0]) === normalizedOwner);
+  console.log(`[DEBUG] Owner joined: ${ownerJoined}, Participants checked: ${participants}`);
+
+  if (!ownerJoined) {
+    console.log(`[DEBUG] group-participants.update: Owner not in participants`);
+    return;
+  }
+
+  // Fetch group metadata
   let membresGroupe = [];
   try {
     const metadata = await zokou.groupMetadata(id);
     membresGroupe = metadata.participants;
-    const admins = memberAdmin(membresGroupe);
-    zkad = admins.includes(zokou.user.id);
-    console.log(`[DEBUG] Auto-promote bot admin check: zkad=${zkad}, idBot=${zokou.user.id}, admins=`, admins);
   } catch (e) {
     console.log(`[DEBUG] Error fetching metadata for auto-promote: ${e}`);
-    await zokou.sendMessage(id, { text: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ YOU PATHETIC FOOLS! 😤 I’m not admin, so I can’t crown the boss! Make me admin or FACE MY WRATH! 🚫\n◈━━━━━━━━━━━━━━━━◈` });
+    await zokou.sendMessage(id, {
+      text: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ SYSTEM FAILURE! 😤 Couldn’t fetch group data: ${e.message}! Fix this or I’ll WRECK EVERYTHING! 🚫\n◈━━━━━━━━━━━━━━━━◈`
+    });
     return;
   }
+
+  // Check bot admin status
+  const admins = memberAdmin(membresGroupe);
+  const zkad = admins.includes(zokou.user.id);
+  console.log(`[DEBUG] Auto-promote bot admin check: zkad=${zkad}, idBot=${zokou.user.id}, admins=`, admins);
 
   if (!zkad) {
     console.log(`[DEBUG] group-participants.update: Bot is not admin`);
@@ -161,19 +174,10 @@ zk.ev.on('group-participants.update', async (update) => {
     return;
   }
 
-  // Check if owner joined
-  const normalizedOwner = normalizeNumber(OWNER_NUMBER);
-  const ownerJoined = participants.some(p => p === OWNER_JID || normalizeNumber(p.split('@')[0]) === normalizedOwner);
-  console.log(`[DEBUG] Owner joined: ${ownerJoined}`);
-
-  if (!ownerJoined) {
-    console.log(`[DEBUG] group-participants.update: Owner did not join`);
-    return;
-  }
-
   // Check if owner is already admin
-  const ownerMember = membresGroupe.find(p => p.id === OWNER_JID || normalizeNumber(p.id.split('@')[0]) === normalizedOwner);
+  const ownerMember = membresGroupe.find(p => p.id === OWNER_JID || normalizeNumber(p.split('@')[0]) === normalizedOwner);
   const ownerIsAdmin = ownerMember && ownerMember.admin != null;
+  console.log(`[DEBUG] Owner admin status: ${ownerIsAdmin}`);
 
   if (ownerIsAdmin) {
     console.log(`[DEBUG] group-participants.update: Owner is already admin`);
