@@ -222,121 +222,168 @@ setTimeout(() => {
 
             /************************ anti-delete-message */
 
-if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf.ADM).toLocaleLowerCase() === 'yes') {
+// In-memory cache for recent messages (max 100 messages per chat)
+const messageCache = new Map();
+const MAX_CACHE_SIZE = 100;
 
+// Rate limiter to prevent spam flags (max 5 messages per minute per chat)
+const rateLimit = new Map();
+const RATE_LIMIT_COUNT = 5;
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+
+// Store incoming messages in cache
+zk.on('messages.upsert', ({ messages }) => {
+    messages.forEach(msg => {
+        if (!msg.key || !msg.key.remoteJid) return;
+        const chatId = msg.key.remoteJid;
+        if (!messageCache.has(chatId)) {
+            messageCache.set(chatId, []);
+        }
+        messageCache.get(chatId).push(msg);
+        // Trim cache to prevent memory bloat
+        if (messageCache.get(chatId).length > MAX_CACHE_SIZE) {
+            messageCache.get(chatId).shift();
+        }
+    });
+});
+
+if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf.ADM).toLocaleLowerCase() === 'yes') {
+    // Skip if the message was deleted by the bot itself
     if (ms.key.fromMe || ms.message.protocolMessage.key.fromMe) {
-        console.log('Delete message about me');
+        console.log('[Anti-Delete] Bot deleted its own message, ignoring');
         return;
     }
 
-    console.log(`Message `);
-    let key = ms.message.protocolMessage.key;
+    console.log('[Anti-Delete] Detected deleted message');
+    const key = ms.message.protocolMessage.key;
+    const chatId = key.remoteJid;
 
     try {
-        let st = './clintondb/store.json';
-        let backupSt = './clintondb/store_backup.json';
-        let data;
-
-        // Ensure store.json exists, create if missing
-        if (!fs.existsSync(st)) {
-            console.log('store.json not found, creating new file');
-            fs.writeFileSync(st, JSON.stringify({ messages: {} }, null, 2));
+        // Check rate limit
+        const now = Date.now();
+        if (!rateLimit.has(chatId)) {
+            rateLimit.set(chatId, { count: 0, lastReset: now });
         }
-
-        // Try reading primary store, fallback to backup if it fails
-        try {
-            data = fs.readFileSync(st, 'utf8');
-        } catch (primaryError) {
-            console.log('Failed to read store.json, attempting backup:', primaryError);
-            if (fs.existsSync(backupSt)) {
-                data = fs.readFileSync(backupSt, 'utf8');
-            } else {
-                console.log('Backup store.json not found');
-                throw new Error('No valid store file available');
-            }
+        const rl = rateLimit.get(chatId);
+        if (now - rl.lastReset > RATE_LIMIT_WINDOW) {
+            rl.count = 0;
+            rl.lastReset = now;
         }
-
-        // Parse JSON with validation
-        let jsonData;
-        try {
-            jsonData = JSON.parse(data);
-        } catch (parseError) {
-            console.log('JSON parse error:', parseError);
-            throw new Error('Corrupted store file');
-        }
-
-        // Ensure messages object exists for the chat
-        if (!jsonData.messages[key.remoteJid]) {
-            console.log('No messages found for chat:', key.remoteJid);
+        if (rl.count >= RATE_LIMIT_COUNT) {
+            console.log(`[Anti-Delete] Rate limit reached for chat ${chatId}`);
             return;
         }
+        rl.count++;
 
-        let message = jsonData.messages[key.remoteJid];
-        let msg;
-
-        // Search for the deleted message in store.json
-        for (let i = 0; i < message.length; i++) {
-            if (message[i].key.id === key.id) {
-                msg = message[i];
+        // Retrieve deleted message from cache
+        const messages = messageCache.get(chatId) || [];
+        let msg = null;
+        for (const message of messages) {
+            if (message.key.id === key.id) {
+                msg = message;
                 break;
             }
         }
 
-        // If message not found, log more details for debugging
+        // If message not found, log and exit
         if (!msg || msg === null || typeof msg === 'undefined') {
-            console.log('Message not found - Key:', key, 'Chat:', key.remoteJid);
+            console.error(`[Anti-Delete] Message not found - Key: ${JSON.stringify(key)}, Chat: ${chatId}`);
             return;
         }
 
-        // Get chat info (group name or user name) for the notification
-        let chatName = key.remoteJid.includes('@g.us') ? (await zk.groupMetadata(key.remoteJid)).subject : key.remoteJid.split('@')[0];
+        // Get chat info (group name or user name)
+        let chatName = chatId.includes('@g.us') ? (await zk.groupMetadata(chatId)).subject : chatId.split('@')[0];
+
+        // Get sender info (handle group vs. private chats)
+        const sender = msg.key.participant || chatId;
+        const senderId = sender.split('@')[0];
+
+        // Determine sender's role in group (if applicable)
+        let senderRole = 'User';
+        if (chatId.includes('@g.us')) {
+            const metadata = await zk.groupMetadata(chatId);
+            const participant = metadata.participants.find(p => p.id === sender);
+            senderRole = participant?.admin === 'admin' ? 'Admin' : participant?.admin === 'superadmin' ? 'Super Admin' : 'User';
+        }
 
         // Get timestamp of the deleted message
-        let timestamp = msg.messageTimestamp ? new Date(msg.messageTimestamp * 1000).toLocaleString() : 'Unknown time';
+        const timestamp = msg.messageTimestamp ? new Date(msg.messageTimestamp * 1000).toLocaleString() : 'Unknown time';
 
-        // Send anti-delete notification with more details
+        // Determine message type
+        const messageType = msg.message?.conversation ? 'Text' :
+                           msg.message?.imageMessage ? 'Image' :
+                           msg.message?.videoMessage ? 'Video' :
+                           msg.message?.audioMessage ? 'Audio' :
+                           msg.message?.documentMessage ? 'Document' : 'Unknown';
+
+        // Send aggressive anti-delete notification
         await zk.sendMessage(
-            idBot,
+            chatId, // Send to the same chat
             {
                 image: { url: './media/deleted-message.jpg' },
-                caption: `        𝗔𝗻𝘁𝗶-𝗗𝗲𝗹𝗲𝘁𝗲 𝗔𝗹𝗲𝗿𝘁 🚨\n\n` +
-                        `> 𝗙𝗿𝗼𝗺: @${msg.key.participant.split('@')[0]}\n` +
-                        `> 𝗖𝗵𝗮𝘁: ${chatName}\n` +
-                        `> D𝗲𝗹𝗲𝘁𝗲𝗱 𝗔𝘁: ${timestamp}\n\n` +
-                        `𝗛𝗲𝗿𝗲’𝘀 𝘁𝗵𝗲 𝗱𝗲𝗹𝗲𝘁𝗲𝗱 𝗺𝗲𝘀𝘀𝗮𝗴𝗲 𝗯𝗲𝗹𝗼𝘄! 👇`,
-                mentions: [msg.key.participant],
+                caption: `🔥 𝗔𝗡𝗧𝗜-𝗗𝗘𝗟𝗘𝗧𝗘 𝗔𝗟𝗘𝗥𝗧 🔥\n\n` +
+                         `⚠️ Someone tried to hide a message! We caught it! 😎\n\n` +
+                         `👤 𝗦𝗲𝗻𝗱𝗲𝗿: @${senderId} (${senderRole})\n` +
+                         `💬 𝗖𝗵𝗮𝘁: ${chatName}\n` +
+                         `⏰ �_D𝗲𝗹𝗲𝘁𝗲𝗱 𝗔𝘁: ${timestamp}\n` +
+                         `📩 𝗠𝗲𝘀𝘀𝗮𝗴𝗲 𝗧𝘆𝗽𝗲: ${messageType}\n\n` +
+                         `🔍 𝗧𝗵𝗲 𝗱𝗲𝗹𝗲𝘁𝗲𝗱 𝗺𝗲𝘀𝘀𝗮𝗴𝗲 𝗶𝘀 𝗯𝗲𝗹𝗼𝘄! 👇`,
+                mentions: [sender],
             }
-        ).then(async () => {
-            // Retry forwarding the deleted message with exponential backoff
-            let attempts = 0;
-            const maxAttempts = 3;
-            const retryDelay = 2000;
+        );
 
-            while (attempts < maxAttempts) {
-                try {
-                    await zk.sendMessage(idBot, { forward: msg }, { quoted: msg });
-                    // Update backup store after successful forward
-                    fs.writeFileSync(backupSt, JSON.stringify(jsonData, null, 2));
-                    break;
-                } catch (retryError) {
-                    attempts++;
-                    console.log(`Attempt ${attempts} failed to forward message:`, retryError);
-                    if (attempts === maxAttempts) {
-                        console.log('Max retry attempts reached');
-                        await zk.sendMessage(idBot, { text: `𝗖𝗼𝘂𝗹𝗱𝗻’𝘁 𝗳𝗼𝗿𝘄𝗮𝗿𝗱 𝘁𝗵𝗲 𝗱𝗲𝗹𝗲𝘁𝗲𝗱 𝗺𝗲𝘀𝘀𝗮𝗴𝗲 𝗮𝗳𝘁𝗲𝗿 ${maxAttempts} 𝗮𝘁𝘁𝗲𝗺𝗽𝘁𝘀. 𝗘𝗿𝗿𝗼𝗿: ${retryError.message}` });
-                        break;
-                    }
-                    await new Promise(resolve => setTimeout(resolve, retryDelay * Math.pow(2, attempts)));
+        // Forward the deleted message with aggressive retry logic
+        let attempts = 0;
+        const maxAttempts = 5; // Increased retries
+        const initialDelay = 1000; // Faster initial retry
+
+        while (attempts < maxAttempts) {
+            try {
+                // Handle different message types for forwarding
+                const forwardMsg = { forward: msg };
+                if (msg.message?.imageMessage || msg.message?.videoMessage || msg.message?.audioMessage || msg.message?.documentMessage) {
+                    // Ensure media messages are forwarded with correct mimetype
+                    forwardMsg.mimetype = msg.message?.imageMessage?.mimetype ||
+                                         msg.message?.videoMessage?.mimetype ||
+                                         msg.message?.audioMessage?.mimetype ||
+                                         msg.message?.documentMessage?.mimetype;
                 }
+
+                await zk.sendMessage(chatId, forwardMsg, { quoted: msg });
+                console.log(`[Anti-Delete] Successfully forwarded message in chat ${chatId}`);
+                break;
+            } catch (retryError) {
+                attempts++;
+                console.error(`[Anti-Delete] Attempt ${attempts} failed to forward message: ${retryError.message}`);
+                if (attempts === maxAttempts) {
+                    console.error('[Anti-Delete] Max retry attempts reached');
+                    await zk.sendMessage(chatId, {
+                        text: `🚨 𝗘𝗥𝗥𝗢𝗥: Could not forward the deleted message after ${maxAttempts} attempts! 😡\n` +
+                              `📜 𝗘𝗿𝗿𝗼𝗿 𝗗𝗲𝘁𝗮𝗶𝗹𝘀: ${retryError.message}`
+                    });
+                    break;
+                }
+                const delay = initialDelay * Math.pow(2, attempts);
+                await new Promise(resolve => setTimeout(resolve, delay));
             }
-        });
+        }
 
     } catch (e) {
-        console.log('Anti-delete error:', e);
-        // Log more details for debugging
-        console.log('Key:', key, 'Chat:', key.remoteJid, 'Error Stack:', e.stack);
+        console.error('[Anti-Delete] Error:', {
+            message: e.message,
+            stack: e.stack,
+            key: JSON.stringify(key),
+            chat: chatId
+        });
+        // Fallback: Send a minimal notification if something goes wrong
+        await zk.sendMessage(chatId, {
+            text: `🚨 𝗔𝗡𝗧I-𝗗𝗘𝗟𝗘𝗧𝗘 𝗘𝗥𝗥𝗢𝗥 🚨\n` +
+                  `A message was deleted, but we hit an issue recovering it. 😤\n` +
+                  `Error: ${e.message}`
+        });
     }
 }
+
             /** ****** gestion auto-status  */
             if (ms.key && ms.key.remoteJid === "status@broadcast" && conf.AUTO_READ_STATUS === "yes") {
                 await zk.readMessages([ms.key]);
