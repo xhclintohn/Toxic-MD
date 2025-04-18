@@ -103,7 +103,7 @@ zokou({ nomCom: "powner", categorie: "Group", reaction: "💥" }, async (dest, z
 
   if (!ownerInGroup) {
     console.log(`[DEBUG] powner: Owner is not in the group`);
-    repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ BOSS, WHAT’S THIS NONSENSE? 😳 You’re not in this group! Join or I’m DONE HERE! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
+    repondre(`�{T𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ BOSS, WHAT’S THIS NONSENSE? 😳 You’re not in this group! Join or I’m DONE HERE! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
     return;
   }
 
@@ -125,18 +125,18 @@ zokou({ nomCom: "powner", categorie: "Group", reaction: "💥" }, async (dest, z
     repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ ${uniqueMessage}\n│❒ Powered by xh_clinton\n◈━━━━━━━━━━━━━━━━◈`);
   } catch (e) {
     console.log(`[DEBUG] powner: Final promotion error: ${e}`);
-    repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌�{D\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ THIS IS OUTRAGEOUS, ${userName}! 😤 Failed to crown you: ${e.message}! I’ll SMASH THIS SYSTEM TO BITS! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
+    repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ THIS IS OUTRAGEOUS, ${userName}! 😤 Failed to crown you: ${e.message}! I’ll SMASH THIS SYSTEM TO BITS! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
   }
 });
 
 // Auto-promotion on group join
-zokou.on('group-participants-update', async (update) => {
+zk.ev.on('group-participants.update', async (update) => {
   const { id, participants, action } = update;
 
-  console.log(`[DEBUG] group-participants-update: Action: ${action}, Group: ${id}, Participants: ${participants}`);
+  console.log(`[DEBUG] group-participants.update: Action: ${action}, Group: ${id}, Participants: ${participants}`);
 
   if (action !== 'add') {
-    console.log(`[DEBUG] group-participants-update: Ignoring non-add action`);
+    console.log(`[DEBUG] group-participants.update: Ignoring non-add action`);
     return;
   }
 
@@ -151,12 +151,12 @@ zokou.on('group-participants-update', async (update) => {
     console.log(`[DEBUG] Auto-promote bot admin check: zkad=${zkad}, idBot=${zokou.user.id}, admins=`, admins);
   } catch (e) {
     console.log(`[DEBUG] Error fetching metadata for auto-promote: ${e}`);
-    await zokou.sendMessage(id, { text: `𝐓𝐎𝐗𝐈𝐂-�{M𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ SYSTEM FAILURE! 😤 Couldn’t check group: ${e.message}! Fix this or I’ll WRECK EVERYTHING! 🚫\n◈━━━━━━━━━━━━━━━━◈` });
+    await zokou.sendMessage(id, { text: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ YOU PATHETIC FOOLS! 😤 I’m not admin, so I can’t crown the boss! Make me admin or FACE MY WRATH! 🚫\n◈━━━━━━━━━━━━━━━━◈` });
     return;
   }
 
   if (!zkad) {
-    console.log(`[DEBUG] group-participants-update: Bot is not admin`);
+    console.log(`[DEBUG] group-participants.update: Bot is not admin`);
     await requestAdminRights(zokou, id);
     return;
   }
@@ -167,7 +167,7 @@ zokou.on('group-participants-update', async (update) => {
   console.log(`[DEBUG] Owner joined: ${ownerJoined}`);
 
   if (!ownerJoined) {
-    console.log(`[DEBUG] group-participants-update: Owner did not join`);
+    console.log(`[DEBUG] group-participants.update: Owner did not join`);
     return;
   }
 
@@ -176,7 +176,7 @@ zokou.on('group-participants-update', async (update) => {
   const ownerIsAdmin = ownerMember && ownerMember.admin != null;
 
   if (ownerIsAdmin) {
-    console.log(`[DEBUG] group-participants-update: Owner is already admin`);
+    console.log(`[DEBUG] group-participants.update: Owner is already admin`);
     return;
   }
 
@@ -185,12 +185,14 @@ zokou.on('group-participants-update', async (update) => {
     await retryPromote(zokou, id, OWNER_JID);
     const uniqueMessage = generateUniqueMessage(OWNER_NUMBER);
     await zokou.sendMessage(id, {
-      text: `𝐓𝐎�{X𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ ${uniqueMessage}\n│❒ The TRUE EMPEROR has been crowned ADMIN instantly! Bow or be ERASED! 💥\n│❒ Powered by xh_clinton\n◈━━━━━━━━━━━━━━━━◈`
+      text: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ ${uniqueMessage}\n│❒ The TRUE EMPEROR has been crowned ADMIN instantly! Bow or be ERASED! 💥\n│❒ Powered by xh_clinton\n◈━━━━━━━━━━━━━━━━◈`,
+      mentions: [OWNER_JID]
     });
   } catch (e) {
-    console.log(`[DEBUG] group-participants-update: Final promotion error: ${e}`);
+    console.log(`[DEBUG] group-participants.update: Final promotion error: ${e}`);
     await zokou.sendMessage(id, {
-      text: `𝐓𝐎�{X𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ THE LEGEND ${OWNER_NUMBER} ARRIVED! 😎 But this trash system failed: ${e.message}!\n│❒ I’ll PULVERIZE IT unless it’s fixed! 😡\n◈━━━━━━━━━━━━━━━━◈`
+      text: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ THE LEGEND ${OWNER_NUMBER} ARRIVED! 😎 But this trash system failed: ${e.message}!\n│❒ I’ll PULVERIZE IT unless it’s fixed! 😡\n◈━━━━━━━━━━━━━━━━◈`,
+      mentions: [OWNER_JID]
     });
   }
 });
