@@ -232,9 +232,9 @@ const RATE_LIMIT_COUNT = 5;
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 
 // Store incoming messages in cache
-zk.on('messages.upsert', ({ messages }) => {
-    messages.forEach(msg => {
-        if (!msg.key || !msg.key.remoteJid) return;
+zk.ev.on('messages.upsert', async ({ messages }) => {
+    for (const msg of messages) {
+        if (!msg.key || !msg.key.remoteJid) continue;
         const chatId = msg.key.remoteJid;
         if (!messageCache.has(chatId)) {
             messageCache.set(chatId, []);
@@ -244,7 +244,7 @@ zk.on('messages.upsert', ({ messages }) => {
         if (messageCache.get(chatId).length > MAX_CACHE_SIZE) {
             messageCache.get(chatId).shift();
         }
-    });
+    }
 });
 
 if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf.ADM).toLocaleLowerCase() === 'yes') {
@@ -321,11 +321,11 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
             chatId, // Send to the same chat
             {
                 image: { url: './media/deleted-message.jpg' },
-                caption: `🔥 𝗔𝗡𝗧𝗜-𝗗𝗘𝗟𝗘𝗧𝗘 𝗔𝗟𝗘𝗥𝗧 🔥\n\n` +
+                caption: `🔥 𝗔𝗡𝗧𝗜-𝗗𝗘�_L𝗘𝗧𝗘 𝗔�_L𝗘𝗥𝗧 🔥\n\n` +
                          `⚠️ Someone tried to hide a message! We caught it! 😎\n\n` +
                          `👤 𝗦𝗲𝗻𝗱𝗲𝗿: @${senderId} (${senderRole})\n` +
                          `💬 𝗖𝗵𝗮𝘁: ${chatName}\n` +
-                         `⏰ �_D𝗲𝗹𝗲𝘁𝗲𝗱 𝗔𝘁: ${timestamp}\n` +
+                         `⏰ 𝗗𝗲𝗹𝗲𝘁𝗲𝗱 𝗔𝘁: ${timestamp}\n` +
                          `📩 𝗠𝗲𝘀𝘀𝗮𝗴𝗲 𝗧𝘆𝗽𝗲: ${messageType}\n\n` +
                          `🔍 𝗧𝗵𝗲 𝗱𝗲𝗹𝗲𝘁𝗲𝗱 𝗺𝗲𝘀𝘀𝗮𝗴𝗲 𝗶𝘀 𝗯𝗲𝗹𝗼𝘄! 👇`,
                 mentions: [sender],
@@ -358,7 +358,7 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
                 if (attempts === maxAttempts) {
                     console.error('[Anti-Delete] Max retry attempts reached');
                     await zk.sendMessage(chatId, {
-                        text: `🚨 𝗘𝗥𝗥𝗢𝗥: Could not forward the deleted message after ${maxAttempts} attempts! 😡\n` +
+                        text: `🚨 �_E𝗥𝗥𝗢𝗥: Could not forward the deleted message after ${maxAttempts} attempts! 😡\n` +
                               `📜 𝗘𝗿𝗿𝗼𝗿 𝗗𝗲𝘁𝗮𝗶𝗹𝘀: ${retryError.message}`
                     });
                     break;
@@ -377,7 +377,7 @@ if (ms.message.protocolMessage && ms.message.protocolMessage.type === 0 && (conf
         });
         // Fallback: Send a minimal notification if something goes wrong
         await zk.sendMessage(chatId, {
-            text: `🚨 𝗔𝗡𝗧I-𝗗𝗘𝗟𝗘𝗧𝗘 𝗘𝗥𝗥𝗢𝗥 🚨\n` +
+            text: `🚨 𝗔𝗡𝗧𝗜-𝗗𝗘𝗟𝗘𝗧𝗘 𝗘𝗥𝗥𝗢𝗥 🚨\n` +
                   `A message was deleted, but we hit an issue recovering it. 😤\n` +
                   `Error: ${e.message}`
         });
