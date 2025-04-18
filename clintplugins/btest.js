@@ -16,8 +16,8 @@ zokou({ nomCom: "btest", categorie: "General", reaction: "🛠️" }, async (des
 
   // Prepare button message
   const buttonMessage = {
-    contentText: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ WELCOME, ${userName}! 😎 Time to test the POWER of TOXIC-MD!\n│❒ Pick a button and unleash the chaos! 💥\n│❒ Powered by xh_clinton\n◈━━━━━━━━━━━━━━━━◈`,
-    footerText: "TOXIC-MD Testing Suite",
+    caption: `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ WELCOME, ${userName}! 😎 Time to test the POWER of TOXIC-MD!\n│❒ Pick a button and unleash the chaos! 💥\n│❒ Powered by xh_clinton\n◈━━━━━━━━━━━━━━━━◈`,
+    footer: "TOXIC-MD Testing Suite",
     buttons: [
       {
         buttonId: `ping_${ms.key.id}`,
@@ -30,7 +30,16 @@ zokou({ nomCom: "btest", categorie: "General", reaction: "🛠️" }, async (des
         type: 1
       }
     ],
-    headerType: 1
+    headerType: 1,
+    contextInfo: {
+      externalAdReply: {
+        title: "𝐓𝐎𝐗𝐈𝐂-𝐌𝐃",
+        body: "Unleash the Chaos!",
+        showAdAttribution: true,
+        thumbnailUrl: "https://files.catbox.moe/mssck5.jpg", // Safe thumbnail URL
+        sourceUrl: "https://whatsapp.com" // Safe URL
+      }
+    }
   };
 
   console.log(`[DEBUG] btest: Button message prepared:`, JSON.stringify(buttonMessage, null, 2));
@@ -45,6 +54,6 @@ zokou({ nomCom: "btest", categorie: "General", reaction: "🛠️" }, async (des
   } catch (e) {
     console.log(`[DEBUG] btest: Error sending view-once button message: ${e.message}`);
     // Fallback to text message
-    await repondre(`𝐓𝐎𝐗𝐈�{C-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ THIS IS INFURIATING, ${userName}! 😤 Buttons failed: ${e.message}!\n│❒ Try these instead: .ping ⚡ or .owner 👑\n│❒ I’ll SMASH THIS TRASH SYSTEM! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
+    await repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ THIS IS INFURIATING, ${userName}! 😤 Buttons failed: ${e.message}!\n│❒ Try these instead: .ping ⚡ or .owner 👑\n│❒ I’ll SMASH THIS TRASH SYSTEM! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
   }
 });
