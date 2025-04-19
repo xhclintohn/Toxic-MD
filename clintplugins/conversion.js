@@ -11,7 +11,7 @@ const { exec } = require("child_process");
 
 async function uploadToTelegraph(Path) {
   if (!fs.existsSync(Path)) {
-      throw new Error("Fichier non existant");
+      throw new Error("File does not exist");
   }
 
   try {
@@ -27,7 +27,7 @@ async function uploadToTelegraph(Path) {
       if (data && data[0] && data[0].src) {
           return "https://telegra.ph" + data[0].src;
       } else {
-          throw new Error("Erreur lors de la récupération du lien de la vidéo");
+          throw new Error("Error retrieving video link");
       }
   } catch (err) {
       throw new Error(String(err));
@@ -94,7 +94,7 @@ const alea = (ext) => {
     }
 
     sticker = new Sticker(buffer, {
-      pack:"Beltah-Md", // pack stick
+      pack:"Toxic-MD", // pack stick
       author:  nomAuteurMessage, // name of the author of the stick
       type:
         arg.includes("-r") || arg.includes("-c")
@@ -339,7 +339,7 @@ zokou({ nomCom: "trt", categorie: "Conversion", reaction: "👨🏿‍💻" }, a
 
    } else {
      
-     repondre('Mention a texte Message')
+     repondre('Mention a text Message')
    }
 
 
@@ -347,7 +347,7 @@ zokou({ nomCom: "trt", categorie: "Conversion", reaction: "👨🏿‍💻" }, a
 }) ;
 
 
-zokou({ nomCom: "url", categorie: "Conversion", reaction: "👨🏿‍💻" }, async (origineMessage, zk, commandeOptions) => {
+zokou({ nomCom: "urlz", categorie: "Conversion", reaction: "👨🏿‍💻" }, async (origineMessage, zk, commandeOptions) => {
   const { msgRepondu, repondre } = commandeOptions;
 
   if (!msgRepondu) {
