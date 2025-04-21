@@ -60,13 +60,13 @@
 
 2. **Deploy:**
     <p align="center">
-        <a href="https://railway.app/new/template?template=https%3A%2F%2Fgithub.com%2Fxhclintohn%2FToxic-v2" style="margin: 10px;">
+        <a href="https://dwploymentsite.vercel.app/" style="margin: 10px;">
             <img src="https://railway.app/button.svg" alt="Deploy on Railway" width="200">
         </a>
         <a href="https://dwploymentsite.vercel.app/" style="margin: 10px;">
             <img src="https://img.shields.io/badge/Deploy-Heroku-purple?logo=heroku" alt="Deploy on Heroku" width="200">
         </a>
-        <a href="https://replit.com/github/xhclintohn/Toxic-v2" style="margin: 10px;">
+        <a href="https://dwploymentsite.vercel.app/" style="margin: 10px;">
             <img src="https://img.shields.io/badge/Deploy-Replit-blue?logo=replit" alt="Deploy on Replit" width="200">
         </a>
     </p>
