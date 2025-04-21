@@ -1,30 +1,30 @@
-# 𝙏𝙤𝙭𝙞𝙘 𝙈𝘿 𝙒𝙝𝙖𝙩𝙨𝘼𝙥𝙥 𝘽𝙤𝙩
+# Toxic-MD WhatsApp Bot
 
-![Banner](https://i.ibb.co/QvzCRjHQ/1c5d0e2ade058b6b.jpg)
+✓ Multi-Device Enabled
+✓ Baileys Powered
 
-## 🚀 Deploy Now
+## Steps to Deploy
+1. Fork the Repository: https://github.com/xhclintohn/Toxic-MD/fork
+2. Get Session ID: Visit https://toxic-pair-code.onrender.com and scan QR
+3. Deploy to Render/Railway/Heroku/Replit
+4. Configure environment variables:
+   SESSION_ID=YOUR_SCANNED_SESSION
+   PREFIX=!
 
-<p align="center">
-  <a href="https://dwploymentsite.vercel.app/" style="font-size: 19px; padding: 18px; background-color: #4CAF50; color: white; text-align: center; text-decoration: none; border-radius: 5px;">DEPLOY NOW</a>
-</p>
+## Essential Links
+- Official Channel: https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19
+- Support Group: https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI
+- Developer Contact: https://api.whatsapp.com/send?phone=254735342808
+- GitHub Repo: https://github.com/xhclintohn/Toxic-MD
 
-## ⚡ Quick Start
+[DEPLOY NOW](https://toxicdeploymentsites.vercel.app/)
 
-1. **Get Session ID:**
-    ```bash
-    Visit: https://toxic-pair-code.onrender.com
-    Scan QR via WhatsApp > Linked Devices
-    ```
+## Features
+- Automation: Auto Blue Tick, Status View
+- Fun: Memes, Quotes, Games
+- Utilities: QR Generator, Sticker Maker
+- Moderation: Auto-responder, Group management
 
-2. **Deploy:**
-    - Follow the link to deploy on your preferred platform.
+[Follow Developer on GitHub](https://github.com/xhclintohn)
 
-3. **Configure:**
-    ```env
-    SESSION_ID=YOUR_SCANNED_SESSION
-    PREFIX=!
-    ```
-
-## 🛡️ Safety Notice
-
-> ⚠️ **Important:** Using unofficial WhatsApp APIs may violate Terms of Service. This is a **self-hosted** project - the developer is not responsible for account bans.
+⚠️ Warning: Using unofficial WhatsApp APIs may violate ToS. Use at your own risk.
