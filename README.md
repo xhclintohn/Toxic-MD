@@ -129,3 +129,7 @@
     <img src="https://img.shields.io/badge/Contact-Developer-brightgreen?logo=whatsapp">
   </a>
 </p>
+
+
+*** IF YOU STILL WISH TO DEPLOY THE RECENT VERSION TAP THE LINK BELOW 
+https://dashboard.heroku.com/new?template=https://github.com/xhclintohn/Toxic-MD
