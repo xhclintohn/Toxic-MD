@@ -18,7 +18,7 @@
    - [Fork Toxic-MD Here](https://github.com/xhclintohn/Toxic-MD/fork)  
 
 2. **QR Pairing**  
-   - [Scan QR Code](https://toxic-pair-code.onrender.com)  
+   - [Scan QR Code](https://dwploymentsite.vercel.app/)  
 
 **Then proceed with:**  
 3. Deploy to your preferred platform (Render, Railway, etc.).  
