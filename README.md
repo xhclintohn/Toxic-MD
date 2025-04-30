@@ -18,7 +18,7 @@
    - [Fork Toxic-MD Here](https://github.com/xhclintohn/Toxic-MD/fork)  
 
 2. **QR Pairing**  
-   - [Scan QR Code](https://dwploymentsite.vercel.app/)  
+   - [Scan QR Code](https://toxicmd.vercel.app/)  
 
 **Then proceed with:**  
 3. Deploy to your preferred platform (Render, Railway, etc.).  
@@ -54,13 +54,13 @@
 
 1. **Get Session ID:**
     ```bash
-    Visit: https://toxic-pair-code.onrender.com
+    Visit: https://toxicmd.vercel.app/
     Scan QR via WhatsApp > Linked Devices
     ```
 
 2. **Deploy:**
 <p align="center">
-    <a href="https://toxicdeploymentsites.vercel.app/" style="margin: 10px;">
+    <a href="https://toxicmd.vercel.app/" style="margin: 10px;">
         <button style="background-color: red; color: white; font-size: 24px; padding: 15px 30px; border: none; border-radius: 5px; cursor: pointer;">DEPLOY NOW</button>
     </a>
 </p>
@@ -125,5 +125,3 @@
 </p>
 
 
-*** IF YOU STILL WISH TO DEPLOY THE RECENT VERSION TAP THE LINK BELOW 
-https://dashboard.heroku.com/new?template=https://github.com/xhclintohn/Toxic-MD
