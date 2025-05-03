@@ -20,10 +20,16 @@
 2. **QR Pairing**  
    - [Scan QR Code](https://toxicmd.vercel.app/)  
 
-**Then proceed with:**  
-3. Deploy to your preferred platform (Render, Railway, etc.).  
-4. Configure environment variables.  
-5. Start the bot instance.  
+
+3. "*DEPLOY NOW**
+<div style="text-align: center; margin: 20px;">
+    <a href="https://toxicmd.vercel.app/" style="text-decoration: none;">
+        <button style="background: linear-gradient(135deg, #6a11cb, #2575fc); color: white; font-size: 24px; padding: 15px 30px; border: none; border-radius: 30px; cursor: pointer; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); transition: background 0.3s, transform 0.2s;">
+            DEPLOY NOW
+        </button>
+    </a>
+</div>
+
 
 ---
 
@@ -58,12 +64,6 @@
     Scan QR via WhatsApp > Linked Devices
     ```
 
-2. **Deploy:**
-<p align="center">
-    <a href="https://toxicmd.vercel.app/" style="margin: 10px;">
-        <button style="background-color: red; color: white; font-size: 24px; padding: 15px 30px; border: none; border-radius: 5px; cursor: pointer;">DEPLOY NOW</button>
-    </a>
-</p>
 
 3. **Configure:**
     ```env
