@@ -21,7 +21,7 @@
    - [Scan QR Code](https://toxicmd.vercel.app/)  
 
 
-3. "*DEPLOY NOW**
+3. **DEPLOY NOW**
 <div style="text-align: center; margin: 20px;">
     <span style="font-size: 24px; font-weight: bold;"></span>
     <a href="https://toxicmd.vercel.app/" style="text-decoration: none;">
