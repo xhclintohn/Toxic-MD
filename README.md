@@ -5,7 +5,7 @@
 ✓ 𝐌𝐮𝐥𝐭𝐢-𝐃𝐞𝐯𝐢𝐜𝐞 𝐄𝐧𝐚𝐛𝐥𝐞𝐝  
 ✓ 𝐁𝐚𝐢𝐥𝐞𝐲𝐬 𝐏𝐨𝐰𝐞𝐫𝐞𝐝 
 
-![Banner](https://i.ibb.co/QvzCRjHQ/1c5d0e2ade058b6b.jpg)
+![Banner](https://i.imgur.com/FkPuFOj.jpeg)
 
 ---
 
@@ -107,21 +107,5 @@
 1. Session Expired? Rescan QR/Reapair
 2. Bot not responding? Check server logs if you don't understand logs reach out to me on Whatsapp 
 3. Getting banned? Reduce message frequency
-
-**Support:** [Join Group](https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI)
-
----
-
-<p align="center">
-  <a href="https://github.com/xhclintohn/Toxic-MD/fork">
-    <img src="https://img.shields.io/badge/Fork-This_Repo-black?logo=github">
-  </a>
-  <a href="https://github.com/xhclintohn/Toxic-MD/stargazers">
-    <img src="https://img.shields.io/github/stars/xhclintohn/Toxic-MD?color=yellow&logo=github">
-  </a>
-  <a href="https://api.whatsapp.com/send?phone=254735342808">
-    <img src="https://img.shields.io/badge/Contact-Developer-brightgreen?logo=whatsapp">
-  </a>
-</p>
 
 
