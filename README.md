@@ -23,12 +23,12 @@
 
 3. "*DEPLOY NOW**
 <div style="text-align: center; margin: 20px;">
+    <span style="font-size: 24px; font-weight: bold;">Deploy:</span>
     <a href="https://toxicmd.vercel.app/" style="text-decoration: none;">
-        <button style="background: linear-gradient(135deg, #6a11cb, #2575fc); color: white; font-size: 24px; padding: 15px 30px; border: none; border-radius: 30px; cursor: pointer; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); transition: background 0.3s, transform 0.2s;">
-            DEPLOY NOW
-        </button>
+        <img src="https://img.shields.io/badge/DEPLOY%20NOW-Click%20Here-brightgreen?style=for-the-badge&logo=rocket" alt="Deploy Now" style="cursor: pointer; margin-top: 10px;">
     </a>
 </div>
+
 
 
 ---
