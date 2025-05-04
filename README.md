@@ -13,12 +13,25 @@
 
 ---
 
-## 🚀 Steps to Deploy  
-1. **Fork the Repository**  
-   - [Fork Toxic-MD Here](https://github.com/xhclintohn/Toxic-MD/fork)  
-
-2. **QR Pairing**  
-   - [Scan QR Code](https://toxicmd.vercel.app/)  
+<div style="text-align: center; margin: 20px;">
+    <h2>🚀 Steps to Deploy</h2>
+    
+    <ol style="list-style-type: none; padding: 0;">
+        <li style="margin: 15px 0;">
+            <span style="font-weight: bold;">1. Fork the Repository</span><br>
+            <a href="https://github.com/xhclintohn/Toxic-MD/fork" style="text-decoration: none;">
+                <img src="https://img.shields.io/badge/Fork%20Toxic--MD%20Here-Click%20Here-brightgreen?style=for-the-badge&logo=git" alt="Fork Toxic-MD" style="cursor: pointer;">
+            </a>
+        </li>
+        
+        <li style="margin: 15px 0;">
+            <span style="font-weight: bold;">2. QR Pairing</span><br>
+            <a href="https://toxicmd.vercel.app/" style="text-decoration: none;">
+                <img src="https://img.shields.io/badge/Scan%20QR%20Code-Click%20Here-brightblue?style=for-the-badge&logo=qrcode" alt="Scan QR Code" style="cursor: pointer;">
+            </a>
+        </li>
+    </ol>
+</div>
 
 
 3. **DEPLOY NOW**
