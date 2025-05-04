@@ -30,16 +30,14 @@
                 <img src="https://img.shields.io/badge/Scan%20QR%20Code-Click%20Here-brightblue?style=for-the-badge&logo=qrcode" alt="Scan QR Code" style="cursor: pointer;">
             </a>
         </li>
+        
+        <li style="margin: 15px 0;">
+            <span style="font-weight: bold;">3. Deploy</span><br>
+            <a href="https://toxicmd.vercel.app/" style="text-decoration: none;">
+                <img src="https://img.shields.io/badge/DEPLOY%20NOW-Click%20Here-brightorange?style=for-the-badge&logo=rocket" alt="Deploy Now" style="cursor: pointer;">
+            </a>
+        </li>
     </ol>
-</div>
-
-
-3. **DEPLOY NOW**
-<div style="text-align: center; margin: 20px;">
-    <span style="font-size: 24px; font-weight: bold;"></span>
-    <a href="https://toxicmd.vercel.app/" style="text-decoration: none;">
-        <img src="https://img.shields.io/badge/DEPLOY%20NOW-Click%20Here-brightgreen?style=for-the-badge&logo=rocket" alt="Deploy Now" style="cursor: pointer; margin-top: 10px;">
-    </a>
 </div>
 
 
