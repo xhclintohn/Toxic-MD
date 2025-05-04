@@ -6,13 +6,12 @@ Welcome to **Toxic MD WhatsApp Bot**!
 
 ---
 
-### Features
+### `NT`
 
 - ✓ **Multi-Device Enabled**  
 - ✓ **Baileys Powered**  
+  
 
-&nbsp;  
-&nbsp;  
 
 ![Banner](https://i.imgur.com/FkPuFOj.jpeg)
 
