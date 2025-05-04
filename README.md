@@ -2,12 +2,9 @@
 
 ---
 
-✨  Welcome to the **Toxic MD WhatsApp Bot**! ✨
+Welcome to **Toxic MD WhatsApp Bot**! 
 
 ---
-
-&nbsp;  
-&nbsp;  
 
 ### Features
 
@@ -18,8 +15,6 @@
 &nbsp;  
 
 ![Banner](https://i.imgur.com/FkPuFOj.jpeg)
-
----
 
 ---
 
