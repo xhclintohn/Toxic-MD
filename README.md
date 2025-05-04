@@ -26,14 +26,16 @@
 ---
 
 
-
 ## 🔗 Essential Links  
 
-| Purpose            | Link                                                                 |
-|--------------------|----------------------------------------------------------------------|
-| **Official Channel** | [![Join Channel](https://img.shields.io/badge/Join%20Channel-**Click%20Here**-brightgreen?style=for-the-badge&logo=whatsapp&logoColor=white)](https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19) |
-| **Support Group**   | [![Join Support Group](https://img.shields.io/badge/Join%20Support%20Group-**Click%20Here**-brightblue?style=for-the-badge&logo=whatsapp&logoColor=white)](https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI) |
-| **Developer Contact** | [![WhatsApp](https://img.shields.io/badge/WhatsApp-**Contact**-brightgreen?logo=whatsapp&style=for-the-badge&logoColor=white)](https://api.whatsapp.com/send?phone=254735342808) |
+- **Official Channel**  
+  [![Join Channel](https://img.shields.io/badge/Join%20Channel-**Click%20Here**-brightgreen?style=for-the-badge&logo=whatsapp&logoColor=white)](https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19)
+
+- **Support Group**  
+  [![Join Support Group](https://img.shields.io/badge/Join%20Support%20Group-**Click%20Here**-brightblue?style=for-the-badge&logo=whatsapp&logoColor=white)](https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI)
+
+- **Developer Contact**  
+  [![WhatsApp](https://img.shields.io/badge/WhatsApp-**Contact**-brightgreen? ⬤
 
 --- 
 
@@ -48,21 +50,20 @@
  Only Render, Heroku, and Replit are supported.
 
 
-[![Watch Video how to pair](https://img.shields.io/badge/-Watch%20Video%20if%20you%20don't%20know%20how%20to%20pair-red?style=for-the-badge&logo=youtube)](https://youtu.be/KE_u0JMRSsU)
+[![Watch Video if you don't know how to pair](https://img.shields.io/badge/-Watch%20Video%20if%20you%20don't%20know%20how%20to%20pair-red?style=for-the-badge&logo=youtube)](https://youtu.be/KE_u0JMRSsU)
 
 
-
-1. **Get Session ID:**
+**Get Session ID:**
     ```bash
-    Visit: https://toxicmd.vercel.app/
+    Visit: https://toxicpairing.site
     Scan QR via WhatsApp > Linked Devices
     ```
 
 
 3. **Configure:**
-    ```env
+    ```env or Vars 
     SESSION_ID=YOUR_SCANNED_SESSION
-    PREFIX=!
+    PREFIX=.
     ```
 
 ---
