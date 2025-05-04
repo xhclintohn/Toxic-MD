@@ -1,4 +1,4 @@
-# 𝙏𝙤𝙭𝙞𝙘 𝙈𝘿 𝙒𝙝𝙖𝙩𝙨𝘼𝙥𝙥 𝘽𝙤𝙩
+# `𝙏𝙤𝙭𝙞𝙘 𝙈𝘿 𝙒𝙝𝙖𝙩𝙨𝘼𝙥𝙥 𝘽𝙤𝙩`
 
 ---
 
@@ -64,7 +64,7 @@ Welcome to **Toxic MD WhatsApp Bot**!
 
 
 **Get Session ID:**
-    ```bash
+    ```
     Visit: https://toxicpairing.site
     Scan QR via WhatsApp > Linked Devices
     ```
