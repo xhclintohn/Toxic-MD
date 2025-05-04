@@ -25,13 +25,14 @@
 
 ---
 
+
 ## 🔗 Essential Links  
-| Purpose | Link |  
-|---------|------|  
-| **Official Channel** | [Join Channel](https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19) |  
-| **Support Group** | [Join Support Group](https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI) |  
-| **Developer Contact** | [![WhatsApp](https://img.shields.io/badge/WhatsApp-Contact-brightgreen?logo=whatsapp)](https://api.whatsapp.com/send?phone=254735342808) |  
-| **GitHub Repo** | [xhclintohn/Toxic-MD](https://github.com/xhclintohn/Toxic-MD) |  
+
+| Purpose            | Link                                                                 |
+|--------------------|----------------------------------------------------------------------|
+| **Official Channel** | [![Join Channel](https://img.shields.io/badge/Join%20Channel-Click%20Here-brightgreen?style=for-the-badge)](https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19) |
+| **Support Group**   | [![Join Support Group](https://img.shields.io/badge/Join%20Support%20Group-Click%20Here-brightblue?style=for-the-badge)](https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI) |
+| **Developer Contact** | [![WhatsApp](https://img.shields.io/badge/WhatsApp-Contact-brightgreen?logo=whatsapp&style=for-the-badge)](https://api.whatsapp.com/send?phone=254735342808) |
 
 --- 
 
