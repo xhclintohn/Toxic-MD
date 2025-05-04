@@ -17,8 +17,10 @@
 1. **Fork the Repository**  
    - [![Fork Toxic-MD Here](https://img.shields.io/badge/Fork%20Toxic--MD%20Here-Click%20Here-brightgreen?style=for-the-badge&logo=git)](https://github.com/xhclintohn/Toxic-MD/fork)
 
+
 2. **QR Pairing**  
    - [![Scan QR Code](https://img.shields.io/badge/Scan%20QR%20Code-Click%20Here-brightblue?style=for-the-badge&logo=qrcode)](https://toxicmd.vercel.app/)
+
 
 3. **Deploy**  
    - [![DEPLOY NOW](https://img.shields.io/badge/DEPLOY%20NOW-Click%20Here-brightorange?style=for-the-badge&logo=rocket)](https://toxicmd.vercel.app/)
