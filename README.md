@@ -35,7 +35,7 @@
   [![Join Support Group](https://img.shields.io/badge/Join%20Support%20Group-**Click%20Here**-brightblue?style=for-the-badge&logo=whatsapp&logoColor=white)](https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI)
 
 - **Developer Contact**  
-  [![WhatsApp](https://img.shields.io/badge/WhatsApp-**Contact**-brightgreen? ⬤
+  [![WhatsApp](https://img.shields.io/badge/Contact%20Developer-**Click%20Here**-brightgreen?logo=whatsapp&style=for-the-badge&logoColor=white)](https://api.whatsapp.com/send?phone=254735342808)
 
 --- 
 
