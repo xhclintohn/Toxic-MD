@@ -2,7 +2,7 @@
 
 ---
 
-Welcome to **Toxic MD WhatsApp Bot**! 
+Welcome to **Toxic MD**! 
 
 ---
 
