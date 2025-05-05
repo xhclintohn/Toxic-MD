@@ -64,6 +64,7 @@ Welcome to **Toxic MD**!
 
 
 **Get Session ID:**
+
     ```
     Visit: https://toxicpairing.site
     Scan QR via WhatsApp > Linked Devices
