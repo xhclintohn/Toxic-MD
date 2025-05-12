@@ -27,7 +27,7 @@ Welcome to **Toxic MD**!
 
 
 2. **QR Pairing**  
-   - [![Scan QR Code](https://img.shields.io/badge/Scan%20QR%20Code-Click%20Here-brightblue?style=for-the-badge&logo=qrcode)](https://toxicmd.vercel.app/)
+   - [![Link with WhatsApp](https://img.shields.io/badge/Scan%20QR%20Code-Click%20Here-brightblue?style=for-the-badge&logo=qrcode)](https://toxicmd.vercel.app/)
 
 
 3. **Deploy**  
