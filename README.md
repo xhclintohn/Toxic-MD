@@ -27,7 +27,7 @@ Welcome to **Toxic MD**!
 
 
 2. **QR Pairing**  
-   - [![Scan QR Code](https://img.shields.io/badge/Scan%20QR%20Code-Click%20Here-brightblue?style=for-the-badge&logo=qrcode)](https://toxicmd.vercel.app/)
+   - [![Link with WhatsApp](https://img.shields.io/badge/Scan%20QR%20Code-Click%20Here-brightblue?style=for-the-badge&logo=qrcode)](https://toxicmd.vercel.app/)
 
 
 3. **Deploy**  
@@ -60,7 +60,7 @@ Welcome to **Toxic MD**!
  Only Render, Heroku, and Replit are supported.
 
 
-[![Watch Video if you don't know how to pair](https://img.shields.io/badge/-Watch%20Video%20if%20you%20don't%20know%20how%20to%20pair-red?style=for-the-badge&logo=youtube)](https://youtu.be/KE_u0JMRSsU)
+[![Click Here to Watch Video](https://img.shields.io/badge/-Watch%20Video%20if%20you%20don't%20know%20how%20to%20pair-red?style=for-the-badge&logo=youtube)](https://youtu.be/KE_u0JMRSsU)
 
 
 **Get Session ID:**
