@@ -1,6 +1,6 @@
 {
-  "name":"Toxic",
-  "description":"Whatsapp bot developed by xhclinton",
+  "name":"ZUKA AI",
+  "description":"Whatsapp bot developed by Zuka",
   "keywords":["bot","node","baileys","whatsapp"],
   "logo":"https://i.ibb.co/jyzsBZG/0b3f2531c2c10a93.jpg",
   "repository":"https://github.com/xhclintohn/Toxic-MD",
@@ -39,7 +39,7 @@
     },
     "BOT_NAME" : {
       "description":"put A name for your bot",
-      "value":"𝙏𝙤𝙭𝙞𝙘 𝙈𝘿",
+      "value":"ZUKA AI",
       "required":false
     },
     "AUTO_READ_MESSAGES" : {
@@ -69,20 +69,20 @@
     "SESSION_ID":
     {
       "description":"put your session ID , the code you receive after scanning Qr code",   
-      "value":"",
+      "value":"eyJub2lzZUtleSI6eyJwcml2YXRlIjp7InR5cGUiOiJCdWZmZXIiLCJkYXRhIjoiR09WN0xXVDV0bnR0SmxiZURtYzJvak0wbGdBdERCdWZ4SUxBUGlEZzBsND0ifSwicHVibGljIjp7InR5cGUiOiJCdWZmZXIiLCJkYXRhIjoiZnh0L3JJSThXUmtFTkxrcVR2RWMwa0dIUE5vcktjWjVMRFFTbW13N1VUVT0ifX0sInBhaXJpbmdFcGhlbWVyYWxLZXlQYWlyIjp7InByaXZhdGUiOnsidHlwZSI6IkJ1ZmZlciIsImRhdGEiOiIyQmZuRnZnQkNOWjZmRk9RYVRiRFB3a0pSR3RXNWtZYXBQdmlWWkVrczEwPSJ9LCJwdWJsaWMiOnsidHlwZSI6IkJ1ZmZlciIsImRhdGEiOiJNRkx5VGdvaEJ1NXBuclVXMGhpVkk1NEpSY2FDSTR6UTVxeHFteXdDZ0hRPSJ9fSwic2lnbmVkSWRlbnRpdHlLZXkiOnsicHJpdmF0ZSI6eyJ0eXBlIjoiQnVmZmVyIiwiZGF0YSI6IjJMcGRMSWNCdk8xU0lqZkJVSCtVMlNUanpNVUVVdU1GMU4xejh1N0F2a0U9In0sInB1YmxpYyI6eyJ0eXBlIjoiQnVmZmVyIiwiZGF0YSI6IkhLbXVrWnB2MjI2UlQ2eVMzaWl4U2FORFdZNmt3MGU4ZGVac0Z1ZmgxazA9In19LCJzaWduZWRQcmVLZXkiOnsia2V5UGFpciI6eyJwcml2YXRlIjp7InR5cGUiOiJCdWZmZXIiLCJkYXRhIjoiME5NakVvbkI3bUZPcnZsYnBHeFNRSEVqZ3N2b3VqajJtRzZyZUFBSFFWWT0ifSwicHVibGljIjp7InR5cGUiOiJCdWZmZXIiLCJkYXRhIjoiS2dQRWRRSk5ieGVURWl2and6NmpZaWhsZnZkOG9nUmRybEF0MDFpb0todz0ifX0sInNpZ25hdHVyZSI6eyJ0eXBlIjoiQnVmZmVyIiwiZGF0YSI6ImF0VXMrekRkQVRkSjJPWXdVSkdwWlp4VnpMQVUxUndlME0rSk5pU1U0RHBvWUJCK3NvdDEvRWg0RU1nd2ZlV2FDR3p3Q1ZlczNDZHpKMWJic3BYVGpnPT0ifSwia2V5SWQiOjF9LCJyZWdpc3RyYXRpb25JZCI6NTUsImFkdlNlY3JldEtleSI6IjFnSG9hcHh2b3VRa1dpZng1K3BjYTBIcVo0VC9XdHJGSloxck55cHAxdFE9IiwicHJvY2Vzc2VkSGlzdG9yeU1lc3NhZ2VzIjpbXSwibmV4dFByZUtleUlkIjozMSwiZmlyc3RVbnVwbG9hZGVkUHJlS2V5SWQiOjMxLCJhY2NvdW50U3luY0NvdW50ZXIiOjAsImFjY291bnRTZXR0aW5ncyI6eyJ1bmFyY2hpdmVDaGF0cyI6ZmFsc2V9LCJkZXZpY2VJZCI6IjI3MnRnbk02U0Ita1lZbG43UktxemciLCJwaG9uZUlkIjoiZjA1NTNkOTMtZWQ0OC00ZGRiLWE2ZjYtNzRlNjllZGQ1MDJiIiwiaWRlbnRpdHlJZCI6eyJ0eXBlIjoiQnVmZmVyIiwiZGF0YSI6Imw4dnF3aEZMTHVEN3VJbW5LczgrNm9yck9EVT0ifSwicmVnaXN0ZXJlZCI6dHJ1ZSwiYmFja3VwVG9rZW4iOnsidHlwZSI6IkJ1ZmZlciIsImRhdGEiOiJWMlhrTHI1cjRqUU1yaGJiMWlyaVpHZjlMbmc9In0sInJlZ2lzdHJhdGlvbiI6e30sInBhaXJpbmdDb2RlIjoiVEtRRFRWWFkiLCJtZSI6eyJpZCI6IjI2Mzc4OTU0NDc0MzoxNkBzLndoYXRzYXBwLm5ldCJ9LCJhY2NvdW50Ijp7ImRldGFpbHMiOiJDUDZkcS9vR0VNcXA4NzhHR0FJZ0FDZ0EiLCJhY2NvdW50U2lnbmF0dXJlS2V5IjoiTlJabXBGRzZpR2h0SjJJVkFES2tsUG1FSnBuVkRJZm92eHNxQkRlK3Bsdz0iLCJhY2NvdW50U2lnbmF0dXJlIjoiRWluR0gvenYzdnVjZEFJdkxFZHdvbkpiUmRXYW45VVlKVVM4ZW5uWXVvcFcrVlpoT0loUm1VVkZhcUg2RTVTR0dxZ2pJMmQvZXBmaUFBd2xxRDFEQnc9PSIsImRldmljZVNpZ25hdHVyZSI6Ii9NVzRoNDg0N1RSbjFvS215VlhsZVY5b1FxYTJmM1IyM0g0K0NycmZ6dlJ1NldOQzNYT0o4ZHQySFYyakR1UkJ0YkNuTk1ERnZrZXU3WnNkR0pwWWhRPT0ifSwic2lnbmFsSWRlbnRpdGllcyI6W3siaWRlbnRpZmllciI6eyJuYW1lIjoiMjYzNzg5NTQ0NzQzOjE2QHMud2hhdHNhcHAubmV0IiwiZGV2aWNlSWQiOjB9LCJpZGVudGlmaWVyS2V5Ijp7InR5cGUiOiJCdWZmZXIiLCJkYXRhIjoiQlRVV1pxUlJ1b2hvYlNkaUZRQXlwSlQ1aENhWjFReUg2TDhiS2dRM3ZxWmMifX1dLCJwbGF0Zm9ybSI6ImFuZHJvaWQiLCJsYXN0QWNjb3VudFN5bmNUaW1lc3RhbXAiOjE3NDQ2MjI4MDgsIm15QXBwU3RhdGVLZXlJZCI6IkFBQUFBRzdHIn0=",
       "required":true
     },
     "OWNER_NAME":
     {
       "desc": "Your Name",
       "required": false,
-      "value": "𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧"
+      "value": "TINASHE ZUKA"
     },
     "NUMERO_OWNER":
     {
       "desc": "Your number , dont put '+' and put you area code(exemple of togo '228')",
       "required":false,
-      "value": "254735342808"
+      "value": "263789544743"
     },
     "WARN_COUNT":
     {
