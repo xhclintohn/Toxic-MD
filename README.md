@@ -53,7 +53,7 @@ Welcome to **Toxic MD**!
 > **Note:** This script is now deployable on any platform ❗
 
 
-[![Click Here to Watch Video](https://img.shields.io/badge/-Watch%20Video%20if%20you%20don't%20know%20how%20to%20pair-red?style=for-the-badge&logo=youtube)](https://youtube.com/xh_clinton)
+[![Click Here to Watch Turtorial](https://img.shields.io/badge/-Watch%20Video%20if%20you%20don't%20know%20how%20to%20pair-red?style=for-the-badge&logo=youtube)](https://youtube.com/@xh_clinton)
 
 
 **Get Session ID:**
