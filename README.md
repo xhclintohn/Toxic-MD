@@ -26,23 +26,17 @@ Welcome to **Toxic MD**!
    - [![Fork Toxic-MD Here](https://img.shields.io/badge/Fork%20Toxic--MD%20Here-Click%20Here-brightgreen?style=for-the-badge&logo=git)](https://github.com/xhclintohn/Toxic-MD/fork)
 
 
-2. **QR Pairing**  
-   - [![Link with WhatsApp](https://img.shields.io/badge/Scan%20QR%20Code-Click%20Here-brightblue?style=for-the-badge&logo=qrcode)](https://toxicmd.vercel.app/)
+2. **Pairing etc**  
+   - [![Link with WhatsApp](https://img.shields.io/badge/Scan%20QR%20Code-Click%20Here-brightblue?style=for-the-badge&logo=qrcode)](https://toxicmdforkcheck.vercel.app/)
 
 
 3. **Deploy**  
-   - [![DEPLOY NOW](https://img.shields.io/badge/DEPLOY%20NOW-Click%20Here-brightorange?style=for-the-badge&logo=rocket)](https://toxicmd.vercel.app/)
+   - [![DEPLOY NOW](https://img.shields.io/badge/DEPLOY%20NOW-Click%20Here-brightorange?style=for-the-badge&logo=rocket)](https://toxicmdforkcheck.vercel.app/)
 
 ---
 
 
 ## 🔗 Essential Links  
-
-- **Official Channel**  
-  [![Join Channel](https://img.shields.io/badge/Join%20Channel-**Click%20Here**-brightgreen?style=for-the-badge&logo=whatsapp&logoColor=white)](https://whatsapp.com/channel/0029VagJlnG6xCSU2tS1Vz19)
-
-- **Support Group**  
-  [![Join Support Group](https://img.shields.io/badge/Join%20Support%20Group-**Click%20Here**-brightblue?style=for-the-badge&logo=whatsapp&logoColor=white)](https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI)
 
 - **Developer Contact**  
   [![WhatsApp](https://img.shields.io/badge/Contact%20Developer-**Click%20Here**-brightgreen?logo=whatsapp&style=for-the-badge&logoColor=white)](https://api.whatsapp.com/send?phone=254735342808)
@@ -56,11 +50,10 @@ Welcome to **Toxic MD**!
 
 ## ⚡ Quick Start
 
-> **Note:** This script is not deployable on VPS/panel or Termux.
- Only Render, Heroku, and Replit are supported.
+> **Note:** This script is now deployable on any platform ❗
 
 
-[![Click Here to Watch Video](https://img.shields.io/badge/-Watch%20Video%20if%20you%20don't%20know%20how%20to%20pair-red?style=for-the-badge&logo=youtube)](https://youtu.be/KE_u0JMRSsU)
+[![Click Here to Watch Video](https://img.shields.io/badge/-Watch%20Video%20if%20you%20don't%20know%20how%20to%20pair-red?style=for-the-badge&logo=youtube)](https://youtube.com/xh_clinton)
 
 
 **Get Session ID:**
@@ -98,7 +91,7 @@ Welcome to **Toxic MD**!
 | **Automation** | Auto Blue Tick, Auto Status View, Auto Like Status |  
 | **Fun**       | Memes, Quotes, Games      |  
 | **Utilities** | QR Generator, Sticker Maker |  
-| **Moderation**| Auto-responder, Group management |  
+| **Moderation**| Group management |  
 
 ### 💎 Premium Features  
 - **Stealth Mode**  
