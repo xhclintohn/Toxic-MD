@@ -1,7 +1,7 @@
 {
   "name": "Toxic-MD",
   "version": "2.0.0",
-  "description": "A simple baileys powered WhatsApp bot md",
+  "description": "A simple baileys powered WhatsApp bot multidevice",
   "main": "toxic.js",
   "scripts": {
     "test": "node toxic.js",
@@ -11,8 +11,12 @@
   },
   "keywords": [
     "toxicmdbot",
+    "freewhatsappbot",
+    "botwhatsapp",
     "Toxic-MD",
     "toxicmd",
+    "wabot",
+    "toxicmultidevice",
     "whatsappbot",
     "Toxic-Bot"
   ],
@@ -22,8 +26,7 @@
     "@adiwajshing/keyed-db": "^0.2.4",
     "@hapi/boom": "^10.0.1",
     "@types/node": "^18.0.6",
-    "@whiskeysockets/baileys": "npm:baileys-elite",
-    "ytdl-core": "github:franceking1/flash-dls",
+    "@whiskeysockets/baileys": "npm:Clint-Baileys",
     "@xaviabot/fb-downloader": "^1.0.14",
     "aptoide-scraper": "^1.0.1",
     "axios": "^1.4.0",
