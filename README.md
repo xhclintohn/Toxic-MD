@@ -60,7 +60,7 @@ Welcome to **Toxic MD**!
 
     ```
     Visit: https://toxicpairing.site
-    Scan QR via WhatsApp > Linked Devices
+    Pair with WhatsApp via > Linked Devices
     ```
 
 
@@ -93,18 +93,15 @@ Welcome to **Toxic MD**!
 | **Utilities** | QR Generator, Sticker Maker |  
 | **Moderation**| Group management |  
 
-### 💎 Premium Features  
-- **Stealth Mode**  
-- **Scheduled Messages**  
-- **Anti-Revoke**  
-
 ---
 
 
 ## 📌 Troubleshooting
 **Common Issues:**
-1. Session Expired? Rescan QR/Reapair
+1. Session Expired? Reconnect again!
+
 2. Bot not responding? Check server logs if you don't understand logs reach out to me on Whatsapp 
-3. Getting banned? Reduce message frequency
+
+3. Getting banned? Reduce message frequency and maybe switch to private mode. 
 
 
