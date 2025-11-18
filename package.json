@@ -4,7 +4,7 @@
   "description": "A simple baileys powered WhatsApp bot multidevice",
   "main": "toxic.js",
   "scripts": {
-    "test": "node toxic.js",
+    "test": "node index.js",
     "s": "node toxic.js",
     "toxictech": "pm2 start toxic.js --attach",
     "c": "tsc"
