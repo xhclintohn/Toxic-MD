@@ -35,7 +35,7 @@ It helps you manage groups, automate tasks, protect chats, and enjoy fun command
 ---
 
 ### 🔹 Step 2: Pair WhatsApp  
-[![TAP HERE TO SCAN QR](https://img.shields.io/badge/TAP%20HERE%20TO-SCAN%20QR-blue?style=for-the-badge&logo=qrcode)](https://toxicmdforkcheck.vercel.app/)
+[![TAP HERE TO PAIR](https://img.shields.io/badge/TAP%20HERE%20TO-SCAN%20QR-blue?style=for-the-badge&logo=qrcode)](https://toxicmdforkcheck.vercel.app/)
 
 ---
 
@@ -68,7 +68,7 @@ PREFIX=.
 
 ---
 
-✨ Bot Features (Clean & Simple)
+✨ Bot Features ;)
 
 🤖 Automation Features
 
