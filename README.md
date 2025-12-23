@@ -21,7 +21,7 @@
 - ✓ Beginner Friendly  
 
 <p align="center">
-  <img src="https://i.imgur.com/FkPuFOj.jpeg" width="100%"/>
+  <img src="https://raw.githubusercontent.com/xhclintohn/Toxic-MD/main/xh_clinton/IMG-20251220-WA0025.jpg" width="100%"/>
 </p>
 
 ---
@@ -59,7 +59,7 @@ Visit: https://toxicpairing.site WhatsApp > Linked Devices > Pair
 ```env
 SESSION_ID=YOUR_SCANNED_SESSION
 PREFIX=.
-
+```
 
 ---
 
