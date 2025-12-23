@@ -1,107 +1,210 @@
-# `𝙏𝙤𝙭𝙞𝙘 𝙈𝘿 𝙒𝙝𝙖𝙩𝙨𝘼𝙥𝙥 𝘽𝙤𝙩`
-
 ---
 
-Welcome to **Toxic MD**! 
-
----
-
-### `NT`
-
-- ✓ **Multi-Device Enabled**  
-- ✓ **Baileys Powered**  
-  
-
-
-![Banner](https://i.imgur.com/FkPuFOj.jpeg)
-
----
-
----
-
----
-## 🚀 Steps to Deploy
-
-1. **Fork the Repository**  
-   - [![Fork Toxic-MD Here](https://img.shields.io/badge/Fork%20Toxic--MD%20Here-Click%20Here-brightgreen?style=for-the-badge&logo=git)](https://github.com/xhclintohn/Toxic-MD/fork)
-
-
-2. **Pairing etc**  
-   - [![Link with WhatsApp](https://img.shields.io/badge/Scan%20QR%20Code-Click%20Here-brightblue?style=for-the-badge&logo=qrcode)](https://toxicmdforkcheck.vercel.app/)
-
-
-3. **Deploy**  
-   - [![DEPLOY NOW](https://img.shields.io/badge/DEPLOY%20NOW-Click%20Here-brightorange?style=for-the-badge&logo=rocket)](https://toxicmdforkcheck.vercel.app/)
-
----
-
-
-## 🔗 Essential Links  
-
-- **Developer Contact**  
-  [![WhatsApp](https://img.shields.io/badge/Contact%20Developer-**Click%20Here**-brightgreen?logo=whatsapp&style=for-the-badge&logoColor=white)](https://api.whatsapp.com/send?phone=254735342808)
-
---- 
+𝙏𝙤𝙭𝙞𝙘 𝙈𝘿 𝙒𝙝𝙖𝙩𝙨𝘼𝙥𝙥 𝘽𝙤𝙩
 
 
 ---
 
+<p align="center">
+  <b>A powerful, modern, and feature-packed Multi-Device WhatsApp Bot</b><br>
+  Built for automation, moderation, and fun 🚀
+</p>
 ---
 
-## ⚡ Quick Start
+NT
 
-> **Note:** This script is now deployable on any platform ❗
+✓ Multi-Device Enabled (Stable & Fast)
 
+✓ Baileys Powered
 
-[![Click Here to Watch Turtorial](https://img.shields.io/badge/-Watch%20Video%20if%20you%20don't%20know%20how%20to%20pair-red?style=for-the-badge&logo=youtube)](https://youtube.com/@xh_clinton)
+✓ Easy Deployment
 
-
-**Get Session ID:**
-
-    ```
-    Visit: https://toxicpairing.site
-    Pair with WhatsApp via > Linked Devices
-    ```
+✓ Beginner Friendly
 
 
-3. **Configure:**
-    ```env or Vars 
-    SESSION_ID=YOUR_SCANNED_SESSION
-    PREFIX=.
-    ```
-
----
-
-## 🛡️ Safety Notice
-> ⚠️ **Important:** Using unofficial WhatsApp APIs may violate Terms of Service. This is a **self-hosted** project - the developer is not responsible for account bans.
-
-**Protection Tips:**
-- Use a secondary number
-- Enable 2FA on WhatsApp
-- Avoid spam behavior ([WhatsApp Policy](https://www.whatsapp.com/legal))
-
----
-
----
-
-## 🚀 Advanced WhatsApp Features  
-
-| Category       | Features                  |  
-|----------------|---------------------------|  
-| **Automation** | Auto Blue Tick, Auto Status View, Auto Like Status |  
-| **Fun**       | Memes, Quotes, Games      |  
-| **Utilities** | QR Generator, Sticker Maker |  
-| **Moderation**| Group management |  
-
+<p align="center">
+  <img src="https://i.imgur.com/FkPuFOj.jpeg" width="600"/>
+</p>
 ---
 
 
-## 📌 Troubleshooting
-**Common Issues:**
-1. Session Expired? Reconnect again!
+---
 
-2. Bot not responding? Check server logs if you don't understand logs reach out to me on Whatsapp 
+🚀 Steps to Deploy
 
-3. Getting banned? Reduce message frequency and maybe switch to private mode. 
+1. Fork the Repository
 
 
+
+
+
+2. Pair with WhatsApp
+
+
+
+
+
+3. Deploy the Bot
+
+
+
+
+
+
+
+---
+
+
+---
+
+🌐 Community & Support
+
+Join Official Toxic-MD WhatsApp Group
+
+
+Developer Contact
+
+
+
+
+---
+
+
+---
+
+⚡ Quick Start
+
+> Note: This script works on any hosting platform ❗
+
+
+
+
+
+🔑 Get Session ID
+
+Visit: https://toxicpairing.site
+Pair with WhatsApp via > Linked Devices
+
+⚙️ Configure Environment
+
+SESSION_ID=YOUR_SCANNED_SESSION
+PREFIX=.
+
+
+---
+
+
+---
+
+🚀 Advanced WhatsApp Bot Features
+
+🤖 Automation
+
+Auto Read & Blue Tick
+
+Auto View & Like Status
+
+Custom Auto Replies
+
+
+🛡️ Group Protection & Moderation
+
+Anti-Link (WhatsApp & External Links)
+
+Anti-Delete Messages (Retrieve deleted chats)
+
+View-Once Media Retrieval
+
+Anti-Status Mention
+
+Welcome & Goodbye Messages
+
+Admin-Only Commands
+
+Auto Kick / Warn System
+
+
+⚙️ Utilities
+
+Sticker Maker (Image / Video / GIF)
+
+QR Code Generator
+
+Media Downloader
+
+Profile & Group Info Tools
+
+
+🎮 Fun
+
+Memes & Quotes
+
+Mini Games
+
+AI-Style Chat Replies
+
+
+⚡ System
+
+Public / Private Mode
+
+Bot Ping & Status
+
+Restart & Menu Commands
+
+
+
+---
+
+
+---
+
+🛡️ Safety Notice
+
+> ⚠️ Using unofficial WhatsApp APIs may violate WhatsApp TOS.
+This project is self-hosted and intended for learning purposes only.
+
+
+
+Tips to stay safe:
+
+Use a secondary number
+
+Enable Two-Step Verification
+
+Avoid spammy behavior
+
+
+
+---
+
+
+---
+
+📌 Troubleshooting
+
+Session expired? → Re-pair and update SESSION_ID
+
+Bot not responding? → Check logs or ask in the WhatsApp group
+
+Ban risk? → Reduce automation & use private mode
+
+
+
+---
+
+
+---
+
+📚 Disclaimer
+
+> ⚠️ All features provided by Toxic-MD are for educational and experimental purposes only.
+The developer is not responsible for misuse, bans, or violations of WhatsApp policies.
+Use responsibly and ethically.
+
+
+
+
+---
+
+🔥 Toxic-MD — Clean • Powerful • Educational • Community-Driven 🔥
