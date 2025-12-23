@@ -1,7 +1,6 @@
 ---
 
-𝙏𝙤𝙭𝙞𝙘 𝙈𝘿 𝙒𝙝𝙖𝙩𝙨𝘼𝙥𝙥 𝘽𝙤𝙩
-
+# `𝙏𝙤𝙭𝙞𝙘 𝙈𝘿 𝙒𝙝𝙖𝙩𝙨𝘼𝙥𝙥 𝘽𝙤𝙩`
 
 ---
 
@@ -9,84 +8,63 @@
   <b>A powerful, modern, and feature-packed Multi-Device WhatsApp Bot</b><br>
   Built for automation, moderation, and fun 🚀
 </p>
+
 ---
 
-NT
+### `NT`
 
-✓ Multi-Device Enabled (Stable & Fast)
-
-✓ Baileys Powered
-
-✓ Easy Deployment
-
-✓ Beginner Friendly
-
+- ✓ **Multi-Device Enabled (Stable & Fast)**  
+- ✓ **Baileys Powered**  
+- ✓ **Easy Deployment**  
+- ✓ **Beginner Friendly**  
 
 <p align="center">
   <img src="https://i.imgur.com/FkPuFOj.jpeg" width="600"/>
 </p>
----
-
 
 ---
 
-🚀 Steps to Deploy
+---
 
-1. Fork the Repository
+## 🚀 Steps to Deploy
 
+1. **Fork the Repository**  
+   - [![Fork Toxic-MD Here](https://img.shields.io/badge/Fork%20Toxic--MD%20Here-Click%20Here-brightgreen?style=for-the-badge&logo=git)](https://github.com/xhclintohn/Toxic-MD/fork)
 
+2. **Pair with WhatsApp**  
+   - [![Link with WhatsApp](https://img.shields.io/badge/Scan%20QR%20Code-Click%20Here-brightblue?style=for-the-badge&logo=qrcode)](https://toxicmdforkcheck.vercel.app/)
 
-
-
-2. Pair with WhatsApp
-
-
-
-
-
-3. Deploy the Bot
-
-
-
-
-
-
+3. **Deploy the Bot**  
+   - [![DEPLOY NOW](https://img.shields.io/badge/DEPLOY%20NOW-Click%20Here-brightorange?style=for-the-badge&logo=rocket)](https://toxicmdforkcheck.vercel.app/)
 
 ---
 
+---
+
+## 🌐 Community & Support
+
+- **Join Official Toxic-MD WhatsApp Group**  
+  [![Join WhatsApp Group](https://img.shields.io/badge/Join%20WhatsApp%20Group-Click%20Here-success?style=for-the-badge&logo=whatsapp&logoColor=white)](https://chat.whatsapp.com/GoXKLVJgTAAC3556FXkfFI)
+
+- **Developer Contact**  
+  [![Contact Developer](https://img.shields.io/badge/Contact%20Developer-Click%20Here-brightgreen?style=for-the-badge&logo=whatsapp&logoColor=white)](https://api.whatsapp.com/send?phone=254735342808)
 
 ---
 
-🌐 Community & Support
-
-Join Official Toxic-MD WhatsApp Group
-
-
-Developer Contact
-
-
-
-
 ---
 
+## ⚡ Quick Start
 
----
+> **Note:** This script works on **any hosting platform** ❗
 
-⚡ Quick Start
+[![Watch Tutorial](https://img.shields.io/badge/-Watch%20Video%20if%20you%20don't%20know%20how%20to%20pair-red?style=for-the-badge&logo=youtube)](https://youtube.com/@xh_clinton)
 
-> Note: This script works on any hosting platform ❗
+### 🔑 Get Session ID
 
+Visit: https://toxicpairing.site Pair with WhatsApp via > Linked Devices
 
-
-
-
-🔑 Get Session ID
-
-Visit: https://toxicpairing.site
-Pair with WhatsApp via > Linked Devices
-
-⚙️ Configure Environment
-
+### ⚙️ Configure Environment
+```env
 SESSION_ID=YOUR_SCANNED_SESSION
 PREFIX=.
 
@@ -208,3 +186,5 @@ Use responsibly and ethically.
 ---
 
 🔥 Toxic-MD — Clean • Powerful • Educational • Community-Driven 🔥
+
+---
