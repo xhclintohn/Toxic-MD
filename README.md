@@ -67,7 +67,7 @@ Visit: https://toxicpairing.site Pair with WhatsApp via > Linked Devices
 ```env
 SESSION_ID=YOUR_SCANNED_SESSION
 PREFIX=.
-
+```
 
 ---
 
