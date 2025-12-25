@@ -68,7 +68,7 @@ PREFIX=.
 
 ---
 
-✨ Bot Features ;)
+## `✨ Bot Features ;)`
 
 🤖 Automation Features
 
