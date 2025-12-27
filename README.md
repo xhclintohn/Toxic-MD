@@ -3,7 +3,7 @@
 ## `𝙏𝙤𝙭𝙞𝙘 𝙈𝘿 𝙒𝙝𝙖𝙩𝙨𝘼𝙥𝙥 𝘽𝙤𝙩`
 
 <p align="center">
-  <b>A powerful, simple & user-friendly WhatsApp Multi-Device Bot</b><br>
+  <b>A powerful, simple & user-friendly WhatsApp Multi-Device WA Bot</b><br>
   Built for group control, automation and fun 🚀
 </p>
 
