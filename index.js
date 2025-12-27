@@ -47,7 +47,7 @@
     }
     
     const᛫ᛞᛖᛗᛟᚾᛋ᛫ᛟᚠ᛫ᚲᚺᚨᛟᛋ = new᛫ᚺᛖᛚᛚᛋᚲᚨᛈᛖ(
-        /* ... 300 lines of cursed variable declarations💀
+        /* ... 300 lines of cursed<> variable declarations💀
         `ᚠᚢᚦᚨᚱᚲ᛫ᚷᛁᛏᚺᚢᛒ᛫ᚲᛟᛗ/ᛏᛟᛪᛁᚲ-ᛗᛞ`,
         `ᛖᚡᛁᛚ᛫ᛒᛟᛏ᛫ᛒᚤ᛫ᛗᛖ`
     );
