@@ -8,9 +8,9 @@ RUN sudo dnf -y update &&\
 RUN git clone https://github.com/xhclintohn/Toxic-MD
 
 
-WORKDIR /root/Toxic-MD
+WORKDIR /root/Toxic
 
-COPY ./root/Toxic-MD
+COPY ./root/Toxic
 
 RUN yarn install
 
