@@ -1,6 +1,6 @@
 { pkgs }: {
     deps = [
-        pkgs.sud
+        pkgs.sudo
         pkgs.nodejs
         pkgs.nodePackages.typescript
         pkgs.ffmpeg
