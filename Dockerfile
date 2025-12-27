@@ -10,7 +10,7 @@ RUN apt-get update && \
   rm -rf /var/lib/apt/lists/*
   
 RUN git clone https://github.com/xhclintohn/Toxic-MD  /root/toxic
-WORKDIR /root/toxic/
+WORKDIR /root/toxi/
 
 
 COPY package.json .
