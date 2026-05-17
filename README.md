@@ -58,7 +58,7 @@ It helps you manage groups, automate tasks, protect chats, and enjoy fun command
 
 ### 🔹 Get Session ID
 
-Visit: https://toxicpairing.site Open WhatsApp → Linked Devices → Pair
+Visit: https://toxicx.tech/pairing Open WhatsApp → Linked Devices → Pair
 
 ### 🔹 Environment Variables
 ```env
