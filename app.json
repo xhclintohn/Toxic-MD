@@ -1,0 +1,59 @@
+{
+  "name": "Toxic-MD",
+  "description": "⚡ A lightning-fast WhatsApp bot with multi-device support, built on Node.js & Baileys.",
+  "website": "https://github.com/xhclintohn/Toxic-v2#readme",
+  "repository": "https://github.com/xhclintohn/Toxic-v2.git",
+  "logo": "https://raw.githubusercontent.com/xhclintohn/Music-Clips-Collection/main/images/toxicx.png",
+  "success_url": "/",
+  "keywords": [
+    "whatsapp-bot",
+    "baileys",
+    "nodejs",
+    "heroku",
+    "toxic-md"
+  ],
+  "scripts": {
+    "postdeploy": "echo '🚀 Toxic-MD has been successfully deployed!'"
+  },
+  "build": {
+    "languages": [
+      "nodejs"
+    ]
+  },
+  "env": {
+    "SESSION": {
+      "description": "🔑 Required – Your WhatsApp session ID (generated after linking the bot).",
+      "required": true
+    },
+    "DEVICE": {
+      "description": "Device mode: android (default) or ios. Android uses interactive select buttons; iOS uses text-only responses. Accepted values: android, ios, default.",
+      "required": false,
+      "value": "default"
+    },
+    "HEROKU_APP_NAME": {
+      "description": "Optional – The Heroku app name (needed for updating the bot).",
+      "required": false
+    },
+    "HEROKU_API_KEY": {
+      "description": "Optional – Your Heroku API key (only needed for updating the bot).",
+      "required": false
+    }
+  },
+  "addons": [
+    {
+      "plan": "heroku-postgresql",
+      "as": "DATABASE"
+    }
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    },
+    {
+      "url": "https://github.com/clhuang/heroku-buildpack-webp-binaries.git"
+    },
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-activestorage-preview"
+    }
+  ]
+}
