@@ -1,0 +1,49 @@
+{
+  "name": "toxic-md",
+  "version": "1.1.0",
+  "description": "A lightning-fast WhatsApp bot with multi-device support, built on Node.js & Baileys.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "prestart": "node patch-baileys.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "latest",
+    "@hapi/boom": "^10.0.1",
+    "@vitalets/google-translate-api": "^9.2.0",
+    "@whiskeysockets/baileys": "github:xhclintohn/Baileys#beta-test",
+    "acrcloud": "^1.2.0",
+    "awesome-phonenumber": "^6.2.0",
+    "axios": "latest",
+    "chalk": "^4.1.2",
+    "compile-run": "latest",
+    "express": "^4.21.0",
+    "file-type": "^16.5.4",
+    "form-data": "latest",
+    "google-tts-api": "^2.0.2",
+    "human-readable": "^0.2.1",
+    "jimp": "latest",
+    "luxon": "^3.5.0",
+    "javascript-obfuscator": "latest",
+    "moment-timezone": "^0.5.46",
+    "node-fetch": "^2.7.0",
+    "node-webpmux": "^3.1.7",
+    "performance-now": "^2.1.0",
+    "pino": "^8.19.0",
+    "qrcode": "^1.5.4",
+    "wa-sticker-formatter": "^4.4.4",
+    "wikipedia": "^2.1.2",
+    "yt-search": "^2.10.4",
+    "pg": "^8.13.3"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.8",
+    "better-sqlite3": "^12.8.0",
+    "canvas": "^2.11.2",
+    "canvacord": "^5.4.10"
+  }
+}
