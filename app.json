@@ -10,6 +10,8 @@
     "baileys",
     "nodejs",
     "heroku",
+    "whatsapp bot",
+    "wa bot",
     "toxic-md"
   ],
   "scripts": {
