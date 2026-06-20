@@ -31,7 +31,19 @@ export default {
       const lastUpdateDate = new Date(repoInfo.lastUpdate).toLocaleDateString('en-GB');
 
       const replyText = `╭─❏ 「 Repository」
-│ 🔗 GitHub:\n│ https://github.com/xhclintohn/Toxic-MD\n│ \n│ 🌐 Hosting:\n│ https://toxicx.tech\n│ \n│ ⭐ Stars : ${repoInfo.stars}\n│ 🍴 Forks : ${repoInfo.forks}\n│ 📅 Created : ${createdDate}\n│ 🔄 Last Update : ${lastUpdateDate}\n│ 👤 Owner : ${repoInfo.owner}\n╰───────────────\n> 🌐 Hosted by Toxic-Hosting\n> 🔗 hosting.toxicx.tech`;
+│ 🔗 GitHub:
+│ https://github.com/xhclintohn/Toxic-MD
+│ 
+│ 🌐 MainBot Site:
+│ https://toxicx.tech
+│ 
+│ ⭐ Stars : ${repoInfo.stars}
+│ 🍴 Forks : ${repoInfo.forks}
+│ 📅 Created : ${createdDate}
+│ 🔄 Last Update : ${lastUpdateDate}
+│ 👤 Owner : ${repoInfo.owner}
+╰───────────────
+> xD`;
 
       await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
 
@@ -45,8 +57,8 @@ export default {
               externalAdReply: {
                 showAdAttribution: false,
                 title: `${botname}`,
-                body: `Hosted by Toxic-Hosting`,
-                sourceUrl: `https://toxicx.tech`,
+                body: `Toxic-Hosting🟩`,
+                sourceUrl: `https://hosting.toxicx.tech`,
                 mediaType: 1,
                 renderLargerThumbnail: true
               }
@@ -64,9 +76,9 @@ export default {
                 {
                   name: 'cta_url',
                   buttonParamsJson: JSON.stringify({
-                    display_text: 'Toxic-Hosting',
-                    url: 'https://toxicx.tech',
-                    merchant_url: 'https://toxicx.tech'
+                    display_text: 'Open-Toxic-Hosting',
+                    url: 'https://hosting.toxicx.tech',
+                    merchant_url: 'https://hosting.toxicx.tech'
                   })
                 }
               ]
@@ -82,8 +94,8 @@ export default {
             externalAdReply: {
               showAdAttribution: false,
               title: `${botname}`,
-              body: `Hosted by Toxic-Hosting`,
-              sourceUrl: `https://toxicx.tech`,
+              body: `Toxic-Hosting`,
+              sourceUrl: `https://hosting.toxicx.tech`,
               mediaType: 1,
               renderLargerThumbnail: true
             }
@@ -94,7 +106,7 @@ export default {
     } catch (error) {
       await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
       await sendInteractive(client, m, `╭─❏ 「 Eʀʀᴏʀ」
-│ Couldn't fetch repo data\n│ ${error.message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+│ Couldn't fetch repo data\n│ ${error.message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨ɴ`);
     }
   }
 };
