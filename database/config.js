@@ -43,6 +43,12 @@ function initJson() {
     }
 }
 
+const _GS_DEFAULTS = {
+    jid: '', antidelete: 1, gcpresence: 0, events: 0, antidemote: 0, antipromote: 0,
+    antilink: 'off', antistatusmention: 'off', antitag: 0, welcome: 0, goodbye: 0,
+    warn_limit: 3, antiforeign: 0, custom_welcome: '', custom_goodbye: '', trusted_links: '[]'
+};
+
 function _jsonOp(type, sql, params) {
     const s = (sql || '').toLowerCase().trim();
     if (s.includes('allowed_users')) {
@@ -70,10 +76,10 @@ function _jsonOp(type, sql, params) {
     if (s.includes('group_settings')) {
         if (type === 'get') {
             const gs = _jsonData.group_settings[params[0]];
-            return gs ? { ...gs } : null;
+            return gs ? { ..._GS_DEFAULTS, ...gs } : null;
         }
         if (type === 'run' && s.includes('insert') && params[0] && !_jsonData.group_settings[params[0]]) {
-            _jsonData.group_settings[params[0]] = { jid: params[0], antidelete: 1, gcpresence: 0, events: 0, antidemote: 0, antipromote: 0, antilink: 'off', antistatusmention: 'off', antitag: 0, welcome: 0, goodbye: 0, warn_limit: 3, antiforeign: 0 };
+            _jsonData.group_settings[params[0]] = { ..._GS_DEFAULTS, jid: params[0] };
             _jsonSave();
         }
         return;
@@ -140,6 +146,7 @@ const cache = {
     settings: { data: null, time: 0, ttl: 30000 },
     sudoUsers: { data: null, time: 0, ttl: 60000 },
     bannedUsers: { data: null, time: 0, ttl: 60000 },
+    bannedGroups: { data: null, time: 0, ttl: 30000 },
     groupSettings: new Map()
 };
 const GS_TTL = 60000;
@@ -161,7 +168,8 @@ const PG_SCHEMA = [
         events INTEGER DEFAULT 0, antidemote INTEGER DEFAULT 0, antipromote INTEGER DEFAULT 0,
         antilink TEXT DEFAULT 'off', antistatusmention TEXT DEFAULT 'off', antitag INTEGER DEFAULT 0,
         welcome INTEGER DEFAULT 0, goodbye INTEGER DEFAULT 0, warn_limit INTEGER DEFAULT 3,
-        antiforeign INTEGER DEFAULT 0
+        antiforeign INTEGER DEFAULT 0, custom_welcome TEXT DEFAULT '', custom_goodbye TEXT DEFAULT '',
+        trusted_links TEXT DEFAULT '[]'
     )`,
     `CREATE TABLE IF NOT EXISTS conversation_history (
         id SERIAL PRIMARY KEY, num TEXT NOT NULL, role TEXT NOT NULL,
@@ -199,7 +207,14 @@ async function tryInitPg() {
             new Promise((_, rej) => setTimeout(() => rej(new Error('PG connect timeout')), 20000))
         ]);
         for (const sql of PG_SCHEMA) { try { await pool.query(sql); } catch {} }
-        try { await pool.query(`ALTER TABLE group_settings ADD COLUMN IF NOT EXISTS antiforeign INTEGER DEFAULT 0`); } catch {}
+        // Migrate existing databases with new columns
+        const alters = [
+            `ALTER TABLE group_settings ADD COLUMN IF NOT EXISTS antiforeign INTEGER DEFAULT 0`,
+            `ALTER TABLE group_settings ADD COLUMN IF NOT EXISTS custom_welcome TEXT DEFAULT ''`,
+            `ALTER TABLE group_settings ADD COLUMN IF NOT EXISTS custom_goodbye TEXT DEFAULT ''`,
+            `ALTER TABLE group_settings ADD COLUMN IF NOT EXISTS trusted_links TEXT DEFAULT '[]'`,
+        ];
+        for (const a of alters) { try { await pool.query(a); } catch {} }
         setInterval(() => { pool.query('SELECT 1').catch(() => {}); }, 3 * 60 * 1000);
         _pg = pool;
         _backend = 'pg';
@@ -280,11 +295,14 @@ async function getGroupSettings(jid) {
         antidemote: !!row.antidemote, antipromote: !!row.antipromote, antilink: row.antilink || 'off',
         antistatusmention: row.antistatusmention || 'off', antitag: !!row.antitag,
         welcome: !!row.welcome, goodbye: !!row.goodbye, warn_limit: row.warn_limit || 3,
-        antiforeign: !!row.antiforeign
+        antiforeign: !!row.antiforeign,
+        custom_welcome: row.custom_welcome || '',
+        custom_goodbye: row.custom_goodbye || '',
+        trusted_links: row.trusted_links || '[]'
     } : {
         antidelete: true, gcpresence: false, events: false, antidemote: false, antipromote: false,
         antilink: 'off', antistatusmention: 'off', antitag: false, welcome: false, goodbye: false,
-        warn_limit: 3, antiforeign: false
+        warn_limit: 3, antiforeign: false, custom_welcome: '', custom_goodbye: '', trusted_links: '[]'
     };
     cache.groupSettings.set(jid, { data, time: Date.now() });
     return data;
@@ -298,13 +316,69 @@ async function updateGroupSetting(jid, key, value) {
         await _pg.query(`UPDATE group_settings SET ${key} = $1 WHERE jid = $2`, [_sv, jid]);
     } else {
         if (!_jsonData.group_settings[jid]) {
-            _jsonData.group_settings[jid] = { jid, antidelete: 1, gcpresence: 0, events: 0, antidemote: 0, antipromote: 0, antilink: 'off', antistatusmention: 'off', antitag: 0, welcome: 0, goodbye: 0, warn_limit: 3, antiforeign: 0 };
+            _jsonData.group_settings[jid] = { ..._GS_DEFAULTS, jid };
         }
         _jsonData.group_settings[jid][key] = _sv;
         _jsonSave();
     }
     cache.groupSettings.delete(jid);
 }
+
+// ── Trusted links ────────────────────────────────────────────────────────────
+
+async function getTrustedLinks(jid) {
+    const gs = await getGroupSettings(jid);
+    try { return JSON.parse(gs.trusted_links || '[]'); } catch { return []; }
+}
+
+async function addTrustedLink(jid, domain) {
+    const current = await getTrustedLinks(jid);
+    if (!current.includes(domain)) {
+        current.push(domain);
+        await updateGroupSetting(jid, 'trusted_links', JSON.stringify(current));
+    }
+}
+
+async function removeTrustedLink(jid, domain) {
+    const current = await getTrustedLinks(jid);
+    const updated = current.filter(d => d !== domain);
+    await updateGroupSetting(jid, 'trusted_links', JSON.stringify(updated));
+}
+
+// ── Banned groups ─────────────────────────────────────────────────────────────
+
+async function getBannedGroups() {
+    if (isCacheValid(cache.bannedGroups)) return cache.bannedGroups.data;
+    const row = await qGet("SELECT value FROM settings WHERE key = 'banned_groups'", []);
+    let data = [];
+    if (row?.value) {
+        try { data = JSON.parse(row.value); } catch { data = []; }
+    } else if (_backend === 'json' && _jsonData?.settings?.banned_groups) {
+        try { data = JSON.parse(_jsonData.settings.banned_groups); } catch { data = []; }
+    }
+    if (!Array.isArray(data)) data = [];
+    cache.bannedGroups.data = data;
+    cache.bannedGroups.time = Date.now();
+    return data;
+}
+
+async function addBannedGroup(jid) {
+    const current = await getBannedGroups();
+    if (!current.includes(jid)) {
+        current.push(jid);
+        await updateSetting('banned_groups', JSON.stringify(current));
+        cache.bannedGroups.data = null;
+    }
+}
+
+async function removeBannedGroup(jid) {
+    const current = await getBannedGroups();
+    const updated = current.filter(g => g !== jid);
+    await updateSetting('banned_groups', JSON.stringify(updated));
+    cache.bannedGroups.data = null;
+}
+
+// ── Users ────────────────────────────────────────────────────────────────────
 
 async function banUser(num) {
     await qRun('INSERT INTO banned_users (num) VALUES ($1) ON CONFLICT DO NOTHING', [num]);
@@ -487,5 +561,7 @@ export {
     getConversationHistory, addConversationMessage, clearConversationHistory, clearOldConversationHistory,
     getWarnCount, addWarn, resetWarn, setWarnLimit, getWarnLimit,
     saveMessage, getMessage, deleteMessage, cleanupOldMsgStore,
-    mapLidToPhone, getPhoneFromLid
+    mapLidToPhone, getPhoneFromLid,
+    getTrustedLinks, addTrustedLink, removeTrustedLink,
+    getBannedGroups, addBannedGroup, removeBannedGroup
 };

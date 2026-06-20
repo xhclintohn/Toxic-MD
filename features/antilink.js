@@ -1,4 +1,4 @@
-import { getGroupSettings, addWarn, resetWarn, getWarnLimit } from '../database/config.js';
+import { getGroupSettings, addWarn, resetWarn, getWarnLimit, getTrustedLinks } from '../database/config.js';
 import { resolveTargetJid } from '../lib/lidResolver.js';
 
 const DEV_NUMBER = '254114885159';
@@ -16,6 +16,21 @@ const _pNum = (p) => {
 const isDevJid = (jid) => _num(jid) === DEV_NUMBER;
 
 const fmt = (msg) => `╭─❏ 「 ANTILINK 」\n│ ${msg}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+
+function extractDomains(text) {
+    const domains = [];
+    const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|[a-z0-9.-]+\.[a-z]{2,6}(\/[^\s]*)?)/gi;
+    const matches = text.match(urlRegex) || [];
+    for (const m of matches) {
+        try {
+            const u = m.startsWith('http') ? new URL(m) : new URL('https://' + m);
+            domains.push(u.hostname.replace(/^www\./, '').toLowerCase());
+        } catch {
+            domains.push(m.toLowerCase().replace(/^www\./, '').split('/')[0]);
+        }
+    }
+    return domains;
+}
 
 export default async (client, m) => {
     try {
@@ -44,6 +59,25 @@ export default async (client, m) => {
         const hasLink = urlRegex.test(text) || !!hasPreview;
 
         if (!isChannelForward && !hasLink) return;
+
+        // Check trusted links — skip if the message only contains trusted domains
+        if (hasLink && !isChannelForward) {
+            try {
+                const trustedDomains = await getTrustedLinks(m.chat);
+                if (trustedDomains && trustedDomains.length > 0) {
+                    const msgDomains = extractDomains(text);
+                    const previewDomain = hasPreview
+                        ? (() => {
+                            try { return new URL(hasPreview).hostname.replace(/^www\./, '').toLowerCase(); } catch { return ''; }
+                        })()
+                        : '';
+                    const allDomains = msgDomains.concat(previewDomain ? [previewDomain] : []);
+                    if (allDomains.length > 0 && allDomains.every(d => trustedDomains.some(t => d === t || d.endsWith('.' + t)))) {
+                        return;
+                    }
+                }
+            } catch {}
+        }
 
         const groupMetadata = await client.groupMetadata(m.chat);
         const sender = resolveTargetJid(m.sender, groupMetadata.participants);

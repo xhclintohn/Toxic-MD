@@ -9,9 +9,8 @@ export default async (context) => {
     const { client, m, args, prefix } = context;
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
-    const formatStylishReply = (message) => {
-      return `│ ${message}\n╰───────────────
-> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+    const formatStylishReply = (title, message) => {
+      return `╭─❏ 「 ${title}」\n│ ${message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
     };
 
     try {
@@ -20,7 +19,7 @@ export default async (context) => {
         await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
         return await client.sendMessage(
           m.chat,
-          { text: formatStylishReply("Database is fucked, no settings found. Fix it, loser.") },
+          { text: formatStylishReply("PRESENCE", "Database is fucked, no settings found. Fix it, loser.") },
           { ad: true }
         );
       }
@@ -30,9 +29,10 @@ export default async (context) => {
 
       if (validPresenceValues.includes(value)) {
         if (settings.presence === value) {
+          await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
           return await client.sendMessage(
             m.chat,
-            { text: formatStylishReply(`Presence is already ${value.toUpperCase()}, genius. Stop wasting my time.`) },
+            { text: formatStylishReply("PRESENCE", `Presence is already ${value.toUpperCase()}, genius. Stop wasting my time.`) },
             { ad: true }
           );
         }
@@ -41,7 +41,7 @@ export default async (context) => {
         await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
         return await client.sendMessage(
           m.chat,
-          { text: formatStylishReply(`Presence set to ${value.toUpperCase()}. Bot’s flexing that status now!`) },
+          { text: formatStylishReply("PRESENCE", `Presence set to ${value.toUpperCase()}. Bot's flexing that status now!`) },
           { ad: true }
         );
       }
@@ -49,14 +49,13 @@ export default async (context) => {
             const _devMode = await getDeviceMode();
       if (_devMode === 'ios') {
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
-          await sendInteractive(client, m, `╭─❏ 「 PRESENCE」
-│ Status: ${settings.presence ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}presence online\n│ ${prefix}presence offline\n│ ${prefix}presence recording\n│ ${prefix}presence typing\n╰───────────────\n> 🌐 hosting.toxicx.tech`);
+          await sendInteractive(client, m, `╭─❏ 「 PRESENCE」\n│ Current: *${settings.presence ? settings.presence.toUpperCase() : 'NOT SET'}*\n│ \n│ Options:\n│ ${prefix}presence online\n│ ${prefix}presence offline\n│ ${prefix}presence recording\n│ ${prefix}presence typing\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
       } else {
     const _msg = generateWAMessageFromContent(
             m.chat,
             {
               interactiveMessage: {
-                body: { text: formatStylishReply(`Presence is currently *${settings.presence ? settings.presence.toUpperCase() : 'NOT SET'}*`) },
+                body: { text: formatStylishReply("PRESENCE", `Currently *${settings.presence ? settings.presence.toUpperCase() : 'NOT SET'}*\n│ \n│ ${prefix}presence online | offline | recording | typing`) },
                 footer: { text: '' },
                 nativeFlowMessage: {
                   buttons: [
@@ -79,15 +78,14 @@ export default async (context) => {
               }
             }
           );
-          await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-
+          await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
           await client.relayMessage(m.chat, _msg.message, { messageId: _msg.key.id });
       }
     } catch (error) {
     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
       await client.sendMessage(
         m.chat,
-        { text: formatStylishReply("Shit broke, couldn’t update presence. Database or something’s fucked. Try later.") },
+        { text: formatStylishReply("PRESENCE", "Shit broke, couldn't update presence. Database or something's fucked. Try later.") },
         { ad: true }
       );
     }

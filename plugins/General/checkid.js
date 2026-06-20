@@ -14,9 +14,41 @@ export default {
             const link = linkMatch ? linkMatch[0] : null;
 
             if (!link) {
+                if (m.chat.endsWith('@g.us')) {
+                    await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
+                    const groupId = m.chat;
+                    await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
+                    const bodyText = `╭─❏ 「 GROUP JID」\n│ *Group ID:* \`${groupId}\`\n╰───────────────`;
+                    try {
+                        const msg = generateWAMessageFromContent(
+                            m.chat,
+                            {
+                                interactiveMessage: {
+                                    body: { text: bodyText },
+                                    footer: { text: `` },
+                                    nativeFlowMessage: {
+                                        messageVersion: 1,
+                                        buttons: [
+                                            {
+                                                name: `cta_copy`,
+                                                buttonParamsJson: JSON.stringify({
+                                                    display_text: "Copy Group ID",
+                                                    copy_code: groupId
+                                                })
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        );
+                        await client.relayMessage(m.chat, msg.message, { messageId: msg.key.id });
+                    } catch {
+                        await sendInteractive(client, m, bodyText + `\n\nCopy this ID: \`${groupId}\``);
+                    }
+                    return;
+                }
                 await client.sendMessage(m.chat, { react: { text: '', key: m.reactKey } }).catch(() => {});
-                return sendInteractive(client, m, `╭─❏ 「 Eʀʀᴏʀ」
-│ Where\`s the link?\n│ Example: ` + prefix + "checkid https://chat.whatsapp.com/xxxxx\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧");
+                return sendInteractive(client, m, `╭─❏ 「 Eʀʀᴏʀ」\n│ Where\`s the link?\n│ Example: ` + prefix + "checkid https://chat.whatsapp.com/xxxxx\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧");
             }
 
             await client.sendMessage(m.chat, { react: { text: `⌛`, key: m.reactKey } });
@@ -26,8 +58,7 @@ export default {
                 url = new URL(link);
             } catch {
                 await client.sendMessage(m.chat, { react: { text: ``, key: m.reactKey } });
-                return sendInteractive(client, m, `╭─❏ 「 Eʀʀᴏʀ」
-│ That\`s not a valid URL.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+                return sendInteractive(client, m, `╭─❏ 「 Eʀʀᴏʀ」\n│ That\`s not a valid URL.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
             }
 
             let id = '';
@@ -45,14 +76,12 @@ export default {
                 type = 'Channel';
             } else {
                 await client.sendMessage(m.chat, { react: { text: '', key: m.reactKey } });
-                return sendInteractive(client, m, `╭─❏ 「 Eʀʀᴏʀ」
-│ That\`s not a WhatsApp group or channel link.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞᠊ᴅ 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+                return sendInteractive(client, m, `╭─❏ 「 Eʀʀᴏʀ」\n│ That\`s not a WhatsApp group or channel link.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
             }
 
             await client.sendMessage(m.chat, { react: { text: ``, key: m.reactKey } });
 
-            const bodyText = "╭─❏ 「 " + type + ` JID」
-│ *Link:* ` + link + "\n│ *" + type + " ID:* \`" + id + "\`\n╰───────────────";
+            const bodyText = "╭─❏ 「 " + type + ` JID」\n│ *Link:* ` + link + "\n│ *" + type + " ID:* \`" + id + "\`\n╰───────────────";
             try {
                 const msg = generateWAMessageFromContent(
                     m.chat,
@@ -76,7 +105,6 @@ export default {
                     }
                 );
                 await client.sendMessage(m.chat, { react: { text: `✅`, key: m.reactKey } });
-
                 await client.relayMessage(m.chat, msg.message, { messageId: msg.key.id });
             } catch {
                 await sendInteractive(client, m, bodyText + "\n\nCopy this ID: \`" + id + "\`");
@@ -85,8 +113,7 @@ export default {
         } catch (error) {
             console.error(`CheckID error:`, error);
             await client.sendMessage(m.chat, { react: { text: ``, key: m.reactKey } });
-            await sendInteractive(client, m, `╭─❏ 「 Cʀᴀsʜᴇᴅ」
-│ Error: ` + error.message + "\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧");
+            await sendInteractive(client, m, `╭─❏ 「 Cʀᴀsʜᴇᴅ」\n│ Error: ` + error.message + "\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧");
         }
     }
 };

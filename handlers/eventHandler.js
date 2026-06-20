@@ -21,11 +21,26 @@ const normalizeJid = (p) => {
         const phone = globalThis.resolvePhoneFromLid(jid);
         if (phone) return _num(phone) + '@s.whatsapp.net';
     }
-    if (jid.endsWith('@lid')) return jid; // can't resolve yet — keep raw
+    if (jid.endsWith('@lid')) return jid;
     return _num(jid) + '@s.whatsapp.net';
 };
 
 const isDeveloper = (p) => _num(extractJid(p)) === DEVELOPER_NUMBER;
+
+function buildWelcomeCaption(template, userName, participantJid, groupName, desc) {
+    if (!template || template.trim() === '') return null;
+    return template
+        .replace(/\{user\}/gi, `@${userName}`)
+        .replace(/\{group\}/gi, groupName)
+        .replace(/\{desc\}/gi, desc || '');
+}
+
+function buildGoodbyeCaption(template, userName, participantJid, groupName) {
+    if (!template || template.trim() === '') return null;
+    return template
+        .replace(/\{user\}/gi, `@${userName}`)
+        .replace(/\{group\}/gi, groupName);
+}
 
 const Events = async (client, event, pict) => {
     const botRaw = client.decodeJid ? client.decodeJid(client.user.id) : (client.user?.id || '');
@@ -53,6 +68,8 @@ const Events = async (client, event, pict) => {
     const goodbyeEnabled = groupSettings?.goodbye === true || groupSettings?.goodbye === 1;
     const antidemote = groupSettings?.antidemote === true || groupSettings?.antidemote === 1;
     const antipromote = groupSettings?.antipromote === true || groupSettings?.antipromote === 1;
+    const customWelcome = groupSettings?.custom_welcome || '';
+    const customGoodbye = groupSettings?.custom_goodbye || '';
 
 
     let sudoUsers = [];
@@ -106,7 +123,9 @@ const Events = async (client, event, pict) => {
             const participantJid = extractJid(p);
             const userName = _num(participantJid) || participantJid.split("@")[0].split(":")[0];
             const dpUrl = dpUrls[i];
-            const caption =
+
+            const customCaption = buildWelcomeCaption(customWelcome, userName, participantJid, metadata.subject, desc);
+            const caption = customCaption ||
 `╭─❏ 「 WELCOME」
 │ 😈 *Yo, @${userName}, welcome to the chaos!*
 │ 
@@ -144,7 +163,9 @@ const Events = async (client, event, pict) => {
             const participantJid = extractJid(p);
             const userName = _num(participantJid) || participantJid.split("@")[0].split(":")[0];
             const dpUrl = dpUrls[i];
-            const caption =
+
+            const customCaption = buildGoodbyeCaption(customGoodbye, userName, participantJid, metadata.subject);
+            const caption = customCaption ||
 `╭─❏ 「 GOODBYE」
 │ 😎 *Later, @${userName}! Couldn't handle the heat?*
 │ 

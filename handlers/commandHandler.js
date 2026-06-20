@@ -133,7 +133,15 @@ const EXTRA_ALIASES = {
   ngc:          ['newgc', 'groupcreate', 'creategc', 'newgroup', 'creategroup'],
   ginfo:        ['groupinfo', 'gcinfo', 'groupmeta', 'gmetadata', 'gcmeta'],
   wabot:        ['addaibot', 'addwabot', 'gcaibot', 'addwhatsappbot'],
-  disappearing: ['disappear', 'disap', 'dsp', 'gvanish', 'timer', 'ephemeral', 'vanish', 'gcvanish'] };
+  disappearing: ['disappear', 'disap', 'dsp', 'gvanish', 'timer', 'ephemeral', 'vanish', 'gcvanish'],
+  setwelcome:   ['welcomemsg', 'customwelcome', 'setwelcomemsg'],
+  setgoodbye:   ['goodbyemsg', 'customgoodbye', 'setgoodbyemsg'],
+  blockgc:      ['bangc', 'silencegc', 'mutegc'],
+  unblockgc:    ['ungc', 'unbangc', 'unsilencegc'],
+  blockedgcs:   ['listblockedgc', 'bannedgcs', 'blockedgroups'],
+  trustlink:    ['addtrustedlink', 'allowlink', 'whitelistlink'],
+  untrustlink:  ['removetrustedlink', 'disallowlink', 'unwhitelistlink'],
+  trustlist:    ['listtrusted', 'trustedlinks', 'allowedlinks'] };
 
 function fixPluginFiles(dir) {
   try {

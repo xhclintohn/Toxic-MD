@@ -88,7 +88,6 @@ export default async (client, m) => {
 
         const senderNum = (m.sender || m.key?.participant || m.key?.remoteJid || '').split('@')[0].split(':')[0] || 'Unknown';
         const chatType = (m.chat || m.key?.remoteJid || '').endsWith('@g.us') ? 'Group 👥' : 'DM 💬';
-        const chatId = m.chat || m.key?.remoteJid || '';
         const ts = new Date().toLocaleString('en-KE', { timeZone: 'Africa/Nairobi' });
         const mentions = m.sender ? [m.sender] : [];
 
@@ -98,17 +97,11 @@ export default async (client, m) => {
             const buf = await tryDownload(client, imageMsg, 'image');
             if (buf?.length > 0) {
                 await client.sendMessage(dest, { image: buf, caption, mentions });
-                if (chatId !== dest) {
-                    await client.sendMessage(chatId, { image: buf, caption: `╭─❏ 「 ANTIVIEWONCE」\n│ View-once saved and forwarded. 😈\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`, mentions }).catch(() => {});
-                }
             }
         } else if (videoMsg) {
             const buf = await tryDownload(client, videoMsg, 'video');
             if (buf?.length > 0) {
                 await client.sendMessage(dest, { video: buf, caption, mentions });
-                if (chatId !== dest) {
-                    await client.sendMessage(chatId, { text: `╭─❏ 「 ANTIVIEWONCE」\n│ View-once video saved and forwarded. 😈\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`, mentions }).catch(() => {});
-                }
             }
         } else if (audioMsg) {
             const buf = await tryDownload(client, audioMsg, 'audio');

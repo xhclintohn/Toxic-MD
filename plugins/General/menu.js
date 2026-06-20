@@ -7,6 +7,7 @@ const __dirname = dirname(__filename);
 import { generateWAMessageFromContent, proto } from '@whiskeysockets/baileys';
 import { getDeviceMode } from '../../lib/deviceMode.js';
 import { sendInteractive } from '../../lib/sendInteractive.js';
+import { ButtonV2 } from '../../lib/WABuilder.js';
 
 export default {
     name: 'menu',
@@ -115,7 +116,7 @@ export default {
                 `│ ${prefix}privacymenu — Privacy commands\n` +
                 `╰───────────────\n` +
                 `> 🌐 Hosted by Toxic-Hosting\n` +
-                `> 🔗 hosting.toxicx.tech`;
+                ``;
             await client.sendMessage(m.chat, {
                 text: iosMenuText, mentions: [m.sender]
             });
@@ -123,13 +124,66 @@ export default {
         }
 
         try {
-            const msg = generateWAMessageFromContent(m.chat, proto.Message.fromObject({
-                interactiveMessage: {
-                    body: { text: menuText },
-                    footer: { text: '' },
-                    header: { hasMediaAttachment: false },
+            // Primary: ButtonV2 quick-action buttons (Android/desktop best experience)
+            const btnV2 = new ButtonV2(client);
+            btnV2.setBody(menuText)
+                .setFooter('> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧')
+                .setThumbnail(pict)
+                .addButton('📋 Full Menu', `${prefix}fullmenu`)
+                .addButton('⚙️ Settings', `${prefix}settings`)
+                .addButton('👤 Developer', `${prefix}dev`);
+            await btnV2.send(m.chat, { userJid: client.user.id, mentions: [m.sender] });
+        } catch {
+            try {
+                // Fallback 1: nativeFlowMessage with list picker
+                const msg = generateWAMessageFromContent(m.chat, proto.Message.fromObject({
+                    interactiveMessage: {
+                        body: { text: menuText },
+                        footer: { text: '' },
+                        header: { hasMediaAttachment: false },
+                        contextInfo: {
+                            mentionedJid: [m.sender],
+                            externalAdReply: {
+                                title: `${botname}`,
+                                body: `Yo, ${m.pushName}! Ready to fuck shit up?`,
+                                mediaType: 1,
+                                thumbnail: pict,
+                                mediaUrl: '',
+                                sourceUrl: 'https://github.com/xhclintohn/Toxic-MD',
+                                showAdAttribution: false,
+                                renderLargerThumbnail: true }
+                        },
+                        nativeFlowMessage: {
+                            messageVersion: 1,
+                            buttons: [
+                                {
+                                    name: 'cta_url',
+                                    buttonParamsJson: JSON.stringify({
+                                        display_text: 'GitHub Repo',
+                                        url: 'https://github.com/xhclintohn/Toxic-MD',
+                                        merchant_url: 'https://github.com/xhclintohn/Toxic-MD'
+                                    })
+                                },
+                                {
+                                    name: 'single_select',
+                                    buttonParamsJson: JSON.stringify({
+                                        title: 'Browse Commands',
+                                        sections: sections
+                                    })
+                                }
+                            ]
+                        }
+                    }
+                }), { userJid: client.user.id });
+                if (!msg?.key?.id) throw new Error('null key');
+                await client.relayMessage(m.chat, msg.message, { messageId: msg.key.id });
+            } catch {
+                // Fallback 2: image caption + list message
+                await client.sendMessage(m.chat, {
+                    image: pict,
+                    caption: menuText,
+                    mentions: [m.sender],
                     contextInfo: {
-                        mentionedJid: [m.sender],
                         externalAdReply: {
                             title: `${botname}`,
                             body: `Yo, ${m.pushName}! Ready to fuck shit up?`,
@@ -139,59 +193,20 @@ export default {
                             sourceUrl: 'https://github.com/xhclintohn/Toxic-MD',
                             showAdAttribution: false,
                             renderLargerThumbnail: true }
-                    },
-                    nativeFlowMessage: {
-                        messageVersion: 1,
-                        buttons: [
-                            {
-                                name: 'cta_url',
-                                buttonParamsJson: JSON.stringify({
-                                    display_text: 'GitHub Repo',
-                                    url: 'https://github.com/xhclintohn/Toxic-MD',
-                                    merchant_url: 'https://github.com/xhclintohn/Toxic-MD'
-                                })
-                            },
-                            {
-                                name: 'single_select',
-                                buttonParamsJson: JSON.stringify({
-                                    title: 'Browse Commands',
-                                    sections: sections
-                                })
-                            }
-                        ]
                     }
-                }
-            }), { userJid: client.user.id });
-            if (!msg?.key?.id) throw new Error('null key');
-            await client.relayMessage(m.chat, msg.message, { messageId: msg.key.id });
-        } catch {
-            await client.sendMessage(m.chat, {
-                image: pict,
-                caption: menuText,
-                mentions: [m.sender],
-                contextInfo: {
-                    externalAdReply: {
-                        title: `${botname}`,
-                        body: `Yo, ${m.pushName}! Ready to fuck shit up?`,
-                        mediaType: 1,
-                        thumbnail: pict,
-                        mediaUrl: '',
-                        sourceUrl: 'https://github.com/xhclintohn/Toxic-MD',
-                        showAdAttribution: false,
-                        renderLargerThumbnail: true }
-                }
-            });
-            await client.sendMessage(m.chat, {
-                listMessage: {
-                    title: '𝐕𝐈𝐄𝐖 𝐎𝐏𝐓𝐈𝐎𝐍𝐒',
-                    description: 'Select a category to view its commands.',
-                    buttonText: 'Browse Commands',
-                    listType: 1,
-                    sections: sections.map(s => ({
-                        title: s.title,
-                        rows: s.rows.map(r => ({ title: r.title, description: r.description, rowId: r.id }))
-                    })),
-                    footer: '' } });
+                });
+                await client.sendMessage(m.chat, {
+                    listMessage: {
+                        title: '𝐕𝐈𝐄𝐖 𝐎𝐏𝐓𝐈𝐎𝐍𝐒',
+                        description: 'Select a category to view its commands.',
+                        buttonText: 'Browse Commands',
+                        listType: 1,
+                        sections: sections.map(s => ({
+                            title: s.title,
+                            rows: s.rows.map(r => ({ title: r.title, description: r.description, rowId: r.id }))
+                        })),
+                        footer: '' } });
+            }
         }
 
         const xhClintonPaths = [

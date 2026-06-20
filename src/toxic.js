@@ -16,7 +16,7 @@ import gcPresence from '../features/gcPresence.js';
 import antitaggc from '../features/antitag.js';
 import antilink from '../features/antilink.js';
 import { getGroupSettings, updateSetting } from '../database/config.js';
-import { getCachedSettings, getCachedSudo, getCachedBanned, getCachedSettingsSync, getCachedSudoSync, getCachedBannedSync } from '../lib/settingsCache.js';
+import { getCachedSettings, getCachedSudo, getCachedBanned, getCachedBannedGroups, getCachedSettingsSync, getCachedSudoSync, getCachedBannedSync, getCachedBannedGroupsSync } from '../lib/settingsCache.js';
 import { botname, mycode } from '../config/settings.js';
 import { cleanupOldMessages } from '../lib/Store.js';
 import * as msgStore from '../lib/MessageStore.js';
@@ -293,10 +293,13 @@ export default async (client, m, chatUpdate, store) => {
     try {
         const rawSudoUsers = getCachedSudoSync();
         const rawBannedUsers = getCachedBannedSync();
+        const rawBannedGroups = getCachedBannedGroupsSync();
         const fetchedSettings = getCachedSettingsSync();
         getCachedSettings().catch(() => {});
+        getCachedBannedGroups().catch(() => {});
         const sudoUsers = Array.isArray(rawSudoUsers) ? rawSudoUsers : [];
         const bannedUsers = Array.isArray(rawBannedUsers) ? rawBannedUsers : [];
+        const bannedGroups = Array.isArray(rawBannedGroups) ? rawBannedGroups : [];
         let settings = fetchedSettings;
 
         if (!settings) { try { settings = await getCachedSettings(); } catch {} if (!settings) return; }
@@ -541,6 +544,10 @@ export default async (client, m, chatUpdate, store) => {
             }
         }
 
+        if (m.isGroup && !itsMe && !isDev && !Owner && bannedGroups.includes(m.chat)) {
+            return;
+        }
+
         if (cmd && !itsMe && !isDev && !Owner) {
             if (mode === 'private') return;
             if (mode === 'group' && !m.isGroup) return;
@@ -725,10 +732,11 @@ export default async (client, m, chatUpdate, store) => {
                                 if (originalMessage?.message) { const origMsg = extractInnerMessage(originalMessage.message); originalText = origMsg.conversation || origMsg.extendedTextMessage?.text || origMsg.imageMessage?.caption || origMsg.videoMessage?.caption || ''; }
                                 const newInner = extractInnerMessage(newMessage);
                                 const newText = newInner.conversation || newInner.extendedTextMessage?.text || newInner.imageMessage?.caption || newInner.videoMessage?.caption || '';
-                                if (originalText || newText) {
+                                if (newText) {
                                     let fullMsg = `╭─❏ 「 EDITED MSG 」\n│ Time: ${editTime}\n│ Chat: ${groupName}\n│ Edited by: @${editor}\n╰───────────────`;
                                     if (originalText) fullMsg += `\n\nOriginal:\n${originalText}`;
-                                    if (newText) fullMsg += `\n\nEdited to:\n${newText}`;
+                                    else fullMsg += `\n\n📌 *Original message not in cache.*`;
+                                    fullMsg += `\n\nEdited to:\n${newText}`;
                                     await client.sendMessage(botJid, { text: fullMsg, mentions: [m.key.participant || m.sender] });
                                 }
                             }
