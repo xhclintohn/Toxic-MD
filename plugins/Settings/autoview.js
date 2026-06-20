@@ -39,41 +39,10 @@ export default async (context) => {
         );
       }
 
-            const _devMode = await getDeviceMode();
-      if (_devMode === 'ios') {
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
           await sendInteractive(client, m, `╭─❏ 「 AUTOVIEW」
 │ Status: ${settings.autoview ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}autoview on\n│ ${prefix}autoview off\n╰───────────────`);
-      } else {
-    const _msg = generateWAMessageFromContent(
-            m.chat,
-            {
-                interactiveMessage: {
-                    body: { text: formatStylishReply('AUTOVIEW', `Autoview Status: ${settings.autoview ? 'ON ✅' : 'OFF ❌'}. Pick a vibe, noob!\n│ \n│ 📌 Usage: ${prefix}autoview on | ${prefix}autoview off`) },
-                    footer: { text: '' },
-                    nativeFlowMessage: {
-                        buttons: [
-                            {
-                                name: 'single_select',
-                                buttonParamsJson: JSON.stringify({
-                                    title: 'Choose an option',
-                                    sections: [{
-                                        rows: [
-                                                                                                    { title: 'ON ✅', id: `${prefix}autoview on` },
-                                                            { title: 'OFF ❌', id: `${prefix}autoview off` }
-                                        ]
-                                    }]
-                                })
-                            }
-                        ]
-                    }
-                }
-            }
-          );
-          await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
 
-          await client.relayMessage(m.chat, _msg.message, { messageId: _msg.key.id });
-      }
     } catch (error) {
     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
       await client.sendMessage(

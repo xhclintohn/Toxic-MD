@@ -40,41 +40,10 @@ export default async (context) => {
         );
       }
 
-            const _devMode = await getDeviceMode();
-      if (_devMode === 'ios') {
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
           await sendInteractive(client, m, `╭─❏ 「 AUTOBIO」
 │ Status: ${settings.autobio ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}autobio on\n│ ${prefix}autobio off\n╰───────────────`);
-      } else {
-    const _msg = generateWAMessageFromContent(
-            m.chat,
-            {
-                interactiveMessage: {
-                    body: { text: formatStylishReply("AUTOBIO", `Autobio's ${settings.autobio ? 'ON' : 'OFF'}, dumbass. Pick a vibe, noob!\n│ \n│ 📌 Usage: ${prefix}autobio on | ${prefix}autobio off`) },
-                    footer: { text: '' },
-                    nativeFlowMessage: {
-                        buttons: [
-                            {
-                                name: 'single_select',
-                                buttonParamsJson: JSON.stringify({
-                                    title: 'Choose an option',
-                                    sections: [{
-                                        rows: [
-                                                                                                    { title: 'ON ✅', id: `${prefix}autobio on` },
-                                                            { title: 'OFF ❌', id: `${prefix}autobio off` }
-                                        ]
-                                    }]
-                                })
-                            }
-                        ]
-                    }
-                }
-            }
-          );
-          await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
 
-          await client.relayMessage(m.chat, _msg.message, { messageId: _msg.key.id });
-      }
     } catch (error) {
     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
       await client.sendMessage(

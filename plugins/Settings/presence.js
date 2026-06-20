@@ -38,41 +38,9 @@ export default async (context) => {
         );
       }
 
-            const _devMode = await getDeviceMode();
-      if (_devMode === 'ios') {
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
           await sendInteractive(client, m, `╭─❏ 「 PRESENCE」\n│ Current: *${settings.presence ? settings.presence.toUpperCase() : 'NOT SET'}*\n│ \n│ Options:\n│ ${prefix}presence online\n│ ${prefix}presence offline\n│ ${prefix}presence recording\n│ ${prefix}presence typing\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
-      } else {
-    const _msg = generateWAMessageFromContent(
-            m.chat,
-            {
-              interactiveMessage: {
-                body: { text: formatStylishReply("PRESENCE", `Currently *${settings.presence ? settings.presence.toUpperCase() : 'NOT SET'}*\n│ \n│ ${prefix}presence online | offline | recording | typing`) },
-                footer: { text: '' },
-                nativeFlowMessage: {
-                  buttons: [
-                    {
-                      name: 'single_select',
-                      buttonParamsJson: JSON.stringify({
-                        title: 'Choose an option',
-                        sections: [{
-                          rows: [
-                            { title: 'ONLINE 🟢', id: `${prefix}presence online` },
-                            { title: 'OFFLINE ⚫', id: `${prefix}presence offline` },
-                            { title: 'RECORDING 🎙️', id: `${prefix}presence recording` },
-                            { title: 'TYPING ⌨️', id: `${prefix}presence typing` }
-                          ]
-                        }]
-                      })
-                    }
-                  ]
-                }
-              }
-            }
-          );
-          await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
-          await client.relayMessage(m.chat, _msg.message, { messageId: _msg.key.id });
-      }
+
     } catch (error) {
     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
       await client.sendMessage(

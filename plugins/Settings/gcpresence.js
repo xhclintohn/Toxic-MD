@@ -42,36 +42,9 @@ export default async (context) => {
 
         const status = jid.endsWith('@g.us') ? (isEnabled ? '✅ ON' : '❌ OFF') : '✅ ON (DMs always active)';
 
-                const _devMode = await getDeviceMode();
-        if (_devMode === 'ios') {
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
           await sendInteractive(client, m, `╭─❏ 「 GCPRESENCE」
 │ Status: ${settings.gcpresence ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}gcpresence on\n│ ${prefix}gcpresence off\n╰───────────────`);
-      } else {
-    const _msg = generateWAMessageFromContent(
-                jid,
-                {
-                    interactiveMessage: {
-                        body: { text: fmt(`GCPresence Settings\n│ Status: ${status}\n│ \n│ Group: Fake typing/recording indicator\n│ DMs: Always enabled`) },
-                        footer: { text: '' },
-                        nativeFlowMessage: {
-                            buttons: [{
-                                name: 'single_select',
-                                buttonParamsJson: JSON.stringify({
-                                    title: 'Choose an option',
-                                    sections: [{
-                                        rows: [
-                                            { title: 'ON ✅', id: `${prefix}gcpresence on` },
-                                            { title: 'OFF ❌', id: `${prefix}gcpresence off` }
-                                        ]
-                                    }]
-                                })
-                            }]
-                        }
-                    }
-                }
-            );
-            await client.relayMessage(jid, _msg.message, { messageId: _msg.key.id });
-        }
+
     });
 };

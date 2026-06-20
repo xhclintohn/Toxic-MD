@@ -12,8 +12,8 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
       if (!text) {
           await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-          return sendInteractive(client, m, '╭─❏ 「 ALLDL 」
-│ Supports: YouTube, TikTok, Instagram, Twitter/X, Facebook\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
+          return sendInteractive(client, m, `╭─❏ 「 ALLDL 」
+│ Supports: YouTube, TikTok, Instagram, Twitter/X, Facebook\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
       }
       const url = text.trim();
       await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });

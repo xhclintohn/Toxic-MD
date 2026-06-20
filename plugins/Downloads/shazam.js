@@ -16,8 +16,8 @@ export default async (context) => {
 
         if (!m.quoted) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, "╭─❏ 「 SHAZAM 」
-│ Quote an audio/video message, you deaf imbecile.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧");
+            return sendInteractive(client, m, `╭─❏ 「 SHAZAM 」
+│ Quote an audio/video message, you deaf imbecile.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
         }
 
         const p = m.quoted ? m.quoted : m;
@@ -26,8 +26,8 @@ export default async (context) => {
         const { status, metadata } = await acr.identify(buffer);
         if (status.code !== 0) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-            return sendInteractive(client, m, "╭─❏ 「 SHAZAM 」
-│ Song not recognized.\n│ Your audio is as indecipherable as your life choices.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧");
+            return sendInteractive(client, m, `╭─❏ 「 SHAZAM 」
+│ Song not recognized.\n│ Your audio is as indecipherable as your life choices.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
         }
 
         const { title, artists, album, genres, release_date } = metadata.music[0];

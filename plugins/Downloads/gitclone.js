@@ -24,8 +24,8 @@ export default async (context) => {
       await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
   } catch (err) {
       await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-      sendInteractive(client, m, "╭─❏ 「 ERROR 」
-│ Git clone failed. Skill issue.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧")
+      sendInteractive(client, m, `╭─❏ 「 ERROR 」
+│ Git clone failed. Skill issue.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`)
   }
 
   }

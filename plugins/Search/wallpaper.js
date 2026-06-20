@@ -10,8 +10,8 @@ export default async (context) => {
 
   if (!raw) {
     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-    return sendInteractive(client, m, "╭─❏ 「 WALLPAPER 」
-│ You forgot the query, dumbass.\n│ Try: .wallpaper anime girl, 5\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧");
+    return sendInteractive(client, m, `╭─❏ 「 WALLPAPER 」
+│ You forgot the query, dumbass.\n│ Try: .wallpaper anime girl, 5\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
   }
 
   let query, count;
@@ -39,8 +39,8 @@ export default async (context) => {
 
     if (results.length === 0) {
       await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-      return sendInteractive(client, m, ``╭─❏ 「 WALLPAPER 」
-│ No wallpapers found for "${query}". Your taste sucks.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧``);
+      return sendInteractive(client, m, `╭─❏ 「 WALLPAPER 」
+│ No wallpapers found for "${query}". Your taste sucks.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
     }
 
     const toSend = results.slice(0, count);

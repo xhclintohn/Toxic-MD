@@ -5,7 +5,7 @@ export default async (context) => {
   await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
   const formatStylishReply = (message) => {
-    return ``╭─❏ 「 SONG 」\n│ ${message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧``;
+    return `╭─❏ 「 SONG 」\n│ ${message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
   };
 
   if (!text) {

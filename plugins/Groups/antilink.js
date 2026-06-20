@@ -1,6 +1,4 @@
-import { generateWAMessageFromContent, proto } from '@whiskeysockets/baileys';
 import { getGroupSettings, updateGroupSetting, getWarnLimit } from '../../database/config.js';
-import { getDeviceMode } from '../../lib/deviceMode.js';
 
 export default async (context) => {
     const { client, m, args, isAdmin, isBotAdmin, prefix } = context;
@@ -46,41 +44,10 @@ export default async (context) => {
 
         const currentMode = String(groupSettings.antilink || "off").toUpperCase();
         const warnLimit = await getWarnLimit(m.chat);
-        const bodyText = fmt(`Current mode: *${currentMode}*\n│ Warn limit: *${warnLimit}* (set with ${prefix}setwarncount)\n│ \n│ off — Allow links\n│ warn — Delete + warn user\n│ kick — Delete + instant kick`);
+        const bodyText = fmt(`Current mode: *${currentMode}*\n│ Warn limit: *${warnLimit}* warns before kick\n│ \n│ Usage: ${prefix}antilink off | warn | kick\n│ \n│ off — Allow links\n│ warn — Delete link + warn the sender. After *${warnLimit}* warns they're auto-kicked.\n│ kick — Delete link + instant kick\n│ \n│ Change warn limit: ${prefix}setwarncount <number>\n│ Example: ${prefix}setwarncount 5`);
 
-        const device = await getDeviceMode();
-        if (device === 'ios') {
-            await client.sendMessage(m.chat, { react: { text: '', key: m.reactKey } });
-            return await client.sendMessage(m.chat, { text: bodyText });
-        }
-
-        const _msg = generateWAMessageFromContent(
-            m.chat,
-            proto.Message.fromObject({
-                interactiveMessage: {
-                    body: { text: bodyText },
-                    footer: { text: '' },
-                    nativeFlowMessage: {
-                        buttons: [{
-                            name: 'single_select',
-                            buttonParamsJson: JSON.stringify({
-                                title: 'Choose mode',
-                                sections: [{
-                                    rows: [
-                                        { title: 'OFF', description: 'Links allowed', id: `${prefix}antilink off` },
-                                        { title: 'WARN', description: 'Delete + warn sender', id: `${prefix}antilink warn` },
-                                        { title: 'KICK', description: 'Delete + instant kick', id: `${prefix}antilink kick` }
-                                    ]
-                                }]
-                            })
-                        }]
-                    }
-                }
-            }),
-            { timestamp: new Date(), userJid: client.user?.id }
-        );
-        await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
-        await client.relayMessage(m.chat, _msg.message, { messageId: _msg.key.id });
+        await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
+        return await client.sendMessage(m.chat, { text: bodyText });
     } catch (error) {
         await client.sendMessage(m.chat, { react: { text: '', key: m.reactKey } }).catch(() => {});
         console.error("Antilink command error:", error);

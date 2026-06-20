@@ -7,8 +7,8 @@ export default async (context) => {
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
   if (!text) {
-    return sendInteractive(client, m, '╭─❏ 「 CTA_COPY 」
-│ Tell me a song name you dumbass!\n│ Example: .lyrics Alone ft ava max\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
+    return sendInteractive(client, m, `╭─❏ 「 CTA_COPY 」
+│ Tell me a song name you dumbass!\n│ Example: .lyrics Alone ft ava max\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
   }
 
   try {
@@ -25,8 +25,8 @@ export default async (context) => {
 
     const song = data.result[0];
     if (!song.plainLyrics) {
-      return sendInteractive(client, m, '╭─❏ 「 CTA_COPY 」
-│ No plain lyrics for this one. Try another song, loser.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
+      return sendInteractive(client, m, `╭─❏ 「 CTA_COPY 」
+│ No plain lyrics for this one. Try another song, loser.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
     }
 
     const cleanLyrics = song.plainLyrics;

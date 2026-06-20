@@ -40,41 +40,10 @@ export default async (context) => {
         );
       }
 
-            const _devMode = await getDeviceMode();
-      if (_devMode === 'ios') {
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
           await sendInteractive(client, m, `╭─❏ 「 ANTIEDIT」
 │ Status: ${settings.antiedit ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}antiedit on\n│ ${prefix}antiedit off\n╰───────────────`);
-      } else {
-    const _msg = generateWAMessageFromContent(
-            m.chat,
-            {
-                interactiveMessage: {
-                    body: { text: formatStylishReply("ANTIEDIT", `Antiedit's ${settings.antiedit ? 'ON' : 'OFF'}. Pick your poison.\n│ \n│ 📌 Usage: ${prefix}antiedit on | ${prefix}antiedit off`) },
-                    footer: { text: '' },
-                    nativeFlowMessage: {
-                        buttons: [
-                            {
-                                name: 'single_select',
-                                buttonParamsJson: JSON.stringify({
-                                    title: 'Choose an option',
-                                    sections: [{
-                                        rows: [
-                                                                                                    { title: 'ON ✅', id: `${prefix}antiedit on` },
-                                                            { title: 'OFF ❌', id: `${prefix}antiedit off` }
-                                        ]
-                                    }]
-                                })
-                            }
-                        ]
-                    }
-                }
-            }
-          );
-          await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
 
-          await client.relayMessage(m.chat, _msg.message, { messageId: _msg.key.id });
-      }
     } catch (error) {
     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
       await client.sendMessage(

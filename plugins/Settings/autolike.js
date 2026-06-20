@@ -39,40 +39,10 @@ export default async (context) => {
         ? `ON (${currentEmoji === 'random' ? 'Random emojis' : currentEmoji + ' emoji'})`
         : 'OFF';
 
-            const _devMode = await getDeviceMode();
-      if (_devMode === 'ios') {
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
           await sendInteractive(client, m, `╭─❏ 「 AUTOLIKE」
 │ Status: ${settings.autolike ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}autolike on\n│ ${prefix}autolike off\n╰───────────────\n> 🌐 hosting.toxicx.tech`);
-      } else {
-    const _msg = generateWAMessageFromContent(
-            m.chat,
-            {
-              interactiveMessage: {
-                body: { text: fmtMsg(`Current: ${statusText}\n│ \n│ Use "${prefix}reaction <emoji>" to change emoji`) },
-                footer: { text: '' },
-                nativeFlowMessage: {
-                  buttons: [{
-                    name: 'single_select',
-                    buttonParamsJson: JSON.stringify({
-                      title: 'Choose an option',
-                      sections: [{
-                        rows: [
-                          { title: 'ON ✅', id: `${prefix}autolike on` },
-                          { title: 'OFF ❌', id: `${prefix}autolike off` }
-                        ]
-                      }]
-                    })
-                  }]
-                }
-              }
-            },
-            { userJid: client.user?.jid }
-          );
-          await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
 
-          await client.relayMessage(m.chat, _msg.message, { messageId: _msg.key.id });
-      }
     } catch (error) {
     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
       console.error('Autolike command error:', error);
