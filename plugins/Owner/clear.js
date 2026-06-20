@@ -10,8 +10,8 @@ export default async (context) => {
 
         if (m.chat.endsWith('@broadcast') || m.chat.endsWith('@newsletter')) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, '╭─❏ 「 CLEAR 」
-│ \n│ Cannot clear this type of chat.\n╰───────────────\n> ©𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
+            return sendInteractive(client, m, `╭─❏ 「 CLEAR 」
+│ \n│ Cannot clear this type of chat.\n╰───────────────\n> ©𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
         }
 
         try {

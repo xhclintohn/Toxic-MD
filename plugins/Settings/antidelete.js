@@ -40,41 +40,10 @@ export default async (context) => {
         );
       }
 
-            const _devMode = await getDeviceMode();
-      if (_devMode === 'ios') {
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
           await sendInteractive(client, m, `╭─❏ 「 ANTIDELETE」
 │ Status: ${settings.antidelete ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}antidelete on\n│ ${prefix}antidelete off\n╰───────────────`);
-      } else {
-    const _msg = generateWAMessageFromContent(
-            m.chat,
-            {
-                interactiveMessage: {
-                    body: { text: formatStylishReply("ANTIDELETE", `Antidelete's ${settings.antidelete ? 'ON' : 'OFF'}, dumbass. Pick a vibe, noob!\n│ \n│ 📌 Usage: ${prefix}antidelete on | ${prefix}antidelete off`) },
-                    footer: { text: '' },
-                    nativeFlowMessage: {
-                        buttons: [
-                            {
-                                name: 'single_select',
-                                buttonParamsJson: JSON.stringify({
-                                    title: 'Choose an option',
-                                    sections: [{
-                                        rows: [
-                                                                                                    { title: 'ON ✅', id: `${prefix}antidelete on` },
-                                                            { title: 'OFF ❌', id: `${prefix}antidelete off` }
-                                        ]
-                                    }]
-                                })
-                            }
-                        ]
-                    }
-                }
-            }
-          );
-          await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
 
-          await client.relayMessage(m.chat, _msg.message, { messageId: _msg.key.id });
-      }
     } catch (error) {
     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
       await client.sendMessage(

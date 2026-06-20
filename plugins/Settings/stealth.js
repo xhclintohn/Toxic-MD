@@ -38,37 +38,10 @@ export default async (context) => {
                 return await client.sendMessage(m.chat, { text: fmt('Stealth Mode: *OFF 💡* — messages stick around like an ex.') });
             }
 
-                        const _devMode = await getDeviceMode();
-            if (_devMode === 'ios') {
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
           await sendInteractive(client, m, `╭─❏ 「 STEALTH」
 │ Status: ${settings.stealth ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}stealth on\n│ ${prefix}stealth off\n╰───────────────`);
-      } else {
-    const _stealthMsg = generateWAMessageFromContent(
-                    m.chat,
-                    {
-                        interactiveMessage: {
-                            body: { text: fmt(`Stealth Mode: *${isEnabled ? 'ON 👻' : 'OFF 💡'}*\n│ Usage: *${prefix}stealth on/off*\n│ When ON, bot auto-deletes commands + replies after 8s.`) },
-                            footer: { text: '' },
-                            nativeFlowMessage: {
-                                buttons: [{
-                                    name: 'single_select',
-                                    buttonParamsJson: JSON.stringify({
-                                        title: 'Choose an option',
-                                        sections: [{
-                                            rows: [
-                                                { title: 'ON 👻', id: `${prefix}stealth on` },
-                                                { title: 'OFF 💡', id: `${prefix}stealth off` }
-                                            ]
-                                        }]
-                                    })
-                                }]
-                            }
-                        }
-                    }
-                );
-                await client.relayMessage(m.chat, _stealthMsg.message, { messageId: _stealthMsg.key.id });
-            }
+
         } catch (err) {
     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });

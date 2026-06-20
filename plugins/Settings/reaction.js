@@ -39,42 +39,10 @@ export default async (context) => {
 
       const currentText = currentEmoji === 'random' ? 'Random emojis' : `${currentEmoji} emoji`;
 
-            const _devMode = await getDeviceMode();
-      if (_devMode === 'ios') {
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
           await sendInteractive(client, m, `╭─❏ 「 REACTION」
 │ Status: ${settings.reaction ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}reaction random\n│ ${prefix}reaction ❤️\n│ ${prefix}reaction 🔥\n│ ${prefix}reaction 😂\n╰───────────────\n> 🌐 hosting.toxicx.tech`);
-      } else {
-    const _msg = generateWAMessageFromContent(
-            m.chat,
-            {
-              interactiveMessage: {
-                body: { text: fmtMsg(`REACTION SETTINGS\n│ Current: ${currentText}\n│ \n│ Use "${prefix}reaction random" for random\n│ Use "${prefix}reaction <emoji>" for specific`) },
-                footer: { text: '' },
-                nativeFlowMessage: {
-                  buttons: [{
-                    name: 'single_select',
-                    buttonParamsJson: JSON.stringify({
-                      title: 'Choose reaction emoji',
-                      sections: [{
-                        rows: [
-                          { title: 'RANDOM 🎲', id: `${prefix}reaction random` },
-                          { title: 'LOVE ❤️', id: `${prefix}reaction ❤️` },
-                          { title: 'FIRE 🔥', id: `${prefix}reaction 🔥` },
-                          { title: 'LAUGH 😂', id: `${prefix}reaction 😂` }
-                        ]
-                      }]
-                    })
-                  }]
-                }
-              }
-            },
-            { userJid: client.user?.jid }
-          );
-          await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
 
-          await client.relayMessage(m.chat, _msg.message, { messageId: _msg.key.id });
-      }
     } catch (error) {
     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
       console.error('Reaction command error:', error);

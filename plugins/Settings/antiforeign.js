@@ -60,41 +60,10 @@ export default async (context) => {
         return await client.sendMessage(m.chat, { text: formatStylishReply("ANTIFOREIGN", `Antiforeign's now ${value.toUpperCase()}. Foreigners better watch out or get yeeted!\n│ \n│ 📌 Usage: ${prefix}antiforeign on | ${prefix}antiforeign off`) });
       }
 
-            const _devMode = await getDeviceMode();
-      if (_devMode === 'ios') {
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
           await sendInteractive(client, m, `╭─❏ 「 ANTIFOREIGN」
 │ Status: ${settings.antiforeign ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}antiforeign on\n│ ${prefix}antiforeign off\n╰───────────────\n> 🌐 hosting.toxicx.tech`);
-      } else {
-    const _msg = generateWAMessageFromContent(
-            m.chat,
-            {
-                interactiveMessage: {
-                    body: { text: formatStylishReply("ANTIFOREIGN", `Antiforeign's ${isEnabled ? 'ON' : 'OFF'} in this group, dipshit. Pick a vibe!\n│ \n│ 📌 Usage: ${prefix}antiforeign on | ${prefix}antiforeign off`) },
-                    footer: { text: '' },
-                    nativeFlowMessage: {
-                        buttons: [
-                            {
-                                name: 'single_select',
-                                buttonParamsJson: JSON.stringify({
-                                    title: 'Choose an option',
-                                    sections: [{
-                                        rows: [
-                                                                                                    { title: 'ON ✅', id: `${prefix}antiforeign on` },
-                                                            { title: 'OFF ❌', id: `${prefix}antiforeign off` }
-                                        ]
-                                    }]
-                                })
-                            }
-                        ]
-                    }
-                }
-            }
-          );
-          await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
 
-          await client.relayMessage(m.chat, _msg.message, { messageId: _msg.key.id });
-      }
     } catch (error) {
     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
       console.error('[Antiforeign] Error in command:', error);
