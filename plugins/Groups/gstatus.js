@@ -1,155 +1,106 @@
-import { downloadContentFromMessage } from '@whiskeysockets/baileys';
+import ownerMiddleware from '../../utils/botUtil/Ownermiddleware.js';
+import { sendInteractive } from '../../lib/sendInteractive.js';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
-export default {
-  name: 'gstatus',
-  aliases: ['groupstatus', 'gs'],
-  description: 'Posts media or text as a silent group status.',
-  run: async (context) => {
-    const { client, m, prefix, IsGroup, botname } = context;
+const execAsync = promisify(exec);
 
-    const fmt = (text) => `╭─❏ 「 GSTATUS 」
-│ \n│ ${text}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨ｎ`;
+const formatStylishReply = (message) => {
+    return (
+        `╭─❏ 「 VPS UPDATE 」\n` +
+        `│ ${message.split('\n').join('\n│ ')}\n` +
+        `╰───────────────\n` +
+        `> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧\n` +
+        `Pσɯҽɾҽԃ Ⴆყ Tσxιƈ-ɱԃȥ 😈`
+    );
+};
 
-    try {
-      if (!botname) {
-        await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-        return client.sendMessage(m.chat, { text: fmt(`Bot name is not set.`) });
-      }
+export default async (context) => {
+    const { client, m } = context;
+    await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
-      const bodyStr = (m.body || '').trim();
-      const spaceIdx = bodyStr.indexOf(' ');
-      const afterCmd = spaceIdx !== -1 ? bodyStr.slice(spaceIdx + 1).trim() : '';
+    await ownerMiddleware(context, async () => {
+        try {
+            try {
+                await execAsync('git rev-parse --is-inside-work-tree', { timeout: 15000 });
+            } catch {
+                await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
+                return await sendInteractive(
+                    client,
+                    m,
+                    formatStylishReply(
+                        "This isn't a git repository, genius.\n\n" +
+                        "On Pterodactyl/VPS you must deploy by cloning the repo:\n" +
+                        "git clone https://github.com/xhclintohn/Toxic-Bot-H .\n\n" +
+                        "Re-deploy that way, then this command will work."
+                    )
+                );
+            }
 
-      let targetGroupJid = null;
-      let inlineText = null;
+            await client.sendMessage(m.chat, { react: { text: '🔄', key: m.reactKey } });
+            await sendInteractive(
+                client,
+                m,
+                formatStylishReply("Checking for updates... don't touch anything. 🙄")
+            );
 
-      if (IsGroup) {
-        targetGroupJid = m.chat;
-        inlineText = afterCmd || null;
-      } else {
-        if (!afterCmd) {
-          await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-          return client.sendMessage(m.chat, {
-            text: fmt(`Reply to media and provide a group link or JID.\nExample:\n${prefix}gstatus https://chat.whatsapp.com/xxxxx\n${prefix}gstatus 120363@g.us`)
-          });
-        }
-        const parts = afterCmd.split(/\s+/);
-        const input = parts[0];
-        const rest = parts.slice(1).join(' ').trim();
+            await execAsync('git fetch origin', { timeout: 60000 });
 
-        if (input.includes('chat.whatsapp.com')) {
-          let code;
-          try {
-            const url = new URL(input);
-            code = url.pathname.replace(/^\/+/, '');
-          } catch {
-            code = input.split('/').pop();
-          }
-          try {
-            const res = await client.groupGetInviteInfo(code);
-            targetGroupJid = res?.id || res?.groupId || res?.gid;
-            if (!targetGroupJid) throw new Error('no id');
-          } catch {
+            const { stdout: localSha } = await execAsync('git rev-parse HEAD');
+            const { stdout: remoteSha } = await execAsync('git rev-parse @{u}');
+
+            if (localSha.trim() === remoteSha.trim()) {
+                await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
+                return await sendInteractive(
+                    client,
+                    m,
+                    formatStylishReply("Your bot is already on the latest version, genius.")
+                );
+            }
+
+            const { stdout: log } = await execAsync(
+                'git log HEAD..@{u} --pretty=format:"• %s (%an)" -n 10'
+            );
+
+            await sendInteractive(
+                client,
+                m,
+                formatStylishReply(
+                    "🆕 Update found! Pulling latest changes...\n\n" +
+                    (log.trim() || "No commit messages found.")
+                )
+            );
+
+            await execAsync('git pull origin HEAD', { timeout: 120000 });
+
+            await sendInteractive(
+                client,
+                m,
+                formatStylishReply("Installing dependencies, hang tight...")
+            );
+            await execAsync('npm install --omit=dev', { timeout: 300000 });
+
+            await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
+            await sendInteractive(
+                client,
+                m,
+                formatStylishReply(
+                    "Update complete! Restarting Toxic-MD now to apply changes.\n\n" +
+                    "If your process manager (PM2 / Pterodactyl) isn't set to auto-restart, " +
+                    "start the bot manually after this."
+                )
+            );
+
+            setTimeout(() => process.exit(0), 3000);
+
+        } catch (error) {
+            const errorMessage = error.stderr || error.message || 'Unknown error';
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-            return client.sendMessage(m.chat, { text: fmt(`Invalid or expired group link.`) });
-          }
-        } else if (input.includes('@g.us')) {
-          targetGroupJid = input.trim();
-        } else {
-          await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-          return client.sendMessage(m.chat, { text: fmt(`Invalid group link or JID.`) });
+            await sendInteractive(
+                client,
+                m,
+                formatStylishReply(`Update failed:\n${errorMessage}\nTry again without panicking.`)
+            );
         }
-
-        inlineText = rest || null;
-      }
-
-      await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
-
-      let caption = null;
-      let sourceMsg = null;
-      let mediaType = null;
-
-      const quoted = m.message?.extendedTextMessage?.contextInfo?.quotedMessage;
-
-      if (m.message?.imageMessage) {
-        sourceMsg = m.message.imageMessage;
-        mediaType = 'image';
-        caption = inlineText || m.message.imageMessage?.caption || null;
-      } else if (m.message?.videoMessage) {
-        sourceMsg = m.message.videoMessage;
-        mediaType = 'video';
-        caption = inlineText || m.message.videoMessage?.caption || null;
-      } else if (m.message?.audioMessage) {
-        sourceMsg = m.message.audioMessage;
-        mediaType = 'audio';
-      } else if (quoted) {
-        if (quoted.imageMessage) {
-          sourceMsg = quoted.imageMessage;
-          mediaType = 'image';
-          caption = inlineText || quoted.imageMessage?.caption || null;
-        } else if (quoted.videoMessage) {
-          sourceMsg = quoted.videoMessage;
-          mediaType = 'video';
-          caption = inlineText || quoted.videoMessage?.caption || null;
-        } else if (quoted.audioMessage) {
-          sourceMsg = quoted.audioMessage;
-          mediaType = 'audio';
-        } else if (quoted.conversation) {
-          caption = inlineText || quoted.conversation;
-        } else if (quoted.extendedTextMessage?.text) {
-          caption = inlineText || quoted.extendedTextMessage.text;
-        }
-      } else {
-        caption = inlineText;
-      }
-
-      if (!mediaType && !caption) {
-        await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-        return client.sendMessage(m.chat, {
-          text: fmt(`Reply to an image, video, audio, or include text.\nExample: ${prefix}gstatus Check out this update!`)
-        });
-      }
-
-      const getBuffer = async (msg, type) => {
-        const stream = await downloadContentFromMessage(msg, type);
-        let buffer = Buffer.from([]);
-        for await (const chunk of stream) buffer = Buffer.concat([buffer, chunk]);
-        return buffer;
-      };
-
-      if (mediaType === 'image') {
-        const buffer = await getBuffer(sourceMsg, 'image');
-        await client.sendStatusMention(
-          { image: buffer, ...(caption ? { caption } : {}) },
-          [targetGroupJid]
-        );
-      } else if (mediaType === 'video') {
-        const buffer = await getBuffer(sourceMsg, 'video');
-        await client.sendStatusMention(
-          { video: buffer, ...(caption ? { caption } : {}) },
-          [targetGroupJid]
-        );
-      } else if (mediaType === 'audio') {
-        const buffer = await getBuffer(sourceMsg, 'audio');
-        await client.sendStatusMention(
-          { audio: buffer, mimetype: 'audio/mp4', ptt: false },
-          [targetGroupJid]
-        );
-      } else {
-        await client.sendStatusMention(
-          { text: caption },
-          [targetGroupJid]
-        );
-      }
-
-      await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
-      if (!IsGroup) {
-        await client.sendMessage(m.chat, { text: fmt(`✅ Status posted to group!`) });
-      }
-
-    } catch (error) {
-      await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-      await client.sendMessage(m.chat, { text: fmt(`Error: ${error.message}`) });
-    }
-  }
+    });
 };
