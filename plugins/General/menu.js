@@ -24,24 +24,20 @@ export default {
 
         if (cleanText !== '' && !['menu', 'commands', 'list', 'cmds', 'm', 'help', 'cmd', 'commandlist', 'allcmds'].includes(firstWord)) {
             const commandName = cleanText.split(' ')[0];
-            return sendInteractive(client, m, `╭─❏ 「 Eʀʀᴏʀ」
-│ Yo ${m.pushName}, what's with the\n│ extra bullshit after "${commandName}"?\n│ Just type *${prefix}menu* properly, moron.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+            return sendInteractive(client, m, `╭─❏ 「 Eʀʀᴏʀ」\n│ Yo ${m.pushName}, what's with the\n│ extra bullshit after "${commandName}"?\n│ Just type *${prefix}menu* properly, moron.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
         }
 
         const menuText =
-            `` +
-            `╭─❏ 「 Mᴇɴᴜ」
-` +
+            `╭─❏ 「 Mᴇɴᴜ」\n` +
             `│ \n` +
-            `Hoi  @${m.sender.split('@')[0].split(':')[0]}\n` +
+            `│ Hoi @${m.sender.split('@')[0].split(':')[0]}\n` +
             `│ \n` +
             `│ Bot: TOXIC-MD\n` +
             `│ Prefix: ${prefix}\n` +
             `│ Mode: ${mode}\n` +
             `│ \n` +
             `│ Select a category below.\n` +
-            `╰───────────────\n` +
-            `> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+            `╰───────────────`;
 
         const sections = [
             {
@@ -82,11 +78,9 @@ export default {
 
         if (device === 'ios') {
             const iosMenuText =
-                `` +
-                `╭─❏ 「 Mᴇɴᴜ」
-` +
+                `╭─❏ 「 Mᴇɴᴜ」\n` +
                 `│ \n` +
-                `Hoi  @${m.sender.split('@')[0].split(':')[0]}\n` +
+                `│ Hoi @${m.sender.split('@')[0].split(':')[0]}\n` +
                 `│ \n` +
                 `│ Bot: TOXIC-MD\n` +
                 `│ Prefix: ${prefix}\n` +
@@ -115,8 +109,7 @@ export default {
                 `│ ${prefix}utilsmenu — Utility commands\n` +
                 `│ ${prefix}privacymenu — Privacy commands\n` +
                 `╰───────────────\n` +
-                `> 🌐 Hosted by Toxic-Hosting\n` +
-                ``;
+                `> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
             await client.sendMessage(m.chat, {
                 text: iosMenuText, mentions: [m.sender]
             });
@@ -124,7 +117,6 @@ export default {
         }
 
         try {
-            // Primary: ButtonV2 quick-action buttons (Android/desktop best experience)
             const btnV2 = new ButtonV2(client);
             btnV2.setBody(menuText)
                 .setFooter('> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧')
@@ -135,11 +127,10 @@ export default {
             await btnV2.send(m.chat, { userJid: client.user.id, mentions: [m.sender] });
         } catch {
             try {
-                // Fallback 1: nativeFlowMessage with list picker
                 const msg = generateWAMessageFromContent(m.chat, proto.Message.fromObject({
                     interactiveMessage: {
                         body: { text: menuText },
-                        footer: { text: '' },
+                        footer: { text: '> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧' },
                         header: { hasMediaAttachment: false },
                         contextInfo: {
                             mentionedJid: [m.sender],
@@ -178,10 +169,9 @@ export default {
                 if (!msg?.key?.id) throw new Error('null key');
                 await client.relayMessage(m.chat, msg.message, { messageId: msg.key.id });
             } catch {
-                // Fallback 2: image caption + list message
                 await client.sendMessage(m.chat, {
                     image: pict,
-                    caption: menuText,
+                    caption: menuText + '\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧',
                     mentions: [m.sender],
                     contextInfo: {
                         externalAdReply: {

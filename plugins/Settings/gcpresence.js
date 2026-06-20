@@ -4,7 +4,7 @@ import ownerMiddleware from '../../utils/botUtil/Ownermiddleware.js';
 import { getDeviceMode } from '../../lib/deviceMode.js';
 import { sendInteractive } from '../../lib/sendInteractive.js';
 
-const fmt = (message) => `│ ${message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+const fmt = (message) => `╭─❏ 「 GCPRESENCE 」\n│ ${message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
 export default async (context) => {
     await ownerMiddleware(context, async () => {
@@ -46,7 +46,7 @@ export default async (context) => {
         if (_devMode === 'ios') {
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
           await sendInteractive(client, m, `╭─❏ 「 GCPRESENCE」
-│ Status: ${settings.gcpresence ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}gcpresence on\n│ ${prefix}gcpresence off\n╰───────────────\n> 🌐 hosting.toxicx.tech`);
+│ Status: ${settings.gcpresence ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}gcpresence on\n│ ${prefix}gcpresence off\n╰───────────────`);
       } else {
     const _msg = generateWAMessageFromContent(
                 jid,

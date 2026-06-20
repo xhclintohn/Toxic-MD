@@ -14,7 +14,8 @@ export default async (context) => {
     const formatStylishReply = (message) => {
         return (
             `` +
-            `│ ${message}\n` +
+            `╭─❏ 「 SINGLE_SELECT 」
+│ ${message}\n` +
             `╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧\n` +
             `Pσɯҽɾҽԃ Ⴆყ Tσxιƈ-ɱԃȥ 😈`
@@ -61,7 +62,7 @@ export default async (context) => {
                 if (_devMode === 'ios') {
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } }).catch(()=>{});
           await sendInteractive(client, m, `╭─❏ 「 UPDATE」
-│ Options:\n│ ${prefix}menu\n│ ${prefix}settings\n│ ${prefix}triggerupdate\n│ ${prefix}menu\n╰───────────────\n> 🌐 hosting.toxicx.tech`);
+│ Options:\n│ ${prefix}menu\n│ ${prefix}settings\n│ ${prefix}triggerupdate\n│ ${prefix}menu\n╰───────────────`);
           return;
       } else {
     const msg = generateWAMessageFromContent(

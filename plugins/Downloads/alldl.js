@@ -12,7 +12,8 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
       if (!text) {
           await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-          return sendInteractive(client, m, '│ Supports: YouTube, TikTok, Instagram, Twitter/X, Facebook\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
+          return sendInteractive(client, m, '╭─❏ 「 ALLDL 」
+│ Supports: YouTube, TikTok, Instagram, Twitter/X, Facebook\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
       }
       const url = text.trim();
       await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
@@ -34,7 +35,8 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
               await client.sendMessage(m.chat, {
                   video: { url: d.result.url },
                   mimetype: 'video/mp4',
-                  caption: `│ 🎬 ${d.result.title || 'YouTube Video'}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
+                  caption: `╭─❏ 「 ALLDL 」
+│ 🎬 ${d.result.title || 'YouTube Video'}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
               });
               return await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
 
@@ -44,7 +46,8 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
               if (!d.status || !d.result?.data) throw new Error('TikTok API failed');
               const dlRes = await fetch(d.result.data, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 40000 });
               sendBuf = Buffer.from(await dlRes.arrayBuffer());
-              caption = `│ 🎵 ${d.result.title || 'TikTok Video'}\n│ 👤 ${d.result.author?.nickname || ''}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+              caption = `╭─❏ 「 ALLDL 」
+│ 🎵 ${d.result.title || 'TikTok Video'}\n│ 👤 ${d.result.author?.nickname || ''}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
           } else if (isIG) {
               const r = await fetch(`${NEXRAY}/v2/instagram?url=${encodeURIComponent(url)}`, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 20000 });
@@ -54,7 +57,8 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
               const dlRes = await fetch(first.url, { headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': 'https://www.instagram.com/' }, timeout: 35000 });
               sendBuf = Buffer.from(await dlRes.arrayBuffer());
               sendAsVideo = first.type === 'mp4';
-              caption = `│ 📷 ${d.result.title || 'Instagram Post'}\n│ 👤 @${d.result.username || ''}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+              caption = `╭─❏ 「 ALLDL 」
+│ 📷 ${d.result.title || 'Instagram Post'}\n│ 👤 @${d.result.username || ''}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
           } else if (isTW) {
               const r = await fetch(`${NEXRAY}/twitter?url=${encodeURIComponent(url)}`, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 20000 });
@@ -63,7 +67,8 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
               const best = d.result.download_url.find(u => u.type === 'mp4') || d.result.download_url[0];
               const dlRes = await fetch(best.url, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 40000 });
               sendBuf = Buffer.from(await dlRes.arrayBuffer());
-              caption = `│ 🐦 ${(d.result.title || 'X/Twitter Video').slice(0,80)}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+              caption = `╭─❏ 「 ALLDL 」
+│ 🐦 ${(d.result.title || 'X/Twitter Video').slice(0,80)}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
           } else if (isFB) {
               const r = await fetch(`${NEXRAY}/facebook?url=${encodeURIComponent(url)}`, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 20000 });
@@ -73,7 +78,8 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
               if (!videoUrl) throw new Error('No FB video URL');
               const dlRes = await fetch(videoUrl, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 40000 });
               sendBuf = Buffer.from(await dlRes.arrayBuffer());
-              caption = `│ 📘 ${d.result.title || 'Facebook Video'}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+              caption = `╭─❏ 「 ALLDL 」
+│ 📘 ${d.result.title || 'Facebook Video'}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
           } else {
               throw new Error('Unsupported link. Use YouTube, TikTok, Instagram, Twitter/X, or Facebook.');
@@ -88,7 +94,8 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
           await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
       } catch (e) {
           await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-          sendInteractive(client, m, `│ Failed: ${e.message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+          sendInteractive(client, m, `╭─❏ 「 ERROR 」
+│ Failed: ${e.message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
       }
   };
   

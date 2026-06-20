@@ -10,7 +10,8 @@ export default async (context) => {
 
         if (m.chat.endsWith('@broadcast') || m.chat.endsWith('@newsletter')) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, `│ \n│ Cannot archive this type of chat.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+            return sendInteractive(client, m, `╭─❏ 「 ARCHIVE 」
+│ \n│ Cannot archive this type of chat.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
         }
 
         let lastMessages;

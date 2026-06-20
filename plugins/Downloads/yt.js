@@ -33,7 +33,8 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
               if (!d.status || !d.result?.url) throw new Error('Video API failed');
               await client.sendMessage(m.chat, {
                   video: { url: d.result.url }, mimetype: 'video/mp4',
-                  caption: `│ 🎬 ${d.result.title || 'YouTube Video'}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
+                  caption: `╭─❏ 「 YT 」
+│ 🎬 ${d.result.title || 'YouTube Video'}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
               });
           } else {
               const r = await fetch(NEXRAY_MP3 + encodeURIComponent(fullUrl), { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 30000 });
@@ -50,7 +51,8 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
           await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
       } catch (e) {
           await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-          sendInteractive(client, m, `│ Failed: ${e.message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+          sendInteractive(client, m, `╭─❏ 「 ERROR 」
+│ Failed: ${e.message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
       }
   };
   

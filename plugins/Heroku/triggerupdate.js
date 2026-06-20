@@ -11,7 +11,8 @@ export default async (context) => {
     const formatStylishReply = (message) => {
         return (
             `` +
-            `│ ${message}\n` +
+            `╭─❏ 「 TRIGGERUPDATE 」
+│ ${message}\n` +
             `╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧\n` +
             `xD`

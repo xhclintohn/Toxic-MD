@@ -13,7 +13,8 @@ export default {
             const query = (text || '').trim();
             if (!query) {
                 await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                return sendInteractive(client, m, "│ Give me a package name, you useless human.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧");
+                return sendInteractive(client, m, "╭─❏ 「 NPM 」
+│ Give me a package name, you useless human.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧");
             }
 
             await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
@@ -26,7 +27,7 @@ export default {
             const objects = data?.objects || [];
             if (objects.length === 0) {
                 await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-                return sendInteractive(client, m, `│ No packages found for "${query}".\n│ Your search skills are as bad as your life choices.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+                return sendInteractive(client, m, ``│ No packages found for "${query}".\n│ Your search skills are as bad as your life choices.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧``);
             }
 
             let resultText = `╭─❏ 「 NPM SEARCH」

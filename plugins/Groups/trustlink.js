@@ -91,7 +91,7 @@ export default [
     {
         name: 'trustlist',
         aliases: ['listtrusted', 'trustedlinks', 'allowedlinks'],
-        description: 'Show all trusted domains for this group\'s antilink',
+        description: 'Show all trusted domains for this group antilink in a table',
         run: async (context) => {
             await ownerMiddleware(context, async () => {
                 const { client, m, isGroup, prefix } = context;
@@ -104,11 +104,61 @@ export default [
 
                 const trusted = await getTrustedLinks(m.chat);
                 await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
+
                 if (!trusted || trusted.length === 0) {
                     return sendInteractive(client, m, fmt("TRUSTED LINKS", `No trusted links set.\n│ Add one: ${prefix}trustlink <domain>`));
                 }
-                const list = trusted.map((d, i) => `${i + 1}. ${d}`).join('\n│ ');
-                return sendInteractive(client, m, fmt("TRUSTED LINKS", `${trusted.length} trusted domain(s):\n│ ${list}`));
+
+                const rows = [
+                    { items: ["No", "Trusted Domain"], isHeading: true },
+                    ...trusted.map((domain, index) => ({
+                        items: [(index + 1).toString(), domain]
+                    }))
+                ];
+
+                const content = {
+                    messageContextInfo: {
+                        threadId: [],
+                        deviceListMetadata: { senderKeyIndexes: [], recipientKeyIndexes: [] },
+                        deviceListMetadataVersion: 2,
+                        botMetadata: {
+                            pluginMetadata: {},
+                            richResponseSourcesMetadata: { sources: [] }
+                        }
+                    },
+                    botForwardedMessage: {
+                        message: {
+                            richResponseMessage: {
+                                submessages: [
+                                    {
+                                        messageType: 4,
+                                        tableMetadata: {
+                                            rows: rows,
+                                            title: "Trusted Links"
+                                        }
+                                    }
+                                ],
+                                messageType: 1,
+                                unifiedResponse: {
+                                    data: "response/trustedlinks//typenameGenAIMarkdownTextUXPrimitive//typenameGenAISingleLayoutViewMode"
+                                },
+                                contextInfo: {
+                                    mentionedJid: [],
+                                    groupMentions: [],
+                                    statusAttributions: [],
+                                    forwardingScore: 1,
+                                    isForwarded: true,
+                                    forwardedAiBotMessageInfo: {
+                                        botJid: "867051314767696@bot"
+                                    },
+                                    forwardOrigin: 4
+                                }
+                            }
+                        }
+                    }
+                };
+
+                client.relayMessage(m.chat, content, {});
             });
         }
     }

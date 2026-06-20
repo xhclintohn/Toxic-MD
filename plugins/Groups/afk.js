@@ -14,7 +14,8 @@ export default {
         if (afkFeature.isAfk(senderNum)) {
             afkFeature.removeAfk(senderNum);
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, `│ AFK removed. Welcome back, ghost. 👁️\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+            return sendInteractive(client, m, `╭─❏ 「 AFK 」
+│ AFK removed. Welcome back, ghost. 👁️\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
         }
 
         afkFeature.setAfk(senderNum, reason);

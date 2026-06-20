@@ -27,7 +27,8 @@ export default async (context) => {
     if (!text) {
         let files = [];
         try { const entries = await fs.readdir(FEATURES_DIR); files = entries.filter(f => f.endsWith('.js')); } catch {}
-        const fileList = files.map(f => `│ • ${f.replace('.js', '')}`).join('\n');
+        const fileList = files.map(f => `╭─❏ 「 GETFUNC 」
+│ • ${f.replace('.js', '')}`).join('\n');
         return await sendInteractive(client, m, `╭─❏ 「 GETFUNC」
 │ Usage: ${prefix}getfunc <name>\n│ \n│ Available features:\n${fileList || '│ (none found)'}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
     }
@@ -46,14 +47,16 @@ export default async (context) => {
             document: fileBuffer,
             fileName: `${funcName}.js`,
             mimetype: 'application/javascript',
-            caption: `│ 📄 ${funcName}.js\n│ Folder: features/\n│ Size: ${data.length} chars\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
+            caption: `╭─❏ 「 GETFUNC 」
+│ 📄 ${funcName}.js\n│ Folder: features/\n│ Size: ${data.length} chars\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
         });
 
     } catch (err) {
         if (err.code === 'ENOENT') {
             let files = [];
             try { const entries = await fs.readdir(FEATURES_DIR); files = entries.filter(f => f.endsWith('.js')); } catch {}
-            const fileList = files.map(f => `│ • ${f.replace('.js', '')}`).join('\n');
+            const fileList = files.map(f => `╭─❏ 「 GETFUNC 」
+│ • ${f.replace('.js', '')}`).join('\n');
             return await sendInteractive(client, m, `╭─❏ 「 NOT FOUND」
 │ "${funcName}" not found in features/.\n│ \n│ Available:\n${fileList || '│ (none found)'}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
         }

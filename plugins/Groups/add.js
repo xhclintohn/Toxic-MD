@@ -58,11 +58,14 @@ export default async (context) => {
 
             let teza;
             if (user.attrs.error === 401) {
-                teza = `│ @${jid.split('@')[0].split(':')[0]} has blocked the bot.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+                teza = `╭─❏ 「 ADD 」
+│ @${jid.split('@')[0].split(':')[0]} has blocked the bot.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
             } else if (user.attrs.error === 403) {
-                teza = `│ @${jid.split('@')[0].split(':')[0]} has set privacy settings for group adding.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+                teza = `╭─❏ 「 ADD 」
+│ @${jid.split('@')[0].split(':')[0]} has set privacy settings for group adding.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
             } else if (user.attrs.error === 408) {
-                teza = `│ @${jid.split('@')[0].split(':')[0]} recently left the group.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+                teza = `╭─❏ 「 ADD 」
+│ @${jid.split('@')[0].split(':')[0]} recently left the group.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
             }
 
             await sendInteractive(client, m, teza);

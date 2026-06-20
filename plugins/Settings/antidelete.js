@@ -16,14 +16,6 @@ export default async (context) => {
 
     try {
       const settings = await getSettings();
-      if (!settings || Object.keys(settings).length === 0) {
-        await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-        return await client.sendMessage(
-          m.chat,
-          { text: formatStylishReply("ANTIDELETE", "Database is fucked, no settings found. Fix it, loser.") },
-          { ad: true }
-        );
-      }
 
       const value = args.join(" ").toLowerCase();
 
@@ -52,7 +44,7 @@ export default async (context) => {
       if (_devMode === 'ios') {
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
           await sendInteractive(client, m, `╭─❏ 「 ANTIDELETE」
-│ Status: ${settings.antidelete ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}antidelete on\n│ ${prefix}antidelete off\n╰───────────────\n> 🌐 hosting.toxicx.tech`);
+│ Status: ${settings.antidelete ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}antidelete on\n│ ${prefix}antidelete off\n╰───────────────`);
       } else {
     const _msg = generateWAMessageFromContent(
             m.chat,

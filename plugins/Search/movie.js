@@ -13,9 +13,8 @@ export default async (context) => {
     let fids = await axios.get(`http://www.omdbapi.com/?apikey=742b2d09&t=${text}&plot=full`);
     let imdbt = "";
 
-    imdbt += "";
-    imdbt += "│ TOXIC-MD MOVIE SEARCH\n";
-    imdbt += "";
+    imdbt += "╭─❏ 「 MOVIE SEARCH 」
+";
     imdbt += "│ 🎬 Title       : " + fids.data.Title + "\n";
     imdbt += "│ 📅 Year        : " + fids.data.Year + "\n";
     imdbt += "│ ⭐ Rated       : " + fids.data.Rated + "\n";

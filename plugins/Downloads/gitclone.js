@@ -6,9 +6,11 @@ export default async (context) => {
 
   if (!text) {
       await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-      return sendInteractive(client, m, `│ Where's the link, you forgetful moron?\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`)
+      return sendInteractive(client, m, `╭─❏ 「 GITCLONE 」
+│ Where's the link, you forgetful moron?\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`)
   }
-  if (!text.includes('github.com')) return sendInteractive(client, m, `│ Is that even a GitHub repo link?! Think again.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`)
+  if (!text.includes('github.com')) return sendInteractive(client, m, `╭─❏ 「 GITCLONE 」
+│ Is that even a GitHub repo link?! Think again.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`)
 
   await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
@@ -22,7 +24,8 @@ export default async (context) => {
       await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
   } catch (err) {
       await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-      sendInteractive(client, m, "│ Git clone failed. Skill issue.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧")
+      sendInteractive(client, m, "╭─❏ 「 ERROR 」
+│ Git clone failed. Skill issue.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧")
   }
 
   }

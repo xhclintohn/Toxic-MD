@@ -60,6 +60,16 @@ export default async (client, m) => {
 
         if (!isChannelForward && !hasLink) return;
 
+        // Check if the link is the group's own invite link — always allow
+        if (hasLink && !isChannelForward) {
+            try {
+                const ownCode = await client.groupInviteCode(m.chat);
+                const ownLink = `https://chat.whatsapp.com/${ownCode}`;
+                const rawText = m.text || msg.conversation || msg.extendedTextMessage?.text || '';
+                if (rawText.includes(ownLink) || rawText.includes(ownCode)) return;
+            } catch {}
+        }
+
         // Check trusted links — skip if the message only contains trusted domains
         if (hasLink && !isChannelForward) {
             try {

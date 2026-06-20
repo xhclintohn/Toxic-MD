@@ -5,7 +5,8 @@ export default async (context) => {
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
   const formatStylishReply = (message) => {
-    return `│ ${message}\n╰───────────────
+    return `╭─❏ 「 YTS 」
+│ ${message}\n╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧\nPσɯҽɾԃ Ⴆყ Tσxιƈ-ɱԃȥ`;
   };
 
@@ -45,7 +46,8 @@ export default async (context) => {
       replyText += `\n`;
     }
 
-    replyText += `╰───────────────
+    replyText += `╭─❏ 「 YTS 」
+╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧\nPσɯҽɾԃ Ⴆყ Tσxιƈ-ɱԃȥ`;
 
     await client.sendMessage(

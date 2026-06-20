@@ -68,8 +68,6 @@ async function connectionHandler(socket, connectionUpdate, reconnect) {
             ``,
             `│❒ *New User Alert*: You've been added to the sudo list.`,
             ``,
-            `🌐 *Hosted by Toxic-Hosting*`,
-            `🔗 hosting.toxicx.tech`,
             `◈━━━━━━━━━━━━━━━━◈`
           ].join("\n")
         : [
@@ -83,8 +81,6 @@ async function connectionHandler(socket, connectionUpdate, reconnect) {
             `📦 *Commands*: ${totalCommands}`,
             `🕒 *Time*: ${getCurrentTime()}`,
             ``,
-            `🌐 *Hosted by Toxic-Hosting*`,
-            `🔗 hosting.toxicx.tech`,
             `◈━━━━━━━━━━━━━━━━◈`
           ].join("\n");
 
@@ -93,7 +89,6 @@ async function connectionHandler(socket, connectionUpdate, reconnect) {
       try {
         await socket.sendMessage(botJid, {
           text: firstMessage,
-          footer: `Powered by Toxic-Hosting`,
           viewOnce: true
         });
 
@@ -109,8 +104,8 @@ async function connectionHandler(socket, connectionUpdate, reconnect) {
             `│ ${effectivePrefix}ping — Check bot speed`,
             `│ ${effectivePrefix}uptime — Bot uptime`,
             `╰───────────────`,
-            `> 🌐 Hosted by Toxic-Hosting`,
-            `> 🔗 hosting.toxicx.tech`
+            `> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`,
+            ``
           ].join('\n');
           await socket.sendMessage(botJid, { text: iosQuickText });
         } else {
@@ -121,7 +116,7 @@ async function connectionHandler(socket, connectionUpdate, reconnect) {
                 body: {
                   text: `*Bot is ready!*\n*Pick an option below to get started.*`
                 },
-                footer: { text: `Hosted by Toxic-Hosting | hosting.toxicx.tech` },
+
                 nativeFlowMessage: {
                   messageVersion: 1,
                   buttons: [

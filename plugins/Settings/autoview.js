@@ -16,14 +16,6 @@ export default async (context) => {
 
     try {
       const settings = await getSettings();
-      if (!settings || Object.keys(settings).length === 0) {
-        await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-        return await client.sendMessage(
-          m.chat,
-          { text: formatStylishReply('AUTOVIEW', 'Database is down, no settings found. Fix it, loser.') },
-          { ad: true }
-        );
-      }
 
       const value = args[0]?.toLowerCase();
       const validOptions = ['on', 'off'];
@@ -51,7 +43,7 @@ export default async (context) => {
       if (_devMode === 'ios') {
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
           await sendInteractive(client, m, `╭─❏ 「 AUTOVIEW」
-│ Status: ${settings.autoview ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}autoview on\n│ ${prefix}autoview off\n╰───────────────\n> 🌐 hosting.toxicx.tech`);
+│ Status: ${settings.autoview ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}autoview on\n│ ${prefix}autoview off\n╰───────────────`);
       } else {
     const _msg = generateWAMessageFromContent(
             m.chat,

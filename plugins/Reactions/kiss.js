@@ -37,7 +37,8 @@ export default {
             await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
             if (!target) {
                 await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                return sendInteractive(client, m, `│ Tag or quote someone to kiss.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+                return sendInteractive(client, m, `╭─❏ 「 KISS 」
+│ Tag or quote someone to kiss.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
             }
             const resolvedTarget = resolveDisplayJid(target);
             const tNum = resolvedTarget.split('@')[0];
@@ -56,11 +57,13 @@ export default {
                 `@${sNum} kissed @${tNum}. The group just got awkward. 💋`,
             ];
             await client.sendMessage(m.chat, {
-                text: `│ ${lines[Math.floor(Math.random() * lines.length)]}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`,
+                text: `╭─❏ 「 KISS 」
+│ ${lines[Math.floor(Math.random() * lines.length)]}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`,
                 mentions: [m.sender, resolvedTarget]
             });
         } catch {
-            await sendInteractive(client, m, `│ Kiss failed. Try again.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+            await sendInteractive(client, m, `╭─❏ 「 KISS 」
+│ Kiss failed. Try again.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
         }
     }
 };

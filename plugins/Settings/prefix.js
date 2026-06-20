@@ -15,8 +15,10 @@ export default async (context) => {
         await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
         return await sendInteractive(client, m, 
           `` +
-          `│ Already prefixless, you clueless twit! 😈\n` +
-          `│ Stop wasting my time! 🖕\n` +
+          `╭─❏ 「 PREFIX 」
+│ Already prefixless, you clueless twit! 😈\n` +
+          `╭─❏ 「 PREFIX 」
+│ Stop wasting my time! 🖕\n` +
           `╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
         );
@@ -25,8 +27,10 @@ export default async (context) => {
       await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
       await sendInteractive(client, m, 
         `` +
-        `│ Prefix obliterated! 🔥\n` +
-        `│ I’m prefixless now, bow down! 😈\n` +
+        `╭─❏ 「 PREFIX 」
+│ Prefix obliterated! 🔥\n` +
+        `╭─❏ 「 PREFIX 」
+│ I’m prefixless now, bow down! 😈\n` +
         `╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
       );
@@ -35,8 +39,10 @@ export default async (context) => {
         await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
         return await sendInteractive(client, m, 
           `` +
-          `│ Prefix is already ${newPrefix}, moron! 😈\n` +
-          `│ Try something new, fool! 🥶\n` +
+          `╭─❏ 「 PREFIX 」
+│ Prefix is already ${newPrefix}, moron! 😈\n` +
+          `╭─❏ 「 PREFIX 」
+│ Try something new, fool! 🥶\n` +
           `╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
         );
@@ -45,16 +51,20 @@ export default async (context) => {
       await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
       await sendInteractive(client, m, 
         `` +
-        `│ New prefix set to ${newPrefix}! 🔥\n` +
-        `│ Obey the new order, king! 😈\n` +
+        `╭─❏ 「 PREFIX 」
+│ New prefix set to ${newPrefix}! 🔥\n` +
+        `╭─❏ 「 PREFIX 」
+│ Obey the new order, king! 😈\n` +
         `╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
       );
     } else {
       await sendInteractive(client, m, 
         `` +
-        `│ Current Prefix: ${settings.prefix || 'No prefix, peasant! 🥶'}\n` +
-        `│ Use "${settings.prefix || '.'}prefix null" to go prefixless or "${settings.prefix || '.'}prefix <symbol>" to set one, noob!\n` +
+        `╭─❏ 「 PREFIX 」
+│ Current Prefix: ${settings.prefix || 'No prefix, peasant! 🥶'}\n` +
+        `╭─❏ 「 PREFIX 」
+│ Use "${settings.prefix || '.'}prefix null" to go prefixless or "${settings.prefix || '.'}prefix <symbol>" to set one, noob!\n` +
         `╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
       );

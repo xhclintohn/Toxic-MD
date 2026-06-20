@@ -10,20 +10,12 @@ export default async (context) => {
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
     const formatStylishReply = (message) => {
-      return `│ ${message}\n╰───────────────
+      return `╭─❏ 「 STARTMESSAGE 」\n│ ${message}\n╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
     };
 
     try {
       const settings = await getSettings();
-      if (!settings || Object.keys(settings).length === 0) {
-        await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-        return await client.sendMessage(
-          m.chat,
-          { text: formatStylishReply("Database is fucked, no settings found. Fix it, loser.") },
-          { ad: true }
-        );
-      }
 
       const value = args.join(" ").toLowerCase();
 
@@ -52,7 +44,7 @@ export default async (context) => {
       if (_devMode === 'ios') {
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
           await sendInteractive(client, m, `╭─❏ 「 STARTMESSAGE」
-│ Status: ${settings.startmessage ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}startmessage on\n│ ${prefix}startmessage off\n╰───────────────\n> 🌐 hosting.toxicx.tech`);
+│ Status: ${settings.startmessage ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}startmessage on\n│ ${prefix}startmessage off\n╰───────────────`);
       } else {
     const _msg = generateWAMessageFromContent(
             m.chat,

@@ -10,7 +10,8 @@ export default async (context) => {
 
         if (m.chat.endsWith('@broadcast') || m.chat.endsWith('@newsletter')) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, '│ \n│ Cannot clear this type of chat.\n╰───────────────\n> ©𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
+            return sendInteractive(client, m, '╭─❏ 「 CLEAR 」
+│ \n│ Cannot clear this type of chat.\n╰───────────────\n> ©𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
         }
 
         try {
@@ -20,14 +21,14 @@ export default async (context) => {
             }
 
             await client.chatModify({ delete: true, lastMessages }, m.chat);
-            await sendInteractive(client, m, '├───≥ CLEARED ≤───\n│ \n│ Chat cleared.\n╰───────────────\n> ©𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
+            await sendInteractive(client, m, '╭─❏ 「 CLEARED 」\n│ \n│ Chat cleared.\n╰───────────────\n> ©𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
         } catch (err) {
     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
             if (err?.message?.includes('myAppStateKey') || err?.output?.statusCode === 404) {
                 await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                return sendInteractive(client, m, '├───≥ NOT READY ≤───\n│ \n│ App state not fully synced yet.\n│ Wait a minute then try again.\n╰───────────────\n> ©𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
+                return sendInteractive(client, m, '╭─❏ 「 NOT READY 」\n│ \n│ App state not fully synced yet.\n│ Wait a minute then try again.\n╰───────────────\n> ©𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
             }
-            await sendInteractive(client, m, '├───≥ ERROR ≤───\n│ \n│ Failed to clear chat.\n╰───────────────\n> ©𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
+            await sendInteractive(client, m, '╭─❏ 「 ERROR 」\n│ \n│ Failed to clear chat.\n╰───────────────\n> ©𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
         }
     });
 };

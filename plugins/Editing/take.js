@@ -37,20 +37,20 @@ export default async (context) => {
 
         if (!mediaMsg) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-            return sendInteractive(client, m, '├───≥ TAKE ≤───\n│ \n│ Quote or send an image, short video,\n│ or sticker to steal the watermark.\n╰───────────────\n> ©𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
+            return sendInteractive(client, m, '╭─❏ 「 TAKE 」\n│ \n│ Quote or send an image, short video,\n│ or sticker to steal the watermark.\n╰───────────────\n> ©𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
         }
 
         const mime = mediaMsg.mimetype || '';
 
         if (!/image|video|webp/.test(mime)) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-            return sendInteractive(client, m, '├───≥ TAKE ≤───\n│ \n│ That\'s not an image, video or sticker.\n╰───────────────\n> ©𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
+            return sendInteractive(client, m, '╭─❏ 「 TAKE 」\n│ \n│ That\'s not an image, video or sticker.\n╰───────────────\n> ©𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
         }
 
         const videoSeconds = mediaMsg.seconds || 0;
         if (/video/.test(mime) && videoSeconds > 30) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-            return sendInteractive(client, m, '├───≥ TAKE ≤───\n│ \n│ Videos must be 30 seconds or shorter.\n╰───────────────\n> ©𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
+            return sendInteractive(client, m, '╭─❏ 「 TAKE 」\n│ \n│ Videos must be 30 seconds or shorter.\n╰───────────────\n> ©𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
         }
 
         const buffer = await client.downloadMediaMessage(mediaMsg);
@@ -82,6 +82,6 @@ export default async (context) => {
     } catch (error) {
         console.error('WatermarkSticker error:', error);
         await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-        await sendInteractive(client, m, '├───≥ ERROR ≤───\n│ \n│ Error while creating sticker.\n│ Try again, loser.\n╰───────────────\n> ©𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
+        await sendInteractive(client, m, '╭─❏ 「 ERROR 」\n│ \n│ Error while creating sticker.\n│ Try again, loser.\n╰───────────────\n> ©𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
     }
 };

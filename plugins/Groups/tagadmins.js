@@ -11,7 +11,8 @@ export default {
             const { client, m, text, groupMetadata } = context;
             await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
-            if (!m.isGroup) return sendInteractive(client, m, `│ Group only command.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+            if (!m.isGroup) return sendInteractive(client, m, `╭─❏ 「 TAGADMINS 」
+│ Group only command.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
 
             const resolveParticipantJid = (p, participants) => {
                 if (p.pn) return String(p.pn).replace(/\D/g, '') + '@s.whatsapp.net';
@@ -25,13 +26,18 @@ export default {
                 const admins = participants.filter(p => p.admin === 'admin' || p.admin === 'superadmin');
                 const mentions = admins.map(p => resolveParticipantJid(p, participants)).filter(Boolean);
 
-                if (!mentions.length) return sendInteractive(client, m, `│ No admins found in this group.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+                if (!mentions.length) return sendInteractive(client, m, `╭─❏ 「 TAGADMINS 」
+│ No admins found in this group.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
 
                 const txt = [
                     `╭─❏ 「 ADMINS 」`,
-                    text ? `│ ${text}` : `│ Calling all admins 📢`,
-                    `│ `,
-                    ...mentions.map(id => `│ @${id.split('@')[0]}`),
+                    text ? `╭─❏ 「 TAGADMINS 」
+│ ${text}` : `╭─❏ 「 TAGADMINS 」
+│ Calling all admins 📢`,
+                    `╭─❏ 「 TAGADMINS 」
+│ `,
+                    ...mentions.map(id => `╭─❏ 「 TAGADMINS 」
+│ @${id.split('@')[0]}`),
                     `╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
                 ].join('\n');
 
@@ -39,7 +45,8 @@ export default {
                 await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
             } catch (err) {
                 await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-                await sendInteractive(client, m, `│ Failed to fetch admins.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+                await sendInteractive(client, m, `╭─❏ 「 TAGADMINS 」
+│ Failed to fetch admins.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
             }
         });
     }

@@ -4,6 +4,11 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
 
 const fmt = (title, msg) => `╭─❏ 「 ${title}」\n│ ${msg}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
+const normalizeJid = (jid) => {
+    if (!jid) return '';
+    return jid.replace(/:(\d+)@/, '@').trim();
+};
+
 export default [
     {
         name: 'blockgc',
@@ -19,21 +24,22 @@ export default [
                 if (text && text.trim()) {
                     const t = text.trim();
                     if (t.endsWith('@g.us')) {
-                        targetJid = t;
-                    } else if (/^\d+$/.test(t)) {
-                        targetJid = t + '@g.us';
+                        targetJid = normalizeJid(t);
+                    } else if (/^\d+[-\d]*$/.test(t.replace('@g.us', ''))) {
+                        targetJid = normalizeJid(t.includes('@g.us') ? t : t + '@g.us');
                     } else {
                         await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
                         return sendInteractive(client, m, fmt("BLOCKGC", "Provide a valid group JID (e.g. 1234567890-12345@g.us) or just the numeric ID."));
                     }
                 } else if (isGroup) {
-                    targetJid = m.chat;
+                    targetJid = normalizeJid(m.chat);
                 } else {
                     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
                     return sendInteractive(client, m, fmt("BLOCKGC", "Provide a group JID, or run this inside the group you want to block."));
                 }
 
-                const banned = await getBannedGroups();
+                const raw = await getBannedGroups();
+                const banned = raw.map(normalizeJid);
                 if (banned.includes(targetJid)) {
                     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
                     return sendInteractive(client, m, fmt("BLOCKGC", `Group \`${targetJid}\` is already blocked.`));
@@ -59,27 +65,29 @@ export default [
                 if (text && text.trim()) {
                     const t = text.trim();
                     if (t.endsWith('@g.us')) {
-                        targetJid = t;
-                    } else if (/^\d+$/.test(t)) {
-                        targetJid = t + '@g.us';
+                        targetJid = normalizeJid(t);
+                    } else if (/^\d+[-\d]*$/.test(t.replace('@g.us', ''))) {
+                        targetJid = normalizeJid(t.includes('@g.us') ? t : t + '@g.us');
                     } else {
                         await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
                         return sendInteractive(client, m, fmt("UNBLOCKGC", "Provide a valid group JID or numeric ID."));
                     }
                 } else if (isGroup) {
-                    targetJid = m.chat;
+                    targetJid = normalizeJid(m.chat);
                 } else {
                     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
                     return sendInteractive(client, m, fmt("UNBLOCKGC", "Provide a group JID, or run inside the group."));
                 }
 
-                const banned = await getBannedGroups();
-                if (!banned.includes(targetJid)) {
+                const raw = await getBannedGroups();
+                const normalized = raw.map(normalizeJid);
+                const idx = normalized.indexOf(targetJid);
+                if (idx === -1) {
                     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
                     return sendInteractive(client, m, fmt("UNBLOCKGC", `Group \`${targetJid}\` is not blocked.`));
                 }
 
-                await removeBannedGroup(targetJid);
+                await removeBannedGroup(raw[idx]);
                 await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
                 return sendInteractive(client, m, fmt("UNBLOCKGC", `Group unblocked: \`${targetJid}\`\n│ Bot will resume responding in that group.`));
             });

@@ -14,10 +14,6 @@ export default async (context) => {
 
         try {
             const settings = await getSettings();
-            if (!settings || Object.keys(settings).length === 0) {
-                await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-                return await sendInteractive(client, m, fmt('ANTIVIEWONCE', 'Database is fucked, no settings found. Fix it.'));
-            }
 
             const value = args.join(' ').toLowerCase();
 

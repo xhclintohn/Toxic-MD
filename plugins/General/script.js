@@ -94,7 +94,7 @@ export default {
     } catch (error) {
       await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
       await sendInteractive(client, m, `╭─❏ 「 Eʀʀᴏʀ」
-│ Couldn't fetch repo data\n│ ${error.message}\n╰───────────────\n> 🌐 hosting.toxicx.tech`);
+│ Couldn't fetch repo data\n│ ${error.message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
     }
   }
 };

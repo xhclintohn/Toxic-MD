@@ -41,15 +41,18 @@ export default {
 │ Inbox: ${totalEmails} email${totalEmails > 1 ? 's' : ''} found\n`;
 
             emails.forEach((email, index) => {
-                inboxText += `│ \n│ Email ${index + 1}:\n│ From: ${email.from || 'Unknown'}\n│ Subject: ${email.subject || 'No Subject'}\n`;
+                inboxText += `╭─❏ 「 TEMPINBOX 」
+│ \n│ Email ${index + 1}:\n│ From: ${email.from || 'Unknown'}\n│ Subject: ${email.subject || 'No Subject'}\n`;
                 
                 if (email.text && email.text.trim()) {
                     const cleanText = email.text.replace(/\r\n/g, '\n').trim();
-                    inboxText += `│ Content: ${cleanText.substring(0, 50)}${cleanText.length > 50 ? '...' : ''}\n`;
+                    inboxText += `╭─❏ 「 TEMPINBOX 」
+│ Content: ${cleanText.substring(0, 50)}${cleanText.length > 50 ? '...' : ''}\n`;
                 }
                 
                 if (email.downloadUrl) {
-                    inboxText += `│ Attachment URL available\n`;
+                    inboxText += `╭─❏ 「 TEMPINBOX 」
+│ Attachment URL available\n`;
                 }
             });
 

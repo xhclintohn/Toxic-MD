@@ -33,7 +33,8 @@ export default async (context) => {
 
         if (!firstHref) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-            return sendInteractive(client, m, `│ \n│ Couldn't find shit for "${text}".\n│ Try better keywords, retard.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+            return sendInteractive(client, m, `╭─❏ 「 XVIDEOS 」
+│ \n│ Couldn't find shit for "${text}".\n│ Try better keywords, retard.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
         }
 
         const videoUrl = `https://www.xvideos.com${firstHref}`;
@@ -51,7 +52,8 @@ export default async (context) => {
         const mp4Url = highUrl || lowUrl;
         if (!mp4Url) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-            return sendInteractive(client, m, `│ \n│ Found it but no MP4 link.\n│ Try a different search, genius.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+            return sendInteractive(client, m, `╭─❏ 「 XVIDEOS 」
+│ \n│ Found it but no MP4 link.\n│ Try a different search, genius.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
         }
 
         const cleanTitle = `${videoTitle.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 60)}`;

@@ -18,7 +18,7 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
                   const desc = (meta.desc && meta.desc.toString().trim()) || 'No description set.';
                   await client.sendMessage(m.chat, {
                       image: { url: ppUrl },
-                      caption: `├───≡ Gʀᴏᴜᴘ Pɪᴄ ≢───\n│ \n│ *${meta.subject}*\n│ \n│ ${desc}\n╰──────────────────☑\n> ©𝐏𝐨𝐰𝐞𝐫𝐞ꀠ𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
+                      caption: `╭─❏ 「 Gʀᴏᴜᴘ Pɪᴄ 」\n│ \n│ *${meta.subject}*\n│ \n│ ${desc}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞ꀠ𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
                   });
                   await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
                   return;
@@ -57,7 +57,7 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
 
               await client.sendMessage(m.chat, {
                   image: { url: ppUrl },
-                  caption: `├───≡ Pʀᴏғɪʟᴇ ≢───\n│ \n│ ${displayName}\n╰──────────────────☑\n> ©𝐏𝐨𝐰𝐞𝐫𝐞ꀠ𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`,
+                  caption: `╭─❏ 「 Pʀᴏғɪʟᴇ 」\n│ \n│ ${displayName}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞ꀠ𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`,
                   mentions: targetUser !== m.sender ? [targetUser] : []
               });
               await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
@@ -65,7 +65,7 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
           } catch (error) {
               await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
               console.error('Profile error:', error);
-              await sendInteractive(client, m, `├───≡ Eʀʀᴏʀ ≢───\n│ \n│ Failed to fetch profile.\n│ The user probably blocked you or\n│ their privacy settings are stricter\n│ than your intelligence.\n╰──────────────────☑\n> ©𝐏𝐨𝐰𝐞𝐫𝐞ꀠ𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+              await sendInteractive(client, m, `╭─❏ 「 Eʀʀᴏʀ 」\n│ \n│ Failed to fetch profile.\n│ The user probably blocked you or\n│ their privacy settings are stricter\n│ than your intelligence.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞ꀠ𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
           }
       }
   };

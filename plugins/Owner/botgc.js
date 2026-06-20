@@ -20,9 +20,12 @@ export default async (context) => {
         return new Promise((resolve) => {
           client.groupMetadata(i).then((metadat) => {
             setTimeout(() => {
-              jackhuh += `│ Subject: ${metadat.subject}\n`
-              jackhuh += `│ Members: ${metadat.participants.length}\n`
-              jackhuh += `│ Jid: ${i}\n│ \n`
+              jackhuh += `╭─❏ 「 BOTGC 」
+│ Subject: ${metadat.subject}\n`
+              jackhuh += `╭─❏ 「 BOTGC 」
+│ Members: ${metadat.participants.length}\n`
+              jackhuh += `╭─❏ 「 BOTGC 」
+│ Jid: ${i}\n│ \n`
               resolve()
             }, 500);
           })

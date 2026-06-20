@@ -76,7 +76,8 @@ export default {
       if (category.name === 'NSFW') {
         const plus18Commands = ['xvideo'];
         for (const cmd of plus18Commands) {
-          menuText += `│ *${toFancyFont(cmd)}*\n`;
+          menuText += `╭─❏ 「 FULLMENU 」
+│ *${toFancyFont(cmd)}*\n`;
         }
       }
 
@@ -89,7 +90,8 @@ export default {
           const mod = modRaw.default !== undefined ? modRaw.default : modRaw;
           if (Array.isArray(mod)) {
             for (const cmd of mod) {
-              if (cmd && cmd.name) menuText += `│ *${toFancyFont(cmd.name)}*\n`;
+              if (cmd && cmd.name) menuText += `╭─❏ 「 FULLMENU 」
+│ *${toFancyFont(cmd.name)}*\n`;
             }
             continue;
           }
@@ -97,7 +99,8 @@ export default {
             displayName = mod.name;
           }
         } catch (e) {}
-        menuText += `│ *${toFancyFont(displayName)}*\n`;
+        menuText += `╭─❏ 「 FULLMENU 」
+│ *${toFancyFont(displayName)}*\n`;
       }
 
       menuText += `╰───────────────\n\n`;
@@ -124,11 +127,12 @@ export default {
 
     if (device === 'ios') {
       const iosCategoryText = sections.map(s =>
-        `│ ${s.rows[0]?.id || ''} — ${s.rows[0]?.description || s.title}`
+        `╭─❏ 「 FULLMENU 」
+│ ${s.rows[0]?.id || ''} — ${s.rows[0]?.description || s.title}`
       ).join('\n');
       await client.sendMessage(m.chat, {
         text: `╭─❏ 「 Categories」
-${iosCategoryText}\n╰───────────────\n> 🌐 Hosted by Toxic-Hosting\n> 🔗 hosting.toxicx.tech`,
+${iosCategoryText}\n╰───────────────`,
         contextInfo: { mentionedJid: [m.sender] }
       });
       await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });

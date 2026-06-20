@@ -39,7 +39,8 @@ export default {
                                         ]
                                     }
                                 }
-                            }
+                            },
+                            { userJid: client.user?.id }
                         );
                         await client.relayMessage(m.chat, msg.message, { messageId: msg.key.id });
                     } catch {
@@ -102,7 +103,8 @@ export default {
                                 ]
                             }
                         }
-                    }
+                    },
+                    { userJid: client.user?.id }
                 );
                 await client.sendMessage(m.chat, { react: { text: `✅`, key: m.reactKey } });
                 await client.relayMessage(m.chat, msg.message, { messageId: msg.key.id });

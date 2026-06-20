@@ -11,7 +11,8 @@ await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
         try {
             if (!text) {
                 await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                return sendInteractive(client, m, "│ Provide a term to search, you lazy fool.\n│ E.g: What is JavaScript!\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧")
+                return sendInteractive(client, m, "╭─❏ 「 USAGE 」
+│ Provide a term to search, you lazy fool.\n│ E.g: What is JavaScript!\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧")
             }
             const con = await wiki.summary(text);
             const texa = `╭─❏ 「 WIKIPEDIA」
@@ -20,6 +21,7 @@ await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
         } catch (err) {
     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
             console.log(err)
-            return sendInteractive(client, m, "│ Got 404. Couldn't find anything, try harder.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧")
+            return sendInteractive(client, m, "╭─❏ 「 WIKI 」
+│ Got 404. Couldn't find anything, try harder.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧")
         }
     }

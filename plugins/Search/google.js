@@ -6,12 +6,7 @@ export default async (context) => {
 
   if (!text) {
     sendInteractive(client, m, 
-      "" +
-      "│ ERROR\n" +
-      "" +
-      "│ 🚫 Please provide a search term!\n" +
-      "│ Example: .google What is treason\n" +
-      "╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧"
+      "╭─❏ 「 USAGE 」\n│ 🚫 Please provide a search term!\n│ Example: .google What is treason\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧"
     );
     return;
   }
@@ -23,19 +18,13 @@ export default async (context) => {
 
     if (data.items.length == 0) {
       sendInteractive(client, m, 
-        "" +
-        "│ ERROR\n" +
-        "" +
-        "│ ❌ Unable to find any results\n" +
-        "╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧"
+        "╭─❏ 「 ERROR 」\n│ ❌ Unable to find any results\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧"
       );
       return;
     }
 
     let tex = "";
-    tex += "";
-    tex += "│ GOOGLE SEARCH\n";
-    tex += "";
+    tex += "╭─❏ 「 GOOGLE SEARCH 」\n";
     tex += "│ 🔍 Search Term: " + text + "\n";
     tex += "";
 
@@ -50,11 +39,7 @@ export default async (context) => {
     sendInteractive(client, m, tex);
   } catch (e) {
     sendInteractive(client, m, 
-      "" +
-      "│ ERROR\n" +
-      "" +
-      "│ ❌ An error occurred: " + e.message + "\n" +
-      "╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧"
+      "╭─❏ 「 ERROR 」\n│ ❌ An error occurred: " + e.message + "\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧"
     );
   }
 };

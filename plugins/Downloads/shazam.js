@@ -16,7 +16,8 @@ export default async (context) => {
 
         if (!m.quoted) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, "│ Quote an audio/video message, you deaf imbecile.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧");
+            return sendInteractive(client, m, "╭─❏ 「 SHAZAM 」
+│ Quote an audio/video message, you deaf imbecile.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧");
         }
 
         const p = m.quoted ? m.quoted : m;
@@ -25,18 +26,25 @@ export default async (context) => {
         const { status, metadata } = await acr.identify(buffer);
         if (status.code !== 0) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-            return sendInteractive(client, m, "│ Song not recognized.\n│ Your audio is as indecipherable as your life choices.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧");
+            return sendInteractive(client, m, "╭─❏ 「 SHAZAM 」
+│ Song not recognized.\n│ Your audio is as indecipherable as your life choices.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧");
         }
 
         const { title, artists, album, genres, release_date } = metadata.music[0];
         let txt = `╭─❏ 「 SHAZAM」
 `;
-        txt += `│ Title: ${title}\n`;
-        if (artists) txt += `│ Artists: ${artists.map(v => v.name).join(', ')}\n`;
-        if (album) txt += `│ Album: ${album.name}\n`;
-        if (genres) txt += `│ Genres: ${genres.map(v => v.name).join(', ')}\n`;
-        if (release_date) txt += `│ Release: ${release_date}\n`;
-        txt += `╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+        txt += `╭─❏ 「 SHAZAM 」
+│ Title: ${title}\n`;
+        if (artists) txt += `╭─❏ 「 SHAZAM 」
+│ Artists: ${artists.map(v => v.name).join(', ')}\n`;
+        if (album) txt += `╭─❏ 「 SHAZAM 」
+│ Album: ${album.name}\n`;
+        if (genres) txt += `╭─❏ 「 SHAZAM 」
+│ Genres: ${genres.map(v => v.name).join(', ')}\n`;
+        if (release_date) txt += `╭─❏ 「 SHAZAM 」
+│ Release: ${release_date}\n`;
+        txt += `╭─❏ 「 SHAZAM 」
+╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
         await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
         await sendInteractive(client, m, txt);

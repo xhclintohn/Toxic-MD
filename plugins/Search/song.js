@@ -5,12 +5,11 @@ export default async (context) => {
   await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
   const formatStylishReply = (message) => {
-    return `│ ${message}\n╰───────────────
-> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+    return ``╭─❏ 「 SONG 」\n│ ${message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧``;
   };
 
   if (!text) {
-    await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+    await client.sendMessage(m.chat, { react: { text:'❌', key: m.reactKey } }).catch(() => {});
     return sendInteractive(client, m, formatStylishReply("Yo, dumbass, give me a song name! 🎵 Don’t waste my time."));
   }
 
@@ -34,7 +33,7 @@ export default async (context) => {
   const thumbnail = song.thumbnail || "";
   const videoUrl = song.url;
 
-  const response = `` +
+  const response = `╭─❏ 「 SONG 」\n` +
                   `│ *${title}* found for @${m.sender.split('@')[0].split(':')[0]}! 🎶\n` +
                   `│🎤 *Artist*: ${artist}\n` +
                   `│👀 *Views*: ${views}\n` +

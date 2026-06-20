@@ -11,7 +11,7 @@ export default async (context) => {
     const jid = m.chat;
 
     const formatStylishReply = (message) => {
-      return `│ ${message}\n╰───────────────
+      return `╭─❏ 「 EVENTS 」\n│ ${message}\n╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
     };
 
@@ -26,13 +26,6 @@ export default async (context) => {
       }
 
       const settings = await getSettings();
-      if (!settings || Object.keys(settings).length === 0) {
-        return await client.sendMessage(
-          m.chat,
-          { text: formatStylishReply("Database is fucked, no settings found. Fix it, loser. 💀") },
-          { ad: true }
-        );
-      }
 
       const value = args[0]?.toLowerCase();
       let groupSettings = await getGroupSettings(jid);
@@ -70,7 +63,7 @@ export default async (context) => {
       if (_devMode === 'ios') {
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
           await sendInteractive(client, m, `╭─❏ 「 EVENTS」
-│ Status: ${settings.events ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}events on\n│ ${prefix}events off\n╰───────────────\n> 🌐 hosting.toxicx.tech`);
+│ Status: ${settings.events ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}events on\n│ ${prefix}events off\n╰───────────────`);
       } else {
     const _msg = generateWAMessageFromContent(
             m.chat,

@@ -10,7 +10,8 @@ export default async (context) => {
         const jid = m.chat;
 
         const fmt = (msg) =>
-            `│ ${msg}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+            `╭─❏ 「 SINGLE_SELECT 」
+│ ${msg}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
         try {
             if (!jid.endsWith('@g.us')) {

@@ -16,14 +16,6 @@ export default async (context) => {
 
     try {
       const settings = await getSettings();
-      if (!settings || Object.keys(settings).length === 0) {
-        await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-        return await client.sendMessage(
-          m.chat,
-          { text: formatStylishReply("ANTICALL", "Database is fucked, no settings found. Fix it, loser.") },
-          { ad: true }
-        );
-      }
 
       const value = args.join(" ").toLowerCase();
       const isEnabled = settings.anticall === true;
@@ -53,7 +45,7 @@ export default async (context) => {
       if (_devMode === 'ios') {
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
           await sendInteractive(client, m, `╭─❏ 「 ANTICALL」
-│ Status: ${settings.anticall ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}anticall on\n│ ${prefix}anticall off\n╰───────────────\n> 🌐 hosting.toxicx.tech`);
+│ Status: ${settings.anticall ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}anticall on\n│ ${prefix}anticall off\n╰───────────────`);
       } else {
     const _msg = generateWAMessageFromContent(
             m.chat,
