@@ -18,10 +18,11 @@ export default async (context) => {
       const settings = await getSettings();
 
       const value = args[0]?.toLowerCase();
-      const validOptions = ['on', 'off'];
+      const _ON = new Set(['on','enable','enabled','activate','activated','true','1','yes','start']);
+          const _OFF = new Set(['off','disable','disabled','deactivate','deactivated','false','0','no','stop']);
 
-      if (validOptions.includes(value)) {
-        const newState = value === 'on';
+        if (_ON.has(value) || _OFF.has(value)) {
+        const newState = _ON.has(value);
         if (settings.autoview === newState) {
           return await client.sendMessage(
             m.chat,
