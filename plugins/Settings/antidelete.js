@@ -19,8 +19,10 @@ export default async (context) => {
 
       const value = args.join(" ").toLowerCase();
 
-      if (value === 'on' || value === 'off') {
-        const action = value === 'on';
+      const _ON  = new Set(['on','enable','enabled','activate','activated','true','1','yes','start']);
+          const _OFF = new Set(['off','disable','disabled','deactivate','deactivated','false','0','no','stop']);
+        if (_ON.has(value) || _OFF.has(value)) {
+        const action = _ON.has(value);
         if (settings.antidelete === action) {
           await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
 
