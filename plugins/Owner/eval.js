@@ -10,7 +10,7 @@ const BLOCKED_PATTERNS = [
 
 export default async (context) => {
     await ownerMiddleware(context, async () => {
-        const { client, m, text, isAdmin, isBotAdmin, Owner, isDev, isSudo, itsMe, store, settings, botNumber, args, pushname, mode, pict, botname, totalCommands, sock, conn } = context;
+        const { client, m, text, isAdmin, isBotAdmin, Owner, isDev, isSudo, itsMe, store, settings, botNumber, args, pushname, mode, pict, botname, totalCommands, sock, conn, wa, bot, xh, clint } = context;
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
         const raw = (text || (m.quoted && (m.quoted.text || m.quoted.caption)) || '').trim();

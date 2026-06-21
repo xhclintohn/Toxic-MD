@@ -521,6 +521,7 @@ export default async (client, m, chatUpdate, store) => {
         if ((trimmedBody.startsWith('>') || trimmedBody.startsWith('$')) && Owner && !cmd) {
             const evalText = trimmedBody.slice(1).trim();
             if (!evalText) return await m.reply('W eval?🟢!');
+            const sock = client, conn = client, bot = client, xh = client, clint = client, wa = client;
             await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
             try {
                 let evaled = await eval(evalText);
@@ -564,7 +565,7 @@ export default async (client, m, chatUpdate, store) => {
                     toxicspeed, mycode, fetchJson, exec, getRandom, UploadFileUgu, TelegraPh, prefix: usedPrefix, cmd,
                     botname, mode, gcpresence, antitag, antidelete: antideleteSetting, fetchBuffer, sendJson, settings,
                     getGroupAdmins: () => [], pict, Tag, stealth, multiprefix, isDev, isSudo, isEnvOwner, fakeQuoted, fq: fakeQuoted,
-                    isGroup: m.isGroup, command: commandName, sock: client, conn: client
+                    isGroup: m.isGroup, command: commandName, sock: client, conn: client, wa: client, bot: client, xh: client, clint: client
                 };
                 if (typeof cmd.run === 'function') await cmd.run(stCtx);
                 else if (typeof cmd === 'function') await cmd(stCtx);
@@ -781,7 +782,7 @@ export default async (client, m, chatUpdate, store) => {
                 }
                 const cmdCtx = {
                     client, m, args, text, prefix: usedPrefix, command: commandName, pushname, botNumber,
-                    itsMe, isDev, isSudo, isEnvOwner, Owner, settings, Tag, msgToxic, budy, sock: client, conn: client, wa: client, store,
+                    itsMe, isDev, isSudo, isEnvOwner, Owner, settings, Tag, msgToxic, budy, sock: client, conn: client, wa: client, bot: client, xh: client, clint: client, store,
                     isAdmin, isBotAdmin, mode, pict, botname, totalCommands, isGroup: m.isGroup,
                     participants, groupMetadata, body, fq: fakeQuoted, fakeQuoted, mime, qmsg,
                     packname: settings.packname, generateProfilePicture, toxicspeed, mycode, fetchJson,

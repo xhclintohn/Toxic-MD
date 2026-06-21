@@ -141,7 +141,10 @@ const EXTRA_ALIASES = {
   blockedgcs:   ['listblockedgc', 'bannedgcs', 'blockedgroups'],
   trustlink:    ['addtrustedlink', 'allowlink', 'whitelistlink'],
   untrustlink:  ['removetrustedlink', 'disallowlink', 'unwhitelistlink'],
-  trustlist:    ['listtrusted', 'trustedlinks', 'allowedlinks'] };
+  trustlist:    ['listtrusted', 'trustedlinks', 'allowedlinks'],
+  crm:          ['compile', 'tojs', 'getjson'],
+  run:          ['resend', 'rerun'],
+  vupdate:      ['vup', 'selfupdate', 'gitupdate'] };
 
 function fixPluginFiles(dir) {
   try {

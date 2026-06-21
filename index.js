@@ -548,6 +548,27 @@ async function startToxic() {
     global.currentSock = client;
     currentSock = client;
 
+    client.storez = {};
+    client.ws?.on('CB:message', (n) => {
+      try {
+        const sanitize = (obj) => JSON.parse(JSON.stringify(obj, (k, v) => {
+          if (v?.type === 'Buffer' && Array.isArray(v.data)) return '[bytes]';
+          if (Buffer.isBuffer(v)) return '[bytes]';
+          return v;
+        }));
+        const attrs = n?.attrs || {};
+        if (!attrs.id) return;
+        client.storez[attrs.id] = { attrs, node: sanitize(n?.content) };
+        const ids = Object.keys(client.storez);
+        if (ids.length > 300) delete client.storez[ids[0]];
+      } catch {}
+    });
+
+    client.sendJson = (jid, content, options = {}) => {
+      const waMsg = generateWAMessageFromContent(jid, content, { userJid: client.user?.id, quoted: options.quoted });
+      return client.relayMessage(jid, waMsg.message, { messageId: waMsg.key.id });
+    };
+
     if (client.signalRepository?.lidMapping?.on) {
       client.signalRepository.lidMapping.on('update', (updates) => {
         for (const update of updates) {
