@@ -59,6 +59,16 @@ export default {
         .join('');
     };
 
+    const toBold = (text) => {
+      const boldFonts = {
+        'A': '𝗔', 'B': '𝗕', 'C': '𝗖', 'D': '𝗗', 'E': '𝗘', 'F': '𝗙', 'G': '𝗚', 'H': '𝗛', 'I': '𝗜', 'J': '𝗝', 'K': '𝗞', 'L': '𝗟', 'M': '𝗠',
+        'N': '𝗡', 'O': '𝗢', 'P': '𝗣', 'Q': '𝗤', 'R': '𝗥', 'S': '𝗦', 'T': '𝗧', 'U': '𝗨', 'V': '𝗩', 'W': '𝗪', 'X': '𝗫', 'Y': '𝗬', 'Z': '𝗭',
+        'a': '𝗮', 'b': '𝗯', 'c': '𝗰', 'd': '𝗱', 'e': '𝗲', 'f': '𝗳', 'g': '𝗴', 'h': '𝗵', 'i': '𝗶', 'j': '𝗷', 'k': '𝗸', 'l': '𝗹', 'm': '𝗺',
+        'n': '𝗻', 'o': '𝗼', 'p': '𝗽', 'q': '𝗾', 'r': '𝗿', 's': '𝘀', 't': '𝘁', 'u': '𝘂', 'v': '𝘃', 'w': '𝘄', 'x': '𝘅', 'y': '𝘆', 'z': '𝘇'
+      };
+      return text.split('').map(char => boldFonts[char] || char).join('');
+    };
+
     let menuText = `╭─❏ 「 Fᴜʟʟ Mᴇɴᴜ」
 │ Greetings, @${m.sender.split('@')[0].split(':')[0]}\n│ \n│ Bot: ${botname}\n│ Total Commands: ${totalCommands}\n│ Time: ${getCurrentTimeInNairobi()}\n│ Prefix: ${effectivePrefix || 'None'}\n│ Mode: ${mode}\n│ Library: Baileys\n╰───────────────\n\n`;
 
@@ -116,8 +126,8 @@ export default {
         try { return fs.readdirSync(`./plugins/${cat.name}`).filter(f => f.endsWith('.js')).length > 0; } catch { return false; }
       })
       .map(cat => ({
-        title: `*${cat.display}*`,
-        rows: [{ title: `*${cat.display}*`, description: `*View ${cat.name} commands*`, id: `${effectivePrefix}${cat.name.toLowerCase()}menu` }]
+        title: toBold(cat.display),
+        rows: [{ title: toBold(cat.display), description: toBold(`View ${cat.name} commands`), id: `${effectivePrefix}${cat.name.toLowerCase()}menu` }]
       }));
 
     const device = await getDeviceMode();
@@ -138,8 +148,8 @@ ${iosCategoryText}\n╰───────────────`,
     try {
       const interactiveMsg = generateWAMessageFromContent(m.chat, proto.Message.fromObject({
         interactiveMessage: {
-          body: { text: '*Browse Categories*' },
-          footer: { text: '*©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧*' },
+          body: { text: toBold('Browse Categories') },
+          footer: { text: toBold('©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧') },
           header: { hasMediaAttachment: false },
           nativeFlowMessage: {
             messageVersion: 1,
@@ -147,7 +157,7 @@ ${iosCategoryText}\n╰───────────────`,
               {
                 name: 'single_select',
                 buttonParamsJson: JSON.stringify({
-                  title: '*Browse Categories*',
+                  title: toBold('Browse Categories'),
                   sections: sections
                 })
               }
