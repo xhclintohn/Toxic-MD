@@ -800,12 +800,9 @@ export default async (client, m, chatUpdate, store) => {
             }
         }
 
-        // ── AI features ──────────────────────────────────────────────────────
-        // autoai: DM replies (chatbotpm) + @mentions in groups
         autoai({ client, m, settings, botNumber, body, isDev, isSudo, Owner,
             prefix: usedPrefix, fq: fakeQuoted, pushname }).catch(e => console.log('❌ [AUTOAI]:', e.message));
 
-        // toxicai: developer-only GitHub AI agent
         if (settings?.toxicagent === true || settings?.toxicagent === 'true') {
             toxicaiFeature({ client, m, body, isDev, settings, fq: fakeQuoted, prefix: usedPrefix }).catch(e => console.log('❌ [TOXICAI]:', e.message));
         }

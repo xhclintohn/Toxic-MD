@@ -60,7 +60,6 @@ export default async (client, m) => {
 
         if (!isChannelForward && !hasLink) return;
 
-        // Check if the link is the group's own invite link — always allow
         if (hasLink && !isChannelForward) {
             try {
                 const ownCode = await client.groupInviteCode(m.chat);
@@ -70,7 +69,6 @@ export default async (client, m) => {
             } catch {}
         }
 
-        // Check trusted links — skip if the message only contains trusted domains
         if (hasLink && !isChannelForward) {
             try {
                 const trustedDomains = await getTrustedLinks(m.chat);

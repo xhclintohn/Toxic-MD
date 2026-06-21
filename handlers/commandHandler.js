@@ -143,8 +143,13 @@ const EXTRA_ALIASES = {
   untrustlink:  ['removetrustedlink', 'disallowlink', 'unwhitelistlink'],
   trustlist:    ['listtrusted', 'trustedlinks', 'allowedlinks'],
   crm:          ['compile', 'tojs', 'getjson'],
-  run:          ['resend', 'rerun'],
-  vupdate:      ['vup', 'selfupdate', 'gitupdate'] };
+  run:          ['resend', 'rerun', 'insp', 'inspect'],
+  vupdate:      ['vup', 'selfupdate', 'gitupdate'],
+  cloneweb:     ['clone', 'webclone', 'getsource'],
+  'crm-snip':   ['crmsnip', 'snip', 'csnip'],
+  'crm-cmd':    ['crmcmd', 'tocmd', 'ccmd'],
+  addcmd:       ['newcmd', 'savecmd', 'createcmd'],
+  delcmd:       ['delcommand', 'rmcmd', 'removecmd'] };
 
 function fixPluginFiles(dir) {
   try {

@@ -207,7 +207,6 @@ async function tryInitPg() {
             new Promise((_, rej) => setTimeout(() => rej(new Error('PG connect timeout')), 20000))
         ]);
         for (const sql of PG_SCHEMA) { try { await pool.query(sql); } catch {} }
-        // Migrate existing databases with new columns
         const alters = [
             `ALTER TABLE group_settings ADD COLUMN IF NOT EXISTS antiforeign INTEGER DEFAULT 0`,
             `ALTER TABLE group_settings ADD COLUMN IF NOT EXISTS custom_welcome TEXT DEFAULT ''`,
@@ -324,8 +323,6 @@ async function updateGroupSetting(jid, key, value) {
     cache.groupSettings.delete(jid);
 }
 
-// ── Trusted links ────────────────────────────────────────────────────────────
-
 async function getTrustedLinks(jid) {
     const gs = await getGroupSettings(jid);
     try { return JSON.parse(gs.trusted_links || '[]'); } catch { return []; }
@@ -344,8 +341,6 @@ async function removeTrustedLink(jid, domain) {
     const updated = current.filter(d => d !== domain);
     await updateGroupSetting(jid, 'trusted_links', JSON.stringify(updated));
 }
-
-// ── Banned groups ─────────────────────────────────────────────────────────────
 
 async function getBannedGroups() {
     if (isCacheValid(cache.bannedGroups)) return cache.bannedGroups.data;
@@ -377,8 +372,6 @@ async function removeBannedGroup(jid) {
     await updateSetting('banned_groups', JSON.stringify(updated));
     cache.bannedGroups.data = null;
 }
-
-// ── Users ────────────────────────────────────────────────────────────────────
 
 async function banUser(num) {
     await qRun('INSERT INTO banned_users (num) VALUES ($1) ON CONFLICT DO NOTHING', [num]);

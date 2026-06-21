@@ -46,7 +46,7 @@ export default async (client, event) => {
             if (!participantJid) continue;
 
             const resolvedJid = resolveTargetJid(participantJid, metadata.participants);
-            if (!resolvedJid) continue; // can't resolve LID, skip safely
+            if (!resolvedJid) continue;
 
             const pNum = cleanNum(resolvedJid);
             if (!pNum) continue;

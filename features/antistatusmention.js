@@ -11,7 +11,7 @@ const _pNum = (p) => {
     if (phone) return _num(phone);
     const base = p.id || p.jid || '';
     if (base && !base.endsWith('@lid')) return _num(base);
-    return _num(p.lid || base); // fallback: LID number (not a phone, but best we have)
+    return _num(p.lid || base);
 };
 
 export default async (client, m) => {
@@ -28,7 +28,6 @@ export default async (client, m) => {
         const groupMetadata = await client.groupMetadata(m.chat);
         const sender = resolveTargetJid(m.sender, groupMetadata.participants);
 
-
         if (!sender) {
             return;
         }
@@ -43,7 +42,6 @@ export default async (client, m) => {
         const isBotAdmin = groupMetadata.participants.some(p => {
             return _pNum(p) === botNum && (p.admin === 'admin' || p.admin === 'superadmin');
         });
-
 
         const username = senderNum || sender.split('@')[0];
 

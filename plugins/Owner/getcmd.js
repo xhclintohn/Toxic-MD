@@ -13,7 +13,7 @@ const normalizeNumber = (jid) => {
 };
 
 const DEVELOPER = normalizeNumber('254114885159');
-const CATEGORIES = ['+18', 'Ai-Tools', 'Coding', 'Downloads', 'Editing', 'General', 'Groups', 'Heroku', 'Logo', 'Owner', 'Privacy', 'Search', 'Settings', 'Utils'];
+const CATEGORIES = ['AI', 'Anime', 'Coding', 'Downloads', 'Editing', 'Effects', 'General', 'Groups', 'Heroku', 'NSFW', 'Owner', 'Privacy', 'Reactions', 'Search', 'Settings', 'Utils'];
 const PLUGINS_DIR = path.join(__dirname, '..', '..', 'plugins');
 
 function resolveAlias(input) {
