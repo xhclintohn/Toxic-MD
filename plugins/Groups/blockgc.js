@@ -1,5 +1,5 @@
 import { addBannedGroup, removeBannedGroup, getBannedGroups } from '../../database/config.js';
-import { invalidateBannedGroups, getCachedBannedGroups } from '../../lib/settingsCache.js';
+import { seedBannedGroups } from '../../lib/settingsCache.js';
 import ownerMiddleware from '../../utils/botUtil/Ownermiddleware.js';
 import { sendInteractive } from '../../lib/sendInteractive.js';
 
@@ -47,8 +47,7 @@ export default [
                 }
 
                 await addBannedGroup(targetJid);
-                invalidateBannedGroups();
-                await getCachedBannedGroups();
+                seedBannedGroups([...banned, targetJid]);
                 await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
                 return sendInteractive(client, m, fmt("BLOCKGC", `Group blocked: \`${targetJid}\`\n│ Bot will ignore all messages from that group.`));
             });
@@ -91,8 +90,7 @@ export default [
                 }
 
                 await removeBannedGroup(raw[idx]);
-                invalidateBannedGroups();
-                await getCachedBannedGroups();
+                seedBannedGroups(normalized.filter(j => j !== targetJid));
                 await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
                 return sendInteractive(client, m, fmt("UNBLOCKGC", `Group unblocked: \`${targetJid}\`\n│ Bot will resume responding in that group.`));
             });

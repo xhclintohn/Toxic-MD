@@ -25,6 +25,7 @@ import autoai from '../features/autoai.js';
 import antiviewonce from '../features/antiviewonce.js';
 import toxicaiFeature from '../features/toxicai.js';
 import afkFeature from '../features/afk.js';
+import mentionResponder from '../features/mentionResponder.js';
 import ownerMiddleware from '../utils/botUtil/Ownermiddleware.js';
 import { lidMappingCache } from '../handlers/smsg.js';
 import { resolveTargetJid, resolveSenderJid } from '../lib/lidResolver.js';
@@ -608,6 +609,7 @@ export default async (client, m, chatUpdate, store) => {
                 gcPresence(client, m).catch(e => console.log('❌ [GCPRESENCE]:', e.message)),
                 antitaggc(client, m, isBotAdmin, itsMe, isAdmin, Owner, body).catch(e => console.log('❌ [ANTITAGGC]:', e.message)),
                 antistatusmention(client, m).catch(e => console.log('❌ [ANTISTATUSMENTION]:', e.message)),
+                mentionResponder(client, m).catch(e => console.log('❌ [MENTIONRESPONDER]:', e.message)),
             );
         }
         Promise.all(_featurePromises).catch(() => {});

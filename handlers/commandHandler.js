@@ -149,7 +149,8 @@ const EXTRA_ALIASES = {
   'crm-snip':   ['crmsnip', 'snip', 'csnip'],
   'crm-cmd':    ['crmcmd', 'tocmd', 'ccmd'],
   addcmd:       ['newcmd', 'savecmd', 'createcmd'],
-  delcmd:       ['delcommand', 'rmcmd', 'removecmd'] };
+  delcmd:       ['delcommand', 'rmcmd', 'removecmd'],
+  setmention:   ['sm', 'setm'] };
 
 function fixPluginFiles(dir) {
   try {

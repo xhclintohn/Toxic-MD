@@ -1031,9 +1031,16 @@ async function startToxic() {
         global._toxicCurrentClient = null;
 
         if (reason === DisconnectReason.loggedOut || reason === 401) {
+          global._toxicShuttingDown = true;
+          if (global._toxicReconnectTimer) { clearTimeout(global._toxicReconnectTimer); global._toxicReconnectTimer = null; }
           try { fs.rmSync(sessionName, { recursive: true, force: true }); } catch (e) {}
           invalidateSettingsCache();
-          if (!global._toxicReconnectTimer) global._toxicReconnectTimer = setTimeout(() => { global._toxicReconnectTimer = null; startToxic(); }, 2000);
+          console.log(chalk.red('\n╭─❏ 「 SESSION LOGGED OUT 」'));
+          console.log(chalk.red('│ The WhatsApp session is no longer valid (401 / logged out).'));
+          console.log(chalk.yellow('│ Generate a fresh SESSION, set it, then start the bot again.'));
+          console.log(chalk.red('│ Stopping now to avoid an endless reconnect loop.'));
+          console.log(chalk.red('╰───────────────\n'));
+          setTimeout(() => process.exit(0), 1500);
           return;
         }
 

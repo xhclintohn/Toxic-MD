@@ -7,24 +7,32 @@ const TRANSPORT = ['ephemeralMessage', 'documentWithCaptionMessage', 'deviceSent
 function deepUnwrap(message) {
     let cur = message;
     let guard = 0;
-    while (cur && guard < 25) {
-        const t = TRANSPORT.find((k) => cur[k]?.message);
+    while (cur && guard < 30) {
         const v = VO_WRAPPERS.find((k) => cur[k]?.message);
-        if (t) cur = cur[t].message;
-        else if (v) cur = cur[v].message;
+        const t = TRANSPORT.find((k) => cur[k]?.message);
+        if (v) cur = cur[v].message;
+        else if (t) cur = cur[t].message;
         else break;
         guard++;
     }
     return cur || message;
 }
 
-function isViewOnceRaw(message) {
+function isEnabled(val) {
+    if (val === true || val === 1) return true;
+    if (typeof val === 'string') { const v = val.toLowerCase(); return v === 'true' || v === '1' || v === 'on'; }
+    return false;
+}
+
+function hasViewOnce(message) {
     if (!message) return false;
     if (VO_WRAPPERS.some((k) => message[k])) return true;
     const inner = deepUnwrap(message);
-    if (inner?.imageMessage?.viewOnce === true) return true;
-    if (inner?.videoMessage?.viewOnce === true) return true;
-    if (inner?.audioMessage?.viewOnce === true) return true;
+    if (!inner) return false;
+    if (inner.imageMessage?.viewOnce) return true;
+    if (inner.videoMessage?.viewOnce) return true;
+    if (inner.audioMessage?.viewOnce) return true;
+    if (VO_WRAPPERS.some((k) => inner[k])) return true;
     return false;
 }
 
@@ -34,12 +42,14 @@ function pickMedia(inner) {
     if (inner.videoMessage) return { type: 'video', msg: inner.videoMessage };
     if (inner.audioMessage) return { type: 'audio', msg: inner.audioMessage };
     if (inner.pttMessage) return { type: 'audio', msg: inner.pttMessage };
+    if (inner.documentMessage) return { type: 'document', msg: inner.documentMessage };
     return null;
 }
 
 async function grab(client, mediaMsg, type) {
+    const dlType = type === 'document' ? 'document' : type;
     try {
-        const stream = await downloadContentFromMessage(mediaMsg, type);
+        const stream = await downloadContentFromMessage(mediaMsg, dlType);
         const chunks = [];
         for await (const c of stream) chunks.push(c);
         const buf = Buffer.concat(chunks);
@@ -61,9 +71,9 @@ export default async (client, m) => {
         if (!m?.message || m.key?.fromMe) return;
 
         const settings = await getCachedSettings();
-        if (!settings?.antiviewonce) return;
+        if (!isEnabled(settings?.antiviewonce)) return;
 
-        if (!isViewOnceRaw(m.message)) return;
+        if (!hasViewOnce(m.message)) return;
 
         const inner = deepUnwrap(m.message);
         const media = pickMedia(inner);
@@ -90,6 +100,8 @@ export default async (client, m) => {
             await client.sendMessage(dest, { image: buf, caption, mentions });
         } else if (media.type === 'video') {
             await client.sendMessage(dest, { video: buf, caption, mentions });
+        } else if (media.type === 'document') {
+            await client.sendMessage(dest, { document: buf, mimetype: media.msg.mimetype || 'application/octet-stream', fileName: media.msg.fileName || 'viewonce', caption, mentions });
         } else {
             const mime = media.msg.mimetype || 'audio/ogg; codecs=opus';
             await client.sendMessage(dest, { audio: buf, mimetype: mime, ptt: media.msg.ptt !== false });
