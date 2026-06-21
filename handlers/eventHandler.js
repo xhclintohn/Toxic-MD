@@ -70,6 +70,8 @@ const Events = async (client, event, pict) => {
     const antipromote = groupSettings?.antipromote === true || groupSettings?.antipromote === 1;
     const customWelcome = groupSettings?.custom_welcome || '';
     const customGoodbye = groupSettings?.custom_goodbye || '';
+    const welcomeImage = groupSettings?.welcome_image || '';
+    const welcomeUsePp = groupSettings?.welcome_use_pp === true || groupSettings?.welcome_use_pp === 1;
 
 
     let sudoUsers = [];
@@ -122,7 +124,7 @@ const Events = async (client, event, pict) => {
             const p = participants[i];
             const participantJid = extractJid(p);
             const userName = _num(participantJid) || participantJid.split("@")[0].split(":")[0];
-            const dpUrl = dpUrls[i];
+            const dpUrl = welcomeUsePp ? dpUrls[i] : null;
 
             const customCaption = buildWelcomeCaption(customWelcome, userName, participantJid, metadata.subject, desc);
             const caption = customCaption ||
@@ -136,9 +138,17 @@ const Events = async (client, event, pict) => {
 │ 😼 *Try not to get roasted too hard, newbie!*
 ╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+
+            let imageSource = null;
+            if (welcomeImage) {
+                imageSource = welcomeImage;
+            } else if (welcomeUsePp && dpUrl) {
+                imageSource = dpUrl;
+            }
+
             try {
-                if (dpUrl) {
-                    await client.sendMessage(event.id, { image: { url: dpUrl }, caption, mentions: [participantJid] });
+                if (imageSource) {
+                    await client.sendMessage(event.id, { image: { url: imageSource }, caption, mentions: [participantJid] });
                 } else {
                     await client.sendMessage(event.id, { text: caption, mentions: [participantJid] });
                 }

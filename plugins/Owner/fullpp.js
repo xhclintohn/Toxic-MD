@@ -43,29 +43,9 @@ export default {
                     return sendInteractive(client, m, fmt("FULLPP", "Reply to an image or send an image with the command."));
                 }
 
-                let sharp = null;
-                try { sharp = (await import('sharp')).default; } catch {}
-
-                let finalBuffer = imageBuffer;
-                if (sharp) {
-                    try {
-                        const meta = await sharp(imageBuffer).metadata();
-                        const size = Math.max(meta.width || 640, meta.height || 640);
-                        finalBuffer = await sharp(imageBuffer)
-                            .resize(size, size, {
-                                fit: 'contain',
-                                background: { r: 0, g: 0, b: 0, alpha: 1 }
-                            })
-                            .jpeg({ quality: 90 })
-                            .toBuffer();
-                    } catch {
-                        finalBuffer = imageBuffer;
-                    }
-                }
-
-                await client.updateProfilePicture(client.user.id, finalBuffer);
+                await client.updateProfilePicture(client.user.id, imageBuffer);
                 await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
-                await sendInteractive(client, m, fmt("FULLPP", "Bot profile picture updated successfully."));
+                await sendInteractive(client, m, fmt("FULLPP", "Bot profile picture updated with full quality."));
             } catch (error) {
                 await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
                 await sendInteractive(client, m, fmt("FULLPP", `Failed to update profile picture.\n│ Error: ${error.message}`));

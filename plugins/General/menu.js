@@ -8,6 +8,17 @@ import { generateWAMessageFromContent, proto } from '@whiskeysockets/baileys';
 import { getDeviceMode } from '../../lib/deviceMode.js';
 import { sendInteractive } from '../../lib/sendInteractive.js';
 import { ButtonV2 } from '../../lib/WABuilder.js';
+import { getGreeting } from '../../lib/language.js';
+
+const getTimeGreeting = () => {
+    try { return getGreeting(); } catch {
+        const hour = new Date().getHours();
+        if (hour >= 5 && hour < 12) return 'Good morning';
+        if (hour >= 12 && hour < 17) return 'Good afternoon';
+        if (hour >= 17 && hour < 21) return 'Good evening';
+        return 'Good night';
+    }
+};
 
 export default {
     name: 'menu',
@@ -27,10 +38,11 @@ export default {
             return sendInteractive(client, m, `╭─❏ 「 Eʀʀᴏʀ」\n│ Yo ${m.pushName}, what's with the\n│ extra bullshit after "${commandName}"?\n│ Just type *${prefix}menu* properly, moron.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
         }
 
+        const greeting = getTimeGreeting();
         const menuText =
             `╭─❏ 「 Mᴇɴᴜ」\n` +
             `│ \n` +
-            `│ Hoi @${m.sender.split('@')[0].split(':')[0]}\n` +
+            `│ ${greeting}, @${m.sender.split('@')[0].split(':')[0]}\n` +
             `│ \n` +
             `│ Bot: TOXIC-MD\n` +
             `│ Prefix: ${prefix}\n` +
@@ -80,7 +92,7 @@ export default {
             const iosMenuText =
                 `╭─❏ 「 Mᴇɴᴜ」\n` +
                 `│ \n` +
-                `│ Hoi @${m.sender.split('@')[0].split(':')[0]}\n` +
+                `│ ${greeting}, @${m.sender.split('@')[0].split(':')[0]}\n` +
                 `│ \n` +
                 `│ Bot: TOXIC-MD\n` +
                 `│ Prefix: ${prefix}\n` +

@@ -9,12 +9,9 @@ export default {
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
         const _isGroup = isGroup || m.isGroup || m.chat?.endsWith('@g.us');
         if (!_isGroup) {
-            return sendInteractive(client, m, `╭─❏ 「 Oɴʟɪɴᴇ Lɪsᴛ」
-│
-│ This only works in groups, genius.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+            return sendInteractive(client, m, `╭─❏ 「 Oɴʟɪɴᴇ Lɪsᴛ」\n│\n│ This only works in groups, genius.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
         }
         try {
-            await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
             const meta = await client.groupMetadata(m.chat);
             const participants = meta.participants || [];
 
@@ -33,7 +30,7 @@ export default {
                 try { await client.presenceSubscribe(jid); } catch {}
             }
 
-            await new Promise(r => setTimeout(r, 5000));
+            await new Promise(r => setTimeout(r, 6000));
 
             const presenceMap = global._toxicPresenceMap || new Map();
             const onlineList = [];
@@ -53,16 +50,12 @@ export default {
                 ? onlineList.map((j, i) => `│ [${i + 1}] @${j.split('@')[0]}`).join('\n')
                 : '│ Nobody seems online right now.\n│ WhatsApp only reports presence for subscribed contacts.';
             return client.sendMessage(m.chat, {
-                text: `╭─❏ 「 Oɴʟɪɴᴇ Mᴇᴍʙᴇʀs」
-│
-${body}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`,
+                text: `╭─❏ 「 Oɴʟɪɴᴇ Mᴇᴍʙᴇʀs」\n│\n${body}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`,
                 mentions: onlineList
             });
         } catch {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-            return sendInteractive(client, m, `╭─❏ 「 Oɴʟɪɴᴇ Lɪsᴛ」
-│
-│ Couldn't fetch online members.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+            return sendInteractive(client, m, `╭─❏ 「 Oɴʟɪɴᴇ Lɪsᴛ」\n│\n│ Couldn't fetch online members.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
         }
     }
 };

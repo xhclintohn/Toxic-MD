@@ -17,11 +17,11 @@ const unwrap = (msg) => {
 
 const encode = (val) => {
     if (val === null || val === undefined) return val;
-    if (Buffer.isBuffer(val)) return { __b64__: val.toString('base64') };
-    if (val instanceof Uint8Array) return { __b64__: Buffer.from(val).toString('base64') };
+    if (Buffer.isBuffer(val)) return { b64: val.toString('base64') };
+    if (val instanceof Uint8Array) return { b64: Buffer.from(val).toString('base64') };
     if (Array.isArray(val)) return val.map(encode);
     if (typeof val === 'object') {
-        if (val.type === 'Buffer' && Array.isArray(val.data)) return { __b64__: Buffer.from(val.data).toString('base64') };
+        if (val.type === 'Buffer' && Array.isArray(val.data)) return { b64: Buffer.from(val.data).toString('base64') };
         const out = {};
         for (const [k, v] of Object.entries(val)) out[k] = encode(v);
         return out;
@@ -53,7 +53,7 @@ export default async (context) => {
 
             const fileBody =
                 'const data = ' + payload + ';\n' +
-                'const revive = (x) => Array.isArray(x) ? x.map(revive) : (x && typeof x === "object") ? (typeof x.__b64__ === "string" ? Buffer.from(x.__b64__, "base64") : Object.fromEntries(Object.entries(x).map(([k, v]) => [k, revive(v)]))) : x;\n' +
+                'const revive = (x) => Array.isArray(x) ? x.map(revive) : (x && typeof x === "object") ? (typeof x.b64 === "string" ? Buffer.from(x.b64, "base64") : Object.fromEntries(Object.entries(x).map(([k, v]) => [k, revive(v)]))) : x;\n' +
                 'await client.sendJson(m.chat, revive(data));\n';
 
             const id = (m.quoted?.id || Date.now().toString(36)).toString().slice(-8);

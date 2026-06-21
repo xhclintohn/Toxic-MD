@@ -1,6 +1,24 @@
 import { botname } from '../../config/settings.js';
 import { sendInteractive } from '../../lib/sendInteractive.js';
 
+const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) return 'Good morning';
+    if (hour >= 12 && hour < 17) return 'Good afternoon';
+    if (hour >= 17 && hour < 21) return 'Good evening';
+    return 'Good night';
+};
+
+const getPlatform = () => {
+    const plat = process.platform;
+    if (plat === 'win32') return 'Windows';
+    if (plat === 'darwin') return 'macOS';
+    if (plat === 'linux') return 'Linux';
+    if (plat === 'freebsd') return 'FreeBSD';
+    if (plat === 'openbsd') return 'OpenBSD';
+    return plat;
+};
+
 export default {
     name: 'ping',
     aliases: ['p', 'speed', 'latency', 'response', 'pong'],
@@ -28,8 +46,9 @@ export default {
             const usedMB = (mem.rss / 1024 / 1024).toFixed(2);
             const totalMB = (mem.heapTotal / 1024 / 1024).toFixed(2);
             const displayName = m.pushName || m.sender.split('@')[0].split(':')[0];
+            const greeting = getGreeting();
 
-            const text = `╭─❏ 「 Pɪɴɢ 」\n│ Hoi   : ${displayName}\n│ Prefix : ${prefix || '.'}\n╰───────────────\n\n╭─❏ 「 Iɴꜰᴏ 」\n│ 𝐋𝐚𝐭𝐞𝐧𝐜𝐲 : ${responseSpeed}ms\n│ 𝐒𝐞𝐫𝐯𝐞𝐫 𝐓𝐢𝐦𝐞 : ${new Date().toLocaleString()}\n│ 𝐔𝐩𝐭𝐢𝐦𝐞 : ${formatUptime(process.uptime())}\n│ 𝐌𝐞𝐦𝐨𝐫𝐲 : ${usedMB}/${totalMB} MB\n│ 𝐍𝐨𝐝𝐞𝐉𝐒 : ${process.version}\n│ 𝐏𝐥𝐚𝐭𝐟𝐨𝐫𝐦 :UNK\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+            const text = `╭─❏ 「 Pɪɴɢ 」\n│ ${greeting}, ${displayName}\n│ Prefix : ${prefix || '.'}\n╰───────────────\n\n╭─❏ 「 Iɴꜰᴏ 」\n│ 𝐋𝐚𝐭𝐞𝐧𝐜𝐲 : ${responseSpeed}ms\n│ 𝐒𝐞𝐫𝐯𝐞𝐫 𝐓𝐢𝐦𝐞 : ${new Date().toLocaleString()}\n│ 𝐔𝐩𝐭𝐢𝐦𝐞 : ${formatUptime(process.uptime())}\n│ 𝐌𝐞𝐦𝐨𝐫𝐲 : ${usedMB}/${totalMB} MB\n│ 𝐍𝐨𝐝𝐞𝐉𝐒 : ${process.version}\n│ 𝐏𝐥𝐚𝐭𝐟𝐨𝐫𝐦 : ${getPlatform()}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
             await sendInteractive(client, m, text);
             await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
