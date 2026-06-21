@@ -2,7 +2,20 @@ import { createCanvas, loadImage, GlobalFonts } from '@napi-rs/canvas';
 import moment from 'moment-timezone';
 import { getGroupSettings } from '../database/config.js';
 
-const _fc = new Set();
+function resolveNum(jid, userData, client) {
+      if (userData?.registered && userData?.name) return userData.name;
+      let raw = (jid || '').split('@')[0].split(':')[0];
+      if (jid?.endsWith('@lid') && globalThis.lidPhoneCache) {
+          const mapped = globalThis.lidPhoneCache.get(raw);
+          if (mapped) raw = mapped;
+      }
+      if (client?.getName) {
+          try { const n = client.getName(jid); if (n && n !== raw && n.length < 40) return n; } catch {}
+      }
+      return raw;
+  }
+
+  const _fc = new Set();
 const _fb = 'https://raw.githubusercontent.com/Reyz2902/font2/main/';
 async function lf(file, alias) {
     if (_fc.has(alias)) return;
@@ -320,13 +333,30 @@ export async function generateAndSendReport(client, targetGroupJid) {
 
         const totalMsg = gcUsers.reduce((s, u) => s + u.count, 0);
         const activeUsers = gcUsers.length;
-        const top5 = gcUsers.slice(0, 5);
+        const top5 = await Promise.all(gcUsers.slice(0, 5).map(async (u, i) => {
+              let avatar = null;
+              try {
+                  const ppUrl = await client.profilePictureUrl(u.jid, 'image');
+                  if (ppUrl) avatar = await safeLoadPP(ppUrl);
+              } catch {}
+              return { ...u, avatar };
+          }));
 
         if (!top5.length) {
               const placeholders = (groupMeta.participants || []).slice(0, 5).map(p => ({
                   jid: p.id, name: p.id.split('@')[0], count: 0, chatToday: 0, avatar: null
               }));
-              const emptyYappers = placeholders.length ? placeholders : [{ name: 'No chatters yet', count: 0, avatar: null }];
+              const emptyYappersRaw = placeholders.length ? placeholders : [{ name: 'No chatters yet', count: 0, avatar: null }];
+              const emptyYappers = await Promise.all(emptyYappersRaw.map(async (u) => {
+                  let avatar = null;
+                  if (u.jid) {
+                      try {
+                          const ppUrl = await client.profilePictureUrl(u.jid, 'image');
+                          if (ppUrl) avatar = await safeLoadPP(ppUrl);
+                      } catch {}
+                  }
+                  return { ...u, avatar };
+              }));
               const img2 = await generateGroupStatsCanvas({
                   groupName, members, totalMsg: 0, activeUsers: 0,
                   topYappers: emptyYappers,
