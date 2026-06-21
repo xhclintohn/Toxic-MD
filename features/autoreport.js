@@ -322,7 +322,24 @@ export async function generateAndSendReport(client, targetGroupJid) {
         const activeUsers = gcUsers.length;
         const top5 = gcUsers.slice(0, 5);
 
-        if (!top5.length) return false;
+        if (!top5.length) {
+              const placeholders = (groupMeta.participants || []).slice(0, 5).map(p => ({
+                  jid: p.id, name: p.id.split('@')[0], count: 0, chatToday: 0, avatar: null
+              }));
+              const emptyYappers = placeholders.length ? placeholders : [{ name: 'No chatters yet', count: 0, avatar: null }];
+              const img2 = await generateGroupStatsCanvas({
+                  groupName, members, totalMsg: 0, activeUsers: 0,
+                  topYappers: emptyYappers,
+                  activityData: [1, 1, 1, 1, 1, 1, 1],
+                  botName: global.botname || client.user?.name || 'Toxic-MD',
+                  timestamp: Date.now()
+              });
+              await client.sendMessage(targetGroupJid, {
+                  image: img2,
+                  caption: '*[ TOXIC-MD DAILY REPORT ]*\n\nGroup: ' + groupName + '\nMembers: ' + members + '\nTotal Messages: 0\nActive Users: 0\n\nNo chat data yet — start chatting!\n\nPowered by Toxic-MD'
+              });
+              return true;
+          }
 
         const ppUrls = await Promise.all(
             top5.map(u => client.profilePictureUrl(u.jid, 'image').catch(() => null))
