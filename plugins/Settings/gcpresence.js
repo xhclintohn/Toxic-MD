@@ -1,50 +1,58 @@
-import { generateWAMessageFromContent } from '@whiskeysockets/baileys';
 import { getGroupSettings, updateGroupSetting } from '../../database/config.js';
-import ownerMiddleware from '../../utils/botUtil/Ownermiddleware.js';
-import { getDeviceMode } from '../../lib/deviceMode.js';
-import { sendInteractive } from '../../lib/sendInteractive.js';
+  import ownerMiddleware from '../../utils/botUtil/Ownermiddleware.js';
+  import { sendInteractive } from '../../lib/sendInteractive.js';
 
-const fmt = (message) => `╭─❏ 「 GCPRESENCE 」\n│ ${message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+  const fmt = (message) => `╭─❏ 「 GCPRESENCE 」\n│ ${message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
-export default async (context) => {
-    await ownerMiddleware(context, async () => {
-        const { client, m, args, prefix } = context;
-        await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
-        const value = args[0]?.toLowerCase();
-        const jid = m.chat;
+  const ON_VALUES  = new Set(['on', 'enable', 'enabled', 'true', '1', 'start']);
+  const OFF_VALUES = new Set(['off', 'disable', 'disabled', 'false', '0', 'stop']);
 
-        let groupSettings = {};
-        let isEnabled = false;
+  export default async (context) => {
+      await ownerMiddleware(context, async () => {
+          const { client, m, args, prefix } = context;
 
-        if (jid.endsWith('@g.us')) {
-            groupSettings = await getGroupSettings(jid);
-            isEnabled = groupSettings.gcpresence === true;
-        }
+          client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } }).catch(() => {});
 
-        if (value === 'on' || value === 'off') {
-            const action = value === 'on';
+          const value = (args[0] || '').toLowerCase();
+          const jid = m.chat;
+          const isGroup = jid.endsWith('@g.us');
 
-            if (isEnabled === action) {
-                await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-                await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                return await client.sendMessage(m.chat, { text: fmt(`GCPresence already ${value.toUpperCase()}`) });
-            }
+          let isEnabled = false;
+          if (isGroup) {
+              const groupSettings = await getGroupSettings(jid);
+              isEnabled = groupSettings?.gcpresence === true;
+          }
 
-            if (jid.endsWith('@g.us')) {
-                await updateGroupSetting(jid, 'gcpresence', action);
-                await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
-                return await client.sendMessage(m.chat, { text: fmt(`Group GCPresence: ${value.toUpperCase()}`) });
-            } else {
-                await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                return await client.sendMessage(m.chat, { text: fmt('DMs: GCPresence always ON') });
-            }
-        }
+          // Toggle on/off
+          if (ON_VALUES.has(value) || OFF_VALUES.has(value)) {
+              const action = ON_VALUES.has(value);
 
-        const status = jid.endsWith('@g.us') ? (isEnabled ? '✅ ON' : '❌ OFF') : '✅ ON (DMs always active)';
+              if (isEnabled === action) {
+                  client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+                  return sendInteractive(client, m, fmt(`GCPresence is already ${action ? 'ON' : 'OFF'} 🙄`));
+              }
 
-          await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
-          await sendInteractive(client, m, `╭─❏ 「 GCPRESENCE」
-│ Status: ${settings.gcpresence ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}gcpresence on\n│ ${prefix}gcpresence off\n╰───────────────`);
+              if (!isGroup) {
+                  client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+                  return sendInteractive(client, m, fmt('GCPresence is a group-only feature. Use it inside a group.'));
+              }
 
-    });
-};
+              await updateGroupSetting(jid, 'gcpresence', action);
+              client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
+              return sendInteractive(client, m,
+                  fmt(`GCPresence turned ${action ? '*ON* ✅' : '*OFF* ❌'}\n│ The bot will ${action ? 'now fake' : 'stop faking'} typing/recording in this group.`)
+              );
+          }
+
+          // No argument — show current status
+          const statusLine = isGroup
+              ? (isEnabled ? '✅ ON' : '❌ OFF')
+              : '✅ ON (always active in DMs)';
+
+          client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } }).catch(() => {});
+          return sendInteractive(client, m, fmt(
+              `Status: ${statusLine}\n│ \n│ *Toggle:*\n│  ${prefix}gcpresence on  — Enable\n│  ${prefix}gcpresence off — Disable\n│ \n│ Also works: enable/disable, true/false`
+          ));
+      });
+  };
+  
