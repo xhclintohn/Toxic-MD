@@ -9,7 +9,8 @@ const formatStylishReply = (message) => {
 
 export default async (context) => {
     await ownerMiddleware(context, async () => {
-        const { client, m, text, quoted, isBotAdmin, IsGroup } = context;
+        const { client, m, text, isBotAdmin, IsGroup } = context;
+        const quoted = context.quoted || m.quoted;
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
         
         if (!IsGroup) {
