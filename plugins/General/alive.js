@@ -24,8 +24,8 @@ export default {
   description: 'Checks if the bot is alive and running',
   run: async (context) => {
     const { client, m, prefix, pict } = context;
-    await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
-    await client.sendMessage(m.chat, { react: { text: '🤖', key: m.reactKey } });
+    client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } }).catch(() => {});
+
     const bName = botname || 'Toxic-MD';
     const greeting = getTimeGreeting();
 
@@ -39,18 +39,16 @@ export default {
 
       const caption = `╭─❏ 「 I'ᴍ Aʟɪᴠᴇ」\n│ ${greeting}, @${m.sender.split('@')[0]}!\n│ I'm up and running.\n│ Been alive for ${uptimeStr}.\n│ Type *${prefix}menu* if you need\n│ help, which you probably do.\n╰───────────────`;
 
-      if (pict && Buffer.isBuffer(pict)) {
-        await client.sendMessage(m.chat, {
-          image: pict,
-          caption: caption,
-          mentions: [m.sender]
-        });
-      } else {
-        await client.sendMessage(m.chat, {
-          text: caption,
-          mentions: [m.sender]
-        });
+      try {
+        if (pict && Buffer.isBuffer(pict)) {
+          await client.sendMessage(m.chat, { image: pict, caption: caption, mentions: [m.sender] });
+        } else {
+          await client.sendMessage(m.chat, { text: caption, mentions: [m.sender] });
+        }
+      } catch {
+        await client.sendMessage(m.chat, { text: caption, mentions: [m.sender] }).catch(() => {});
       }
+      client.sendMessage(m.chat, { react: { text: '🤖', key: m.reactKey } }).catch(() => {});
 
       const possibleAudioPaths = [
         path.join(__dirname, '..', 'xh_clinton', 'test.mp3'),
