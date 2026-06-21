@@ -16,7 +16,10 @@ export default async (context) => {
             const isEnabled = settings.stealth === 'true' || settings.stealth === true;
             const value = args[0]?.toLowerCase();
 
-            if (value === 'on') {
+            const _ON  = new Set(['on','enable','enabled','activate','activated','true','1','yes','start']);
+            const _OFF = new Set(['off','disable','disabled','deactivate','deactivated','false','0','no','stop']);
+
+            if (_ON.has(value)) {
                 if (isEnabled) {
                     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
                     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
@@ -27,7 +30,7 @@ export default async (context) => {
                 return await client.sendMessage(m.chat, { text: fmt('Stealth Mode: *ON 👻* — commands vanish after 8s. Ghost mode activated.') });
             }
 
-            if (value === 'off') {
+            if (_OFF.has(value)) {
                 if (!isEnabled) {
                     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
                     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
