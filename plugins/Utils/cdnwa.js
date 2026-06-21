@@ -39,7 +39,7 @@ export default {
 
             const media = await prepareWAMessageMedia(
                 { [mediaType]: buff },
-                { upload: conn.waUploadToServer, jid: m.chat }
+                { upload: client.waUploadToServer, jid: m.chat }
             );
 
             const link = Object.values(media)[0]?.url;
