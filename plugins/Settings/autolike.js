@@ -17,7 +17,9 @@ export default async (context) => {
       const settings = await getSettings();
       const value = args[0]?.toLowerCase();
 
-      if (value === 'on' || value === 'off') {
+      const _ON  = new Set(['on','enable','enabled','activate','activated','true','1','yes','start']);
+          const _OFF = new Set(['off','disable','disabled','deactivate','deactivated','false','0','no','stop']);
+        if (_ON.has(value) || _OFF.has(value)) {
         const newValue = value === 'on';
 
         if (settings.autolike === newValue) {
