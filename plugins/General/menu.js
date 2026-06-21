@@ -121,9 +121,9 @@ export default {
             btnV2.setBody(menuText)
                 .setFooter('> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧')
                 .setThumbnail(pict)
-                .addButton('📋 Full Menu', `${prefix}fullmenu`)
-                .addButton('⚙️ Settings', `${prefix}settings`)
-                .addButton('👤 Developer', `${prefix}dev`);
+                .addButton('𝐅𝐮𝐥𝐥𝐌𝐞𝐧𝐮', `${prefix}fullmenu`)
+                .addButton('𝐒𝐞𝐭𝐭𝐢𝐧𝐠𝐬', `${prefix}settings`)
+                .addButton('𝐃𝐞𝐯𝐞𝐥𝐨𝐩𝐞𝐫', `${prefix}dev`);
             await btnV2.send(m.chat, { userJid: client.user.id, mentions: [m.sender] });
         } catch {
             try {
