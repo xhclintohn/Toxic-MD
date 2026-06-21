@@ -42,13 +42,15 @@ export default async (context) => {
       const userAdmins = groupMetadata.participants.filter(p => p.admin !== null).map(p => p.id);
       const isBotAdmin = userAdmins.includes(Myself);
 
-      if (value === 'on' || value === 'off') {
+      const _ON  = new Set(['on','enable','enabled','activate','activated','true','1','yes','start']);
+          const _OFF = new Set(['off','disable','disabled','deactivate','deactivated','false','0','no','stop']);
+        if (_ON.has(value) || _OFF.has(value)) {
         if (!isBotAdmin) {
           await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
           return await client.sendMessage(m.chat, { text: formatStylishReply("ANTIFOREIGN", "Make me an admin first, you clown. Can't touch antiforeign without juice.") });
         }
 
-        const action = value === 'on';
+        const action = _ON.has(value);
 
         if (isEnabled === action) {
           await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
