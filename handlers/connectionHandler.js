@@ -35,6 +35,14 @@ async function connectionHandler(socket, connectionUpdate, reconnect) {
   }
 
   if (connection === "open") {
+      globalThis.conn = socket;
+      globalThis.sock = socket;
+      globalThis.tox = socket;
+      globalThis.toxic = socket;
+      globalThis.clint = socket;
+      globalThis.bot = socket;
+      globalThis.wx = socket;
+      globalThis.client = socket;
     const userId = socket.user.id.split(":")[0].split("@")[0];
     const settings = await getCachedSettings();
     const sudoUsers = await getSudoUsers();
