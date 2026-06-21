@@ -150,7 +150,9 @@ const EXTRA_ALIASES = {
   'crm-cmd':    ['crmcmd', 'tocmd', 'ccmd'],
   addcmd:       ['newcmd', 'savecmd', 'createcmd'],
   delcmd:       ['delcommand', 'rmcmd', 'removecmd'],
-  setmention:   ['sm', 'setm'] };
+  setmention:   ['sm', 'setm'],
+  gpp:          ['setgpp','setgrouppp','setgcprofile','gcprofile','changegpp','grouppp','gcpp','groupphoto','setgroupphoto','gcpic','setgcpic','grouppic','setgrouppic'],
+  gcname:       ['changename','changegcname','groupname','editgcname','renamegc','setgcname','gcnm','renamegroup','setgroupname','gname'] };
 
 function fixPluginFiles(dir) {
   try {
