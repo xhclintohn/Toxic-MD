@@ -76,8 +76,7 @@ export default {
       if (category.name === 'NSFW') {
         const plus18Commands = ['xvideo'];
         for (const cmd of plus18Commands) {
-          menuText += `╭─❏ 「 FULLMENU 」
-│ *${toFancyFont(cmd)}*\n`;
+          menuText += `│ *${toFancyFont(cmd)}*\n`;
         }
       }
 
@@ -90,8 +89,7 @@ export default {
           const mod = modRaw.default !== undefined ? modRaw.default : modRaw;
           if (Array.isArray(mod)) {
             for (const cmd of mod) {
-              if (cmd && cmd.name) menuText += `╭─❏ 「 FULLMENU 」
-│ *${toFancyFont(cmd.name)}*\n`;
+              if (cmd && cmd.name) menuText += `│ *${toFancyFont(cmd.name)}*\n`;
             }
             continue;
           }
@@ -99,8 +97,7 @@ export default {
             displayName = mod.name;
           }
         } catch (e) {}
-        menuText += `╭─❏ 「 FULLMENU 」
-│ *${toFancyFont(displayName)}*\n`;
+        menuText += `│ *${toFancyFont(displayName)}*\n`;
       }
 
       menuText += `╰───────────────\n\n`;
@@ -119,16 +116,15 @@ export default {
         try { return fs.readdirSync(`./plugins/${cat.name}`).filter(f => f.endsWith('.js')).length > 0; } catch { return false; }
       })
       .map(cat => ({
-        title: `${cat.emoji} ${cat.display}`,
-        rows: [{ title: `${cat.emoji} ${cat.display}`, description: `View ${cat.name} commands`, id: `${effectivePrefix}${cat.name.toLowerCase()}menu` }]
+        title: `*${cat.display}*`,
+        rows: [{ title: `*${cat.display}*`, description: `*View ${cat.name} commands*`, id: `${effectivePrefix}${cat.name.toLowerCase()}menu` }]
       }));
 
     const device = await getDeviceMode();
 
     if (device === 'ios') {
       const iosCategoryText = sections.map(s =>
-        `╭─❏ 「 FULLMENU 」
-│ ${s.rows[0]?.id || ''} — ${s.rows[0]?.description || s.title}`
+        `│ ${s.rows[0]?.id || ''} — ${s.rows[0]?.description || s.title}`
       ).join('\n');
       await client.sendMessage(m.chat, {
         text: `╭─❏ 「 Categories」
@@ -142,8 +138,8 @@ ${iosCategoryText}\n╰───────────────`,
     try {
       const interactiveMsg = generateWAMessageFromContent(m.chat, proto.Message.fromObject({
         interactiveMessage: {
-          body: { text: 'Browse Categories' },
-          footer: { text: '©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧' },
+          body: { text: '*Browse Categories*' },
+          footer: { text: '*©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧*' },
           header: { hasMediaAttachment: false },
           nativeFlowMessage: {
             messageVersion: 1,
@@ -151,7 +147,7 @@ ${iosCategoryText}\n╰───────────────`,
               {
                 name: 'single_select',
                 buttonParamsJson: JSON.stringify({
-                  title: 'Browse Categories',
+                  title: '*Browse Categories*',
                   sections: sections
                 })
               }
