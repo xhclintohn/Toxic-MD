@@ -302,6 +302,7 @@ export default async (context) => {
 
         let userContent;
         let useVision = false;
+        let noCmd = false;
 
         if (hasImage) {
             useVision = true;
@@ -328,10 +329,13 @@ export default async (context) => {
         } else if (textContent) {
             userContent = textContent;
         } else if (rawMsg?.stickerMessage || msgType === 'stickerMessage') {
-            userContent = '[The user sent a sticker]';
+            noCmd = true;
+            userContent = '[The user sent a sticker — respond naturally, do NOT output CMD:]';
         } else if (rawMsg?.audioMessage || rawMsg?.pttMessage || msgType === 'audioMessage' || msgType === 'pttMessage') {
+            noCmd = true;
             userContent = '[The user sent a voice note or audio message]';
         } else if (rawMsg?.pollCreationMessage || rawMsg?.pollCreationMessageV3 || msgType === 'pollCreationMessage' || msgType === 'pollCreationMessageV3') {
+            noCmd = true;
             const poll = rawMsg?.pollCreationMessage || rawMsg?.pollCreationMessageV3;
             userContent = poll ? `[A poll was created: "${poll.name || 'Poll'}"]` : '[The user created a poll]';
         } else {
@@ -410,7 +414,8 @@ export default async (context) => {
             return;
         }
 
-        const { cmds, textOnly } = extractCmds(response);
+        const { cmds: _rawCmds, textOnly } = extractCmds(response);
+        const cmds = noCmd ? [] : _rawCmds;
 
         if (cmds.length > 0) {
             const histLabel = `[Executed: ${cmds.map(c => c.split(/\s+/)[0]).join(', ')}]`;
@@ -430,14 +435,14 @@ export default async (context) => {
             }
             client.sendMessage(remoteJid, { react: { text: allOk ? '✅' : '❌', key: m.reactKey } }).catch(() => {});
             if (textOnly) {
-                client.sendMessage(remoteJid, { text: boxWrap(textOnly) }).catch(() => {});
+                client.sendMessage(remoteJid, { text: textOnly }, { quoted: m }).catch(() => {});
             }
         } else {
             _addHist(senderNum, 'user', typeof userContent === 'string' ? userContent : textContent || '[media]');
             _addHist(senderNum, 'assistant', response);
             try { await addConversationMessage(senderNum, 'user', typeof userContent === 'string' ? userContent : textContent || '[media]'); } catch {}
             try { await addConversationMessage(senderNum, 'assistant', response); } catch {}
-            await client.sendMessage(remoteJid, { text: boxWrap(response) });
+            await client.sendMessage(remoteJid, { text: response }, { quoted: m });
             client.sendMessage(remoteJid, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
         }
     } catch (err) {
