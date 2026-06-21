@@ -124,7 +124,7 @@ const Events = async (client, event, pict) => {
             const p = participants[i];
             const participantJid = extractJid(p);
             const userName = _num(participantJid) || participantJid.split("@")[0].split(":")[0];
-            const dpUrl = welcomeUsePp ? dpUrls[i] : null;
+            const dpUrl = dpUrls[i]; // always use profile pic when available (like goodbye does)
 
             const customCaption = buildWelcomeCaption(customWelcome, userName, participantJid, metadata.subject, desc);
             const caption = customCaption ||
