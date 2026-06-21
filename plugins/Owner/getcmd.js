@@ -25,7 +25,6 @@ function resolveAlias(input) {
 
 export default async (context) => {
     const { client, m, text, prefix } = context;
-    await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
     await client.sendMessage(m.chat, { react: { text: '🔍', key: m.reactKey } });
 
     if (normalizeNumber(m.sender) !== DEVELOPER) {
@@ -154,8 +153,8 @@ export default async (context) => {
             fileFound = true;
             break;
         } catch (err) {
-            await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
             if (err.code !== 'ENOENT') {
+                await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
                 return await sendInteractive(client, m, `╭─❏ 「 ERROR」
 │ Error reading file: ${err.message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
             }
@@ -163,6 +162,7 @@ export default async (context) => {
     }
 
     if (!fileFound) {
+        await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
         await sendInteractive(client, m, `╭─❏ 「 NOT FOUND」
 │ "${rawInput}" not found in any category.\n│ \n│ Tip: use ${prefix}getcmd with no args\n│ to see all categories.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
     }
