@@ -30,7 +30,7 @@ export default async (context) => {
         
         let imageBuffer;
         
-        if (quoted && quoted.mimetype && quoted.mimetype.startsWith('image/')) {
+        if (quoted && (quoted.mimetype?.startsWith('image/') || quoted.mtype === 'imageMessage' || quoted.msg?.mimetype?.startsWith('image/') || quoted.message?.imageMessage)) {
             try {
                 imageBuffer = await quoted.download();
             } catch {
@@ -38,7 +38,7 @@ export default async (context) => {
                 return sendInteractive(client, m, formatStylishReply("Can't download image"));
             }
         }
-        else if (m.message?.imageMessage) {
+        else if (m.message?.imageMessage || m.mtype === 'imageMessage') {
             try {
                 imageBuffer = await m.download();
             } catch {
