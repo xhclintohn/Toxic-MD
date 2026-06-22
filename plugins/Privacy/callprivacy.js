@@ -34,7 +34,7 @@ export default async (context) => {
         try {
             const btnV2 = new ButtonV2(client);
             btnV2.setBody(bodyText)
-                .setFooter('> ©𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧')
+
                 .addButton('All ✅', `${prefix}callprivacy all`)
                 .addButton('Known 👥', `${prefix}callprivacy known`)
                 .addButton('None 🚫', `${prefix}callprivacy none`);
