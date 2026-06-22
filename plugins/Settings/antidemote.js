@@ -43,7 +43,7 @@ export default async (context) => {
 
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
           await sendInteractive(client, m, `╭─❏ 「 ANTIDEMOTE」
-│ Status: ${settings.antidemote ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}antidemote on\n│ ${prefix}antidemote off\n╰───────────────\n> 🌐 hosting.toxicx.tech`);
+│ Status: ${settings.antidemote ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}antidemote on\n│ ${prefix}antidemote off\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
 
   });
 };
