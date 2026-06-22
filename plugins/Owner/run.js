@@ -34,18 +34,43 @@ export default async (context) => {
 
             if (isDoc) {
                 const buf = await m.quoted.download();
-                const code = (buf || Buffer.from('')).toString('utf8').trim();
+                const code = (buf || Buffer.from('')).toString('utf8').trim().replace(/\r/g, '');
                 if (!code) {
                     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
                     return sendInteractive(client, m, fmt('That file is empty.'));
                 }
-                const runner = eval('(async () => { ' + code + '\n })');
-                await runner();
+
+                let lastErr;
+                const attempts = [
+                    `(async () => { ${code}\n })()`,
+                    `(async () => { return (${code})\n })()`,
+                ];
+                let ran = false;
+                for (const attempt of attempts) {
+                    try {
+                        await eval(attempt);
+                        ran = true;
+                        break;
+                    } catch (e) {
+                        lastErr = e;
+                    }
+                }
+                if (!ran) throw lastErr;
                 await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
                 return;
             }
 
-            const raw = m.quoted?.fakeObj?.message || m.msg?.contextInfo?.quotedMessage || null;
+            const sources = [
+                () => m.quoted?.fakeObj?.message,
+                () => m.msg?.contextInfo?.quotedMessage,
+                () => m.quoted?.message,
+                () => m.quoted?.fakeObj,
+            ];
+            let raw = null;
+            for (const fn of sources) {
+                try { const r = fn(); if (r && typeof r === 'object' && Object.keys(r).length > 0) { raw = r; break; } } catch {}
+            }
+
             if (!raw) {
                 await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
                 return sendInteractive(client, m, fmt('Could not read that message.'));
