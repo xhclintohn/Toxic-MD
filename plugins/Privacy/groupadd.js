@@ -34,7 +34,7 @@ export default async (context) => {
         try {
             const btnV2 = new ButtonV2(client);
             btnV2.setBody(bodyText)
-                .setFooter('> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧')
+
                 .addButton('All ✅', `${prefix}groupadd all`)
                 .addButton('Contacts 👥', `${prefix}groupadd contacts`)
                 .addButton('None ❌', `${prefix}groupadd none`);
