@@ -28,11 +28,28 @@ export default async (context) => {
             }
 
             let evaled;
-            try {
-                evaled = await eval(`(async () => { return (${raw}) })()`);
-            } catch {
-                evaled = await eval(`(async () => { ${raw} })()`);
+            const code = raw.replace(/\r/g, '');
+            let lastErr;
+
+            const attempts = [
+                `(async () => { return (${code}) })()`,
+                `(async () => { ${code} })()`,
+                `(async () => { return await (${code}) })()`,
+                `(async () => { ${code.startsWith('return ') ? code : 'return ' + code} })()`,
+            ];
+
+            for (const attempt of attempts) {
+                try {
+                    evaled = await eval(attempt);
+                    lastErr = null;
+                    break;
+                } catch (e) {
+                    lastErr = e;
+                }
             }
+
+            if (lastErr) throw lastErr;
+
             if (typeof evaled !== 'string') evaled = util.inspect(evaled, { depth: 4 });
             await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
             await sendInteractive(client, m, String(evaled ?? 'undefined'));
