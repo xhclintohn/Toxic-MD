@@ -1,115 +1,106 @@
 import fetch from 'node-fetch';
-import { sendInteractive } from '../../lib/sendInteractive.js';
+  import { sendInteractive } from '../../lib/sendInteractive.js';
 
-function getHeaders() {
-    return {
-        'User-Agent': 'Toxic-MD-Bot/2.0',
-        'Accept': 'application/vnd.github.v3+json'
-    };
-}
+  const HEADERS = {
+      'User-Agent': 'Toxic-MD-Bot/2.0',
+      'Accept': 'application/vnd.github.v3+json',
+  };
 
-async function githubUserStalk(user) {
-    const response = await fetch('https://api.github.com/users/' + user, { headers: getHeaders() });
-    if (!response.ok) throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
-    return response.json();
-}
+  const fmt = (lines) => lines.join('\n') + '\n> ©𝒏𝒐𝒘𝒆𝒓𝒆𝒅 𝒁𝒚 𝒙𝒉_𝒄𝒍𝒎𝒗𝒘𝒐𝒗';
 
-async function githubRepoSearch(query) {
-    const response = await fetch(`https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&sort=stars&order=desc`, { headers: getHeaders() });
-    if (!response.ok) throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
-    return response.json();
-}
+  export default async (context) => {
+      const { client, m, text, prefix } = context;
 
-async function githubCodeSearch(query) {
-    const response = await fetch(`https://api.github.com/search/code?q=${encodeURIComponent(query)}`, { headers: getHeaders() });
-    if (!response.ok) throw new Error(`GitHub API error: ${response.status}`);
-    return response.json();
-}
+      if (!text?.trim()) {
+          await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+          return sendInteractive(client, m, fmt([
+              '╭─❗ 「 GitHub Stalker 」',
+              '│ Usage: ' + prefix + 'github <username>',
+              '│ Example: ' + prefix + 'github xhclintohn',
+              '╰───────────────',
+          ]));
+      }
 
-async function githubTrending() {
-    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    const response = await fetch(`https://api.github.com/search/repositories?q=created:>${weekAgo}&sort=stars&order=desc`, { headers: getHeaders() });
-    if (!response.ok) throw new Error(`GitHub API error: ${response.status}`);
-    return response.json();
-}
+      const username = text.trim().replace(/^@/, '');
+      await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } }).catch(() => {});
 
-export default async (context) => {
-    const { client, m, text, prefix, args, commandName } = context;
-        await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
+      try {
+          const [userRes, reposRes] = await Promise.all([
+              fetch(`https://api.github.com/users/${encodeURIComponent(username)}`, { headers: HEADERS }),
+              fetch(`https://api.github.com/users/${encodeURIComponent(username)}/repos?sort=pushed&per_page=5`, { headers: HEADERS }),
+          ]);
 
-    if (!text) {
-        await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-        return sendInteractive(client, m, `╭─❏ 「 GitHub Search」
-│ Usage:\n│ ${prefix}github user <username>\n│ ${prefix}github repos <query>\n│ ${prefix}github trending\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
-    }
+          if (!userRes.ok) {
+              await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+              if (userRes.status === 404) return sendInteractive(client, m, fmt(['╭─❗ 「 GitHub 」', '│ User not found: ' + username, '╰───────────────']));
+              if (userRes.status === 403) return sendInteractive(client, m, fmt(['╭─❗ 「 GitHub 」', '│ Rate limit hit. Try again in a minute.', '╰───────────────']));
+              throw new Error('GitHub API: ' + userRes.status);
+          }
 
-    const subCommand = args[0]?.toLowerCase();
-    const searchQuery = args.slice(1).join(' ');
+          const u = await userRes.json();
+          const repos = reposRes.ok ? await reposRes.json() : [];
 
-    try {
-        await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
+          const joined = new Date(u.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+          const updated = new Date(u.updated_at || u.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
 
-        if (subCommand === 'user' || subCommand === 'stalk') {
-            if (!searchQuery) {
-                await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                return sendInteractive(client, m, 'Give me a GitHub username to stalk.');
-            }
-            const userData = await githubUserStalk(searchQuery);
-            const bio = userData.bio || 'No bio';
-            const location = userData.location || 'Unknown';
-            const createdDate = new Date(userData.created_at).toLocaleDateString();
-            await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
-            await sendInteractive(client, m, 
-                `╭─❏ 「 GitHub User」
-│ Name: ${userData.name || userData.login}\n│ Username: @${userData.login}\n│ Bio: ${bio}\n│ Location: ${location}\n│ Repos: ${userData.public_repos}\n│ Followers: ${userData.followers}\n│ Following: ${userData.following}\n│ Joined: ${createdDate}\n│ URL: ${userData.html_url}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
-            );
-        } else if (subCommand === 'repos' || subCommand === 'search') {
-            if (!searchQuery) {
-                await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                return sendInteractive(client, m, 'Give me something to search, genius.');
-            }
-            const repoData = await githubRepoSearch(searchQuery);
-            if (!repoData.items || repoData.items.length === 0) {
-                await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                return sendInteractive(client, m, 'No repositories found. Try a different query.');
-            }
-            const top5 = repoData.items.slice(0, 5);
-            const repoList = top5.map((repo, i) =>
-                `╭─❏ 「 GITHUB 」
-│ ${i + 1}. ${repo.full_name}\n│  ⭐ ${repo.stargazers_count} | ${repo.language || 'Unknown'}\n│  ${repo.description ? repo.description.substring(0, 60) : 'No description'}`
-            ).join('\n');
-            await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
-            await sendInteractive(client, m, `╭─❏ 「 GitHub Repos」
-${repoList}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
-        } else if (subCommand === 'trending') {
-            const trendData = await githubTrending();
-            if (!trendData.items || trendData.items.length === 0) {
-                await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                return sendInteractive(client, m, 'No trending repos found.');
-            }
-            const top5 = trendData.items.slice(0, 5);
-            const trendList = top5.map((repo, i) =>
-                `╭─❏ 「 GITHUB 」
-│ ${i + 1}. ${repo.full_name}\n│  ⭐ ${repo.stargazers_count} | ${repo.language || 'Unknown'}\n│  ${repo.description ? repo.description.substring(0, 60) : 'No description'}`
-            ).join('\n');
-            await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
-            await sendInteractive(client, m, `╭─❏ 「 GitHub Trending」
-${trendList}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
-        } else {
-            const userData = await githubUserStalk(text.trim());
-            const bio = userData.bio || 'No bio';
-            await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
-            await sendInteractive(client, m, 
-                `╭─❏ 「 GitHub User」
-│ Name: ${userData.name || userData.login}\n│ Username: @${userData.login}\n│ Bio: ${bio}\n│ Repos: ${userData.public_repos}\n│ Followers: ${userData.followers}\n│ URL: ${userData.html_url}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
-            );
-        }
-    } catch (error) {
-        console.error('GitHub search error:', error);
-        await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-        if (error.message.includes('404')) return sendInteractive(client, m, 'User/repo not found. Double-check the name.');
-        if (error.message.includes('403')) return sendInteractive(client, m, 'GitHub rate limit hit. Try again in a minute.');
-        await sendInteractive(client, m, `╭─❏ 「 GITHUB 」
-│ GitHub search failed.\n│ Something went wrong. Try again.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
-    }
-};
+          const lines = [
+              '╭─❗ 「 👤 GitHub Profile 」',
+              '│',
+              '│ 👤 Name:       ' + (u.name || u.login),
+              '│ 🔗 Username:  @' + u.login,
+              '│ 📄 Bio:        ' + (u.bio || 'No bio set'),
+              '│ 📍 Location:  ' + (u.location || 'Unknown'),
+              '│ 🌎 Blog:       ' + (u.blog || 'None'),
+              '│ 👀 Company:   ' + (u.company || 'None'),
+              '│',
+              '│ 📊 Stats',
+              '│   • Repos:     ' + u.public_repos,
+              '│   • Gists:     ' + u.public_gists,
+              '│   • Followers: ' + u.followers,
+              '│   • Following: ' + u.following,
+              '│',
+              '│ 📅 Joined:    ' + joined,
+              '│ 🔄 Updated:   ' + updated,
+          ];
+
+          if (repos.length > 0) {
+              lines.push('│');
+              lines.push('│ 🗂️ Recent Repos');
+              repos.slice(0, 5).forEach((repo, i) => {
+                  const stars = repo.stargazers_count > 0 ? ' ⭐' + repo.stargazers_count : '';
+                  const lang = repo.language ? ' [' + repo.language + ']' : '';
+                  lines.push(`│   ${i + 1}. ${repo.name}${lang}${stars}`);
+              });
+          }
+
+          lines.push('│');
+          lines.push('│ 🔗 ' + u.html_url);
+          lines.push('╰───────────────');
+
+          await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
+
+          // Send profile picture if available
+          if (u.avatar_url) {
+              try {
+                  const imgRes = await fetch(u.avatar_url, { headers: { 'User-Agent': 'Toxic-MD-Bot/2.0' } });
+                  if (imgRes.ok) {
+                      const imgBuf = Buffer.from(await imgRes.arrayBuffer());
+                      return client.sendMessage(m.chat, {
+                          image: imgBuf,
+                          caption: fmt(lines),
+                      });
+                  }
+              } catch {}
+          }
+          return sendInteractive(client, m, fmt(lines));
+
+      } catch (err) {
+          await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+          return sendInteractive(client, m, fmt([
+              '╭─❗ 「 GitHub 」',
+              '│ Error: ' + (err.message || 'Unknown error'),
+              '╰───────────────',
+          ]));
+      }
+  };
+  
