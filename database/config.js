@@ -543,7 +543,46 @@ async function getPhoneFromLid(lid) {
     return row?.phone || null;
 }
 
-export {
+
+  async function getMentionEntry(num) {
+      await ensureReady();
+      if (!num) return null;
+      const key = '_m_' + num;
+      if (_backend === 'pg') {
+          const res = await _pg.query('SELECT value FROM settings WHERE key = $1', [key]);
+          if (!res.rows[0]) return null;
+          try { return JSON.parse(res.rows[0].value); } catch { return null; }
+      }
+      const raw = _jsonData?.settings?.[key];
+      if (raw === undefined || raw === null) return null;
+      if (typeof raw === 'string') { try { return JSON.parse(raw); } catch { return null; } }
+      return raw;
+  }
+
+  async function setMentionEntry(num, entry) {
+      await ensureReady();
+      if (!num) return;
+      const key = '_m_' + num;
+      const value = JSON.stringify(entry);
+      if (_backend === 'pg') {
+          await _pg.query('INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2', [key, value]);
+      } else {
+          if (_jsonData?.settings) { _jsonData.settings[key] = entry; _jsonSave(); }
+      }
+  }
+
+  async function removeMentionEntry(num) {
+      await ensureReady();
+      if (!num) return;
+      const key = '_m_' + num;
+      if (_backend === 'pg') {
+          await _pg.query('DELETE FROM settings WHERE key = $1', [key]);
+      } else {
+          if (_jsonData?.settings) { delete _jsonData.settings[key]; _jsonSave(); }
+      }
+  }
+
+  export {
     getBackend,
     registerSettingsListener, registerSudoListener, registerBannedListener,
     initializeDatabase, getSettings, updateSetting,
@@ -556,5 +595,6 @@ export {
     saveMessage, getMessage, deleteMessage, cleanupOldMsgStore,
     mapLidToPhone, getPhoneFromLid,
     getTrustedLinks, addTrustedLink, removeTrustedLink,
-    getBannedGroups, addBannedGroup, removeBannedGroup
+    getBannedGroups, addBannedGroup, removeBannedGroup,
+    getMentionEntry, setMentionEntry, removeMentionEntry
 };
