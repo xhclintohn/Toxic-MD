@@ -10,7 +10,7 @@ export default async (context) => {
         const jid = m.chat;
 
         const fmt = (msg) =>
-            `╭─❏ 「 SINGLE_SELECT 」
+            `╭─❏ 「 GROUPWEPCOME」
 │ ${msg}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
         try {
@@ -72,7 +72,8 @@ export default async (context) => {
                             }]
                         }
                     }
-                })
+                }),
+                { userJid: client.user?.id || '' }
             );
             await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
 
