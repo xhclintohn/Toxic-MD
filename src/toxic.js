@@ -230,9 +230,20 @@ export default async (client, m, chatUpdate, store) => {
         m.sender = resolveLidToPhoneNumber(m.sender);
     }
     if (m.chat && m.chat.endsWith('@lid')) {
-        m.chat = resolveLidToPhoneNumber(m.chat);
-    }
+          m.chat = resolveLidToPhoneNumber(m.chat);
+      }
 
+      // ── Message count tracking (for autoreport) ──
+      if (!m.key?.fromMe && m.sender) {
+          const _cPhone = m.sender.split('@')[0].split(':')[0].replace(/\D/g, '');
+          if (_cPhone && /^\d{7,15}$/.test(_cPhone)) {
+              if (!global._toxicMsgCounts) global._toxicMsgCounts = {};
+              if (!global._toxicMsgCountsToday) global._toxicMsgCountsToday = {};
+              global._toxicMsgCounts[_cPhone] = (global._toxicMsgCounts[_cPhone] || 0) + 1;
+              global._toxicMsgCountsToday[_cPhone] = (global._toxicMsgCountsToday[_cPhone] || 0) + 1;
+          }
+      }
+  
     if (shouldStoreMessage(m)) {
         const _sRjid = m.chat || m.key?.remoteJid;
         const _sNjid = _sRjid;
