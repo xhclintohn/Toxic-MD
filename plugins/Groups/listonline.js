@@ -13,35 +13,70 @@ export default {
         }
         try {
             const meta = await client.groupMetadata(m.chat);
-            const participants = meta.participants || [];
+            const participants = (meta.participants || []).slice(0, 25);
 
-            const validJids = [];
-            for (const p of participants.slice(0, 25)) {
-                const jid = p.id || p.jid || '';
-                if (jid && !jid.endsWith('@lid')) {
-                    validJids.push(jid);
-                } else if (jid.endsWith('@lid') && globalThis.resolvePhoneFromLid) {
-                    const phone = globalThis.resolvePhoneFromLid(jid.includes('@') ? jid : jid + '@lid');
-                    if (phone) validJids.push(phone + '@s.whatsapp.net');
+            const memberMap = [];
+            for (const p of participants) {
+                const rawJid = p.id || p.jid || '';
+                if (!rawJid) continue;
+
+                const isLid = rawJid.endsWith('@lid');
+                const lidNum = isLid ? rawJid.split('@')[0].split(':')[0] : '';
+                let phone = '';
+
+                if (!isLid) {
+                    phone = rawJid.split('@')[0].split(':')[0].replace(/\D/g, '');
+                } else {
+                    const cached = globalThis.lidPhoneCache?.get(lidNum);
+                    if (cached) {
+                        phone = String(cached).replace(/\D/g, '');
+                    } else if (globalThis.resolvePhoneFromLid) {
+                        const resolved = globalThis.resolvePhoneFromLid(rawJid);
+                        if (resolved && !resolved.endsWith('@lid')) {
+                            phone = resolved.split('@')[0].replace(/\D/g, '');
+                        }
+                    }
+                }
+
+                memberMap.push({
+                    originalJid: rawJid,
+                    phoneJid: phone ? phone + '@s.whatsapp.net' : '',
+                    lidJid: lidNum ? lidNum + '@lid' : '',
+                    phone,
+                    lidNum
+                });
+            }
+
+            for (const { originalJid, phoneJid, lidJid } of memberMap) {
+                try { await client.presenceSubscribe(originalJid); } catch {}
+                if (phoneJid && phoneJid !== originalJid) {
+                    try { await client.presenceSubscribe(phoneJid); } catch {}
+                }
+                if (lidJid && lidJid !== originalJid) {
+                    try { await client.presenceSubscribe(lidJid); } catch {}
                 }
             }
 
-            for (const jid of validJids) {
-                try { await client.presenceSubscribe(jid); } catch {}
-            }
-
-            await new Promise(r => setTimeout(r, 6000));
+            await new Promise(r => setTimeout(r, 7000));
 
             const presenceMap = global._toxicPresenceMap || new Map();
             const onlineList = [];
-            for (const jid of validJids) {
-                const data = presenceMap.get(jid);
+
+            for (const { originalJid, phoneJid, lidJid, phone, lidNum } of memberMap) {
+                const data =
+                    presenceMap.get(originalJid) ||
+                    presenceMap.get(phoneJid) ||
+                    presenceMap.get(lidJid) ||
+                    (phone ? presenceMap.get(phone) : null) ||
+                    (lidNum ? presenceMap.get(lidNum) : null);
+
                 if (
                     data &&
                     (data.lastKnownPresence === 'available' || data.lastKnownPresence === 'composing' || data.lastKnownPresence === 'recording') &&
                     (Date.now() - (data.timestamp || 0)) < 120000
                 ) {
-                    onlineList.push(jid);
+                    const displayJid = (phoneJid && !phoneJid.endsWith('@lid')) ? phoneJid : originalJid;
+                    onlineList.push(displayJid);
                 }
             }
 
