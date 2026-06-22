@@ -1,6 +1,6 @@
-import { generateWAMessageFromContent } from '@whiskeysockets/baileys';
 import { getDeviceMode } from '../../lib/deviceMode.js';
 import { sendInteractive } from '../../lib/sendInteractive.js';
+import { ButtonV2 } from '../../lib/WABuilder.js';
 
 if (!global._toxicPinPending) global._toxicPinPending = new Map();
 
@@ -24,47 +24,25 @@ const durationLabel = (secs) => {
     return `${secs}s`;
 };
 
-async function sendPinButtons(client, m, fq, prefix) {
+const fmt = (msg) => `╭─❏ 「 PIN MESSAGE」\n│ ${msg}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+
+async function sendPinButtons(client, m, prefix) {
     const p = prefix || '.';
-    const bodyText =
-        `` +
-        `╭─❏ 「 PIN MESSAGE」
-│
-` +
-        `╭─❏ 「 SINGLE_SELECT 」
-│ How long should it stay pinned?\n│
-` +
-        `╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+    const bodyText = fmt(`How long should it stay pinned?\n\n│ Use: ${p}pinm 24h / ${p}pinm 7d / ${p}pinm 30d`);
     const _dev = await getDeviceMode();
     if (_dev === 'ios') {
-        return sendInteractive(client, m, `${bodyText}\n\n│ Use:\n│ ${p}pinm 24h\n│ ${p}pinm 7d\n│ ${p}pinm 30d`);
+        return sendInteractive(client, m, bodyText);
     }
     try {
-        const msg = generateWAMessageFromContent(m.chat, {
-            interactiveMessage: {
-                body: { text: bodyText },
-                footer: { text: '' },
-                nativeFlowMessage: {
-                    buttons: [{
-                        name: 'single_select',
-                        buttonParamsJson: JSON.stringify({
-                            title: 'Pin Duration',
-                            sections: [{
-                                title: 'How long?',
-                                rows: [
-                                    { header: '⏱️ 24 Hours', title: 'Pin for 1 day',   id: `${p}pinm 24h` },
-                                    { header: '📅 7 Days',   title: 'Pin for 1 week',  id: `${p}pinm 7d`  },
-                                    { header: '🗓️ 30 Days',  title: 'Pin for 1 month', id: `${p}pinm 30d` },
-                                ]
-                            }]
-                        })
-                    }]
-                }
-            }
-        });
-        await client.relayMessage(m.chat, msg.message, { messageId: msg.key.id });
+        const btnV2 = new ButtonV2(client);
+        btnV2.setBody(bodyText)
+            .setFooter('> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧')
+            .addButton('⏱️ 24 Hours', `${p}pinm 24h`)
+            .addButton('📅 7 Days', `${p}pinm 7d`)
+            .addButton('🗓️ 30 Days', `${p}pinm 30d`);
+        await btnV2.send(m.chat, { userJid: client.user?.id || '' });
     } catch {
-        await sendInteractive(client, m, `${bodyText}\n\n│ Use:\n│ ${p}pinm 24h\n│ ${p}pinm 7d\n│ ${p}pinm 30d`);
+        await sendInteractive(client, m, bodyText);
     }
 }
 
@@ -77,8 +55,7 @@ export default {
 
         if (!IsGroup) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, `╭─❏ 「 SINGLE_SELECT 」
-│ \n│ Groups only.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+            return sendInteractive(client, m, fmt('Groups only.'));
         }
 
         const rawInput = args[0] || '';
@@ -99,7 +76,7 @@ export default {
 
             if (!time) {
                 await client.sendMessage(m.chat, { react: { text: '📌', key: m.reactKey } });
-                return sendPinButtons(client, m, fq, prefix);
+                return sendPinButtons(client, m, prefix);
             }
         }
 
@@ -113,8 +90,7 @@ export default {
 
         if (!messageKey) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, `╭─❏ 「 SINGLE_SELECT 」
-│ \n│ Reply to a message first, then use ${prefix}pinm.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+            return sendInteractive(client, m, fmt(`Reply to a message first, then use ${prefix}pinm.`));
         }
 
         const pinTime = time || 86400;
@@ -124,12 +100,10 @@ export default {
             await client.sendMessage(m.chat, { pin: messageKey, type: 1, time: pinTime });
             global._toxicPinPending.delete(m.chat);
             await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
-            await sendInteractive(client, m, `╭─❏ 「 SINGLE_SELECT 」
-│ \n│ 📌 Message pinned!\n│ Duration: ${durationLabel(pinTime)}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+            await sendInteractive(client, m, fmt(`📌 Message pinned!\nDuration: ${durationLabel(pinTime)}`));
         } catch (error) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-            await sendInteractive(client, m, `╭─❏ 「 SINGLE_SELECT 」
-│ \n│ ❌ Failed to pin: ${error.message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+            await sendInteractive(client, m, fmt(`❌ Failed to pin: ${error.message}`));
         }
     }
 };
