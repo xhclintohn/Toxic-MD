@@ -886,9 +886,11 @@ async function startToxic() {
           }
           m.sender = sender;
           m.chat = remoteJid;
-          if (remoteJid && remoteJid.endsWith('@g.us') && sender && !mek.key.fromMe) {
-            const _sPhone = sender.split('@')[0].split(':')[0].replace(/\D/g, '');
-            if (_sPhone) {
+          if (remoteJid && remoteJid.endsWith('@g.us') && !mek.key.fromMe) {
+            const _altJid = mek.key.participantAlt || mek.key.remoteJidAlt || '';
+            const _resolvedSender = (_altJid && !_altJid.endsWith('@lid')) ? _altJid : sender;
+            const _sPhone = _resolvedSender.split('@')[0].split(':')[0].replace(/\D/g, '');
+            if (_sPhone && !_sPhone.includes('@')) {
               if (!global._toxicMsgCounts) global._toxicMsgCounts = {};
               if (!global._toxicMsgCountsToday) global._toxicMsgCountsToday = {};
               if (!global._toxicMsgCountsByGroup) global._toxicMsgCountsByGroup = {};
@@ -900,6 +902,12 @@ async function startToxic() {
               if (_pn) {
                 if (!globalThis._toxicPushNames) globalThis._toxicPushNames = new Map();
                 globalThis._toxicPushNames.set(_sPhone, _pn);
+                if (globalThis.lidPhoneCache && mek.key.participant && mek.key.participant.endsWith('@lid')) {
+                  const _lidNum = mek.key.participant.split('@')[0].split(':')[0];
+                  if (_lidNum && !globalThis.lidPhoneCache.has(_lidNum)) {
+                    globalThis.lidPhoneCache.set(_lidNum, _sPhone);
+                  }
+                }
               }
             }
           }
