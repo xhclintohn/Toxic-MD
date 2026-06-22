@@ -35,7 +35,10 @@ export default async (context) => {
                 });
             }
 
-            const bodyText = fmt(`Goodbye messages are currently *${isEnabled ? 'ON' : 'OFF'}*\nUse: *${prefix}goodbye on/off* to toggle.`);
+            const bodyText = fmt(`Goodbye messages are currently *${isEnabled ? 'ON' : 'OFF'}*\nUse: *${prefix}goodbye on/off* to toggle.
+│ 
+│ Customise message: *${prefix}setgoodbye <message>*
+│ Reset: *${prefix}setgoodbye reset*`);
             const device = await getDeviceMode();
 
             if (device === 'ios') {
