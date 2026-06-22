@@ -46,7 +46,7 @@ export default async (context) => {
             try {
                 const btnV2 = new ButtonV2(client);
                 btnV2.setBody(bodyText)
-                    .setFooter('> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧')
+
                     .addButton('𝐎𝐍', `${prefix}goodbye on`)
                     .addButton('𝐎𝐅𝐅', `${prefix}goodbye off`);
                 await btnV2.send(m.chat, { userJid: client.user?.id || '' });
