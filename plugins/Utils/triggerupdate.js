@@ -55,8 +55,8 @@ import ownerMiddleware from '../../utils/botUtil/Ownermiddleware.js';
   }
 
   export default {
-      name: 'triggerupdate',
-      aliases: ['vupdate', 'update', 'upd', 'botupdate', 'selfupdate', 'checkupdate'],
+      name: 'update',
+      aliases: ['triggerupdate', 'vupdate', 'upd', 'botupdate', 'selfupdate', 'checkupdate'],
       description: 'Update bot — auto-detects Heroku / git / zip method',
       run: async (context) => {
           await ownerMiddleware(context, async () => {
