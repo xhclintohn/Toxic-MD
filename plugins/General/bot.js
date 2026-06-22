@@ -59,7 +59,7 @@ export default {
         try {
             const btnV2 = new ButtonV2(client);
             btnV2.setBody(bodyText)
-                .setFooter('> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧')
+
                 .addButton('𝐌𝐞𝐧𝐮', `${effectivePrefix}menu`)
                 .addButton('𝐏𝐢𝐧𝐠', `${effectivePrefix}ping`)
                 .addButton('𝐒𝐞𝐭𝐭𝐢𝐧𝐠𝐬', `${effectivePrefix}settings`);
