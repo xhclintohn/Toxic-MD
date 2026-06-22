@@ -2,8 +2,8 @@ import { DateTime } from 'luxon';
 import fs from 'fs';
 import path from 'path';
 import { getSettings } from '../../lib/fastSettings.js';
-import { generateWAMessageFromContent, proto } from '@whiskeysockets/baileys';
 import { getDeviceMode } from '../../lib/deviceMode.js';
+import { ButtonV2 } from '../../lib/WABuilder.js';
 
 export default {
   name: 'fullmenu',
@@ -59,18 +59,7 @@ export default {
         .join('');
     };
 
-    const toBold = (text) => {
-      const boldFonts = {
-        'A': '𝗔', 'B': '𝗕', 'C': '𝗖', 'D': '𝗗', 'E': '𝗘', 'F': '𝗙', 'G': '𝗚', 'H': '𝗛', 'I': '𝗜', 'J': '𝗝', 'K': '𝗞', 'L': '𝗟', 'M': '𝗠',
-        'N': '𝗡', 'O': '𝗢', 'P': '𝗣', 'Q': '𝗤', 'R': '𝗥', 'S': '𝗦', 'T': '𝗧', 'U': '𝗨', 'V': '𝗩', 'W': '𝗪', 'X': '𝗫', 'Y': '𝗬', 'Z': '𝗭',
-        'a': '𝗮', 'b': '𝗯', 'c': '𝗰', 'd': '𝗱', 'e': '𝗲', 'f': '𝗳', 'g': '𝗴', 'h': '𝗵', 'i': '𝗶', 'j': '𝗷', 'k': '𝗸', 'l': '𝗹', 'm': '𝗺',
-        'n': '𝗻', 'o': '𝗼', 'p': '𝗽', 'q': '𝗾', 'r': '𝗿', 's': '𝘀', 't': '𝘁', 'u': '𝘂', 'v': '𝘃', 'w': '𝘄', 'x': '𝘅', 'y': '𝘆', 'z': '𝘇'
-      };
-      return text.split('').map(char => boldFonts[char] || char).join('');
-    };
-
-    let menuText = `╭─❏ 「 Fᴜʟʟ Mᴇɴᴜ」
-│ Greetings, @${m.sender.split('@')[0].split(':')[0]}\n│ \n│ Bot: ${botname}\n│ Total Commands: ${totalCommands}\n│ Time: ${getCurrentTimeInNairobi()}\n│ Prefix: ${effectivePrefix || 'None'}\n│ Mode: ${mode}\n│ Library: Baileys\n╰───────────────\n\n`;
+    let menuText = `╭─❏ 「 Fᴜʟʟ Mᴇɴᴜ」\n│ Greetings, @${m.sender.split('@')[0].split(':')[0]}\n│ \n│ Bot: ${botname}\n│ Total Commands: ${totalCommands}\n│ Time: ${getCurrentTimeInNairobi()}\n│ Prefix: ${effectivePrefix || 'None'}\n│ Mode: ${mode}\n│ Library: Baileys\n╰───────────────\n\n`;
 
     for (const category of categories) {
       let commandFiles;
@@ -80,8 +69,7 @@ export default {
 
       if (commandFiles.length === 0 && category.name !== 'NSFW') continue;
 
-      menuText += `╭─❏ 「 ${category.display}」
-`;
+      menuText += `╭─❏ 「 ${category.display}」\n`;
 
       if (category.name === 'NSFW') {
         const plus18Commands = ['xvideo'];
@@ -121,53 +109,24 @@ export default {
       contextInfo: { mentionedJid: [m.sender] }
     });
 
-    const sections = categories
-      .filter(cat => {
-        try { return fs.readdirSync(`./plugins/${cat.name}`).filter(f => f.endsWith('.js')).length > 0; } catch { return false; }
-      })
-      .map(cat => ({
-        title: toBold(cat.display),
-        rows: [{ title: toBold(cat.display), description: toBold(`View ${cat.name} commands`), id: `${effectivePrefix}${cat.name.toLowerCase()}menu` }]
-      }));
-
     const device = await getDeviceMode();
 
     if (device === 'ios') {
-      const iosCategoryText = sections.map(s =>
-        `│ ${s.rows[0]?.id || ''} — ${s.rows[0]?.description || s.title}`
-      ).join('\n');
-      await client.sendMessage(m.chat, {
-        text: `╭─❏ 「 Categories」
-${iosCategoryText}\n╰───────────────`,
-        contextInfo: { mentionedJid: [m.sender] }
-      });
       await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
       return;
     }
 
     try {
-      const interactiveMsg = generateWAMessageFromContent(m.chat, proto.Message.fromObject({
-        interactiveMessage: {
-          body: { text: toBold('Browse Categories') },
-          footer: { text: toBold('©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧') },
-          header: { hasMediaAttachment: false },
-          nativeFlowMessage: {
-            messageVersion: 1,
-            buttons: [
-              {
-                name: 'single_select',
-                buttonParamsJson: JSON.stringify({
-                  title: toBold('Browse Categories'),
-                  sections: sections
-                })
-              }
-            ]
-          }
-        }
-      }), { quoted: m, userJid: client.user.id });
+      const btnV2 = new ButtonV2(client);
+      btnV2.setBody(`╭─❏ 「 Quick Nav」\n│ Tap a category to jump to it\n╰───────────────`)
+          .setFooter('> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧')
+          .addButton('📜 General', `${effectivePrefix}generalmenu`)
+          .addButton('🛠️ Settings', `${effectivePrefix}settingsmenu`)
+          .addButton('👥 Groups', `${effectivePrefix}groupmenu`);
+      await btnV2.send(m.chat, { userJid: client.user?.id || '', mentions: [m.sender] });
       await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
-      await client.relayMessage(m.chat, interactiveMsg.message, { messageId: interactiveMsg.key.id });
-    } catch (e) {
+    } catch {
+      await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
     }
   }
 };
