@@ -34,7 +34,7 @@ export default async (context) => {
         try {
             const btnV2 = new ButtonV2(client);
             btnV2.setBody(bodyText)
-                .setFooter('> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧')
+
                 .addButton('All ✅', `${prefix}lastseen all`)
                 .addButton('Contacts 👥', `${prefix}lastseen contacts`)
                 .addButton('None ❌', `${prefix}lastseen none`);
