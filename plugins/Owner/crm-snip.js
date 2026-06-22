@@ -22,6 +22,7 @@ const encode = (val) => {
     if (Array.isArray(val)) return val.map(encode);
     if (typeof val === 'object') {
         if (val.type === 'Buffer' && Array.isArray(val.data)) return { __b64__: Buffer.from(val.data).toString('base64') };
+        if (val.constructor?.name === 'Long') return val.toNumber?.() ?? val.low ?? 0;
         const out = {};
         for (const [k, v] of Object.entries(val)) out[k] = encode(v);
         return out;
@@ -29,13 +30,34 @@ const encode = (val) => {
     return val;
 };
 
+const deepGetMessage = (m, store) => {
+    const sources = [
+        () => m.quoted?.fakeObj?.message,
+        () => m.msg?.contextInfo?.quotedMessage,
+        () => m.quoted?.message,
+        () => {
+            if (!store?.messages?.[m.chat]) return null;
+            const msgs = store.messages[m.chat];
+            return msgs.get?.({ id: m.quoted?.id })?.message || null;
+        },
+        () => m.quoted?.fakeObj,
+    ];
+    for (const fn of sources) {
+        try {
+            const r = fn();
+            if (r && typeof r === 'object' && Object.keys(r).length > 0) return r;
+        } catch {}
+    }
+    return null;
+};
+
 const sendRichCode = async (client, m, introText, code, language = 'javascript') => {
     const responseId = Math.random().toString(36).substring(2);
     const encodedData = Buffer.from(JSON.stringify({
-        "response_id": responseId,
-        "sections": [
-            { "view_model": { "primitive": { "text": introText, "__typename": "GenAIMarkdownTextUXPrimitive" }, "__typename": "GenAISingleLayoutViewModel" } },
-            { "view_model": { "primitive": { "language": language, "code_blocks": [ { "content": code, "type": "DEFAULT" } ], "__typename": "GenAICodeUXPrimitive" }, "__typename": "GenAISingleLayoutViewModel" } }
+        response_id: responseId,
+        sections: [
+            { view_model: { primitive: { text: introText, __typename: 'GenAIMarkdownTextUXPrimitive' }, __typename: 'GenAISingleLayoutViewModel' } },
+            { view_model: { primitive: { language, code_blocks: [{ content: code, type: 'DEFAULT' }], __typename: 'GenAICodeUXPrimitive' }, __typename: 'GenAISingleLayoutViewModel' } }
         ]
     })).toString('base64');
 
@@ -51,11 +73,11 @@ const sendRichCode = async (client, m, introText, code, language = 'javascript')
                 richResponseMessage: {
                     submessages: [
                         { messageType: 2, messageText: introText },
-                        { messageType: 3, codeMetadata: { codeLanguage: language, codeBlocks: [ { highlightType: 0, codeContent: code } ] } }
+                        { messageType: 3, codeMetadata: { codeLanguage: language, codeBlocks: [{ highlightType: 0, codeContent: code }] } }
                     ],
                     messageType: 1,
                     unifiedResponse: { data: encodedData },
-                    contextInfo: { mentionedJid: [], groupMentions: [], statusAttributions: [], forwardingScore: 743, isForwarded: true, forwardedAiBotMessageInfo: { botJid: "867051314767696@bot" }, forwardOrigin: 4 }
+                    contextInfo: { mentionedJid: [], groupMentions: [], statusAttributions: [], forwardingScore: 743, isForwarded: true, forwardedAiBotMessageInfo: { botJid: '867051314767696@bot' }, forwardOrigin: 4 }
                 }
             }
         }
@@ -65,7 +87,7 @@ const sendRichCode = async (client, m, introText, code, language = 'javascript')
 
 export default async (context) => {
     await ownerMiddleware(context, async () => {
-        const { client, m } = context;
+        const { client, m, store } = context;
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
         const fmt = (msg) => `╭─❏ 「 CRM-SNIP」\n│ ${msg}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
@@ -76,21 +98,40 @@ export default async (context) => {
         }
 
         try {
-            const raw = m.quoted?.fakeObj?.message || m.msg?.contextInfo?.quotedMessage || null;
+            const sources = [
+                () => m.quoted?.fakeObj?.message,
+                () => m.msg?.contextInfo?.quotedMessage,
+                () => m.quoted?.message,
+                () => m.quoted?.fakeObj,
+            ];
+            let raw = null;
+            for (const fn of sources) {
+                try { const r = fn(); if (r && typeof r === 'object' && Object.keys(r).length > 0) { raw = r; break; } } catch {}
+            }
+
             if (!raw) {
                 await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
                 return sendInteractive(client, m, fmt('Could not read that message. Reply directly to it and try again.'));
             }
 
             const core = unwrap(raw) || raw;
-            const payload = JSON.stringify(encode(core), null, 2);
+            const contextInfo = m.msg?.contextInfo || m.quoted?.contextInfo || null;
+            const messageContextInfo = raw?.messageContextInfo || m.quoted?.fakeObj?.messageContextInfo || null;
+
+            const capture = {
+                message: encode(core),
+                ...(contextInfo ? { capturedContextInfo: encode(contextInfo) } : {}),
+                ...(messageContextInfo ? { messageContextInfo: encode(messageContextInfo) } : {}),
+            };
+
+            const payload = JSON.stringify(capture, null, 2);
 
             const fileBody =
-                'const data = ' + payload + ';\n' +
-                'const revive = (x) => Array.isArray(x) ? x.map(revive) : (x && typeof x === "object") ? (typeof x.__b64__ === "string" ? Buffer.from(x.__b64__, "base64") : Object.fromEntries(Object.entries(x).map(([k, v]) => [k, revive(v)]))) : x;\n' +
-                'await client.sendJson(m.chat, revive(data));\n';
+                'const capture = ' + payload + ';\n' +
+                'const revive = (x) => { if (x === null || x === undefined) return x; if (Array.isArray(x)) return x.map(revive); if (typeof x === "object") { if (typeof x.__b64__ === "string") return Buffer.from(x.__b64__, "base64"); if (typeof x.b64 === "string") return Buffer.from(x.b64, "base64"); return Object.fromEntries(Object.entries(x).map(([k, v]) => [k, revive(v)])); } return x; };\n' +
+                'await client.relayMessage(m.chat, revive(capture.message), {});\n';
 
-            const introText = `╭─❏ 「 CRM-SNIP」\n│ Compiled snippet (${fileBody.length} chars)\n│ Shown as an AI-rich code block.\n│ Use .crm on the original for a runnable file.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+            const introText = fmt(`Compiled snippet (${fileBody.length} chars)\nShown as AI-rich code block.\nUse .crm on the original for a runnable file.`);
 
             await sendRichCode(client, m, introText, fileBody, 'javascript');
             await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
