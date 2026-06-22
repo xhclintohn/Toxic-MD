@@ -886,6 +886,23 @@ async function startToxic() {
           }
           m.sender = sender;
           m.chat = remoteJid;
+          if (remoteJid && remoteJid.endsWith('@g.us') && sender && !mek.key.fromMe) {
+            const _sPhone = sender.split('@')[0].split(':')[0].replace(/\D/g, '');
+            if (_sPhone) {
+              if (!global._toxicMsgCounts) global._toxicMsgCounts = {};
+              if (!global._toxicMsgCountsToday) global._toxicMsgCountsToday = {};
+              if (!global._toxicMsgCountsByGroup) global._toxicMsgCountsByGroup = {};
+              global._toxicMsgCounts[_sPhone] = (global._toxicMsgCounts[_sPhone] || 0) + 1;
+              global._toxicMsgCountsToday[_sPhone] = (global._toxicMsgCountsToday[_sPhone] || 0) + 1;
+              const _gKey = remoteJid + ':' + _sPhone;
+              global._toxicMsgCountsByGroup[_gKey] = (global._toxicMsgCountsByGroup[_gKey] || 0) + 1;
+              const _pn = mek.pushName || '';
+              if (_pn) {
+                if (!globalThis._toxicPushNames) globalThis._toxicPushNames = new Map();
+                globalThis._toxicPushNames.set(_sPhone, _pn);
+              }
+            }
+          }
           toxic(client, m, { type: "notify" }, store).catch(e => console.log('❌ [TOXIC ASYNC]:', e.message));
           setImmediate(() => {
               if (settings?.autoread === true || settings?.autoread === 'true' || settings?.autoread === 1) { client.readMessages([mek.key]).catch(() => {}); }
