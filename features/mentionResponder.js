@@ -1,4 +1,4 @@
-import { getMention } from '../lib/mentionStore.js';
+import { getMentionAsync } from '../lib/mentionStore.js';
   import { sendJson } from '../lib/botFunctions.js';
 
   const revive = (x) => Array.isArray(x) ? x.map(revive) : (x && typeof x === 'object') ? (typeof x.__b64__ === 'string' ? Buffer.from(x.__b64__, 'base64') : (typeof x.b64 === 'string' ? Buffer.from(x.b64, 'base64') : Object.fromEntries(Object.entries(x).map(([k,v]) => [k, revive(v)])))) : x;
@@ -25,11 +25,12 @@ import { getMention } from '../lib/mentionStore.js';
               if (!rawNum) continue;
 
               const isBot = rawNum === botNum;
-
               if (!isBot && rawNum === senderNum) continue;
 
               const lookupNum = isBot ? botNum : rawNum;
-              const entry = getMention(lookupNum);
+
+              // Use async lookup so DB-persisted entries survive restarts
+              const entry = await getMentionAsync(lookupNum);
               if (!entry) continue;
 
               const key  = m.chat + ':' + lookupNum;
