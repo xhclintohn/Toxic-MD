@@ -1,30 +1,26 @@
-import { generateWAMessageFromContent } from '@whiskeysockets/baileys';
 import middleware from '../../utils/botUtil/middleware.js';
 import { getDeviceMode } from '../../lib/deviceMode.js';
+import { sendInteractive } from '../../lib/sendInteractive.js';
+import { ButtonV2 } from '../../lib/WABuilder.js';
 
-const H = (title) => `╭─❏ 「 ${title}」
-├`;
+const H = (title) => `╭─❏ 「 ${title}」\n├`;
 const F = `╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
-const box = (title, lines) => `${H(title)}\n${lines.map(l => `│ ${l}`).join('\n')}\n│
-${F}`;
+const box = (title, lines) => `${H(title)}\n${lines.map(l => `│ ${l}`).join('\n')}\n│\n${F}`;
 
-async function sendSelectButtons(client, jid, fq, bodyText, title, rows) {
+async function sendSelectButtons(client, m, fq, bodyText, title, rows) {
+    const _dev = await getDeviceMode();
+    if (_dev === 'ios') {
+        return client.sendMessage(m.chat, { text: bodyText });
+    }
     try {
-        const msg = generateWAMessageFromContent(jid, {
-            interactiveMessage: {
-                body: { text: bodyText },
-                footer: { text: '' },
-                nativeFlowMessage: {
-                    buttons: [{
-                        name: 'single_select',
-                        buttonParamsJson: JSON.stringify({ title, sections: [{ title: 'Options', rows }] })
-                    }]
-                }
-            }
-        });
-        await client.relayMessage(jid, msg.message, { messageId: msg.key.id });
+        const btnV2 = new ButtonV2(client);
+        btnV2.setBody(bodyText).setFooter('> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
+        for (const row of rows.slice(0, 3)) {
+            btnV2.addButton(row.header || row.title, row.id);
+        }
+        await btnV2.send(m.chat, { userJid: client.user?.id || '' });
     } catch {
-        await client.sendMessage(jid, { text: bodyText });
+        await client.sendMessage(m.chat, { text: bodyText });
     }
 }
 
@@ -196,19 +192,14 @@ export default [
                         `  📅 7d  — 7 days`,
                         `  🗓️ 90d — 90 days`,
                     ]);
-                    const _dev = await getDeviceMode();
-                    if (_dev === 'ios') {
-                        return client.sendMessage(m.chat, { text: bodyText });
-                    }
                     return sendSelectButtons(
-                        client, m.chat, fq,
+                        client, m, null,
                         bodyText,
                         'Set Timer',
                         [
                             { header: '🚫 Off',      title: 'Disable disappearing messages', id: `${p}disappearing off` },
                             { header: '⏰ 24 Hours', title: 'Messages vanish after 24h',      id: `${p}disappearing 24h` },
                             { header: '📅 7 Days',   title: 'Messages vanish after 7 days',   id: `${p}disappearing 7d`  },
-                            { header: '🗓️ 90 Days',  title: 'Messages vanish after 90 days',  id: `${p}disappearing 90d` },
                         ]
                     );
                 }
