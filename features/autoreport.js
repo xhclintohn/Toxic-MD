@@ -2,17 +2,6 @@ import { createCanvas, loadImage, GlobalFonts } from '@napi-rs/canvas';
   import moment from 'moment-timezone';
   import { getGroupSettings } from '../database/config.js';
 
-  // Resolve a JID to its phone digits only (handles LID JIDs)
-  function resolveJidPhone(jid) {
-      if (!jid) return '';
-      const raw = (jid || '').split('@')[0].split(':')[0];
-      if (jid.endsWith('@lid') && globalThis.lidPhoneCache) {
-          const mapped = globalThis.lidPhoneCache.get(raw);
-          if (mapped) return String(mapped).replace(/\D/g, '');
-      }
-      return raw.replace(/\D/g, '') || raw;
-  }
-
   const _fc = new Set();
   const _fb = 'https://raw.githubusercontent.com/Reyz2902/font2/main/';
   async function lf(file, alias) {
@@ -38,9 +27,9 @@ import { createCanvas, loadImage, GlobalFonts } from '@napi-rs/canvas';
 
   function clamp(ctx, text, maxW) {
       if (ctx.measureText(text).width <= maxW) return text;
-      while (ctx.measureText(text + '\u2026').width > maxW && text.length > 0)
+      while (ctx.measureText(text + '…').width > maxW && text.length > 0)
           text = text.slice(0, -1);
-      return text + '\u2026';
+      return text + '…';
   }
 
   function fmtNum(n) {
@@ -96,22 +85,15 @@ import { createCanvas, loadImage, GlobalFonts } from '@napi-rs/canvas';
           lf('SFPRODISPLAYREGULAR.OTF', 'SFRegular'),
       ]);
 
-      const W = 1200;
-      const PAD = 36;
-      const GAP = 20;
-      const HEADER_H = 110;
-      const CARDS_H = 130;
-      const MAIN_H = 400;
-      const FOOTER_H = 44;
+      const W = 1200, PAD = 36, GAP = 20;
+      const HEADER_H = 110, CARDS_H = 130, MAIN_H = 400, FOOTER_H = 44;
       const H = PAD + HEADER_H + GAP + CARDS_H + GAP + MAIN_H + GAP + FOOTER_H + PAD;
 
       const canvas = createCanvas(W, H);
       const ctx = canvas.getContext('2d');
 
       const bg = ctx.createLinearGradient(0, 0, W, H);
-      bg.addColorStop(0, '#07070e');
-      bg.addColorStop(0.5, '#0c1120');
-      bg.addColorStop(1, '#07070e');
+      bg.addColorStop(0, '#07070e'); bg.addColorStop(0.5, '#0c1120'); bg.addColorStop(1, '#07070e');
       ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
 
       const r1 = ctx.createRadialGradient(0, 0, 0, 0, 0, W * 0.55);
@@ -154,10 +136,10 @@ import { createCanvas, loadImage, GlobalFonts } from '@napi-rs/canvas';
 
       const cardW = (W - PAD * 2 - GAP * 3) / 4;
       const cards = [
-          { label: 'Total Messages', value: fmtNum(totalMsg), icon: '\ud83d\udcac' },
-          { label: 'Active Users', value: fmtNum(activeUsers), icon: '\ud83d\udc65' },
-          { label: 'Members', value: fmtNum(members), icon: '\ud83c\udfe0' },
-          { label: 'Top Yapper', value: clamp(ctx, topYappers[0]?.name?.split(' ')[0] || '-', cardW - 32), icon: '\ud83c\udfc6' },
+          { label: 'Total Messages', value: fmtNum(totalMsg) },
+          { label: 'Active Users', value: fmtNum(activeUsers) },
+          { label: 'Members', value: fmtNum(members) },
+          { label: 'Top Yapper', value: clamp(ctx, topYappers[0]?.name?.split(' ')[0] || '-', cardW - 32) },
       ];
       cards.forEach((card, i) => {
           const cx = PAD + i * (cardW + GAP), cy = curY;
@@ -174,7 +156,7 @@ import { createCanvas, loadImage, GlobalFonts } from '@napi-rs/canvas';
           ctx.font = `bold ${i === 3 ? '26px' : '36px'} SFBold`; ctx.fillStyle = '#f1f5f9';
           ctx.fillText(card.value, cx + 18, cy + 82);
           ctx.font = '12px SFMedium'; ctx.fillStyle = '#22c55e';
-          ctx.fillText(`\u2191 ${moment(timestamp).tz('Africa/Nairobi').format('HH:mm')} EAT`, cx + 18, cy + 108);
+          ctx.fillText(`↑ ${moment(timestamp).tz('Africa/Nairobi').format('HH:mm')} EAT`, cx + 18, cy + 108);
       });
       curY += CARDS_H + GAP;
 
@@ -281,13 +263,16 @@ import { createCanvas, loadImage, GlobalFonts } from '@napi-rs/canvas';
           drawAvatar(ctx, yapper.avatar, yapper.name, avX, avY, avR, AVATAR_COLORS[i]);
 
           const tx = avX + avR + 14;
-          // Line 1: Name (registered name or +phone)
+
+          // Line 1: pushname/registered name (or "+phone" if no name)
           ctx.font = 'bold 14px SFBold'; ctx.fillStyle = '#f1f5f9'; ctx.textAlign = 'left';
-          ctx.fillText(clamp(ctx, yapper.name, rankW - 130), tx, iy + rowH / 2 - 8);
-          // Line 2: +phone · N msgs
+          ctx.fillText(clamp(ctx, yapper.name || ('+' + yapper.phone), rankW - 130), tx, iy + rowH / 2 - 8);
+
+          // Line 2: phone ONLY if different from name displayed on line 1, then message count
+          const nameIsPhone = yapper.phone && yapper.name === '+' + yapper.phone;
+          const phonePrefix = (!nameIsPhone && yapper.phone) ? `+${yapper.phone} · ` : '';
           ctx.font = '11px SFRegular'; ctx.fillStyle = '#94a3b8';
-          const phoneStr = yapper.phone ? `+${yapper.phone} \u00b7 ` : '';
-          ctx.fillText(`${phoneStr}${fmtNum(yapper.count)} msgs`, tx, iy + rowH / 2 + 9);
+          ctx.fillText(`${phonePrefix}${fmtNum(yapper.count)} msgs`, tx, iy + rowH / 2 + 9);
 
           const rColors = ['#f59e0b', '#94a3b8', '#cd7c3e', '#6366f1', '#8b5cf6'];
           ctx.font = 'bold 16px SFBold'; ctx.fillStyle = rColors[i] || '#475569';
@@ -302,7 +287,7 @@ import { createCanvas, loadImage, GlobalFonts } from '@napi-rs/canvas';
       ctx.beginPath(); ctx.moveTo(PAD, curY); ctx.lineTo(W - PAD, curY); ctx.stroke();
       ctx.font = '12px SFRegular'; ctx.fillStyle = '#334155'; ctx.textAlign = 'center';
       ctx.fillText(
-          `${botName}  \u00b7  ${moment(timestamp).tz('Africa/Nairobi').format('DD MMM YYYY, HH:mm')} EAT  \u00b7  Toxic-MD Auto Report`,
+          `${botName}  ·  ${moment(timestamp).tz('Africa/Nairobi').format('DD MMM YYYY, HH:mm')} EAT  ·  Toxic-MD Auto Report`,
           W / 2, curY + 28
       );
 
@@ -315,170 +300,91 @@ import { createCanvas, loadImage, GlobalFonts } from '@napi-rs/canvas';
           const groupName = groupMeta.subject || targetGroupJid;
           const members = groupMeta.participants?.length || 0;
 
-          // ── Build LID → phone map from participant list + lidPhoneCache ──
-          const lidToPhone = new Map();
-          const resolvedPhoneJids = new Set();
+          // ── Resolve participants → phone digits ──
+          const allCounts = global._toxicMsgCounts || {};
+          const allCountsToday = global._toxicMsgCountsToday || {};
 
-          for (const p of (groupMeta.participants || [])) {
-              const jid = p.id || '';
-              if (jid.endsWith('@s.whatsapp.net')) {
-                  resolvedPhoneJids.add(jid);
-              } else if (jid.endsWith('@lid')) {
-                  const lidNum = jid.split('@')[0].split(':')[0];
-                  // Check lidPhoneCache first
-                  const cached = globalThis.lidPhoneCache?.get(lidNum);
-                  if (cached) {
-                      const phone = String(cached).replace(/\D/g, '');
-                      if (phone) { lidToPhone.set(lidNum, phone); resolvedPhoneJids.add(phone + '@s.whatsapp.net'); }
-                  }
-                  // Also check participant's own phoneNumber field (some Baileys versions expose it)
-                  const pPhone = (p.phoneNumber || p.pn || '').replace(/\D/g, '');
-                  if (pPhone && !lidToPhone.has(lidNum)) {
-                      lidToPhone.set(lidNum, pPhone); resolvedPhoneJids.add(pPhone + '@s.whatsapp.net');
-                  }
-                  // Keep LID JID itself in set (DB might use LID JIDs as keys)
-                  resolvedPhoneJids.add(jid);
-              }
-          }
-
-          // Async resolve any still-unresolved LIDs
-          if (globalThis.resolvePhoneFromLidAsync) {
-              for (const p of (groupMeta.participants || [])) {
-                  const jid = p.id || '';
-                  if (jid.endsWith('@lid')) {
-                      const lidNum = jid.split('@')[0].split(':')[0];
-                      if (!lidToPhone.has(lidNum)) {
-                          try {
-                              const resolved = await globalThis.resolvePhoneFromLidAsync(jid);
-                              if (resolved && typeof resolved === 'string') {
-                                  const phone = resolved.replace(/\D/g, '');
-                                  if (phone) { lidToPhone.set(lidNum, phone); resolvedPhoneJids.add(phone + '@s.whatsapp.net'); }
-                              }
-                          } catch {}
-                      }
-                  }
-              }
-          }
-
-          // Comprehensive participant set (original JIDs + resolved phone JIDs)
-          const participantJids = new Set([
-              ...(groupMeta.participants || []).map(p => p.id),
-              ...resolvedPhoneJids
-          ]);
-
-          // Helper: resolve any JID to phone digits string
-          function resolveToPhone(jid) {
+          function lidToPhone(jid) {
               if (!jid) return '';
               const raw = jid.split('@')[0].split(':')[0];
               if (jid.endsWith('@lid')) {
-                  return lidToPhone.get(raw) || globalThis.lidPhoneCache?.get(raw) || raw;
+                  const cached = globalThis.lidPhoneCache?.get(raw);
+                  if (cached) return String(cached).replace(/\D/g, '');
+                  return '';
               }
               return raw.replace(/\D/g, '') || raw;
           }
 
-          const allUsers = global.db?.data?.users || {};
-          const gcUsers = Object.entries(allUsers)
-              .filter(([jid]) => {
-                  if (jid.endsWith('@newsletter') || jid.endsWith('@g.us')) return false;
-                  if (participantJids.has(jid)) return true;
-                  // Also try matching by resolved phone
-                  const phone = resolveToPhone(jid);
-                  return phone && resolvedPhoneJids.has(phone + '@s.whatsapp.net');
+          // Build yapper list from group participants + message counts
+          const gcUsers = (groupMeta.participants || [])
+              .filter(p => !p.id?.endsWith('@newsletter') && !p.id?.endsWith('@g.us'))
+              .map(p => {
+                  const phone = lidToPhone(p.id);
+                  const count = allCounts[phone] || 0;
+                  const chatToday = allCountsToday[phone] || 0;
+                  // Show pushname from lidPhoneCache name map if available, else "+phone"
+                  let name = '+' + phone;
+                  if (p.name) name = p.name;
+                  return { jid: p.id, phone, name, count, chatToday, avatar: null };
               })
-              .filter(([, u]) => ((u.totalChat || 0) > 0 || (u.chatToday || 0) > 0))
-              .map(([jid, u]) => {
-                  const phone = resolveToPhone(jid);
-                  // Show registered name if available, otherwise show +phone
-                  const displayName = (u.registered && u.name) ? u.name : `+${phone}`;
-                  return {
-                      jid,
-                      phone,
-                      name: displayName,
-                      count: u.totalChat || 0,
-                      chatToday: u.chatToday || 0,
-                  };
-              })
+              .filter(u => u.count > 0)
               .sort((a, b) => b.count - a.count);
 
           const totalMsg = gcUsers.reduce((s, u) => s + u.count, 0);
           const activeUsers = gcUsers.length;
 
-          const reportCaption = `*[ \ud83d\udcca TOXIC-MD DAILY REPORT ]*\n\nGroup: ${groupName}\nMembers: ${members}\nTotal Messages: ${totalMsg.toLocaleString('en-US')}\nActive Users: ${activeUsers}\n\nPowered by Toxic-MD Auto Report`;
+          const caption = `*[ 📊 TOXIC-MD DAILY REPORT ]*\n\nGroup: ${groupName}\nMembers: ${members}\nTotal Messages: ${totalMsg.toLocaleString('en-US')}\nActive Users: ${activeUsers}\n\nPowered by Toxic-MD Auto Report`;
+
+          let topYappers;
+          let activityData;
 
           if (!gcUsers.length) {
+              // No data — use placeholders
               const placeholders = (groupMeta.participants || []).slice(0, 5).map(p => {
-                  const phone = resolveToPhone(p.id);
-                  return { jid: p.id, phone, name: `+${phone}`, count: 0, chatToday: 0, avatar: null };
+                  const phone = lidToPhone(p.id);
+                  return { jid: p.id, phone, name: '+' + phone, count: 0, chatToday: 0, avatar: null };
               });
-              const emptyYappers = placeholders.length
+              topYappers = placeholders.length
                   ? placeholders
-                  : [{ name: 'No chatters yet', phone: '', count: 0, avatar: null }];
-              // Load avatars for placeholders
-              for (const u of emptyYappers) {
-                  if (u.jid) {
-                      try {
-                          const ppUrl = await client.profilePictureUrl(u.jid, 'image');
-                          if (ppUrl) u.avatar = await safeLoadPP(ppUrl);
-                      } catch {}
-                  }
+                  : [{ jid: null, phone: '', name: 'No data yet', count: 0, chatToday: 0, avatar: null }];
+              activityData = [1, 1, 1, 1, 1, 1, 1];
+          } else {
+              topYappers = gcUsers.slice(0, 5);
+              activityData = [0.4, 0.55, 0.5, 0.7, 0.65, 0.9, 1.0].map((mult, i) =>
+                  i === 6
+                      ? Math.max(1, gcUsers.reduce((s, u) => s + (u.chatToday || 0), 0))
+                      : Math.max(1, Math.round(totalMsg * mult * 0.1))
+              );
+          }
+
+          // Load avatars
+          for (const u of topYappers) {
+              if (u.jid) {
+                  try {
+                      const ppUrl = await client.profilePictureUrl(u.jid, 'image');
+                      if (ppUrl) u.avatar = await safeLoadPP(ppUrl);
+                  } catch { u.avatar = null; }
               }
-              const img2 = await generateGroupStatsCanvas({
-                  groupName, members, totalMsg: 0, activeUsers: 0,
-                  topYappers: emptyYappers,
-                  activityData: [1, 1, 1, 1, 1, 1, 1],
-                  botName: global.botname || client.user?.name || 'Toxic-MD',
-                  timestamp: Date.now()
-              });
-              const emptyCaption = `*[ TOXIC-MD DAILY REPORT ]*\n\nGroup: ${groupName}\nMembers: ${members}\nTotal Messages: 0\nActive Users: 0\n\nNo chat data yet — start chatting!\n\nPowered by Toxic-MD`;
-              // Send to group chat
-              await client.sendMessage(targetGroupJid, { image: img2, caption: emptyCaption });
-              // Post as group status (matching gstatus.js pattern)
-              const statusObj2 = { image: img2, contextInfo: { isGroupStatus: true, statusSourceType: 'IMAGE', statusAttributions: [{ type: 10 }], statusAudienceMetadata: { audienceType: 'CLOSE_FRIENDS' } } };
-              statusObj2.caption = emptyCaption;
-              await client.sendMessage(targetGroupJid, statusObj2).catch(() => {});
-              return true;
           }
-
-          // Build top 5 with avatars
-          const top5 = gcUsers.slice(0, 5);
-          for (const u of top5) {
-              try {
-                  const ppUrl = await client.profilePictureUrl(u.jid, 'image');
-                  if (ppUrl) u.avatar = await safeLoadPP(ppUrl);
-              } catch { u.avatar = null; }
-          }
-
-          const now = Date.now();
-          const activityData = [0.4, 0.55, 0.5, 0.7, 0.65, 0.9, 1.0].map((mult, i) =>
-              i === 6
-                  ? Math.max(1, gcUsers.reduce((s, u) => s + (u.chatToday || 0), 0))
-                  : Math.max(1, Math.round(totalMsg * mult * 0.1))
-          );
 
           const img = await generateGroupStatsCanvas({
               groupName, members, totalMsg, activeUsers,
-              topYappers: top5,
+              topYappers,
               activityData,
               botName: global.botname || client.user?.name || 'Toxic-MD',
-              timestamp: now
+              timestamp: Date.now()
           });
 
-          // Send report to group chat (regular message)
-          await client.sendMessage(targetGroupJid, { image: img, caption: reportCaption });
-
-          // Also post as group status — exactly matching gstatus.js pattern
-          const statusMsgObj = {
+          // ── Post as group status ONLY (no regular group message) ──
+          await client.sendMessage(targetGroupJid, {
               image: img,
+              caption,
               contextInfo: {
                   isGroupStatus: true,
                   statusSourceType: 'IMAGE',
                   statusAttributions: [{ type: 10 }],
                   statusAudienceMetadata: { audienceType: 'CLOSE_FRIENDS' }
               }
-          };
-          statusMsgObj.caption = reportCaption;
-          await client.sendMessage(targetGroupJid, statusMsgObj).catch(e => {
-              console.log('[AUTOREPORT] group status post failed:', e.message);
           });
 
           return true;
