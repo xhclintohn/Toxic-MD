@@ -22,6 +22,7 @@ const encode = (val) => {
     if (Array.isArray(val)) return val.map(encode);
     if (typeof val === 'object') {
         if (val.type === 'Buffer' && Array.isArray(val.data)) return { __b64__: Buffer.from(val.data).toString('base64') };
+        if (val.constructor?.name === 'Long') return val.toNumber?.() ?? val.low ?? 0;
         const out = {};
         for (const [k, v] of Object.entries(val)) out[k] = encode(v);
         return out;
@@ -31,7 +32,7 @@ const encode = (val) => {
 
 export default async (context) => {
     await ownerMiddleware(context, async () => {
-        const { client, m } = context;
+        const { client, m, store } = context;
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
         const fmt = (msg) => `╭─❏ 「 CRM-CMD」\n│ ${msg}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
@@ -42,21 +43,40 @@ export default async (context) => {
         }
 
         try {
-            const raw = m.quoted?.fakeObj?.message || m.msg?.contextInfo?.quotedMessage || null;
+            const sources = [
+                () => m.quoted?.fakeObj?.message,
+                () => m.msg?.contextInfo?.quotedMessage,
+                () => m.quoted?.message,
+                () => m.quoted?.fakeObj,
+            ];
+            let raw = null;
+            for (const fn of sources) {
+                try { const r = fn(); if (r && typeof r === 'object' && Object.keys(r).length > 0) { raw = r; break; } } catch {}
+            }
+
             if (!raw) {
                 await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
                 return sendInteractive(client, m, fmt('Could not read that message. Reply directly to it and try again.'));
             }
 
             const core = unwrap(raw) || raw;
-            const payload = JSON.stringify(encode(core), null, 2);
+            const contextInfo = m.msg?.contextInfo || m.quoted?.contextInfo || null;
+            const messageContextInfo = raw?.messageContextInfo || m.quoted?.fakeObj?.messageContextInfo || null;
+
+            const capture = {
+                message: encode(core),
+                ...(contextInfo ? { capturedContextInfo: encode(contextInfo) } : {}),
+                ...(messageContextInfo ? { messageContextInfo: encode(messageContextInfo) } : {}),
+            };
+
+            const payload = JSON.stringify(capture, null, 2);
 
             const fileBody =
-                'const data = ' + payload + ';\n' +
-                'const revive = (x) => Array.isArray(x) ? x.map(revive) : (x && typeof x === "object") ? (typeof x.__b64__ === "string" ? Buffer.from(x.__b64__, "base64") : Object.fromEntries(Object.entries(x).map(([k, v]) => [k, revive(v)]))) : x;\n' +
+                'const capture = ' + payload + ';\n' +
+                'const revive = (x) => { if (x === null || x === undefined) return x; if (Array.isArray(x)) return x.map(revive); if (typeof x === "object") { if (typeof x.__b64__ === "string") return Buffer.from(x.__b64__, "base64"); if (typeof x.b64 === "string") return Buffer.from(x.b64, "base64"); return Object.fromEntries(Object.entries(x).map(([k, v]) => [k, revive(v)])); } return x; };\n' +
                 'export default async (context) => {\n' +
                 '    const { client, m } = context;\n' +
-                '    await client.sendJson(m.chat, revive(data));\n' +
+                '    await client.relayMessage(m.chat, revive(capture.message), {});\n' +
                 '};\n';
 
             const id = (m.quoted?.id || Date.now().toString(36)).toString().slice(-8);
