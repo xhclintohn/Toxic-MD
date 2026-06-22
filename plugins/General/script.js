@@ -51,14 +51,14 @@ export default {
         const msg = generateWAMessageFromContent(m.chat, proto.Message.fromObject({
           interactiveMessage: {
             body: { text: replyText },
-            footer: { text: '🌐 hosting.toxicx.tech' },
+            footer: { text: '©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧' },
             header: { hasMediaAttachment: false },
             contextInfo: {
               externalAdReply: {
                 showAdAttribution: false,
                 title: `${botname}`,
                 body: `Toxic-Hosting🟩`,
-                sourceUrl: `https://hosting.toxicx.tech`,
+                sourceUrl: `https://©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`,
                 mediaType: 1,
                 renderLargerThumbnail: true
               }
@@ -77,8 +77,8 @@ export default {
                   name: 'cta_url',
                   buttonParamsJson: JSON.stringify({
                     display_text: 'Open-Toxic-Hosting',
-                    url: 'https://hosting.toxicx.tech',
-                    merchant_url: 'https://hosting.toxicx.tech'
+                    url: 'https://©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧',
+                    merchant_url: 'https://©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧'
                   })
                 }
               ]
@@ -95,7 +95,7 @@ export default {
               showAdAttribution: false,
               title: `${botname}`,
               body: `Toxic-Hosting`,
-              sourceUrl: `https://hosting.toxicx.tech`,
+              sourceUrl: `https://©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`,
               mediaType: 1,
               renderLargerThumbnail: true
             }
