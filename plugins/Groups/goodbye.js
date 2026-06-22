@@ -72,7 +72,8 @@ export default async (context) => {
                             }]
                         }
                     }
-                })
+                }),
+                { userJid: client.user?.id || '' }
             );
             await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
 
