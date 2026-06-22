@@ -36,7 +36,9 @@ import { downloadContentFromMessage } from '@whiskeysockets/baileys';
 
   // Download with multiple fallback strategies, ordered by reliability
   async function grab(client, m, mediaMsg, type) {
-      // Strategy 1 — m.download(): smsg sets this when m.msg.url exists (works for viewOnceMessage v1)
+      if (typeof m.msg?.download === 'function') {
+          try { const b = await m.msg.download(); if (b?.length) return b; } catch {}
+      }
       if (typeof m.download === 'function') {
           try { const b = await m.download(); if (b?.length) return b; } catch {}
       }
@@ -115,8 +117,11 @@ import { downloadContentFromMessage } from '@whiskeysockets/baileys';
               return;
           }
 
-          const senderNum = (m.sender || m.key?.participant || m.key?.remoteJid || '')
-              .split('@')[0].split(':')[0] || 'Unknown';
+          const _rawSender = m.sender || m.key?.participant || m.key?.remoteJid || '';
+          const _senderRaw = _rawSender.split('@')[0].split(':')[0];
+          const senderNum = (_rawSender.endsWith('@lid') && globalThis.lidPhoneCache?.get(_senderRaw))
+              ? String(globalThis.lidPhoneCache.get(_senderRaw)).replace(/\D/g, '')
+              : _senderRaw || 'Unknown';
           const chatType = (m.chat || '').endsWith('@g.us') ? 'Group 👥' : 'DM 💬';
           const ts    = new Date().toLocaleString('en-KE', { timeZone: 'Africa/Nairobi' });
           const extra = (media.msg.caption || '').trim();
