@@ -22,40 +22,39 @@ export default async (client, m) => {
                           m.mentionedJid || [];
         if (!Array.isArray(mentioned) || !mentioned.length) return;
 
-        const senderNum = (m.sender || '').split('@')[0].split(':')[0];
-
+        let botMentioned = false;
         for (const jid of mentioned) {
             const rawNum = (jid || '').split('@')[0].split(':')[0];
             if (!rawNum) continue;
-
-            const isLid = (jid || '').endsWith('@lid');
-            let isBot = false;
-
+            const isLid = jid.endsWith('@lid');
             if (isLid) {
-                isBot = rawNum === botLid ||
-                        (globalThis.lidPhoneCache?.get(rawNum) === botNum);
-            } else {
-                isBot = rawNum === botNum;
-            }
-
-            if (!isBot && rawNum === senderNum) continue;
-
-            const lookupNum = botNum;
-
-            const entry = await getMentionAsync(lookupNum);
-            if (!entry) continue;
-
-            const key = m.chat + ':' + lookupNum;
-            const last = _cooldown.get(key) || 0;
-            if (Date.now() - last < COOLDOWN_MS) continue;
-            _cooldown.set(key, Date.now());
-
-            if (entry.kind === 'text' && entry.text) {
-                await client.sendMessage(m.chat, { text: entry.text, mentions: [jid] }, { quoted: m });
-            } else if (entry.kind === 'json' && entry.data) {
-                try { await sendJson(client, m.chat, revive(entry.data), { quoted: m }); } catch (e) {
-                    console.log('[MENTIONRESPONDER] sendJson error:', e.message);
+                if (rawNum === botLid || globalThis.lidPhoneCache?.get(rawNum) === botNum) {
+                    botMentioned = true;
+                    break;
                 }
+            } else {
+                if (rawNum === botNum) {
+                    botMentioned = true;
+                    break;
+                }
+            }
+        }
+
+        if (!botMentioned) return;
+
+        const entry = await getMentionAsync(botNum);
+        if (!entry) return;
+
+        const key = m.chat + ':' + botNum;
+        const last = _cooldown.get(key) || 0;
+        if (Date.now() - last < COOLDOWN_MS) return;
+        _cooldown.set(key, Date.now());
+
+        if (entry.kind === 'text' && entry.text) {
+            await client.sendMessage(m.chat, { text: entry.text }, { quoted: m });
+        } else if (entry.kind === 'json' && entry.data) {
+            try { await sendJson(client, m.chat, revive(entry.data), { quoted: m }); } catch (e) {
+                console.log('[MENTIONRESPONDER] sendJson error:', e.message);
             }
         }
     } catch (e) {
