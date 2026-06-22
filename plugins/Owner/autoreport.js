@@ -3,35 +3,36 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
 import { generateAndSendReport } from '../../features/autoreport.js';
 import { getGroupSettings, updateGroupSetting } from '../../database/config.js';
 
-let _intervalId = null;
-let _lastReportTime = 0;
+const _intervals = new Map();
+const _lastReportTimes = new Map();
 
 const REPORT_INTERVAL = 24 * 60 * 60 * 1000;
 
 const fmt = (msg) => `╭─❏ 「 AUTOREPORT」\n│ ${msg}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
-async function runReport(client, m) {
-    if (!m.isGroup) return false;
-    const result = await generateAndSendReport(client, m.chat);
-    _lastReportTime = Date.now();
+async function runReport(client, jid) {
+    const result = await generateAndSendReport(client, jid);
+    _lastReportTimes.set(jid, Date.now());
     return result;
 }
 
 function startAutoReport(client, jid) {
-    if (_intervalId) clearInterval(_intervalId);
-    _intervalId = setInterval(async () => {
+    if (_intervals.has(jid)) clearInterval(_intervals.get(jid));
+    const id = setInterval(async () => {
         try {
             await generateAndSendReport(client, jid);
+            _lastReportTimes.set(jid, Date.now());
         } catch (e) {
             console.error('[AUTOREPORT] scheduled report failed:', e.message);
         }
     }, REPORT_INTERVAL);
+    _intervals.set(jid, id);
 }
 
-function stopAutoReport() {
-    if (_intervalId) {
-        clearInterval(_intervalId);
-        _intervalId = null;
+function stopAutoReport(jid) {
+    if (_intervals.has(jid)) {
+        clearInterval(_intervals.get(jid));
+        _intervals.delete(jid);
     }
 }
 
@@ -53,7 +54,7 @@ export default {
 
             if (arg === 'now') {
                 await client.sendMessage(m.chat, { react: { text: '📊', key: m.reactKey } });
-                const ok = await runReport(client, m);
+                const ok = await runReport(client, m.chat);
                 if (ok) {
                     await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
                     return sendInteractive(client, m, fmt('Daily report posted to group status!\n│ Next auto-report in 24 hours.\n│ \n│ Turn off anytime: ' + prefix + 'autoreport off'));
@@ -76,15 +77,16 @@ export default {
                 try {
                     await updateGroupSetting(m.chat, 'autoreport', 0);
                 } catch {}
-                stopAutoReport();
+                stopAutoReport(m.chat);
                 await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
                 return sendInteractive(client, m, fmt('Auto-report DISABLED.\n│ No more daily spam to your group status.'));
             }
 
             const gs = await getGroupSettings(m.chat);
             const isEnabled = gs?.autoreport === true || gs?.autoreport === 1;
-            const timeSinceLast = Date.now() - _lastReportTime;
-            const timeStr = _lastReportTime > 0
+            const lastTime = _lastReportTimes.get(m.chat) || 0;
+            const timeSinceLast = Date.now() - lastTime;
+            const timeStr = lastTime > 0
                 ? `${Math.floor(timeSinceLast / 3600000)}h ago`
                 : 'Never';
 
