@@ -36,7 +36,7 @@ async function sendPinButtons(client, m, prefix) {
     try {
         const btnV2 = new ButtonV2(client);
         btnV2.setBody(bodyText)
-            .setFooter('> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧')
+
             .addButton('⏱️ 24 Hours', `${p}pinm 24h`)
             .addButton('📅 7 Days', `${p}pinm 7d`)
             .addButton('🗓️ 30 Days', `${p}pinm 30d`);
