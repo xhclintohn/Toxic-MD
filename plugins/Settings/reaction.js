@@ -41,7 +41,7 @@ export default async (context) => {
 
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
           await sendInteractive(client, m, `╭─❏ 「 REACTION」
-│ Status: ${settings.reaction ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}reaction random\n│ ${prefix}reaction ❤️\n│ ${prefix}reaction 🔥\n│ ${prefix}reaction 😂\n╰───────────────\n> 🌐 hosting.toxicx.tech`);
+│ Status: ${settings.reaction ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}reaction random\n│ ${prefix}reaction ❤️\n│ ${prefix}reaction 🔥\n│ ${prefix}reaction 😂\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
 
     } catch (error) {
     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
