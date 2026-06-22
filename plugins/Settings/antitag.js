@@ -52,7 +52,7 @@ export default async (context) => {
 
           await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } });
           await sendInteractive(client, m, `╭─❏ 「 ANTITAG」
-│ Status: ${settings.antitag ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}antitag on\n│ ${prefix}antitag off\n╰───────────────\n> 🌐 hosting.toxicx.tech`);
+│ Status: ${settings.antitag ? 'ON ✅' : 'OFF ❌'}\n│ \n│ Options:\n│ ${prefix}antitag on\n│ ${prefix}antitag off\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
 
     });
 };
