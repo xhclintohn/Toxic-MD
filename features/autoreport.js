@@ -302,22 +302,41 @@ import { createCanvas, loadImage, GlobalFonts } from '@napi-rs/canvas';
           const allCountsToday = global._toxicMsgCountsToday || {};
           const allCountsByGroup = global._toxicMsgCountsByGroup || {};
           const pushNames = globalThis._toxicPushNames || new Map();
+          const participants = groupMeta.participants || [];
 
-          function lidToPhone(jid) {
+          function resolvePhone(p) {
+              const jid = p.id || '';
               if (!jid) return '';
-              const raw = jid.split('@')[0].split(':')[0];
-              if (jid.endsWith('@lid')) {
-                  const cached = globalThis.lidPhoneCache?.get(raw);
-                  if (cached) return String(cached).replace(/\D/g, '');
-                  return '';
+              if (!jid.endsWith('@lid')) {
+                  return jid.split('@')[0].split(':')[0].replace(/\D/g, '');
               }
-              return raw.replace(/\D/g, '') || raw;
+              const lidNum = jid.split('@')[0].split(':')[0];
+              const cached = globalThis.lidPhoneCache?.get(lidNum);
+              if (cached) return String(cached).replace(/\D/g, '');
+              if (globalThis.resolvePhoneFromLid) {
+                  const resolved = globalThis.resolvePhoneFromLid(jid);
+                  if (resolved && !resolved.endsWith('@lid')) {
+                      return resolved.split('@')[0].replace(/\D/g, '');
+                  }
+              }
+              for (const pp of participants) {
+                  const ppLid = (pp.id || '').split('@')[0].split(':')[0];
+                  if (ppLid === lidNum) {
+                      const ppPhone = pp.phoneNumber || pp.phone_number || pp.pn || '';
+                      if (ppPhone) return String(ppPhone).replace(/\D/g, '');
+                      const ppBase = pp.lid || '';
+                      if (ppBase && !ppBase.endsWith('@lid')) {
+                          return ppBase.split('@')[0].split(':')[0].replace(/\D/g, '');
+                      }
+                  }
+              }
+              return lidNum;
           }
 
-          const gcUsers = (groupMeta.participants || [])
+          const gcUsers = participants
               .filter(p => !p.id?.endsWith('@newsletter') && !p.id?.endsWith('@g.us'))
               .map(p => {
-                  const phone = lidToPhone(p.id);
+                  const phone = resolvePhone(p);
                   const gKey = targetGroupJid + ':' + phone;
                   const count = allCountsByGroup[gKey] || allCounts[phone] || 0;
                   const chatToday = allCountsToday[phone] || 0;
@@ -336,10 +355,10 @@ import { createCanvas, loadImage, GlobalFonts } from '@napi-rs/canvas';
           let activityData;
 
           if (!gcUsers.length) {
-              // No data — use placeholders
-              const placeholders = (groupMeta.participants || []).slice(0, 5).map(p => {
-                  const phone = lidToPhone(p.id);
-                  return { jid: p.id, phone, name: '+' + phone, count: 0, chatToday: 0, avatar: null };
+              const placeholders = participants.slice(0, 5).map(p => {
+                  const phone = resolvePhone(p);
+                  const name = pushNames.get(phone) || (phone ? '+' + phone : '?');
+                  return { jid: p.id, phone, name, count: 0, chatToday: 0, avatar: null };
               });
               topYappers = placeholders.length
                   ? placeholders
