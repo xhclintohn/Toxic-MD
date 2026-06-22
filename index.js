@@ -973,7 +973,25 @@ async function startToxic() {
     client.ev.on("presence.update", ({ id, presences }) => {
       if (!global._toxicPresenceMap) global._toxicPresenceMap = new Map();
       for (const [jid, data] of Object.entries(presences || {})) {
-        global._toxicPresenceMap.set(jid, { ...data, timestamp: Date.now() });
+        const _entry = { ...data, timestamp: Date.now() };
+        global._toxicPresenceMap.set(jid, _entry);
+        const _rawNum = jid.split('@')[0].split(':')[0].replace(/\D/g, '');
+        if (_rawNum) {
+          if (jid.endsWith('@lid')) {
+            global._toxicPresenceMap.set(_rawNum + '@lid', _entry);
+            const _phone = globalThis.lidPhoneCache?.get(_rawNum);
+            if (_phone) {
+              const _phoneStr = String(_phone).replace(/\D/g, '');
+              global._toxicPresenceMap.set(_phoneStr + '@s.whatsapp.net', _entry);
+              global._toxicPresenceMap.set(_phoneStr, _entry);
+            }
+          } else {
+            global._toxicPresenceMap.set(_rawNum + '@s.whatsapp.net', _entry);
+            global._toxicPresenceMap.set(_rawNum, _entry);
+            const _lid = globalThis.phoneLidCache?.get(_rawNum);
+            if (_lid) global._toxicPresenceMap.set(_lid + '@lid', _entry);
+          }
+        }
       }
     });
 
