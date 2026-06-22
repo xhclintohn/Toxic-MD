@@ -1,7 +1,7 @@
 import { getSettings, updateSetting } from '../../database/config.js';
-import { generateWAMessageFromContent, proto } from '@whiskeysockets/baileys';
 import ownerMiddleware from '../../utils/botUtil/Ownermiddleware.js';
 import { getDeviceMode } from '../../lib/deviceMode.js';
+import { ButtonV2 } from '../../lib/WABuilder.js';
 
 const MODES = {
     public:  { emoji: '🌐', label: 'PUBLIC',  desc: 'Everyone can use commands, anywhere.' },
@@ -26,23 +26,10 @@ export default {
 
             const fmt = (title, lines) => {
                 const body = (Array.isArray(lines) ? lines : [lines]).map(l => `│ ${l}`).join('\n');
-                return `╭─❏ 「 ${title}」
-│
-${body}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+                return `╭─❏ 「 ${title}」\n│\n${body}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
             };
 
             const sendModeButtons = async (currentMode) => {
-                const sections = [{
-                    title: 'Select Bot Mode',
-                    highlight_label: '',
-                    rows: [
-                        { header: 'PUBLIC', title: `${currentMode === 'public' ? '> ' : ''}PUBLIC`, description: 'Everyone can use commands anywhere', id: `${prefix}mode public` },
-                        { header: 'PRIVATE', title: `${currentMode === 'private' ? '> ' : ''}PRIVATE`, description: 'Only owner can use commands', id: `${prefix}mode private` },
-                        { header: 'GROUP', title: `${currentMode === 'group' ? '> ' : ''}GROUP`, description: 'Groups only, DMs ignored', id: `${prefix}mode group` },
-                        { header: 'INBOX', title: `${currentMode === 'inbox' ? '> ' : ''}INBOX`, description: 'DMs only, groups ignored', id: `${prefix}mode inbox` },
-                    ]
-                }];
-
                 const bodyText = `Current: ${MODES[currentMode]?.emoji || '🌐'} ${(currentMode || 'public').toUpperCase()} — tap to switch`;
                 const device = await getDeviceMode();
 
@@ -62,33 +49,20 @@ ${body}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞�
                 }
 
                 try {
-                    const interactiveMsg = generateWAMessageFromContent(m.chat, proto.Message.fromObject({
-                        interactiveMessage: {
-                            body: { text: bodyText },
-                            footer: { text: '©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧' },
-                            header: { hasMediaAttachment: false },
-                            nativeFlowMessage: {
-                                buttons: [
-                                    {
-                                        name: 'single_select',
-                                        buttonParamsJson: JSON.stringify({ title: 'Choose Mode', sections })
-                                    }
-                                ],
-                                messageParamsJson: ''
-                            }
-                        }
-                    }), { userJid: client.user.id });
-                    await client.relayMessage(m.chat, interactiveMsg.message, { messageId: interactiveMsg.key.id });
+                    const btnV2 = new ButtonV2(client);
+                    btnV2.setBody(bodyText)
+                        .setFooter('> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧')
+                        .addButton('🌐 PUBLIC', `${prefix}mode public`)
+                        .addButton('🔒 PRIVATE', `${prefix}mode private`)
+                        .addButton('👥 GROUP', `${prefix}mode group`);
+                    await btnV2.send(m.chat, { userJid: client.user?.id || '' });
                 } catch {
-                    await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
                     await client.sendMessage(m.chat, {
-                        listMessage: {
-                            title: 'BOT MODE',
-                            description: `Current: ${(currentMode || 'public').toUpperCase()} — pick one to switch`,
-                            buttonText: 'Choose Mode',
-                            listType: 1,
-                            sections: sections.map(s => ({ title: s.title, rows: s.rows.map(r => ({ title: r.title, description: r.description, rowId: r.id })) })),
-                            footer: '©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧' } });
+                        text: fmt('BOT MODE', [
+                            `Active: ${MODES[currentMode]?.emoji || '🌐'} ${(currentMode || 'public').toUpperCase()}`,
+                            `Use: *${prefix}mode public/private/group/inbox*`
+                        ])
+                    });
                 }
             };
 
