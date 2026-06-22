@@ -264,11 +264,9 @@ import { createCanvas, loadImage, GlobalFonts } from '@napi-rs/canvas';
 
           const tx = avX + avR + 14;
 
-          // Line 1: pushname/registered name (or "+phone" if no name)
           ctx.font = 'bold 14px SFBold'; ctx.fillStyle = '#f1f5f9'; ctx.textAlign = 'left';
-          ctx.fillText(clamp(ctx, yapper.name || ('+' + yapper.phone), rankW - 130), tx, iy + rowH / 2 - 8);
+          ctx.fillText(clamp(ctx, yapper.name, rankW - 130), tx, iy + rowH / 2 - 8);
 
-          // Line 2: phone ONLY if different from name displayed on line 1, then message count
           const nameIsPhone = yapper.phone && yapper.name === '+' + yapper.phone;
           const phonePrefix = (!nameIsPhone && yapper.phone) ? `+${yapper.phone} · ` : '';
           ctx.font = '11px SFRegular'; ctx.fillStyle = '#94a3b8';
@@ -300,9 +298,10 @@ import { createCanvas, loadImage, GlobalFonts } from '@napi-rs/canvas';
           const groupName = groupMeta.subject || targetGroupJid;
           const members = groupMeta.participants?.length || 0;
 
-          // ── Resolve participants → phone digits ──
           const allCounts = global._toxicMsgCounts || {};
           const allCountsToday = global._toxicMsgCountsToday || {};
+          const allCountsByGroup = global._toxicMsgCountsByGroup || {};
+          const pushNames = globalThis._toxicPushNames || new Map();
 
           function lidToPhone(jid) {
               if (!jid) return '';
@@ -315,16 +314,14 @@ import { createCanvas, loadImage, GlobalFonts } from '@napi-rs/canvas';
               return raw.replace(/\D/g, '') || raw;
           }
 
-          // Build yapper list from group participants + message counts
           const gcUsers = (groupMeta.participants || [])
               .filter(p => !p.id?.endsWith('@newsletter') && !p.id?.endsWith('@g.us'))
               .map(p => {
                   const phone = lidToPhone(p.id);
-                  const count = allCounts[phone] || 0;
+                  const gKey = targetGroupJid + ':' + phone;
+                  const count = allCountsByGroup[gKey] || allCounts[phone] || 0;
                   const chatToday = allCountsToday[phone] || 0;
-                  // Show pushname from lidPhoneCache name map if available, else "+phone"
-                  let name = '+' + phone;
-                  if (p.name) name = p.name;
+                  const name = pushNames.get(phone) || (phone ? '+' + phone : '?');
                   return { jid: p.id, phone, name, count, chatToday, avatar: null };
               })
               .filter(u => u.count > 0)
