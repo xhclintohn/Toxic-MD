@@ -76,7 +76,7 @@ export default async (context) => {
                 'const revive = (x) => { if (x === null || x === undefined) return x; if (Array.isArray(x)) return x.map(revive); if (typeof x === "object") { if (typeof x.__b64__ === "string") return Buffer.from(x.__b64__, "base64"); if (typeof x.b64 === "string") return Buffer.from(x.b64, "base64"); return Object.fromEntries(Object.entries(x).map(([k, v]) => [k, revive(v)])); } return x; };\n' +
                 'export default async (context) => {\n' +
                 '    const { client, m } = context;\n' +
-                '    await client.relayMessage(m.chat, revive(capture.message), {});\n' +
+                '    await client.sendMessage(m.chat, revive(capture.message), { quoted: m });\n' +
                 '};\n';
 
             const id = (m.quoted?.id || Date.now().toString(36)).toString().slice(-8);
