@@ -36,12 +36,12 @@ async function authenticationn() {
         }
 
         if (!sessionData || sessionData === 'zokk') {
-            console.log('⚠️ No session detected — set SESSION env or paste your session ID in session.json');
+            console.log('⚠️ No session detected! — set SESSION env or paste your session ID in session.json');
             return;
         }
 
         if (sessionData === 'PASTE_YOUR_SESSION_ID_HERE') {
-            console.log('❌ Wrong session — placeholder value detected, paste a real session ID');
+            console.log('❌ Wrong session! — placeholder value detected, paste a real session ID');
             return;
         }
 
@@ -50,12 +50,12 @@ async function authenticationn() {
             decoded = Buffer.from(sessionData, 'base64').toString('utf8');
             JSON.parse(decoded);
         } catch {
-            console.log('❌ Wrong session — session data is corrupted or not valid base64 JSON');
+            console.log('❌ Wrong session! — session data is corrupted or not valid base64 JSON');
             return;
         }
 
         fs.writeFileSync(credsPath, decoded, 'utf8');
-        console.log('✅ Session loaded');
+        console.log('✅ Session Successfully loaded');
     } catch (e) {
         console.log('❌ Wrong session — ' + e.message);
         return;
