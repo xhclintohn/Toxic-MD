@@ -46,7 +46,8 @@ function initJson() {
 const _GS_DEFAULTS = {
     jid: '', antidelete: 1, gcpresence: 0, events: 0, antidemote: 0, antipromote: 0,
     antilink: 'off', antistatusmention: 'off', antitag: 0, welcome: 0, goodbye: 0,
-    warn_limit: 3, antiforeign: 0, custom_welcome: '', custom_goodbye: '', trusted_links: '[]'
+    warn_limit: 3, antiforeign: 0, custom_welcome: '', custom_goodbye: '', trusted_links: '[]',
+    antisticker: 'off', antispam: 'off', antibot: 0
 };
 
 function _jsonOp(type, sql, params) {
