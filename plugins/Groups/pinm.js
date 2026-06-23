@@ -49,7 +49,7 @@ async function sendPinButtons(client, m, prefix) {
 export default {
     name: 'pinm',
     aliases: ['pinmessage', 'pinmsg'],
-    description: 'Pin a replied-to message. Reply to message, then pick duration.',
+    description: 'Pin a replied-to message in a group Reply to message, then pick duration.',
     run: async (context) => {
         const { client, m, prefix, IsGroup, args } = context;
 

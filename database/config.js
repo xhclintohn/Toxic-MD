@@ -221,7 +221,7 @@ async function tryInitPg() {
         console.log('✅ [DB] Using PostgreSQL');
         return true;
     } catch (e) {
-        console.log(`⚠️ [DB] PostgreSQL unavailable (${e.message}) — falling back to JSON`);
+        console.log(`⚠️ [DB] PostgreSQL unavailable (${e.message}) — using fallback`);
         return false;
     }
 }
