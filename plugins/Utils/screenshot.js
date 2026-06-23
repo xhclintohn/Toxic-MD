@@ -16,7 +16,8 @@ if (!text) {
 │ Provide a website link to screenshot, moron.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`)
 }
 
-const image = `https://image.thum.io/get/fullpage/${text}`
+const url = /^https?:\/\//i.test(text) ? text : `https://${text}`;
+const image = `https://image.thum.io/get/fullpage/${url}`
 
 await client.sendMessage(m.chat, { image: { url: image }, caption: cap});
 
