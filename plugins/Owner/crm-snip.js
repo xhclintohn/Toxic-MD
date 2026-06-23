@@ -94,7 +94,7 @@ export default async (context) => {
 
         if (!m.quoted) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, fmt('Reply to a message, button or interactive media to compile it into an AI-rich code snippet.'));
+            return sendInteractive(client, m, fmt('Reply to a msg😠'));
         }
 
         try {
@@ -131,7 +131,7 @@ export default async (context) => {
                 'const revive = (x) => { if (x === null || x === undefined) return x; if (Array.isArray(x)) return x.map(revive); if (typeof x === "object") { if (typeof x.__b64__ === "string") return Buffer.from(x.__b64__, "base64"); if (typeof x.b64 === "string") return Buffer.from(x.b64, "base64"); return Object.fromEntries(Object.entries(x).map(([k, v]) => [k, revive(v)])); } return x; };\n' +
                 'await client.relayMessage(m.chat, revive(capture.message), {});\n';
 
-            const introText = fmt(`Compiled snippet (${fileBody.length} chars)\nShown as AI-rich code block.\nUse .crm on the original for a runnable file.`);
+            const introText = fmt(`Compiled snip dn (${fileBody.length} chars)\nSvv.\nUse Done✅`);
 
             await sendRichCode(client, m, introText, fileBody, 'javascript');
             await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
