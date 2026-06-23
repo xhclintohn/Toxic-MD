@@ -9,7 +9,7 @@
 ![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)
 ![Version](https://img.shields.io/badge/Version-1.2.0-blue?style=flat-square)
 
-**A powerful, lightning-fast WhatsApp Multi-Device bot built for group control, automation, AI chat, media editing, and fun.**
+**A powerful, lightning-fast WhatsApp Multi-Device bot built for group control, automation, AI chat, media editing, and fun commands**
 
 <img src="https://raw.githubusercontent.com/xhclintohn/Music-Clips-Collection/main/images/toxicx.png" width="100%" />
 
