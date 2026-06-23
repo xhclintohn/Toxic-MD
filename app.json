@@ -1,8 +1,8 @@
 {
   "name": "Toxic-MD",
   "description": "⚡ A lightning-fast WhatsApp bot with multi-device support, built on Node.js & Baileys.",
-  "website": "https://github.com/xhclintohn/Toxic-v2#readme",
-  "repository": "https://github.com/xhclintohn/Toxic-v2.git",
+  "website": "https://github.com/xhclintohn/Toxic-MD#readme",
+  "repository": "https://github.com/xhclintohn/Toxic-MD.git",
   "logo": "https://raw.githubusercontent.com/xhclintohn/Music-Clips-Collection/main/images/toxicx.png",
   "success_url": "/",
   "keywords": [
@@ -15,7 +15,7 @@
     "toxic-md"
   ],
   "scripts": {
-    "postdeploy": "echo '🚀 Toxic-MD has been successfully deployed!'"
+    "postdeploy": "echo 'Toxic-MD has been successfully deployed✅'"
   },
   "build": {
     "languages": [
@@ -28,12 +28,12 @@
       "required": true
     },
     "DEVICE": {
-      "description": "Device mode: android (default) or ios. Android uses interactive select buttons; iOS uses text-only responses. Accepted values: android, ios, default.",
+      "description": "Device mode: android (default) or ios. Android uses interactive buttons; iOS uses text-only responses(for a reason). Accepted values: android, ios, default.",
       "required": true,
       "value": "default"
     },
     "HEROKU_APP_NAME": {
-      "description": "Optional – The Heroku app name (needed for updating the bot).",
+      "description": "Optional – The Heroku app name you've used (needed for updating the bot).",
       "required": false
     },
     "HEROKU_API_KEY": {
