@@ -54,7 +54,7 @@ const EXTRA_ALIASES = {
   help:       ['h', 'info', 'usage'],
   eval:       ['ev', 'evl'],
   shell:      ['sh', 'bash', 'terminal', 'exec'],
-  restart:    ['reboot', 'rs', 'redeploy', 'update'],
+  restart:    ['reboot', 'rs', 'redeploy'],
   stickerwm:  ['wm', 'watermark', 'stickermark'],
   tr:         ['translate', 'tl', 'trans', 'trt'],
   togif:      ['tomp4', 'giftomp4'],
