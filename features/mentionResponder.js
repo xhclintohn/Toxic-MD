@@ -11,36 +11,30 @@ export default async (client, m) => {
         if (!m?.message || m.key?.fromMe) return;
         if (!m.chat?.endsWith('@g.us')) return;
 
-        const botNum = (client.user?.id || '').split('@')[0].split(':')[0];
+        const _rawBotId = client.user?.id || '';
+        const botNum = _rawBotId.split('@')[0].split(':')[0];
+        const botLid = (client.user?.lid || '').split('@')[0].split(':')[0];
         if (!botNum) return;
 
-        const botLid = globalThis.phoneLidCache?.get(botNum) || '';
+        const bodyStr = m.body || m.text || '';
+        const _allMentioned = [
+            ...(m.mentionedJid || []),
+            ...(m.msg?.contextInfo?.mentionedJid || []),
+            ...(m.message?.extendedTextMessage?.contextInfo?.mentionedJid || []),
+            ...(m.message?.imageMessage?.contextInfo?.mentionedJid || []),
+            ...(m.message?.videoMessage?.contextInfo?.mentionedJid || []),
+        ];
 
-        const mentioned = m.message?.extendedTextMessage?.contextInfo?.mentionedJid ||
-                          m.message?.imageMessage?.contextInfo?.mentionedJid ||
-                          m.message?.videoMessage?.contextInfo?.mentionedJid ||
-                          m.mentionedJid || [];
-        if (!Array.isArray(mentioned) || !mentioned.length) return;
+        const _numMatch = (j) => {
+            const jk = (j || '').split('@')[0].split(':')[0];
+            return (botNum && jk === botNum) || (botLid && jk === botLid);
+        };
 
-        let botMentioned = false;
-        for (const jid of mentioned) {
-            const rawNum = (jid || '').split('@')[0].split(':')[0];
-            if (!rawNum) continue;
-            const isLid = jid.endsWith('@lid');
-            if (isLid) {
-                if (rawNum === botLid || globalThis.lidPhoneCache?.get(rawNum) === botNum) {
-                    botMentioned = true;
-                    break;
-                }
-            } else {
-                if (rawNum === botNum) {
-                    botMentioned = true;
-                    break;
-                }
-            }
-        }
+        const isMentionedInBody = (botNum.length > 4 && bodyStr.includes('@' + botNum)) ||
+            (botLid.length > 4 && bodyStr.includes('@' + botLid));
+        const isMentionedInList = _allMentioned.some(_numMatch);
 
-        if (!botMentioned) return;
+        if (!isMentionedInBody && !isMentionedInList) return;
 
         const entry = await getMentionAsync(botNum);
         if (!entry) return;
