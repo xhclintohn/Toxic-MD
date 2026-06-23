@@ -6,3 +6,8 @@ session.json
 creds.json
 .DS_Store
 *.session
+.pm2/
+pm2.log
+pm2-error.log
+pm2-out.log
+logs/
