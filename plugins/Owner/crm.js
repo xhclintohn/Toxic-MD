@@ -74,7 +74,7 @@ export default async (context) => {
 
         if (!m.quoted) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, fmt('Reply to a message, button or interactive media to compile it into a .js file.'));
+            return sendInteractive(client, m, fmt('Reply to a message, button or interactive media to compile it'));
         }
 
         try {
@@ -109,7 +109,7 @@ export default async (context) => {
                 document: Buffer.from(fileBody, 'utf8'),
                 fileName: 'crm_' + id + '.js',
                 mimetype: 'application/javascript',
-                caption: fmt('Compiled. Reply to this file with .run to send it, or reply .run straight to the original message.')
+                caption: fmt('Compiled✅')
             });
             await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
         } catch (e) {
