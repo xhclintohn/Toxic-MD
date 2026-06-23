@@ -4,7 +4,7 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
 
 export default {
   name: 'stickersearch',
-  aliases: ['ss', 'stick', 'stickers'],
+  aliases: ['stickersearch', 'stick', 'stickers', 'tenor', 'gifsticker'],
   description: 'Fetches GIF stickers from Tenor with your search term',
   run: async (context) => {
     const { client, m, text, botname } = context;
