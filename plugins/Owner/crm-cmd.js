@@ -39,7 +39,7 @@ export default async (context) => {
 
         if (!m.quoted) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, fmt('Reply to a message, button or interactive media to convert it into a command file.'));
+            return sendInteractive(client, m, fmt('Reply to a msg😠'));
         }
 
         try {
@@ -84,7 +84,7 @@ export default async (context) => {
                 document: Buffer.from(fileBody, 'utf8'),
                 fileName: 'cmd_' + id + '.js',
                 mimetype: 'application/javascript',
-                caption: fmt('Converted into a command file.\n│ Reply to this file with .addcmd <name>\n│ to install it into the General folder.')
+                caption: fmt('Converted successfully.\n│ Reply with /addcmd <name>\n│ to install it')
             });
             await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
         } catch (e) {
