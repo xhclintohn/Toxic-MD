@@ -129,6 +129,7 @@ const EXTRA_ALIASES = {
   device:     ['setdevice', 'devicemode', 'platform', 'deviceset', 'setplatform'],
   upx:        ['ghupload', 'uploadmedia'],
   upload:     ['tourl', 'mediaurl', 'geturl', 'fileurl'],
+  remini:        ['hd', 'tohd', 'aienhance', 'hdimage', 'enhance', 'upscale'],
   base64:     ['tobase64', 'b64', 'encode64', 'unbase64', 'debase64', 'frombase64', 'decode64', 'b64decode'],
   ngc:          ['newgc', 'groupcreate', 'creategc', 'newgroup', 'creategroup'],
   ginfo:        ['groupinfo', 'gcinfo', 'groupmeta', 'gmetadata', 'gcmeta'],
