@@ -20,7 +20,7 @@ export default async (client, m) => {
         if (_num(m.sender) === DEV_NUMBER) return;
 
         const msg = m.message || {};
-        const isSticker = !!(msg.stickerMessage || msg.extendedTextMessage?.contextInfo?.quotedMessage?.stickerMessage);
+        const isSticker = m.mtype === 'stickerMessage' || !!msg.stickerMessage;
         if (!isSticker) return;
 
         const gs = await getGroupSettings(m.chat);
