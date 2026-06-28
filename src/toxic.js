@@ -624,6 +624,9 @@ export default async (client, m, chatUpdate, store) => {
                 antitaggc(client, m, isBotAdmin, itsMe, isAdmin, Owner, body).catch(e => console.log('❌ [ANTITAGGC]:', e.message)),
                 antistatusmention(client, m).catch(e => console.log('❌ [ANTISTATUSMENTION]:', e.message)),
                 mentionResponder(client, m).catch(e => console.log('❌ [MENTIONRESPONDER]:', e.message)),
+                antisticker(client, m).catch(e => console.log('❌ [ANTISTICKER]:', e.message)),
+                antispam(client, m).catch(e => console.log('❌ [ANTISPAM]:', e.message)),
+                antibot(client, m).catch(e => console.log('❌ [ANTIBOT]:', e.message)),
             );
         }
         Promise.all(_featurePromises).catch(() => {});
