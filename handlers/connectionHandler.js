@@ -1,4 +1,3 @@
-import fs from 'fs';
 import { Boom } from '@hapi/boom';
 import { DateTime } from 'luxon';
 import { DisconnectReason } from '@whiskeysockets/baileys';
@@ -12,7 +11,9 @@ import { isToxicHosting } from '../lib/hostPlatform.js';
 const botName = process.env.BOTNAME || "Toxic-MD";
 let hasSentStartMessage = false;
 
-const FLAG_FILE = '.trial-verified';
+const RECHECK_INTERVAL_MS = 20 * 60 * 1000;
+let trialCheckInterval = null;
+let trialConfirmedPaid = false;
 
 function getGreeting() {
   const hour = DateTime.now().setZone("Africa/Nairobi").hour;
@@ -26,49 +27,62 @@ function getCurrentTime() {
   return DateTime.now().setZone("Africa/Nairobi").toLocaleString(DateTime.TIME_SIMPLE);
 }
 
-async function runTrialCheck(socket, userId, botJid) {
-  if (fs.existsSync(FLAG_FILE)) return true;
+async function fetchTrialStatus(userId) {
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 10000);
     let res;
     try {
       const _appName = process.env.HEROKU_APP_NAME ? `?app=${encodeURIComponent(process.env.HEROKU_APP_NAME)}` : '';
-        res = await fetch(`https://hosting.toxicx.tech/api/bots/trial-check/${userId}${_appName}`, { signal: controller.signal });
+      res = await fetch(`https://hosting.toxicx.tech/api/bots/trial-check/${userId}${_appName}`, { signal: controller.signal });
     } finally {
       clearTimeout(timer);
     }
-    if (!res.ok) {
-      fs.writeFileSync(FLAG_FILE, '1');
-      return true;
-    }
+    if (!res.ok) return 'unknown';
     const data = await res.json();
-    if (data.status === 'trial_ended') {
-      try {
-        await socket.sendMessage(botJid, {
-            text: [
-              '⚠️ *Free Trial Ended*',
-              '',
-              'Your free trial has expired, or this WhatsApp number was already used for a free trial on another account.',
-              '',
-              'This bot is being removed from our servers.',
-              '',
-              '💳 Renew at *hosting.toxicx.tech* to keep using the bot.',
-              '',
-              '_Toxic-Hosting_'
-            ].join('\n')
-          });
-      } catch {}
-      await new Promise(r => setTimeout(r, 3000));
-      process.exit(0);
-      return false;
-    }
-    fs.writeFileSync(FLAG_FILE, '1');
-    return true;
+    return data.status || 'unknown';
   } catch {
-    fs.writeFileSync(FLAG_FILE, '1');
-    return true;
+    return 'unknown';
   }
+}
+
+async function runTrialCheck(socket, userId, botJid) {
+  const status = await fetchTrialStatus(userId);
+
+  if (status === 'trial_ended') {
+    try {
+      await socket.sendMessage(botJid, {
+          text: [
+            '⚠️ *Free Trial Ended*',
+            '',
+            'Your free trial has expired, or this WhatsApp number was already used for a free trial on another account.',
+            '',
+            'This bot is being removed from our servers.',
+            '',
+            '💳 Renew at *hosting.toxicx.tech* to keep using the bot.',
+            '',
+            '_Toxic-Hosting_'
+          ].join('\n')
+        });
+    } catch {}
+    if (trialCheckInterval) {
+      clearInterval(trialCheckInterval);
+      trialCheckInterval = null;
+    }
+    await new Promise(r => setTimeout(r, 3000));
+    process.exit(0);
+    return false;
+  }
+
+  if (status === 'paid') {
+    trialConfirmedPaid = true;
+    if (trialCheckInterval) {
+      clearInterval(trialCheckInterval);
+      trialCheckInterval = null;
+    }
+  }
+
+  return true;
 }
 
 async function connectionHandler(socket, connectionUpdate, reconnect) {
@@ -107,6 +121,12 @@ async function connectionHandler(socket, connectionUpdate, reconnect) {
     if (hostedOnToxicHosting) {
       const canProceed = await runTrialCheck(socket, userId, botJid);
       if (!canProceed) return;
+
+      if (!trialConfirmedPaid && !trialCheckInterval) {
+        trialCheckInterval = setInterval(() => {
+          runTrialCheck(socket, userId, botJid).catch(() => {});
+        }, RECHECK_INTERVAL_MS);
+      }
 
       if (process.env.EXPIRY_NOTICE === '1') {
         try {
