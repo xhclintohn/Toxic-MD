@@ -1,6 +1,6 @@
 import { getGroupSettings } from '../database/config.js';
 import { resolveTargetJid } from '../lib/lidResolver.js';
-import { isLikelyBotMessage } from '../lib/botSignature.js';
+import { computeBotScore } from '../lib/botSignature.js';
 
 const DEV_NUMBER = '254114885159';
 const _num = (jid) => (jid || '').split('@')[0].split(':')[0].replace(/\D/g, '');
@@ -14,21 +14,23 @@ const _pNum = (p) => {
 
 const fmt = (msg) => `╭─❏ 「 ANTIBOT 」\n│ ${msg}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
-const BOT_THRESHOLD = 10;
-const BOT_WINDOW_MS = 3000;
-const _botLog = new Map();
+const BURST_WINDOW_MS = 3000;
+const BURST_THRESHOLD = 10;
+const KICK_SCORE = 2;
+const _burstLog = new Map();
+const _warned = new Set();
 
-function trackBot(key) {
+function trackBurst(key) {
     const now = Date.now();
-    if (!_botLog.has(key)) _botLog.set(key, []);
-    const timestamps = _botLog.get(key).filter(t => now - t < BOT_WINDOW_MS);
+    if (!_burstLog.has(key)) _burstLog.set(key, []);
+    const timestamps = _burstLog.get(key).filter(t => now - t < BURST_WINDOW_MS);
     timestamps.push(now);
-    _botLog.set(key, timestamps);
-    if (_botLog.size > 2000) { const first = _botLog.keys().next().value; _botLog.delete(first); }
-    return timestamps.length;
+    _burstLog.set(key, timestamps);
+    if (_burstLog.size > 2000) { const first = _burstLog.keys().next().value; _burstLog.delete(first); }
+    return timestamps.length >= BURST_THRESHOLD;
 }
 
-async function kickDetected(client, m, senderNum, reason) {
+async function punish(client, m, senderNum, trackKey, reason, forceKick) {
     const meta = await client.groupMetadata(m.chat);
     const sender = resolveTargetJid(m.sender, meta.participants);
     if (!sender) return;
@@ -43,9 +45,19 @@ async function kickDetected(client, m, senderNum, reason) {
     if (isAdmin) return;
     if (!isBotAdmin) return;
 
+    if (!forceKick && !_warned.has(trackKey)) {
+        _warned.add(trackKey);
+        if (_warned.size > 5000) { const first = _warned.values().next().value; _warned.delete(first); }
+        return client.sendMessage(m.chat, {
+            text: fmt(`👀 @${sNum} smells like a bot to me. (${reason})\n│ Do that again and you're GONE. Last warning, don't test me. 🙄`),
+            mentions: [sender]
+        });
+    }
+
+    _warned.delete(trackKey);
     try { await client.groupParticipantsUpdate(m.chat, [sender], 'remove'); } catch {}
     return client.sendMessage(m.chat, {
-        text: fmt(`🤖 @${sNum} detected and KICKED!\n│ ${reason}\n│ No bots allowed in this group. 🚫`),
+        text: fmt(`🤖💨 @${sNum} got YEETED.\n│ ${reason}\n│ Told you not to test me. Bots aren't welcome here, byeee. 🚫`),
         mentions: [sender]
     });
 }
@@ -64,15 +76,23 @@ export default async (client, m) => {
         const trackKey = m.chat + ':' + senderNum;
 
         const rawKeyJid = m.key?.participant || m.key?.participantAlt || '';
-        if (isLikelyBotMessage(m.id, rawKeyJid, m.sender)) {
-            _botLog.delete(trackKey);
-            return kickDetected(client, m, senderNum, 'Bot message signature detected');
+        const isBurst = trackBurst(trackKey);
+        const text = m.body || m.text || '';
+
+        const { score, signals } = computeBotScore({ id: m.id, rawKeyJid, resolvedSender: m.sender, text, isBurst });
+        if (score < 1) return;
+
+        const reasonParts = [];
+        if (signals.baileysId) reasonParts.push('non-standard message ID');
+        if (signals.lidOversized) reasonParts.push('fake sender ID');
+        if (signals.styledFont) reasonParts.push('spammy stylized text');
+        if (signals.burst) reasonParts.push('message flooding');
+        const reason = reasonParts.join(', ');
+
+        if (score >= KICK_SCORE) {
+            return punish(client, m, senderNum, trackKey, reason, true);
         }
 
-        const count = trackBot(trackKey);
-        if (count < BOT_THRESHOLD) return;
-        _botLog.delete(trackKey);
-
-        return kickDetected(client, m, senderNum, `Bot-like behavior: ${BOT_THRESHOLD}+ messages in ${BOT_WINDOW_MS / 1000}s`);
+        return punish(client, m, senderNum, trackKey, reason, false);
     } catch (e) {}
 };
