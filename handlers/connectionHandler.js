@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { Boom } from '@hapi/boom';
 import { DateTime } from 'luxon';
 import { DisconnectReason } from '@whiskeysockets/baileys';
@@ -6,9 +7,12 @@ import { getCachedSettings } from '../lib/settingsCache.js';
 import { commands, totalCommands } from '../handlers/commandHandler.js';
 import { getDeviceMode } from '../lib/deviceMode.js';
 import { ButtonV2 } from '../lib/WABuilder.js';
+import { isToxicHosting } from '../lib/hostPlatform.js';
 
 const botName = process.env.BOTNAME || "Toxic-MD";
 let hasSentStartMessage = false;
+
+const FLAG_FILE = '.trial-verified';
 
 function getGreeting() {
   const hour = DateTime.now().setZone("Africa/Nairobi").hour;
@@ -20,6 +24,51 @@ function getGreeting() {
 
 function getCurrentTime() {
   return DateTime.now().setZone("Africa/Nairobi").toLocaleString(DateTime.TIME_SIMPLE);
+}
+
+async function runTrialCheck(socket, userId, botJid) {
+  if (fs.existsSync(FLAG_FILE)) return true;
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
+    let res;
+    try {
+      const _appName = process.env.HEROKU_APP_NAME ? `?app=${encodeURIComponent(process.env.HEROKU_APP_NAME)}` : '';
+        res = await fetch(`https://hosting.toxicx.tech/api/bots/trial-check/${userId}${_appName}`, { signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+    if (!res.ok) {
+      fs.writeFileSync(FLAG_FILE, '1');
+      return true;
+    }
+    const data = await res.json();
+    if (data.status === 'trial_ended') {
+      try {
+        await socket.sendMessage(botJid, {
+            text: [
+              '⚠️ *Free Trial Ended*',
+              '',
+              'Your free trial has expired, or this WhatsApp number was already used for a free trial on another account.',
+              '',
+              'This bot is being removed from our servers.',
+              '',
+              '💳 Renew at *hosting.toxicx.tech* to keep using the bot.',
+              '',
+              '_Toxic-Hosting_'
+            ].join('\n')
+          });
+      } catch {}
+      await new Promise(r => setTimeout(r, 3000));
+      process.exit(0);
+      return false;
+    }
+    fs.writeFileSync(FLAG_FILE, '1');
+    return true;
+  } catch {
+    fs.writeFileSync(FLAG_FILE, '1');
+    return true;
+  }
 }
 
 async function connectionHandler(socket, connectionUpdate, reconnect) {
@@ -51,6 +100,31 @@ async function connectionHandler(socket, connectionUpdate, reconnect) {
     let botJid = socket.user?.id || (userId + '@s.whatsapp.net');
     if (botJid.includes(':')) {
       botJid = botJid.split(':')[0] + '@s.whatsapp.net';
+    }
+
+    const hostedOnToxicHosting = await isToxicHosting();
+
+    if (hostedOnToxicHosting) {
+      const canProceed = await runTrialCheck(socket, userId, botJid);
+      if (!canProceed) return;
+
+      if (process.env.EXPIRY_NOTICE === '1') {
+        try {
+          await socket.sendMessage(botJid, {
+            text: [
+              '*Bot Subscription Expired*',
+              '',
+              'Your Toxic-MD bot subscription has expired!',
+              '',
+              'This bot will be permanently deleted in 24 hours unless you renew.',
+              '',
+              'Renew now at: hosting.toxicx.tech',
+              '',
+              '- Toxic Hosting'
+            ].join('\n')
+          });
+        } catch {}
+      }
     }
 
     if (!hasSentStartMessage) {
