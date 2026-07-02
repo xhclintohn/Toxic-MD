@@ -302,11 +302,15 @@ async function getGroupSettings(jid) {
         antiforeign: !!row.antiforeign,
         custom_welcome: row.custom_welcome || '',
         custom_goodbye: row.custom_goodbye || '',
-        trusted_links: row.trusted_links || '[]'
+        trusted_links: row.trusted_links || '[]',
+        antisticker: row.antisticker || 'off',
+        antispam: row.antispam || 'off',
+        antibot: !!row.antibot
     } : {
         antidelete: true, gcpresence: false, events: false, antidemote: false, antipromote: false,
         antilink: 'off', antistatusmention: 'off', antitag: false, welcome: false, goodbye: false,
-        warn_limit: 3, antiforeign: false, custom_welcome: '', custom_goodbye: '', trusted_links: '[]'
+        warn_limit: 3, antiforeign: false, custom_welcome: '', custom_goodbye: '', trusted_links: '[]',
+        antisticker: 'off', antispam: 'off', antibot: false
     };
     cache.groupSettings.set(jid, { data, time: Date.now() });
     return data;
