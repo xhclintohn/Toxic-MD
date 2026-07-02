@@ -2,20 +2,21 @@ import { getSudoUsers, getBannedUsers } from '../../database/config.js';
 import { commands } from '../../handlers/commandHandler.js';
 import { botname } from '../../config/settings.js';
 import { sendInteractive } from '../../lib/sendInteractive.js';
+import { detectHostingPlatform } from '../../lib/hostPlatform.js';
 
 function detectPlatform() {
-    if (process.env.DYNO)                                              return 'Heroku 🟣';
-    if (process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID) return 'Railway 🚂';
-    if (process.env.RENDER)                                            return 'Render 🔵';
-    if (process.env.REPLIT_DEPLOYMENT || process.env.REPL_ID)         return 'Replit 🌀';
-    if (process.env.FLY_APP_NAME)                                      return 'Fly.io 🪰';
-    if (process.env.KOYEB_SERVICE_ID)                                  return 'Koyeb ⚡';
-    if (process.env.K_SERVICE || process.env.FUNCTION_TARGET)          return 'Google Cloud ☁️';
+    if (process.env.DYNO)                                              return 'Heroku';
+    if (process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID) return 'Railway';
+    if (process.env.RENDER)                                            return 'Render';
+    if (process.env.REPLIT_DEPLOYMENT || process.env.REPL_ID)         return 'Replit';
+    if (process.env.FLY_APP_NAME)                                      return 'Fly.io';
+    if (process.env.KOYEB_SERVICE_ID)                                  return 'Koyeb';
+    if (process.env.K_SERVICE || process.env.FUNCTION_TARGET)          return 'Google Cloud';
     if (process.env.AWS_LAMBDA_FUNCTION_NAME)                          return 'AWS Lambda λ';
     const os = process.platform;
     if (os === 'linux')  return 'VPS/Linux 🖥️';
-    if (os === 'darwin') return 'macOS 🍎';
-    if (os === 'win32')  return 'Windows 🪟';
+    if (os === 'darwin') return 'macOS ';
+    if (os === 'win32')  return 'Windows ';
     return `Local (${os}) 🖥️`;
 }
 
@@ -42,7 +43,7 @@ export default {
             const totalHeapMB = (mem.heapTotal / 1024 / 1024).toFixed(1);
 
             const uptime = formatUptime(process.uptime());
-            const platform = detectPlatform();
+            const platform = await detectHostingPlatform(detectPlatform());
             const bName = botname || 'Toxic-MD';
 
             const cmdCount = Object.keys(commands).length;
