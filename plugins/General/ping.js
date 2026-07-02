@@ -43,7 +43,7 @@ export default {
             };
 
             const mem = process.memoryUsage();
-            const usedMB = (mem.rss / 1024 / 1024).toFixed(2);
+            const usedMB = (mem.heapUsed / 1024 / 1024).toFixed(2);
             const totalMB = (mem.heapTotal / 1024 / 1024).toFixed(2);
             const displayName = m.pushName || m.sender.split('@')[0].split(':')[0];
             const greeting = getGreeting();
