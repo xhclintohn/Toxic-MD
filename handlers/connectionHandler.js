@@ -50,14 +50,21 @@ async function fetchTrialStatus(userId) {
     let res;
     try {
       const _appName = process.env.HEROKU_APP_NAME ? `?app=${encodeURIComponent(process.env.HEROKU_APP_NAME)}` : '';
-      res = await fetch(`https://hosting.toxicx.tech/api/bots/trial-check/${userId}${_appName}`, { signal: controller.signal });
+      const url = `https://hosting.toxicx.tech/api/bots/trial-check/${userId}${_appName}`;
+      console.log(`[TRIAL-CHECK] requesting ${url}`);
+      res = await fetch(url, { signal: controller.signal });
     } finally {
       clearTimeout(timer);
     }
-    if (!res.ok) return 'unknown';
+    if (!res.ok) {
+      console.log(`[TRIAL-CHECK] http ${res.status} for userId=${userId}`);
+      return 'unknown';
+    }
     const data = await res.json();
+    console.log(`[TRIAL-CHECK] userId=${userId} status=${data.status}`);
     return data.status || 'unknown';
-  } catch {
+  } catch (e) {
+    console.log(`[TRIAL-CHECK] request failed for userId=${userId}: ${e?.message || e}`);
     return 'unknown';
   }
 }
@@ -133,9 +140,11 @@ async function connectionHandler(socket, connectionUpdate, reconnect) {
     }
 
     const hostedOnToxicHosting = await isToxicHosting();
+    console.log(`[TRIAL-CHECK] rawUserId=${socket.user?.id} hostedOnToxicHosting=${hostedOnToxicHosting} OWNER_NUMBER=${process.env.OWNER_NUMBER} TOXICHOSTING=${process.env.TOXICHOSTING} HEROKU_APP_NAME=${process.env.HEROKU_APP_NAME}`);
 
     if (hostedOnToxicHosting) {
       const trialPhone = await resolveTrialPhone(socket, userId);
+      console.log(`[TRIAL-CHECK] resolved trialPhone=${trialPhone}`);
       const canProceed = await runTrialCheck(socket, trialPhone, botJid);
       if (!canProceed) return;
 
