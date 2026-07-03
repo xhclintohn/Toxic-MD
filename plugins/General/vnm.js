@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { sendInteractive } from '../../lib/sendInteractive.js';
-import { Button } from '../../lib/WABuilder.js';
+import { ButtonV2 } from '../../lib/WABuilder.js';
 
 const THUMB = 'https://img2.pixhost.to/images/9055/745533062_rafaofficial.jpg';
 const API_BASE = 'https://api.synoxcloud.xyz';
@@ -12,14 +12,14 @@ const sendGachaResult = async (client, m, nomor, negara, bendera, prefix) => {
         `◦ Number :\n${nomor}\n\n` +
         `◦ Country :\n${negara} ${bendera}`;
 
-    const btn = new Button(client);
-    btn.setTitle(title)
-        .setFooter('Powered By xh_clinton | Virtual Number Tools')
-        .setImage(THUMB)
-        .addReply('🔄 GenerateNew', `${prefix}virtualnumber`)
-        .addReply('💬 Check OTP', `${prefix}virtualnumber otp ${nomor}`);
-
-    await btn.send(m.chat, { userJid: client.user.id, quoted: m });
+    const btnV2 = new ButtonV2(client);
+    btnV2.setBody(title)
+        .setFooter('> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧')
+        .setThumbnail(THUMB)
+        .addButton('🔄 Generate New', `${prefix}virtualnumber`)
+        .addButton('💬 Check OTP', `${prefix}virtualnumber otp ${nomor}`);
+    
+    await btnV2.send(m.chat, { userJid: client.user.id, quoted: m });
 };
 
 const sendOtpResult = async (client, m, nomor, resData, prefix) => {
@@ -38,19 +38,20 @@ const sendOtpResult = async (client, m, nomor, resData, prefix) => {
         title += `\n\n_No new OTPs received yet._`;
     }
 
-    const btn = new Button(client);
-    btn.setTitle(title)
-        .setFooter('Powered By xh_clinton | OTP Checker')
-        .setImage(THUMB)
-        .addReply('Re-check OTP', `${prefix}virtualnumber otp ${nomor}`);
-
-    await btn.send(m.chat, { userJid: client.user.id, quoted: m });
+    const btnV2 = new ButtonV2(client);
+    btnV2.setBody(title)
+        .setFooter('> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧')
+        .setThumbnail(THUMB)
+        .addButton('🔄 Re-check OTP', `${prefix}virtualnumber otp ${nomor}`)
+        .addButton('🆕 New Number', `${prefix}virtualnumber`);
+    
+    await btnV2.send(m.chat, { userJid: client.user.id, quoted: m });
 };
 
 export default {
     name: 'virtualnumber',
     aliases: ['vnum', 'gachano', 'vtnum'],
-    description: 'Gacha a random virtual number or check its OTP',
+    description: 'Get a random virtual number or check its OTP',
     run: async (context) => {
         const { client, m, args, prefix } = context;
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
@@ -62,7 +63,7 @@ export default {
                 const nomor = args.slice(1).join(' ').trim();
                 if (!nomor) {
                     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                    return sendInteractive(client, m, fmt(`Provide a number.\nExample: .virtualnumber otp +6281234567890`));
+                    return sendInteractive(client, m, fmt(`Please provide a number.\nExample: .virtualnumber otp +6281234567890`));
                 }
 
                 const res = await axios.get(`${API_BASE}/tools/otp-checker?number=${encodeURIComponent(nomor)}`);
