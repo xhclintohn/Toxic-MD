@@ -27,6 +27,22 @@ function getCurrentTime() {
   return DateTime.now().setZone("Africa/Nairobi").toLocaleString(DateTime.TIME_SIMPLE);
 }
 
+async function resolveTrialPhone(socket, fallbackUserId) {
+  const ownerEnv = (process.env.OWNER_NUMBER || '').replace(/\D/g, '');
+  if (ownerEnv.length >= 7) return ownerEnv;
+
+  const rawId = socket.user?.id || '';
+  if (rawId.includes('@lid') && typeof globalThis.resolvePhoneFromLidAsync === 'function') {
+    try {
+      const resolved = await globalThis.resolvePhoneFromLidAsync(rawId);
+      const num = (resolved || '').toString().replace(/\D/g, '');
+      if (num.length >= 7) return num;
+    } catch {}
+  }
+
+  return fallbackUserId;
+}
+
 async function fetchTrialStatus(userId) {
   try {
     const controller = new AbortController();
@@ -119,12 +135,13 @@ async function connectionHandler(socket, connectionUpdate, reconnect) {
     const hostedOnToxicHosting = await isToxicHosting();
 
     if (hostedOnToxicHosting) {
-      const canProceed = await runTrialCheck(socket, userId, botJid);
+      const trialPhone = await resolveTrialPhone(socket, userId);
+      const canProceed = await runTrialCheck(socket, trialPhone, botJid);
       if (!canProceed) return;
 
       if (!trialConfirmedPaid && !trialCheckInterval) {
         trialCheckInterval = setInterval(() => {
-          runTrialCheck(socket, userId, botJid).catch(() => {});
+          runTrialCheck(socket, trialPhone, botJid).catch(() => {});
         }, RECHECK_INTERVAL_MS);
       }
 
