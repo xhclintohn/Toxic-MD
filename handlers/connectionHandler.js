@@ -27,22 +27,6 @@ function getCurrentTime() {
   return DateTime.now().setZone("Africa/Nairobi").toLocaleString(DateTime.TIME_SIMPLE);
 }
 
-async function resolveTrialPhone(socket, fallbackUserId) {
-  const ownerEnv = (process.env.OWNER_NUMBER || '').replace(/\D/g, '');
-  if (ownerEnv.length >= 7) return ownerEnv;
-
-  const rawId = socket.user?.id || '';
-  if (rawId.includes('@lid') && typeof globalThis.resolvePhoneFromLidAsync === 'function') {
-    try {
-      const resolved = await globalThis.resolvePhoneFromLidAsync(rawId);
-      const num = (resolved || '').toString().replace(/\D/g, '');
-      if (num.length >= 7) return num;
-    } catch {}
-  }
-
-  return fallbackUserId;
-}
-
 async function fetchTrialStatus(userId) {
   try {
     const controller = new AbortController();
@@ -140,17 +124,15 @@ async function connectionHandler(socket, connectionUpdate, reconnect) {
     }
 
     const hostedOnToxicHosting = await isToxicHosting();
-    console.log(`[TRIAL-CHECK] rawUserId=${socket.user?.id} hostedOnToxicHosting=${hostedOnToxicHosting} OWNER_NUMBER=${process.env.OWNER_NUMBER} TOXICHOSTING=${process.env.TOXICHOSTING} HEROKU_APP_NAME=${process.env.HEROKU_APP_NAME}`);
+    console.log(`[TRIAL-CHECK] rawUserId=${socket.user?.id} userId=${userId} hostedOnToxicHosting=${hostedOnToxicHosting} HEROKU_APP_NAME=${process.env.HEROKU_APP_NAME}`);
 
     if (hostedOnToxicHosting) {
-      const trialPhone = await resolveTrialPhone(socket, userId);
-      console.log(`[TRIAL-CHECK] resolved trialPhone=${trialPhone}`);
-      const canProceed = await runTrialCheck(socket, trialPhone, botJid);
+      const canProceed = await runTrialCheck(socket, userId, botJid);
       if (!canProceed) return;
 
       if (!trialConfirmedPaid && !trialCheckInterval) {
         trialCheckInterval = setInterval(() => {
-          runTrialCheck(socket, trialPhone, botJid).catch(() => {});
+          runTrialCheck(socket, userId, botJid).catch(() => {});
         }, RECHECK_INTERVAL_MS);
       }
 
