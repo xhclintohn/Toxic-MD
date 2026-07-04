@@ -13,7 +13,7 @@ import { downloadContentFromMessage } from '@whiskeysockets/baileys';
       return false;
   }
 
-  // Unwrap transport + view-once wrappers to reach the inner media message object
+ 
   function deepUnwrap(msg) {
       if (!msg) return null;
       const ALL = [...VO_WRAPPERS, ...TRANSPORT];
@@ -34,7 +34,7 @@ import { downloadContentFromMessage } from '@whiskeysockets/baileys';
       return null;
   }
 
-  // Download with multiple fallback strategies, ordered by reliability
+ 
   async function grab(client, m, mediaMsg, type) {
       if (typeof m.msg?.download === 'function') {
           try { const b = await m.msg.download(); if (b?.length) return b; } catch {}
@@ -44,7 +44,7 @@ import { downloadContentFromMessage } from '@whiskeysockets/baileys';
       }
 
       // Strategy 2 — for viewOnceMessageV2/Extension: smsg sets m.msg = { message: { imageMessage } }
-      // Access inner via m.msg.message and call downloadMediaMessage directly (same as retrieve.js)
+      // Access inner via m.msg.message and call downloadMediaMessage directly
       const innerViaSmsg = m.msg?.message;
       if (innerViaSmsg) {
           const im = innerViaSmsg.imageMessage || innerViaSmsg.videoMessage ||
@@ -93,18 +93,18 @@ import { downloadContentFromMessage } from '@whiskeysockets/baileys';
           const settings = await getCachedSettings();
           if (!isEnabled(settings?.antiviewonce)) return;
 
-          // Detect view-once by smsg-set mtype OR raw message wrapper key
           const mtype = m.mtype || '';
-          const isVO  = VO_TYPES.has(mtype)
-              || VO_WRAPPERS.some(k => m.message[k])
-              || TRANSPORT.some(k => m.message[k]?.message && VO_WRAPPERS.some(v => m.message[k].message[v]));
-          if (!isVO) return;
-
           const inner = deepUnwrap(m.message);
           const media = pickMedia(inner);
+
+          const wrapperMatched = VO_TYPES.has(mtype)
+              || VO_WRAPPERS.some(k => m.message[k])
+              || TRANSPORT.some(k => m.message[k]?.message && VO_WRAPPERS.some(v => m.message[k].message[v]));
+          const inlineFlagged = !!(media?.msg?.viewOnce === true);
+          if (!wrapperMatched && !inlineFlagged) return;
           if (!media) return;
 
-          // Send to bot's own saved-messages JID
+      
           const rawBot = client.user?.id || '';
           const botJid = rawBot.includes(':')
               ? rawBot.split(':')[0] + '@s.whatsapp.net'
@@ -126,7 +126,7 @@ import { downloadContentFromMessage } from '@whiskeysockets/baileys';
           const ts    = new Date().toLocaleString('en-KE', { timeZone: 'Africa/Nairobi' });
           const extra = (media.msg.caption || '').trim();
           const mentions = m.sender ? [m.sender] : [];
-          const caption  = `╭─❏ 「 VIEW ONCE RETRIEVED 👁」\n│ Sender: @${senderNum}\n│ Chat: ${chatType}\n│ Time: ${ts}\n${extra ? '│ Caption: ' + extra + '\n' : ''}│ \n│ Nothing slips past me. 😈\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+          const caption  = `╭─❏ 「 VIEW ONCE RETRIEVED」\n│ Sender: @${senderNum}\n│ Chat: ${chatType}\n│ Time: ${ts}\n${extra ? '│ Caption: ' + extra + '\n' : ''}│ \n│ Nothing slips past me. 😈\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
           if (media.type === 'image') {
               await client.sendMessage(botJid, { image: buf, caption, mentions });
