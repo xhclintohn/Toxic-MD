@@ -1,63 +1,82 @@
 import axios from 'axios';
-import { Sticker, StickerTypes } from 'wa-sticker-formatter';
 import { sendInteractive } from '../../lib/sendInteractive.js';
+
+if (!globalThis.stickerlySession) globalThis.stickerlySession = {};
+
+async function searchStickerly(keyword) {
+  try {
+    const { data } = await axios.post(
+      'https://api.sticker.ly/v4/stickerPack/smartSearch',
+      {
+        keyword,
+        enabledKeywordSearch: true,
+        filter: {
+          extendSearchResult: false,
+          sortBy: 'RECOMMENDED',
+          languages: ['ALL'],
+          minStickerCount: 5,
+          searchBy: 'ALL',
+          stickerType: 'ALL'
+        }
+      },
+      {
+        headers: {
+          'User-Agent': 'androidapp.stickerly/3.31.0 (M2006C3LG; U; Android 29; in-ID; id;)',
+          'Content-Type': 'application/json'
+        },
+        timeout: 20000
+      }
+    );
+
+    const packs = data?.result?.stickerPacks || data?.stickerPacks || data?.data || [];
+    return packs.map(v => ({
+      id: v.packId,
+      name: v.name,
+      author: v.authorName || 'Unknown',
+      count: v.resourceFiles?.length || 0,
+      animated: v.isAnimated,
+      prefix: v.resourceUrlPrefix,
+      files: v.resourceFiles || [],
+      url: v.shareUrl || `https://sticker.ly/s/${v.packId}`
+    }));
+  } catch (e) {
+    console.log('Stickerly Search Error:', e.message);
+    return [];
+  }
+}
 
 export default {
   name: 'stickersearch',
-  aliases: ['stickersearch', 'stick', 'stickers', 'tenor', 'gifsticker'],
-  description: 'Fetches GIF stickers from Tenor with your search term',
+  aliases: ['stickersearch', 'stick', 'stickers', 'stickerly'],
+  description: 'Search Sticker.ly packs and send one as a native WhatsApp sticker pack',
   run: async (context) => {
-    const { client, m, text, botname } = context;
-
-    if (!botname) {
-      await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-      return sendInteractive(client, m, `╭─❏ 「 STICKERSEARCH 」
-│\n│ Bot name not set. Check config.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
-    }
+    const { client, m, text } = context;
 
     if (!text) {
-      await client.sendMessage(m.chat, { react: { text:'❌', key: m.reactKey } }).catch(() => {});
-      return sendInteractive(client, m, `╭─❏ 「 STICKERSEARCH 」
-│\n│ Give me a search term.\n│ Example: .s dancing cat\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
-    }
-
-    await client.sendMessage(m.chat, { react: { text:'⌛', key: m.reactKey } });
-
-    try {
-      const tenorApiKey = 'AIzaSyCyouca1_KKy4W_MG1xsPzuku5oa8W358c';
-      const gifResponse = await axios.get(
-        `https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(text)}&key=${tenorApiKey}&client_key=my_project&limit=8&media_filter=gif`
-      );
-
-      const results = gifResponse.data.results;
-      if (!results || results.length === 0) {
-        await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-        return sendInteractive(client, m, `╭─❏ 「 STICKERSEARCH 」
-│\n│ No stickers found for "${text}".\n│ Try a different search term.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
-      }
-
-      for (let i = 0; i < Math.min(8, results.length); i++) {
-        const gifUrl = results[i].media_formats.gif.url;
-        const stickerMess = new Sticker(gifUrl, {
-          pack: botname,
-          author:'𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧',
-          type: StickerTypes.FULL,
-          categories: ['🤩', '🎉'],
-          id: `12345-${i}`,
-          quality: 60,
-          background: 'transparent'
-        });
-        const stickerBuffer = await stickerMess.toBuffer();
-        await client.sendMessage(m.chat, { sticker: stickerBuffer });
-      }
-
-      await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
-
-    } catch (error) {
       await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-      console.error(`Stickersearch error: ${error.message}`);
-      await sendInteractive(client, m, `╭─❏ 「 STICKERSEARCH 」
-│\n│ Failed to fetch stickers.\n│ Service might be down. Try again.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+      return sendInteractive(client, m, `╭─❏ 「 STICKERSEARCH 」
+│\n│ Give me a search term.\n│ Example: .stickersearch patrick\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
     }
+
+    await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
+
+    const packs = await searchStickerly(text);
+    if (!packs.length) {
+      await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+      return sendInteractive(client, m, `╭─❏ 「 STICKERSEARCH 」
+│\n│ No sticker packs found for "${text}".\n│ Try a different search term.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+    }
+
+    const top = packs.slice(0, 10);
+    globalThis.stickerlySession[m.sender] = { chat: m.chat, packs: top, expiresAt: Date.now() + 5 * 60 * 1000 };
+
+    let list = `╭─❏ 「 STICKERSEARCH 」\n│\n`;
+    top.forEach((v, i) => {
+      list += `│ ${i + 1}. ${v.name}\n│    Author: ${v.author} • Stickers: ${v.count}\n`;
+    });
+    list += `│\n│ Reply with a number (1-${top.length}) to send that pack.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+
+    await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
+    await sendInteractive(client, m, list);
   }
 };
