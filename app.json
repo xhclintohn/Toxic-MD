@@ -39,11 +39,6 @@
     "HEROKU_API_KEY": {
       "description": "Optional – Your Heroku API key (only needed for updating the bot).",
       "required": false
-    },
-    "npm_config_legacy_peer_deps": {
-      "description": "Fix for dependency conflicts - forces npm to use legacy peer dependencies",
-      "required": false,
-      "value": "true"
     }
   },
   "addons": [
