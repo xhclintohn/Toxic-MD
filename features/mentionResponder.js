@@ -47,11 +47,7 @@ export default async (client, m) => {
         if (entry.kind === 'text' && entry.text) {
             await client.sendMessage(m.chat, { text: entry.text }, { quoted: m });
         } else if (entry.kind === 'json' && entry.data) {
-            try { await sendJson(client, m.chat, revive(entry.data), { quoted: m }); } catch (e) {
-                console.log('[MENTIONRESPONDER] sendJson error:', e.message);
-            }
+            try { await sendJson(client, m.chat, revive(entry.data), { quoted: m }); } catch (e) {}
         }
-    } catch (e) {
-        console.log('[MENTIONRESPONDER] error:', e.message);
-    }
+    } catch (e) {}
 };

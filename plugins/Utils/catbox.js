@@ -32,21 +32,53 @@ export default {
 
             await sendInteractive(client, m, fmt(`Uploading ${filename} (${size}) to Catbox...`));
 
-            const form = new FormData();
-            form.append('reqtype', 'fileupload');
-            form.append('fileToUpload', new Blob([buff], { type: mime }), filename);
+            let url = null;
+            let permanent = true;
 
-            const res = await fetch('https://catbox.moe/user/api.php', {
-                method: 'POST',
-                body: form,
-                headers: { 'User-Agent': 'ToxicMD/1.0' }
-            });
+            try {
+                const form = new FormData();
+                form.append('reqtype', 'fileupload');
+                form.append('fileToUpload', new Blob([buff], { type: mime }), filename);
 
-            const url = (await res.text()).trim();
-            if (!url.startsWith('https://files.catbox.moe/')) throw new Error(`Catbox error: ${url}`);
+                const res = await fetch('https://catbox.moe/user/api.php', {
+                    method: 'POST',
+                    body: form,
+                    headers: { 'User-Agent': 'ToxicMD/1.0' }
+                });
+
+                const text = (await res.text()).trim();
+                if (text.startsWith('https://files.catbox.moe/')) {
+                    url = text;
+                } else {
+                    throw new Error(`Catbox error: ${text}`);
+                }
+            } catch (primaryErr) {
+                try {
+                    const fallbackForm = new FormData();
+                    fallbackForm.append('reqtype', 'fileupload');
+                    fallbackForm.append('time', '72h');
+                    fallbackForm.append('fileToUpload', new Blob([buff], { type: mime }), filename);
+
+                    const fallbackRes = await fetch('https://litterbox.catbox.moe/resources/internals/api.php', {
+                        method: 'POST',
+                        body: fallbackForm,
+                        headers: { 'User-Agent': 'ToxicMD/1.0' }
+                    });
+
+                    const fallbackText = (await fallbackRes.text()).trim();
+                    if (fallbackText.startsWith('https://litter.catbox.moe/')) {
+                        url = fallbackText;
+                        permanent = false;
+                    } else {
+                        throw new Error(`Litterbox error: ${fallbackText}`);
+                    }
+                } catch (fallbackErr) {
+                    throw primaryErr;
+                }
+            }
 
             await client.sendMessage(m.chat, {
-                text: fmt(`✅ Upload complete!\n│ \n│ 🔗 URL: ${url}\n│ 💾 Size: ${size}\n│ \n│ Permanent link — never expires!`)
+                text: fmt(`✅ Upload complete!\n│ \n│ 🔗 URL: ${url}\n│ 💾 Size: ${size}\n│ \n│ ${permanent ? 'Permanent link — never expires!' : 'Temporary link — expires in 72 hours (Catbox blocked this upload, used fallback host).'}`)
             }, { quoted: m });
             await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
         } catch (err) {

@@ -22,30 +22,21 @@ export default async (client, m) => {
         const msg = m.message || {};
         const isSticker = m.mtype === 'stickerMessage' || !!msg.stickerMessage;
 
-        console.log('[ANTISTICKER] mtype:', m.mtype, '| isSticker:', isSticker, '| chat:', m.chat, '| sender:', m.sender);
-
         if (!isSticker) return;
 
         const gs = await getGroupSettings(m.chat);
         const mode = gs?.antisticker || 'off';
-        console.log('[ANTISTICKER] mode:', mode, '| gs:', JSON.stringify(gs));
         if (mode === 'off') return;
 
         const meta = await client.groupMetadata(m.chat);
         const sender = resolveTargetJid(m.sender, meta.participants) || m.sender;
 
-        console.log('[ANTISTICKER] resolved sender:', sender, '| m.sender:', m.sender, '| m.participant:', m.participant);
-
         const sNum = _num(sender);
         const botRaw = client.decodeJid ? client.decodeJid(client.user.id) : (client.user?.id || '');
         const botNum = _num(botRaw);
 
-        console.log('[ANTISTICKER] sNum:', sNum, '| botNum:', botNum);
-
         const isAdmin = meta.participants.some(p => _pNum(p) === sNum && (p.admin === 'admin' || p.admin === 'superadmin'));
         const isBotAdmin = meta.participants.some(p => _pNum(p) === botNum && (p.admin === 'admin' || p.admin === 'superadmin'));
-
-        console.log('[ANTISTICKER] isAdmin:', isAdmin, '| isBotAdmin:', isBotAdmin);
 
         if (isAdmin) return;
         if (!isBotAdmin) {
@@ -61,19 +52,13 @@ export default async (client, m) => {
             id: m.key.id,
             participant: m.participant || m.sender
         };
-        console.log('[ANTISTICKER] attempting delete with key:', JSON.stringify(deleteKey));
 
         try {
             await client.sendMessage(m.chat, { delete: deleteKey });
-            console.log('[ANTISTICKER] delete sent successfully');
-        } catch (delErr) {
-            console.error('[ANTISTICKER] delete FAILED:', delErr.message);
-        }
+        } catch (delErr) {}
 
         if (mode === 'kick') {
-            try { await client.groupParticipantsUpdate(m.chat, [sender], 'remove'); } catch (kErr) {
-                console.error('[ANTISTICKER] kick failed:', kErr.message);
-            }
+            try { await client.groupParticipantsUpdate(m.chat, [sender], 'remove'); } catch (kErr) {}
             return client.sendMessage(m.chat, {
                 text: fmt(`🚨 @${sNum} KICKED!\n│ Reason: Sent a sticker (zero tolerance)\n│ Stickers are banned here! 😈`),
                 mentions: [sender]
@@ -84,13 +69,9 @@ export default async (client, m) => {
         const count = await addWarn(m.chat, sNum);
         const remaining = MAX_WARNS - count;
 
-        console.log('[ANTISTICKER] warns:', count, '/', MAX_WARNS);
-
         if (count >= MAX_WARNS) {
             await resetWarn(m.chat, sNum);
-            try { await client.groupParticipantsUpdate(m.chat, [sender], 'remove'); } catch (kErr) {
-                console.error('[ANTISTICKER] warn-kick failed:', kErr.message);
-            }
+            try { await client.groupParticipantsUpdate(m.chat, [sender], 'remove'); } catch (kErr) {}
             return client.sendMessage(m.chat, {
                 text: fmt(`🚨 @${sNum} KICKED!\n│ Reason: Sticker sent\n│ Warns: ${count}/${MAX_WARNS} — DONE. 😈`),
                 mentions: [sender]
@@ -100,7 +81,5 @@ export default async (client, m) => {
             text: fmt(`⚠️ @${sNum}, warned!\n│ Reason: Sticker sent\n│ Sticker deleted.\n│ Warns: ${count}/${MAX_WARNS}\n│ ${remaining} more and you're out. 😈`),
             mentions: [sender]
         });
-    } catch (e) {
-        console.error('[ANTISTICKER] top-level error:', e.message, e.stack);
-    }
+    } catch (e) {}
 };

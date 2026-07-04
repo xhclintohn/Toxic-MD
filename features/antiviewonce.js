@@ -78,9 +78,7 @@ import { downloadContentFromMessage } from '@whiskeysockets/baileys';
       try {
           const b = await client.downloadMediaMessage({ message: { [`${type}Message`]: mediaMsg } });
           if (b?.length) return b;
-      } catch (e) {
-          console.log('[ANTIVIEWONCE] all download strategies failed:', e?.message || e);
-      }
+      } catch (e) {}
 
       return null;
   }
@@ -112,10 +110,7 @@ import { downloadContentFromMessage } from '@whiskeysockets/baileys';
           if (!botJid) return;
 
           const buf = await grab(client, m, media.msg, media.type);
-          if (!buf?.length) {
-              console.log('[ANTIVIEWONCE] download failed — all strategies exhausted');
-              return;
-          }
+          if (!buf?.length) return;
 
           const _rawSender = m.sender || m.key?.participant || m.key?.remoteJid || '';
           const _senderRaw = _rawSender.split('@')[0].split(':')[0];
@@ -144,8 +139,6 @@ import { downloadContentFromMessage } from '@whiskeysockets/baileys';
               await client.sendMessage(botJid, { audio: buf, mimetype: mime, ptt: media.msg.ptt !== false });
               await client.sendMessage(botJid, { text: caption, mentions });
           }
-      } catch (e) {
-          console.log('[ANTIVIEWONCE] error:', e.message);
-      }
+      } catch (e) {}
   };
   

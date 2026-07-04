@@ -22,7 +22,7 @@ function fmtSize(bytes) {
 
 export default {
     name: 'cdnwa',
-    aliases: ['cdn', 'waurl', 'uploadwa', 'wamedia'],
+    aliases: ['cdn', 'waurl', 'uploadwa', 'wamedia', 'wacdn'],
     description: 'Upload media to WhatsApp CDN and get a direct link',
     run: async (context) => {
         const { client, m } = context;
