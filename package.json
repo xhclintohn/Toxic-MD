@@ -7,10 +7,11 @@
   "scripts": {
     "start": "node index.js",
     "prestart": "node patch-baileys.js",
-    "heroku-prebuild": "npm install --force --legacy-peer-deps"
+    "install": "npm install --legacy-peer-deps",
+    "heroku-prebuild": "npm install --legacy-peer-deps"
   },
   "engines": {
-    "node": "20.x"
+    "node": "22.x"
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "latest",
