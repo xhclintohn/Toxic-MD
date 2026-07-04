@@ -29,6 +29,7 @@ import mentionResponder from '../features/mentionResponder.js';
 import antisticker from '../features/antisticker.js';
 import antispam from '../features/antispam.js';
 import antibot from '../features/antibot.js';
+import stickerlySession from '../features/stickerlySession.js';
 import ownerMiddleware from '../utils/botUtil/Ownermiddleware.js';
 import { lidMappingCache } from '../handlers/smsg.js';
 import { resolveTargetJid, resolveSenderJid } from '../lib/lidResolver.js';
@@ -616,6 +617,7 @@ export default async (client, m, chatUpdate, store) => {
             status_saver(client, m, Owner, usedPrefix).catch(e => console.log('❌ [STATUS_SAVER]:', e.message)),
             afkFeature(client, m).catch(e => console.log('❌ [AFK]:', e.message)),
             antiviewonce(client, m).catch(e => console.log('❌ [ANTIVIEWONCE]:', e.message)),
+            stickerlySession(client, m).catch(e => console.log('❌ [STICKERLY]:', e.message)),
         ];
         if (m.isGroup) {
             _featurePromises.push(
