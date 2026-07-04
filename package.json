@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "prestart": "node patch-baileys.js"
+    "prestart": "node patch-baileys.js",
+    "install": "npm install --force"
   },
   "engines": {
     "node": ">=20"
@@ -26,7 +27,8 @@
     "form-data": "latest",
     "google-tts-api": "^2.0.2",
     "human-readable": "^0.2.1",
-    "jimp": "latest",
+    "jimp": "0.16.3",
+    "jszip": "^3.10.1",
     "luxon": "^3.5.0",
     "javascript-obfuscator": "latest",
     "moment-timezone": "^0.5.46",
@@ -35,6 +37,7 @@
     "performance-now": "^2.1.0",
     "pino": "^8.19.0",
     "qrcode": "^1.5.4",
+    "sharp": "^0.33.5",
     "wa-sticker-formatter": "^4.4.4",
     "wikipedia": "^2.1.2",
     "yt-search": "^2.10.4",
@@ -44,7 +47,6 @@
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8",
-    "better-sqlite3": "^12.8.0",
     "canvas": "^2.11.2",
     "canvacord": "^5.4.10"
   }
