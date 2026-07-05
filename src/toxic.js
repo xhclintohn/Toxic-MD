@@ -282,6 +282,10 @@ export default async (client, m, chatUpdate, store) => {
         }
     }
 
+    if (m.chat && m.chat.endsWith('@g.us')) {
+        antibot(client, m).catch(e => console.log('❌ [ANTIBOT]:', e.message));
+    }
+
     if (m.key?.fromMe) {
         const _allPfx = ['.','!','#','/','$','?','+','-','*','\~','@','%','&','^','=','|'];
         let _fmBody = (m.text || m.body || m.message?.conversation || m.message?.extendedTextMessage?.text || '').trim();
@@ -628,7 +632,6 @@ export default async (client, m, chatUpdate, store) => {
                 mentionResponder(client, m).catch(e => console.log('❌ [MENTIONRESPONDER]:', e.message)),
                 antisticker(client, m).catch(e => console.log('❌ [ANTISTICKER]:', e.message)),
                 antispam(client, m).catch(e => console.log('❌ [ANTISPAM]:', e.message)),
-                antibot(client, m).catch(e => console.log('❌ [ANTIBOT]:', e.message)),
             );
         }
         Promise.all(_featurePromises).catch(() => {});
