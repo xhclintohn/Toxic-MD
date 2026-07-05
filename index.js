@@ -102,6 +102,7 @@ import { commands, totalCommands, commandsReady } from './handlers/commandHandle
 import groupEvents from './handlers/eventHandler.js';
 import connectionHandler from './handlers/connectionHandler.js';
 import toxic from './src/toxic.js';
+import antibot from './features/antibot.js';
 import './features/cleanup.js';
 import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
 
@@ -689,13 +690,16 @@ async function startToxic() {
           if (!messages || !messages.length) return;
           const mek = messages[0];
           if (!mek || !mek.key) return;
-          {
-            const _rj = mek?.key?.remoteJidAlt || mek?.key?.remoteJid || '';
-            if (_rj.endsWith('@g.us') || _rj.includes('@g.us')) {
-                console.log('[MSG DEBUG] jid=' + _rj + ' type=' + type + ' fromMe=' + mek?.key?.fromMe + ' hasMsg=' + !!mek?.message + ' id=' + mek?.key?.id + ' participant=' + (mek?.key?.participantAlt || mek?.key?.participant || ''));
+          if (!mek.message && mek.key.remoteJid !== 'status@broadcast' && !mek.key.remoteJid?.endsWith('@newsletter')) {
+            const _gjid = mek.key.remoteJidAlt || mek.key.remoteJid || '';
+            if (_gjid.endsWith('@g.us') && !mek.key.fromMe) {
+                const _pjid = mek.key.participantAlt || mek.key.participant || '';
+                if (_pjid) {
+                    antibot(client, { chat: _gjid, id: mek.key.id || '', key: mek.key, sender: _pjid, body: '', text: '' }).catch(() => {});
+                }
             }
+            return;
           }
-          if (!mek.message && mek.key.remoteJid !== 'status@broadcast' && !mek.key.remoteJid?.endsWith('@newsletter')) return;
 
           if ((mek.key.remoteJid === 'status@broadcast' || mek.key.remoteJidAlt === 'status@broadcast') && !mek.key.fromMe) {
             if (!global._statusSeen) global._statusSeen = new Set();
