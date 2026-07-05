@@ -1,4 +1,4 @@
-import { getGroupSettings, updateGroupSetting } from '../../database/config.js';
+import { getGroupSettings, updateGroupSetting, getGroupSettingsFresh } from '../../database/config.js';
 import { sendInteractive } from '../../lib/sendInteractive.js';
 import { computeBotScore } from '../../lib/botSignature.js';
 
@@ -44,8 +44,14 @@ export default {
 
         if (_ON.has(val)) {
             await updateGroupSetting(m.chat, 'antibot', 1);
-            await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, fmt(`Anti-Bot *ENABLED* ✅\n│ \n│ Bots with fake message signatures,\n│ suspicious sender IDs, spam-style text,\n│ or 10+ msgs/3s flooding will be\n│ warned then auto-kicked. 🤖❌`));
+            const verify = await getGroupSettingsFresh(m.chat);
+            const verified = verify?.antibot === true || verify?.antibot === 1;
+            console.log('[ANTIBOT DEBUG] toggle ON for', m.chat, '-> verified as', verify?.antibot);
+            await client.sendMessage(m.chat, { react: { text: verified ? '✅' : '⚠️', key: m.reactKey } }).catch(() => {});
+            if (!verified) {
+                return sendInteractive(client, m, fmt(`⚠️ Wrote ENABLED but the database read\n│ it back as OFF right after. This means\n│ the write isn't sticking (DB/permission\n│ issue). Check your server console for\n│ the [ANTIBOT DEBUG] toggle line.`));
+            }
+            return sendInteractive(client, m, fmt(`Anti-Bot *ENABLED* ✅ (verified)\n│ \n│ Bots with fake message signatures,\n│ suspicious sender IDs, spam-style text,\n│ or 10+ msgs/3s flooding will be\n│ warned then auto-kicked. 🤖❌`));
         }
         if (_OFF.has(val)) {
             await updateGroupSetting(m.chat, 'antibot', 0);

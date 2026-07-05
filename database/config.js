@@ -290,6 +290,11 @@ async function updateSetting(key, value) {
     _notify(_settingsListeners);
 }
 
+async function getGroupSettingsFresh(jid) {
+    cache.groupSettings.delete(jid);
+    return getGroupSettings(jid);
+}
+
 async function getGroupSettings(jid) {
     const cached = cache.groupSettings.get(jid);
     if (cached && (Date.now() - cached.time) < GS_TTL) return cached.data;
@@ -595,7 +600,7 @@ async function getPhoneFromLid(lid) {
     getBackend,
     registerSettingsListener, registerSudoListener, registerBannedListener,
     initializeDatabase, getSettings, updateSetting,
-    getGroupSettings, updateGroupSetting,
+    getGroupSettings, getGroupSettingsFresh, updateGroupSetting,
     banUser, unbanUser, getBannedUsers,
     addSudoUser, removeSudoUser, getSudoUsers,
     getAllowedUsers, addAllowedUser, removeAllowedUser,
