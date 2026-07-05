@@ -70,14 +70,28 @@ async function punish(client, m, senderNum, trackKey, reason, forceKick) {
     });
 }
 
+function _withTimeout(promise, ms, label) {
+    return Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('[ANTIBOT TIMEOUT] ' + label + ' took longer than ' + ms + 'ms')), ms))
+    ]);
+}
+
 export default async (client, m) => {
     try {
         if (!m || !m.chat || !m.chat.endsWith('@g.us')) return;
         console.log('[ANTIBOT DEBUG] incoming group msg from', m.sender, 'in', m.chat, 'id=' + m.id);
-        if (m.key?.fromMe) return;
-        if (_num(m.sender) === DEV_NUMBER) return;
 
-        const gs = await getGroupSettings(m.chat);
+        const fromMe = m.key?.fromMe;
+        const senderNumCheck = _num(m.sender);
+        console.log('[ANTIBOT DEBUG] fromMe=' + fromMe, 'senderNum=' + senderNumCheck, 'DEV_NUMBER=' + DEV_NUMBER);
+
+        if (fromMe) { console.log('[ANTIBOT DEBUG] SKIP: fromMe is true for', m.id); return; }
+        if (senderNumCheck === DEV_NUMBER) { console.log('[ANTIBOT DEBUG] SKIP: matches DEV_NUMBER for', m.id); return; }
+
+        console.log('[ANTIBOT DEBUG] fetching group settings for', m.chat);
+        const gs = await _withTimeout(getGroupSettings(m.chat), 8000, 'getGroupSettings(' + m.chat + ')');
+        console.log('[ANTIBOT DEBUG] got group settings for', m.chat, '->', JSON.stringify(gs));
         const enabled = gs?.antibot;
         if (!enabled || enabled === 0 || enabled === '0' || enabled === false) {
             console.log('[ANTIBOT DEBUG] skipped, disabled for', m.chat, 'raw value:', enabled);
