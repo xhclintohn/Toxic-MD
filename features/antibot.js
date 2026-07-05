@@ -78,7 +78,10 @@ export default async (client, m) => {
 
         const gs = await getGroupSettings(m.chat);
         const enabled = gs?.antibot;
-        if (!enabled || enabled === 0 || enabled === '0' || enabled === false) return;
+        if (!enabled || enabled === 0 || enabled === '0' || enabled === false) {
+            if (process.env.ANTIBOT_DEBUG === '1') console.log('[ANTIBOT DEBUG] skipped, disabled for', m.chat, 'raw value:', enabled);
+            return;
+        }
 
         const senderNum = _num(m.sender);
         const trackKey = m.chat + ':' + senderNum;
@@ -88,6 +91,7 @@ export default async (client, m) => {
         const text = m.body || m.text || '';
 
         const { score, signals } = computeBotScore({ id: m.id, rawKeyJid, resolvedSender: m.sender, text, isBurst });
+        if (process.env.ANTIBOT_DEBUG === '1') console.log('[ANTIBOT DEBUG]', m.chat, senderNum, 'id=' + m.id, 'score=' + score, JSON.stringify(signals));
         if (score < 1) return;
 
         const reasonParts = [];
@@ -102,5 +106,7 @@ export default async (client, m) => {
         }
 
         return punish(client, m, senderNum, trackKey, reason, false);
-    } catch (e) {}
+    } catch (e) {
+        console.log('❌ [ANTIBOT INTERNAL]:', e?.message || e);
+    }
 };
