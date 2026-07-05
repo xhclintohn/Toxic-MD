@@ -32,7 +32,7 @@ function trackBurst(key) {
 
 async function punish(client, m, senderNum, trackKey, reason, forceKick) {
     const meta = await client.groupMetadata(m.chat);
-    const sender = resolveTargetJid(m.sender, meta.participants);
+    const sender = resolveTargetJid(m.sender, meta.participants) || m.sender;
     if (!sender) return;
 
     const sNum = _num(sender);
@@ -43,7 +43,15 @@ async function punish(client, m, senderNum, trackKey, reason, forceKick) {
     const isBotAdmin = meta.participants.some(p => _pNum(p) === botNum && (p.admin === 'admin' || p.admin === 'superadmin'));
 
     if (isAdmin) return;
-    if (!isBotAdmin) return;
+    if (!isBotAdmin) {
+        if (_warned.has('noadmin:' + m.chat)) return;
+        _warned.add('noadmin:' + m.chat);
+        return client.sendMessage(m.chat, {
+            text: fmt(`🤖 Spotted @${sNum} looking bot-like (${reason}), but I can't act.
+│ Make me admin so ANTIBOT can actually kick bots. 🙄`),
+            mentions: [sender]
+        }).catch(() => {});
+    }
 
     if (!forceKick && !_warned.has(trackKey)) {
         _warned.add(trackKey);

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { generateWAMessageFromContent } from '@whiskeysockets/baileys';
 import { sendInteractive } from '../../lib/sendInteractive.js';
 import { ButtonV2 } from '../../lib/WABuilder.js';
 
@@ -12,13 +13,54 @@ const sendGachaResult = async (client, m, nomor, negara, bendera, prefix) => {
         `◦ Number :\n${nomor}\n\n` +
         `◦ Country :\n${negara} ${bendera}`;
 
+    try {
+        const msg = generateWAMessageFromContent(
+            m.chat,
+            {
+                interactiveMessage: {
+                    body: { text: title },
+                    footer: { text: '> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧' },
+                    nativeFlowMessage: {
+                        messageVersion: 1,
+                        buttons: [
+                            {
+                                name: 'cta_copy',
+                                buttonParamsJson: JSON.stringify({
+                                    display_text: 'Copy Number',
+                                    copy_code: nomor
+                                })
+                            },
+                            {
+                                name: 'quick_reply',
+                                buttonParamsJson: JSON.stringify({
+                                    display_text: '🔄 Generate New',
+                                    id: `${prefix}virtualnumber`
+                                })
+                            },
+                            {
+                                name: 'quick_reply',
+                                buttonParamsJson: JSON.stringify({
+                                    display_text: '💬 Check OTP',
+                                    id: `${prefix}virtualnumber otp ${nomor}`
+                                })
+                            }
+                        ]
+                    }
+                }
+            },
+            { userJid: client.user?.id }
+        );
+        await client.relayMessage(m.chat, msg.message, { messageId: msg.key.id });
+        return;
+    } catch {}
+
     const btnV2 = new ButtonV2(client);
     btnV2.setBody(title)
         .setFooter('> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧')
         .setThumbnail(THUMB)
         .addButton('🔄 Generate New', `${prefix}virtualnumber`)
         .addButton('💬 Check OTP', `${prefix}virtualnumber otp ${nomor}`);
-    
+
     await btnV2.send(m.chat, { userJid: client.user.id, quoted: m });
 };
 
@@ -50,7 +92,7 @@ const sendOtpResult = async (client, m, nomor, resData, prefix) => {
 
 export default {
     name: 'virtualnumber',
-    aliases: ['vnum', 'gachano', 'vtnum'],
+    aliases: ['vnum', 'gachano', 'vtnum', 'vnm', 'virtualnum', 'genvirtual', 'gennumber', 'virtnum'],
     description: 'Get a random virtual number or check its OTP',
     run: async (context) => {
         const { client, m, args, prefix } = context;

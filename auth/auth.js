@@ -36,7 +36,7 @@ async function authenticationn() {
         }
 
         if (!sessionData || sessionData === 'zokk') {
-            console.log('⚠️ No session detected! — set SESSION env or paste your session ID in session.json');
+            console.log('⚠️ No session detected! — set SESSION env or paste your session ID in session.json (this message only shows up in the server/host logs, not in WhatsApp — check your hosting dashboard console, not your chats)');
             return;
         }
 

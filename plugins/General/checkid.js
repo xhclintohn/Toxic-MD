@@ -3,7 +3,7 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
 
 export default {
     name: 'checkid',
-    aliases: ['cekid', 'getid', 'id', 'idch'],
+    aliases: ['cekid', 'getid', 'id', 'idch', 'getjid', 'jid', 'groupjid', 'gcid', 'gjid'],
     description: 'Get JID from group or channel invite link',
     run: async (context) => {
         const { client, m, prefix } = context;
