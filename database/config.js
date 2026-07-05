@@ -148,6 +148,7 @@ const cache = {
     sudoUsers: { data: null, time: 0, ttl: 60000 },
     bannedUsers: { data: null, time: 0, ttl: 60000 },
     bannedGroups: { data: null, time: 0, ttl: 30000 },
+    knownBots: { data: null, time: 0 },
     groupSettings: new Map()
 };
 const GS_TTL = 60000;
@@ -387,6 +388,37 @@ async function removeBannedGroup(jid) {
     cache.bannedGroups.data = null;
 }
 
+async function getKnownBots() {
+    if (isCacheValid(cache.knownBots)) return cache.knownBots.data;
+    const row = await qGet("SELECT value FROM settings WHERE key = 'known_bots'", []);
+    let data = [];
+    if (row?.value) {
+        try { data = JSON.parse(row.value); } catch { data = []; }
+    } else if (_backend === 'json' && _jsonData?.settings?.known_bots) {
+        try { data = JSON.parse(_jsonData.settings.known_bots); } catch { data = []; }
+    }
+    if (!Array.isArray(data)) data = [];
+    cache.knownBots.data = data;
+    cache.knownBots.time = Date.now();
+    return data;
+}
+
+async function addKnownBot(num) {
+    const current = await getKnownBots();
+    if (!current.includes(num)) {
+        current.push(num);
+        await updateSetting('known_bots', JSON.stringify(current));
+        cache.knownBots.data = null;
+    }
+}
+
+async function removeKnownBot(num) {
+    const current = await getKnownBots();
+    const updated = current.filter(n => n !== num);
+    await updateSetting('known_bots', JSON.stringify(updated));
+    cache.knownBots.data = null;
+}
+
 async function banUser(num) {
     await qRun('INSERT INTO banned_users (num) VALUES ($1) ON CONFLICT DO NOTHING', [num]);
     cache.bannedUsers.data = null;
@@ -601,6 +633,7 @@ async function getPhoneFromLid(lid) {
     registerSettingsListener, registerSudoListener, registerBannedListener,
     initializeDatabase, getSettings, updateSetting,
     getGroupSettings, getGroupSettingsFresh, updateGroupSetting,
+    getKnownBots, addKnownBot, removeKnownBot,
     banUser, unbanUser, getBannedUsers,
     addSudoUser, removeSudoUser, getSudoUsers,
     getAllowedUsers, addAllowedUser, removeAllowedUser,

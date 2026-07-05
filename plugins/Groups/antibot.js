@@ -1,4 +1,4 @@
-import { getGroupSettings, updateGroupSetting, getGroupSettingsFresh } from '../../database/config.js';
+import { getGroupSettings, updateGroupSetting, getGroupSettingsFresh, getKnownBots, addKnownBot, removeKnownBot } from '../../database/config.js';
 import { sendInteractive } from '../../lib/sendInteractive.js';
 import { computeBotScore } from '../../lib/botSignature.js';
 
@@ -7,6 +7,9 @@ const fmt = (msg) => `╭─❏ 「 ANTIBOT」\n│ ${msg}\n╰─────�
 const _ON  = new Set(['on','enable','enabled','activate','activated','true','1','yes','start']);
 const _OFF = new Set(['off','disable','disabled','deactivate','deactivated','false','0','no','stop']);
 const _CHECK = new Set(['check','debug','test','scan']);
+const _MARK = new Set(['markbot','mark']);
+const _UNMARK = new Set(['unmarkbot','unmark']);
+const _num = (jid) => (jid || '').split('@')[0].split(':')[0].replace(/\D/g, '');
 
 export default {
     name: 'antibot',
@@ -37,9 +40,37 @@ export default {
             return sendInteractive(client, m, fmt(`Message ID: ${qId || '(none)'}\n│ Sender: @${(qSender||'').split('@')[0]}\n│ \n│ non-standard message ID: ${signals.baileysId ? 'YES' : 'no'}\n│ fake sender ID: ${signals.lidOversized ? 'YES' : 'no'}\n│ spammy stylized text: ${signals.styledFont ? 'YES' : 'no'}\n│ message flooding: ${signals.burst ? 'YES' : 'no'}\n│ \n│ Score: ${score}/4 (kicks at 2, warns at 1)`), { mentions: [qSender].filter(Boolean) });
         }
 
+        if (_MARK.has(val) || _UNMARK.has(val)) {
+            if (!m.quoted) {
+                await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+                return sendInteractive(client, m, fmt(`Reply to the bot's message with\n│ *${prefix}antibot markbot* to permanently\n│ flag that sender as a bot everywhere.`));
+            }
+            const qSender = m.quoted.sender || m.msg?.contextInfo?.participant || '';
+            const qNum = _num(qSender);
+            if (!qNum) {
+                await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+                return sendInteractive(client, m, fmt('Could not resolve a sender number from that message.'));
+            }
+            if (_MARK.has(val)) {
+                await addKnownBot(qNum);
+                await client.sendMessage(m.chat, { react: { text: '🤖', key: m.reactKey } }).catch(() => {});
+                return sendInteractive(client, m, fmt(`@${qNum} is now permanently flagged as a\n│ known bot. Every message from this\n│ number in any group with ANTIBOT ON\n│ will be auto-kicked, no scoring needed.`), { mentions: [qSender].filter(Boolean) });
+            }
+            await removeKnownBot(qNum);
+            await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
+            return sendInteractive(client, m, fmt(`@${qNum} removed from the known-bots list.`), { mentions: [qSender].filter(Boolean) });
+        }
+
+        if (val === 'botlist') {
+            const bots = await getKnownBots();
+            await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } }).catch(() => {});
+            if (!bots.length) return sendInteractive(client, m, fmt('No numbers are flagged as known bots yet.'));
+            return sendInteractive(client, m, fmt(`Known bots:\n│ ${bots.map(n => '@' + n).join('\n│ ')}`), { mentions: bots.map(n => n + '@s.whatsapp.net') });
+        }
+
         if (!val) {
             await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, fmt(`Status: *${isOn ? 'ON ✅' : 'OFF ❌'}*\n│ \n│ Detects bot-style message IDs, fake\n│ sender IDs, stylized spam text, and\n│ message flooding (10+ msgs/3s).\n│ \n│ Usage:\n│ *${prefix}antibot on*  → kick detected bots\n│ *${prefix}antibot off* → disable\n│ *${prefix}antibot check* (reply to a msg) → debug\n│ \n│ Aliases: on/enable/off/disable`));
+            return sendInteractive(client, m, fmt(`Status: *${isOn ? 'ON ✅' : 'OFF ❌'}*\n│ \n│ Detects bot-style message IDs, fake\n│ sender IDs, stylized spam text, and\n│ message flooding (10+ msgs/3s).\n│ \n│ Usage:\n│ *${prefix}antibot on*  → kick detected bots\n│ *${prefix}antibot off* → disable\n│ *${prefix}antibot check* (reply to a msg) → debug\n│ *${prefix}antibot markbot* (reply) → force-flag a sender as a bot\n│ *${prefix}antibot unmarkbot* (reply) → unflag\n│ *${prefix}antibot botlist* → show flagged numbers\n│ \n│ Aliases: on/enable/off/disable`));
         }
 
         if (_ON.has(val)) {

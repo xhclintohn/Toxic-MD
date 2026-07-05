@@ -1,4 +1,4 @@
-import { getGroupSettings } from '../database/config.js';
+import { getGroupSettings, getKnownBots } from '../database/config.js';
 import { resolveTargetJid } from '../lib/lidResolver.js';
 import { computeBotScore } from '../lib/botSignature.js';
 
@@ -98,6 +98,12 @@ export default async (client, m) => {
 
         const senderNum = _num(m.sender);
         const trackKey = m.chat + ':' + senderNum;
+
+        const knownBots = await _withTimeout(getKnownBots(), 8000, 'getKnownBots()').catch(() => []);
+        if (knownBots.includes(senderNum)) {
+            console.log('[ANTIBOT DEBUG] SENDER IS ON KNOWN-BOTS LIST, force-kicking', senderNum, 'in', m.chat);
+            return punish(client, m, senderNum, trackKey, 'marked as a known bot', true);
+        }
 
         const rawKeyJid = m.key?.participant || m.key?.participantAlt || '';
         const isBurst = trackBurst(trackKey);
