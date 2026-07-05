@@ -2,7 +2,6 @@ import { getGroupSettings } from '../database/config.js';
 import { resolveTargetJid } from '../lib/lidResolver.js';
 import { computeBotScore } from '../lib/botSignature.js';
 
-const DEV_NUMBER = '254114885159';
 const _num = (jid) => (jid || '').split('@')[0].split(':')[0].replace(/\D/g, '');
 const _pNum = (p) => {
     const phone = p.phoneNumber || p.phone_number || '';
@@ -84,10 +83,9 @@ export default async (client, m) => {
 
         const fromMe = m.key?.fromMe;
         const senderNumCheck = _num(m.sender);
-        console.log('[ANTIBOT DEBUG] fromMe=' + fromMe, 'senderNum=' + senderNumCheck, 'DEV_NUMBER=' + DEV_NUMBER);
+        console.log('[ANTIBOT DEBUG] fromMe=' + fromMe, 'senderNum=' + senderNumCheck);
 
         if (fromMe) { console.log('[ANTIBOT DEBUG] SKIP: fromMe is true for', m.id); return; }
-        if (senderNumCheck === DEV_NUMBER) { console.log('[ANTIBOT DEBUG] SKIP: matches DEV_NUMBER for', m.id); return; }
 
         console.log('[ANTIBOT DEBUG] fetching group settings for', m.chat);
         const gs = await _withTimeout(getGroupSettings(m.chat), 8000, 'getGroupSettings(' + m.chat + ')');
