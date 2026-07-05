@@ -73,13 +73,14 @@ async function punish(client, m, senderNum, trackKey, reason, forceKick) {
 export default async (client, m) => {
     try {
         if (!m || !m.chat || !m.chat.endsWith('@g.us')) return;
+        console.log('[ANTIBOT DEBUG] incoming group msg from', m.sender, 'in', m.chat, 'id=' + m.id);
         if (m.key?.fromMe) return;
         if (_num(m.sender) === DEV_NUMBER) return;
 
         const gs = await getGroupSettings(m.chat);
         const enabled = gs?.antibot;
         if (!enabled || enabled === 0 || enabled === '0' || enabled === false) {
-            if (process.env.ANTIBOT_DEBUG === '1') console.log('[ANTIBOT DEBUG] skipped, disabled for', m.chat, 'raw value:', enabled);
+            console.log('[ANTIBOT DEBUG] skipped, disabled for', m.chat, 'raw value:', enabled);
             return;
         }
 
@@ -91,7 +92,7 @@ export default async (client, m) => {
         const text = m.body || m.text || '';
 
         const { score, signals } = computeBotScore({ id: m.id, rawKeyJid, resolvedSender: m.sender, text, isBurst });
-        if (process.env.ANTIBOT_DEBUG === '1') console.log('[ANTIBOT DEBUG]', m.chat, senderNum, 'id=' + m.id, 'score=' + score, JSON.stringify(signals));
+        console.log('[ANTIBOT DEBUG]', m.chat, senderNum, 'id=' + m.id, 'score=' + score, JSON.stringify(signals));
         if (score < 1) return;
 
         const reasonParts = [];
