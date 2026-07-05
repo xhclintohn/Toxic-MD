@@ -46,8 +46,7 @@ async function punish(client, m, senderNum, trackKey, reason, forceKick) {
         if (_warned.has('noadmin:' + m.chat)) return;
         _warned.add('noadmin:' + m.chat);
         return client.sendMessage(m.chat, {
-            text: fmt(`🤖 Spotted @${sNum} looking bot-like (${reason}), but I can't act.
-│ Make me admin so ANTIBOT can actually kick bots. 🙄`),
+            text: fmt(`🤖 Spotted @${sNum} looking bot-like (${reason}), but I can't act.\n│ Make me admin so ANTIBOT can actually kick bots. 🙄`),
             mentions: [sender]
         }).catch(() => {});
     }
@@ -79,38 +78,30 @@ function _withTimeout(promise, ms, label) {
 export default async (client, m) => {
     try {
         if (!m || !m.chat || !m.chat.endsWith('@g.us')) return;
-        console.log('[ANTIBOT DEBUG] incoming group msg from', m.sender, 'in', m.chat, 'id=' + m.id);
+
+        const gs = await _withTimeout(getGroupSettings(m.chat), 8000, 'getGroupSettings(' + m.chat + ')');
+        const enabled = gs?.antibot;
+        if (!enabled || enabled === 0 || enabled === '0' || enabled === false) return;
 
         const fromMe = m.key?.fromMe;
-        const senderNumCheck = _num(m.sender);
-        console.log('[ANTIBOT DEBUG] fromMe=' + fromMe, 'senderNum=' + senderNumCheck);
-
-        if (fromMe) { console.log('[ANTIBOT DEBUG] SKIP: fromMe is true for', m.id); return; }
-
-        console.log('[ANTIBOT DEBUG] fetching group settings for', m.chat);
-        const gs = await _withTimeout(getGroupSettings(m.chat), 8000, 'getGroupSettings(' + m.chat + ')');
-        console.log('[ANTIBOT DEBUG] got group settings for', m.chat, '->', JSON.stringify(gs));
-        const enabled = gs?.antibot;
-        if (!enabled || enabled === 0 || enabled === '0' || enabled === false) {
-            console.log('[ANTIBOT DEBUG] skipped, disabled for', m.chat, 'raw value:', enabled);
-            return;
-        }
-
         const senderNum = _num(m.sender);
+        const text = m.body || m.text || '';
+        const rawKeyJid = m.key?.participant || m.key?.participantAlt || '';
+        const isBurst = trackBurst(m.chat + ':' + senderNum);
+        const { score, signals } = computeBotScore({ id: m.id, rawKeyJid, resolvedSender: m.sender, text, isBurst });
+
+        console.log('[ANTIBOT] group=' + m.chat + ' sender=' + m.sender + ' fromMe=' + fromMe + ' id=' + m.id + ' score=' + score + ' signals=' + JSON.stringify(signals) + ' text=' + JSON.stringify(text.slice(0, 100)));
+
+        if (fromMe) return;
+
         const trackKey = m.chat + ':' + senderNum;
 
         const knownBots = await _withTimeout(getKnownBots(), 8000, 'getKnownBots()').catch(() => []);
         if (knownBots.includes(senderNum)) {
-            console.log('[ANTIBOT DEBUG] SENDER IS ON KNOWN-BOTS LIST, force-kicking', senderNum, 'in', m.chat);
+            console.log('[ANTIBOT] KNOWN-BOT force-kick sender=' + senderNum + ' group=' + m.chat);
             return punish(client, m, senderNum, trackKey, 'marked as a known bot', true);
         }
 
-        const rawKeyJid = m.key?.participant || m.key?.participantAlt || '';
-        const isBurst = trackBurst(trackKey);
-        const text = m.body || m.text || '';
-
-        const { score, signals } = computeBotScore({ id: m.id, rawKeyJid, resolvedSender: m.sender, text, isBurst });
-        console.log('[ANTIBOT DEBUG]', m.chat, senderNum, 'id=' + m.id, 'score=' + score, JSON.stringify(signals));
         if (score < 1) return;
 
         const reasonParts = [];
@@ -120,11 +111,9 @@ export default async (client, m) => {
         if (signals.burst) reasonParts.push('message flooding');
         const reason = reasonParts.join(', ');
 
-        if (score >= KICK_SCORE) {
-            return punish(client, m, senderNum, trackKey, reason, true);
-        }
+        console.log('[ANTIBOT] flagged sender=' + senderNum + ' group=' + m.chat + ' reason=' + reason + ' score=' + score);
 
-        return punish(client, m, senderNum, trackKey, reason, false);
+        return punish(client, m, senderNum, trackKey, reason, score >= KICK_SCORE);
     } catch (e) {
         console.log('❌ [ANTIBOT INTERNAL]:', e?.message || e);
     }
