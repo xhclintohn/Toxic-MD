@@ -104,9 +104,10 @@ import { downloadContentFromMessage } from '@whiskeysockets/baileys';
 
       
           const rawBot = client.user?.id || '';
-          const botJid = rawBot.includes(':')
-              ? rawBot.split(':')[0] + '@s.whatsapp.net'
-              : rawBot;
+          const decodedBot = client.decodeJid ? client.decodeJid(rawBot) : rawBot;
+          const botJid = decodedBot.includes(':')
+              ? decodedBot.split(':')[0] + '@s.whatsapp.net'
+              : decodedBot;
           if (!botJid) return;
 
           const buf = await grab(client, m, media.msg, media.type);
