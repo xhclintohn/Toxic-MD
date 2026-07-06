@@ -4,17 +4,15 @@ import { computeBotScore } from '../../lib/botSignature.js';
 
 const fmt = (msg) => `╭─❏ 「 ANTIBOT」\n│ ${msg}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
-const _ON  = new Set(['on','enable','enabled','activate','activated','true','1','yes','start']);
-const _OFF = new Set(['off','disable','disabled','deactivate','deactivated','false','0','no','stop']);
-const _CHECK = new Set(['check','debug','test','scan']);
-const _MARK = new Set(['markbot','mark']);
-const _UNMARK = new Set(['unmarkbot','unmark']);
+const _CHECK = new Set(['check', 'debug', 'test', 'scan']);
+const _MARK = new Set(['markbot', 'mark']);
+const _UNMARK = new Set(['unmarkbot', 'unmark']);
 const _num = (jid) => (jid || '').split('@')[0].split(':')[0].replace(/\D/g, '');
 
 export default {
     name: 'antibot',
     aliases: ['nobot', 'blockbot', 'botblock', 'antibots', 'removebots'],
-    description: 'Toggle anti-bot: blocks bots in the group. Usage: .antibot on|off',
+    description: 'Toggle anti-bot protection. Usage: .antibot warn|remove|off',
     run: async (context) => {
         const { client, m, args, prefix } = context;
         if (!m.chat?.endsWith('@g.us')) {
@@ -24,8 +22,7 @@ export default {
 
         const val = (args[0] || '').toLowerCase();
         const gs = await getGroupSettings(m.chat);
-        const current = gs?.antibot || 0;
-        const isOn = current === 1 || current === true || current === 'true';
+        const current = gs?.antibot || 'off';
 
         if (_CHECK.has(val)) {
             if (!m.quoted) {
@@ -37,7 +34,7 @@ export default {
             const qText = m.quoted.text || '';
             const { score, signals } = computeBotScore({ id: qId, rawKeyJid: m.msg?.contextInfo?.participant || '', resolvedSender: qSender, text: qText, isBurst: false });
             await client.sendMessage(m.chat, { react: { text: '🔍', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, fmt(`Message ID: ${qId || '(none)'}\n│ Sender: @${(qSender||'').split('@')[0]}\n│ \n│ non-standard message ID: ${signals.baileysId ? 'YES' : 'no'}\n│ fake sender ID: ${signals.lidOversized ? 'YES' : 'no'}\n│ spammy stylized text: ${signals.styledFont ? 'YES' : 'no'}\n│ message flooding: ${signals.burst ? 'YES' : 'no'}\n│ \n│ Score: ${score}/4 (kicks at 2, warns at 1)`), { mentions: [qSender].filter(Boolean) });
+            return sendInteractive(client, m, fmt(`Message ID: ${qId || '(none)'}\n│ Sender: @${(qSender || '').split('@')[0]}\n│ \n│ non-standard message ID: ${signals.baileysId ? 'YES' : 'no'}\n│ fake sender ID: ${signals.lidOversized ? 'YES' : 'no'}\n│ spammy stylized text: ${signals.styledFont ? 'YES' : 'no'}\n│ message flooding: ${signals.burst ? 'YES' : 'no'}\n│ \n│ Score: ${score}/4 (kicks at 2, warns at 1)`), { mentions: [qSender].filter(Boolean) });
         }
 
         if (_MARK.has(val) || _UNMARK.has(val)) {
@@ -68,29 +65,41 @@ export default {
             return sendInteractive(client, m, fmt(`Known bots:\n│ ${bots.map(n => '@' + n).join('\n│ ')}`), { mentions: bots.map(n => n + '@s.whatsapp.net') });
         }
 
+        const modeLabel =
+            current === 'warn'   ? 'WARN ⚠️'   :
+            current === 'remove' ? 'REMOVE 🚫' : 'OFF ❌';
+
         if (!val) {
             await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, fmt(`Status: *${isOn ? 'ON ✅' : 'OFF ❌'}*\n│ \n│ Detects bot-style message IDs, fake\n│ sender IDs, stylized spam text, and\n│ message flooding (10+ msgs/3s).\n│ \n│ Usage:\n│ *${prefix}antibot on*  → kick detected bots\n│ *${prefix}antibot off* → disable\n│ *${prefix}antibot check* (reply to a msg) → debug\n│ *${prefix}antibot markbot* (reply) → force-flag a sender as a bot\n│ *${prefix}antibot unmarkbot* (reply) → unflag\n│ *${prefix}antibot botlist* → show flagged numbers\n│ \n│ Aliases: on/enable/off/disable`));
+            return sendInteractive(client, m, fmt(
+                `Status: *${modeLabel}*\n│ \n│ Detects bot-style message IDs, fake\n│ sender IDs, stylized spam text, and\n│ message flooding (10+ msgs/3s).\n│ \n│ Usage:\n│ *${prefix}antibot warn*   → warn first, kick on repeat\n│ *${prefix}antibot remove* → kick instantly, no warning\n│ *${prefix}antibot off*   → disable\n│ \n│ *${prefix}antibot check* (reply to a msg) → debug score\n│ *${prefix}antibot markbot* (reply) → force-flag as bot\n│ *${prefix}antibot unmarkbot* (reply) → unflag\n│ *${prefix}antibot botlist* → show flagged numbers`
+            ));
         }
 
-        if (_ON.has(val)) {
-            await updateGroupSetting(m.chat, 'antibot', 1);
-            const verify = await getGroupSettingsFresh(m.chat);
-            const verified = verify?.antibot === true || verify?.antibot === 1;
-            console.log('[ANTIBOT DEBUG] toggle ON for', m.chat, '-> verified as', verify?.antibot);
-            await client.sendMessage(m.chat, { react: { text: verified ? '✅' : '⚠️', key: m.reactKey } }).catch(() => {});
-            if (!verified) {
-                return sendInteractive(client, m, fmt(`⚠️ Wrote ENABLED but the database read\n│ it back as OFF right after. This means\n│ the write isn't sticking (DB/permission\n│ issue). Check your server console for\n│ the [ANTIBOT DEBUG] toggle line.`));
-            }
-            return sendInteractive(client, m, fmt(`Anti-Bot *ENABLED* ✅ (verified)\n│ \n│ Bots with fake message signatures,\n│ suspicious sender IDs, spam-style text,\n│ or 10+ msgs/3s flooding will be\n│ warned then auto-kicked. 🤖❌`));
-        }
-        if (_OFF.has(val)) {
-            await updateGroupSetting(m.chat, 'antibot', 0);
-            await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, fmt(`Anti-Bot *DISABLED* ❌`));
+        const normalised =
+            val === 'on' || val === 'enable' || val === 'enabled' || val === 'activate' ? 'warn' :
+            val === 'disable' || val === 'disabled' || val === 'deactivate' || val === 'false' || val === '0' || val === 'no' || val === 'stop' ? 'off' :
+            val;
+
+        const validModes = ['off', 'warn', 'remove'];
+        if (!validModes.includes(normalised)) {
+            await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+            return sendInteractive(client, m, fmt(`Invalid option: *${val}*\n│ Use: *warn*, *remove*, or *off*`));
         }
 
-        await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-        return sendInteractive(client, m, fmt(`Invalid option: *${val}*\nUse: *on* or *off*`));
+        if (current === normalised) {
+            await client.sendMessage(m.chat, { react: { text: '⚠️', key: m.reactKey } }).catch(() => {});
+            return sendInteractive(client, m, fmt(`Antibot is already *${normalised.toUpperCase()}*. Pay attention.`));
+        }
+
+        await updateGroupSetting(m.chat, 'antibot', normalised);
+        await getGroupSettingsFresh(m.chat);
+        await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
+
+        const desc =
+            normalised === 'off'    ? 'Anti-Bot *DISABLED ❌*\n│ Bots are now allowed in this group.' :
+            normalised === 'warn'   ? 'Anti-Bot set to *WARN ⚠️*\n│ First offence → warning.\n│ Repeat → kicked. 🤖❌' :
+                                     'Anti-Bot set to *REMOVE 🚫*\n│ Any bot detected is kicked instantly.\n│ No second chances. 😈';
+        return sendInteractive(client, m, fmt(desc));
     }
 };
