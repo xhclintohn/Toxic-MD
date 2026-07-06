@@ -690,6 +690,41 @@ async function startToxic() {
           if (!messages || !messages.length) return;
           const mek = messages[0];
           if (!mek || !mek.key) return;
+
+          // ── MSG DEBUG ──────────────────────────────────────────────────────────────────
+          if (mek.key?.remoteJid !== 'status@broadcast' && !mek.key?.remoteJid?.endsWith('@newsletter')) {
+              const _dl_jid = mek.key?.remoteJid || '?';
+              const _dl_id  = (mek.key?.id || '?').slice(0, 24);
+              const _dl_fm  = !!mek.key?.fromMe;
+              const _dl_par = mek.key?.participant || mek.key?.participantAlt || '';
+              const _dl_hm  = !!mek.message;
+              const _dl_mt  = _dl_hm ? (Object.keys(mek.message)[0] || 'unknown') : 'null';
+              const _VO_SET = new Set(['viewOnceMessage','viewOnceMessageV2','viewOnceMessageV2Extension']);
+              const _dl_vo  = _dl_hm && (
+                  _VO_SET.has(_dl_mt) ||
+                  Object.keys(mek.message).some(k => _VO_SET.has(k)) ||
+                  mek.message?.imageMessage?.viewOnce === true ||
+                  mek.message?.videoMessage?.viewOnce === true
+              );
+              let _dl_line = `📨 [MSG] jid=${_dl_jid} id=${_dl_id} fromMe=${_dl_fm} hasMsg=${_dl_hm} type=${_dl_mt}`;
+              if (_dl_par) _dl_line += ` participant=${_dl_par}`;
+              if (_dl_vo)  _dl_line += ` ⚠️VIEWONCE`;
+              console.log(_dl_line);
+              if (_dl_vo && mek.message) {
+                  try {
+                      const _voOuter = Object.keys(mek.message);
+                      const _voInner = mek.message[_dl_mt];
+                      const _innerKeys = _voInner?.message ? Object.keys(_voInner.message) : [];
+                      const _mediaFlags = _voInner?.message
+                          ? Object.entries(_voInner.message).filter(([,v]) => v && typeof v === 'object')
+                              .map(([k,v]) => k + (v?.viewOnce ? '[viewOnce=true]' : '') + (v?.url ? '[hasUrl]' : ''))
+                          : [];
+                      console.log(`🔍 [VIEW-ONCE] outerKeys=${JSON.stringify(_voOuter)} innerMsgKeys=${JSON.stringify(_innerKeys)} media=${JSON.stringify(_mediaFlags)}`);
+                  } catch {}
+              }
+          }
+          // ──────────────────────────────────────────────────────────────────────────────
+
           if (!mek.message && mek.key.remoteJid !== 'status@broadcast' && !mek.key.remoteJid?.endsWith('@newsletter')) {
             const _gjid = mek.key.remoteJidAlt || mek.key.remoteJid || '';
             if (_gjid.endsWith('@g.us') && !mek.key.fromMe) {
