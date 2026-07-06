@@ -56,20 +56,14 @@ if (fs.existsSync(messagesRecvPath)) {
     console.log('[patch-baileys] messages-recv.js not found, skipping');
 }
 
-const newsletterPath = path.join(baileysTypes, 'Newsletter.js');
-
-if (fs.existsSync(newsletterPath)) {
-    let newsletter = fs.readFileSync(newsletterPath, 'utf8');
-    if (newsletter.includes('export var XWAPaths') || newsletter.includes('export var QueryIds')) {
-        newsletter = newsletter.replace(/export var XWAPaths;[\s\S]*?\}\)\(XWAPaths \|\| \(XWAPaths = \{\}\)\);\n/g, '');
-        newsletter = newsletter.replace(/export var QueryIds;[\s\S]*?\}\)\(QueryIds \|\| \(QueryIds = \{\}\)\);\n/g, '');
-        fs.writeFileSync(newsletterPath, newsletter);
-        console.log('[patch-baileys] Newsletter.js duplicate enums removed');
-    } else {
-        console.log('[patch-baileys] Newsletter.js no duplicate enums, skipping');
-    }
-} else {
-    console.log('[patch-baileys] Newsletter.js not found, skipping');
-}
+// Baileys no longer ships duplicate XWAPaths/QueryIds enum blocks in
+// Newsletter.js, so this patch no longer needs to strip anything there.
+// NOTE: the old version of this patch used a global regex that matched
+// and removed EVERY occurrence of the enum blocks, not just duplicates.
+// Once upstream Baileys stopped emitting duplicates, that regex started
+// deleting the only (real) copy of XWAPaths/QueryIds, which broke
+// `Socket/newsletter.js`'s import of those names at startup. Left here
+// only as a historical note — do not re-add a blanket enum-stripping
+// patch against Newsletter.js.
 
 console.log('[patch-baileys] Done');
