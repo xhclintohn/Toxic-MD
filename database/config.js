@@ -218,7 +218,7 @@ async function tryInitPg() {
             `ALTER TABLE group_settings ADD COLUMN IF NOT EXISTS antisticker TEXT DEFAULT 'off'`,
             `ALTER TABLE group_settings ADD COLUMN IF NOT EXISTS antispam TEXT DEFAULT 'off'`,
             `ALTER TABLE group_settings ADD COLUMN IF NOT EXISTS antibot TEXT DEFAULT 'off'`,
-            `ALTER TABLE group_settings ALTER COLUMN antibot TYPE TEXT USING CASE WHEN antibot::text = '1' THEN 'warn' WHEN antibot::text = 'true' THEN 'warn' ELSE 'off' END`,
+            `DO $ BEGIN IF (SELECT data_type FROM information_schema.columns WHERE table_name='group_settings' AND column_name='antibot') = 'integer' THEN ALTER TABLE group_settings ALTER COLUMN antibot TYPE TEXT USING CASE WHEN antibot = 1 THEN 'warn' ELSE 'off' END; END IF; END $`,
         ];
         for (const a of alters) { try { await pool.query(a); } catch {} }
         setInterval(() => { pool.query('SELECT 1').catch(() => {}); }, 3 * 60 * 1000);
