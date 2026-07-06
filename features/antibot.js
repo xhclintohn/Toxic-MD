@@ -18,6 +18,7 @@ const BURST_THRESHOLD = 10;
 const KICK_SCORE = 2;
 const _burstLog = new Map();
 const _warned = new Set();
+const _processed = new Set();
 
 function trackBurst(key) {
     const now = Date.now();
@@ -79,9 +80,16 @@ export default async (client, m) => {
     try {
         if (!m || !m.chat || !m.chat.endsWith('@g.us')) return;
 
+        const msgId = m.id || m.key?.id || '';
+        if (msgId && _processed.has(msgId)) return;
+        if (msgId) {
+            _processed.add(msgId);
+            if (_processed.size > 500) { const first = _processed.values().next().value; _processed.delete(first); }
+        }
+
         const gs = await _withTimeout(getGroupSettings(m.chat), 8000, 'getGroupSettings(' + m.chat + ')');
-        const enabled = gs?.antibot;
-        if (!enabled || enabled === 0 || enabled === '0' || enabled === false) return;
+        const mode = gs?.antibot;
+        if (!mode || mode === 'off' || mode === 0 || mode === false || mode === '0') return;
 
         const fromMe = m.key?.fromMe;
         const senderNum = _num(m.sender);
@@ -90,15 +98,12 @@ export default async (client, m) => {
         const isBurst = trackBurst(m.chat + ':' + senderNum);
         const { score, signals } = computeBotScore({ id: m.id, rawKeyJid, resolvedSender: m.sender, text, isBurst });
 
-        console.log('[ANTIBOT] group=' + m.chat + ' sender=' + m.sender + ' fromMe=' + fromMe + ' id=' + m.id + ' score=' + score + ' signals=' + JSON.stringify(signals) + ' text=' + JSON.stringify(text.slice(0, 100)));
-
         if (fromMe) return;
 
         const trackKey = m.chat + ':' + senderNum;
 
         const knownBots = await _withTimeout(getKnownBots(), 8000, 'getKnownBots()').catch(() => []);
         if (knownBots.includes(senderNum)) {
-            console.log('[ANTIBOT] KNOWN-BOT force-kick sender=' + senderNum + ' group=' + m.chat);
             return punish(client, m, senderNum, trackKey, 'marked as a known bot', true);
         }
 
@@ -111,9 +116,8 @@ export default async (client, m) => {
         if (signals.burst) reasonParts.push('message flooding');
         const reason = reasonParts.join(', ');
 
-        console.log('[ANTIBOT] flagged sender=' + senderNum + ' group=' + m.chat + ' reason=' + reason + ' score=' + score);
-
-        return punish(client, m, senderNum, trackKey, reason, score >= KICK_SCORE);
+        const forceKick = mode === 'remove' || score >= KICK_SCORE;
+        return punish(client, m, senderNum, trackKey, reason, forceKick);
     } catch (e) {
         console.log('❌ [ANTIBOT INTERNAL]:', e?.message || e);
     }
