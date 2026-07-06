@@ -20,6 +20,20 @@ const _burstLog = new Map();
 const _warned = new Set();
 const _processed = new Set();
 
+const _gsCache = new Map(); // jid -> { val, ts }
+const _GS_TTL  = 30_000;   // 30-second per-group cache
+
+async function _cachedGS(jid) {
+    const now = Date.now();
+    const hit = _gsCache.get(jid);
+    if (hit && (now - hit.ts) < _GS_TTL) return hit.val;
+    const val = await getGroupSettings(jid);
+    _gsCache.set(jid, { val, ts: now });
+    if (_gsCache.size > 500) { const first = _gsCache.keys().next().value; _gsCache.delete(first); }
+    return val;
+}
+
+
 function trackBurst(key) {
     const now = Date.now();
     if (!_burstLog.has(key)) _burstLog.set(key, []);
@@ -87,7 +101,7 @@ export default async (client, m) => {
             if (_processed.size > 500) { const first = _processed.values().next().value; _processed.delete(first); }
         }
 
-        const gs = await _withTimeout(getGroupSettings(m.chat), 8000, 'getGroupSettings(' + m.chat + ')');
+        const gs = await _withTimeout(_cachedGS(m.chat), 8000, 'getGroupSettings(' + m.chat + ')');
         const mode = gs?.antibot;
         if (!mode || mode === 'off' || mode === 0 || mode === false || mode === '0') return;
 
