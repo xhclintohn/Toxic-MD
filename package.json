@@ -15,7 +15,7 @@
     "@ffmpeg-installer/ffmpeg": "latest",
     "@hapi/boom": "^10.0.1",
     "@vitalets/google-translate-api": "^9.2.0",
-    "@whiskeysockets/baileys": "github:xhclintohn/Baileys",
+    "@whiskeysockets/baileys": "github:xhclintohn/Baileys#beta-test",
     "acrcloud": "^1.2.0",
     "awesome-phonenumber": "^6.2.0",
     "axios": "latest",
