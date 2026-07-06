@@ -47,7 +47,7 @@ const _GS_DEFAULTS = {
     jid: '', antidelete: 1, gcpresence: 0, events: 0, antidemote: 0, antipromote: 0,
     antilink: 'off', antistatusmention: 'off', antitag: 0, welcome: 0, goodbye: 0,
     warn_limit: 3, antiforeign: 0, custom_welcome: '', custom_goodbye: '', trusted_links: '[]',
-    antisticker: 'off', antispam: 'off', antibot: 0
+    antisticker: 'off', antispam: 'off', antibot: 'off'
 };
 
 function _jsonOp(type, sql, params) {
@@ -172,7 +172,7 @@ const PG_SCHEMA = [
         welcome INTEGER DEFAULT 0, goodbye INTEGER DEFAULT 0, warn_limit INTEGER DEFAULT 3,
         antiforeign INTEGER DEFAULT 0, custom_welcome TEXT DEFAULT '', custom_goodbye TEXT DEFAULT '',
         trusted_links TEXT DEFAULT '[]', antisticker TEXT DEFAULT 'off',
-        antispam TEXT DEFAULT 'off', antibot INTEGER DEFAULT 0
+        antispam TEXT DEFAULT 'off', antibot TEXT DEFAULT 'off'
     )`,
     `CREATE TABLE IF NOT EXISTS conversation_history (
         id SERIAL PRIMARY KEY, num TEXT NOT NULL, role TEXT NOT NULL,
@@ -217,7 +217,8 @@ async function tryInitPg() {
             `ALTER TABLE group_settings ADD COLUMN IF NOT EXISTS trusted_links TEXT DEFAULT '[]'`,
             `ALTER TABLE group_settings ADD COLUMN IF NOT EXISTS antisticker TEXT DEFAULT 'off'`,
             `ALTER TABLE group_settings ADD COLUMN IF NOT EXISTS antispam TEXT DEFAULT 'off'`,
-            `ALTER TABLE group_settings ADD COLUMN IF NOT EXISTS antibot INTEGER DEFAULT 0`,
+            `ALTER TABLE group_settings ADD COLUMN IF NOT EXISTS antibot TEXT DEFAULT 'off'`,
+            `ALTER TABLE group_settings ALTER COLUMN antibot TYPE TEXT USING CASE WHEN antibot::text = '1' THEN 'warn' WHEN antibot::text = 'true' THEN 'warn' ELSE 'off' END`,
         ];
         for (const a of alters) { try { await pool.query(a); } catch {} }
         setInterval(() => { pool.query('SELECT 1').catch(() => {}); }, 3 * 60 * 1000);
@@ -311,12 +312,12 @@ async function getGroupSettings(jid) {
         trusted_links: row.trusted_links || '[]',
         antisticker: row.antisticker || 'off',
         antispam: row.antispam || 'off',
-        antibot: !!row.antibot
+        antibot: (row.antibot === 'warn' || row.antibot === 'remove') ? row.antibot : (row.antibot === 1 || row.antibot === true || row.antibot === '1') ? 'warn' : 'off'
     } : {
         antidelete: true, gcpresence: false, events: false, antidemote: false, antipromote: false,
         antilink: 'off', antistatusmention: 'off', antitag: false, welcome: false, goodbye: false,
         warn_limit: 3, antiforeign: false, custom_welcome: '', custom_goodbye: '', trusted_links: '[]',
-        antisticker: 'off', antispam: 'off', antibot: false
+        antisticker: 'off', antispam: 'off', antibot: 'off'
     };
     cache.groupSettings.set(jid, { data, time: Date.now() });
     return data;
