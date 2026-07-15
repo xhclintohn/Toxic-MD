@@ -145,6 +145,12 @@ export default async (client, m) => {
 
         if (_isRecentlyKicked(trackKey)) return;
 
+        const messageType = m.messageType || m.type || '';
+        
+        if (messageType === 'conversation') {
+            return;
+        }
+
         const text = m.body || m.text || '';
         const rawKeyJid = m.key?.participant || m.key?.participantAlt || '';
         const isBurst = trackBurst(m.chat + ':' + senderNum);
