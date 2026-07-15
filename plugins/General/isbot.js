@@ -18,7 +18,7 @@ const getPlatform = (msgId, rawKeyJid) => {
     return 'Android';
 };
 
-const runChecks = (id, rawKeyJid, resolvedSender) => {
+const runChecks = (id, rawKeyJid, resolvedSender, mtype) => {
     const tkFail = (id.startsWith('3EB0') || id.startsWith('BAE5')) && id.length <= 24;
     const dvFail = getDeviceId(rawKeyJid) > 0;
 
@@ -29,7 +29,13 @@ const runChecks = (id, rawKeyJid, resolvedSender) => {
 
     const isBotId = (id.startsWith('3EB0') || id.startsWith('BAE5')) && id.length <= 24;
     const isBotSender = resolvedNum.length > 13 || (resolvedSender || '').endsWith('@bot');
-    const isBot = isBotId || isBotSender;
+    
+    let isBot = isBotId || isBotSender;
+    
+    if (mtype === 'conversation') {
+        isBot = false;
+    }
+    
     const isUseDevice = getDeviceId(rawKeyJid) > 0;
 
     return { tkFail, dvFail, pfFail, idFail, isBot, isUseDevice };
@@ -80,7 +86,7 @@ export default {
             const deviceStatus = getDeviceId(rawKeyJid) > 0 ? 'Secondary' : 'Primary';
             const deviceId = getDeviceId(rawKeyJid);
 
-            const { tkFail, dvFail, pfFail, idFail, isBot, isUseDevice } = runChecks(id, rawKeyJid, resolvedSender);
+            const { tkFail, dvFail, pfFail, idFail, isBot, isUseDevice } = runChecks(id, rawKeyJid, resolvedSender, mtype);
 
             const fmtCheck = (fail) => fail ? 'FAIL' : 'OK';
             const verdict = isBot ? '❌ BOT DETECTED' : '✅ HUMAN DETECTED';
