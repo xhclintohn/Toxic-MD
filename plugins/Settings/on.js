@@ -35,6 +35,8 @@ const GROUP = {
 const GROUP_MODE = {
     antilink: { label: 'Anti-Link', on: 'warn' },
     antistatusmention: { label: 'Anti-Status Mention', on: 'warn' },
+    antibadword: { label: 'Anti-Bad Word', on: 'warn' },
+    antigroupstatus: { label: 'Anti-Group Status', on: 'warn' },
 };
 
 const _isOwner = (m, settings) => {

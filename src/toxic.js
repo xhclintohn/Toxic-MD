@@ -29,6 +29,8 @@ import mentionResponder from '../features/mentionResponder.js';
 import antisticker from '../features/antisticker.js';
 import antispam from '../features/antispam.js';
 import antibot from '../features/antibot.js';
+import antibadword from '../features/antibadword.js';
+import antigroupstatus from '../features/antigroupstatus.js';
 import stickerlySession from '../features/stickerlySession.js';
 import ownerMiddleware from '../utils/botUtil/Ownermiddleware.js';
 import { lidMappingCache } from '../handlers/smsg.js';
@@ -632,6 +634,8 @@ export default async (client, m, chatUpdate, store) => {
                 mentionResponder(client, m).catch(e => console.log('❌ [MENTIONRESPONDER]:', e.message)),
                 antisticker(client, m).catch(e => console.log('❌ [ANTISTICKER]:', e.message)),
                 antispam(client, m).catch(e => console.log('❌ [ANTISPAM]:', e.message)),
+                antibadword(client, m).catch(e => console.log('❌ [ANTIBADWORD]:', e.message)),
+                antigroupstatus(client, m).catch(e => console.log('❌ [ANTIGROUPSTATUS]:', e.message)),
             );
         }
         Promise.all(_featurePromises).catch(() => {});

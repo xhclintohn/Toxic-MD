@@ -1,7 +1,7 @@
 import middleware from '../../utils/botUtil/middleware.js';
 import { getDeviceMode } from '../../lib/deviceMode.js';
 import { sendInteractive } from '../../lib/sendInteractive.js';
-import { ButtonV2 } from '../../lib/WABuilder.js';
+import { ButtonV2 } from '../../lib/buttons.js';
 
 const H = (title) => `╭─❏ 「 ${title}」\n├`;
 const F = `╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;

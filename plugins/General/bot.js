@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 import { getSettings } from '../../database/config.js';
 import { getDeviceMode } from '../../lib/deviceMode.js';
-import { ButtonV2 } from '../../lib/WABuilder.js';
+import { ButtonV2 } from '../../lib/buttons.js';
 
 export default {
     name: 'start',

@@ -5,7 +5,7 @@ import { addSudoUser, getSudoUsers } from '../database/config.js';
 import { getCachedSettings } from '../lib/settingsCache.js';
 import { commands, totalCommands } from '../handlers/commandHandler.js';
 import { getDeviceMode } from '../lib/deviceMode.js';
-import { ButtonV2 } from '../lib/WABuilder.js';
+import { ButtonV2 } from '../lib/buttons.js';
 import { isToxicHosting } from '../lib/hostPlatform.js';
 
 const botName = process.env.BOTNAME || "Toxic-MD";

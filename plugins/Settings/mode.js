@@ -1,7 +1,7 @@
 import { getSettings, updateSetting } from '../../database/config.js';
 import ownerMiddleware from '../../utils/botUtil/Ownermiddleware.js';
 import { getDeviceMode } from '../../lib/deviceMode.js';
-import { ButtonV2 } from '../../lib/WABuilder.js';
+import { ButtonV2 } from '../../lib/buttons.js';
 
 const MODES = {
     public:  { emoji: '🌐', label: 'PUBLIC',  desc: 'Everyone can use commands, anywhere.' },

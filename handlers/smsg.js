@@ -96,7 +96,7 @@ function smsg(conn, m, store, resolvedChatJid = null) {
     } else if (m.mtype === "ephemeralMessage" && m.message.ephemeralMessage?.message) {
       m.mtype = getContentType(m.message.ephemeralMessage.message);
       m.msg = m.message.ephemeralMessage.message[m.mtype];
-    } else if (m.mtype === "viewOnceMessage" && m.message[m.mtype]) {
+    } else if (["viewOnceMessage", "viewOnceMessageV2", "viewOnceMessageV2Extension"].includes(m.mtype) && m.message[m.mtype]?.message) {
       m.msg = m.message[m.mtype].message[getContentType(m.message[m.mtype].message)];
     } else {
       m.msg = m.message[m.mtype];

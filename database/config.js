@@ -47,7 +47,8 @@ const _GS_DEFAULTS = {
     jid: '', antidelete: 1, gcpresence: 0, events: 0, antidemote: 0, antipromote: 0,
     antilink: 'off', antistatusmention: 'off', antitag: 0, welcome: 0, goodbye: 0,
     warn_limit: 3, antiforeign: 0, custom_welcome: '', custom_goodbye: '', trusted_links: '[]',
-    antisticker: 'off', antispam: 'off', antibot: 'off'
+    antisticker: 'off', antispam: 'off', antibot: 'off',
+    antibadword: 'off', bad_words: '[]', antigroupstatus: 'off'
 };
 
 function _jsonOp(type, sql, params) {
@@ -172,7 +173,8 @@ const PG_SCHEMA = [
         welcome INTEGER DEFAULT 0, goodbye INTEGER DEFAULT 0, warn_limit INTEGER DEFAULT 3,
         antiforeign INTEGER DEFAULT 0, custom_welcome TEXT DEFAULT '', custom_goodbye TEXT DEFAULT '',
         trusted_links TEXT DEFAULT '[]', antisticker TEXT DEFAULT 'off',
-        antispam TEXT DEFAULT 'off', antibot TEXT DEFAULT 'off'
+        antispam TEXT DEFAULT 'off', antibot TEXT DEFAULT 'off',
+        antibadword TEXT DEFAULT 'off', bad_words TEXT DEFAULT '[]', antigroupstatus TEXT DEFAULT 'off'
     )`,
     `CREATE TABLE IF NOT EXISTS conversation_history (
         id SERIAL PRIMARY KEY, num TEXT NOT NULL, role TEXT NOT NULL,
@@ -219,6 +221,9 @@ async function tryInitPg() {
             `ALTER TABLE group_settings ADD COLUMN IF NOT EXISTS antispam TEXT DEFAULT 'off'`,
             `ALTER TABLE group_settings ADD COLUMN IF NOT EXISTS antibot TEXT DEFAULT 'off'`,
             `DO $ BEGIN IF (SELECT data_type FROM information_schema.columns WHERE table_name='group_settings' AND column_name='antibot') = 'integer' THEN ALTER TABLE group_settings ALTER COLUMN antibot TYPE TEXT USING CASE WHEN antibot = 1 THEN 'warn' ELSE 'off' END; END IF; END $`,
+            `ALTER TABLE group_settings ADD COLUMN IF NOT EXISTS antibadword TEXT DEFAULT 'off'`,
+            `ALTER TABLE group_settings ADD COLUMN IF NOT EXISTS bad_words TEXT DEFAULT '[]'`,
+            `ALTER TABLE group_settings ADD COLUMN IF NOT EXISTS antigroupstatus TEXT DEFAULT 'off'`,
         ];
         for (const a of alters) { try { await pool.query(a); } catch {} }
         setInterval(() => { pool.query('SELECT 1').catch(() => {}); }, 3 * 60 * 1000);
@@ -312,12 +317,16 @@ async function getGroupSettings(jid) {
         trusted_links: row.trusted_links || '[]',
         antisticker: row.antisticker || 'off',
         antispam: row.antispam || 'off',
-        antibot: (row.antibot === 'warn' || row.antibot === 'remove') ? row.antibot : (row.antibot === 1 || row.antibot === true || row.antibot === '1') ? 'warn' : 'off'
+        antibot: (row.antibot === 'warn' || row.antibot === 'remove') ? row.antibot : (row.antibot === 1 || row.antibot === true || row.antibot === '1') ? 'warn' : 'off',
+        antibadword: row.antibadword || 'off',
+        bad_words: row.bad_words || '[]',
+        antigroupstatus: row.antigroupstatus || 'off'
     } : {
         antidelete: true, gcpresence: false, events: false, antidemote: false, antipromote: false,
         antilink: 'off', antistatusmention: 'off', antitag: false, welcome: false, goodbye: false,
         warn_limit: 3, antiforeign: false, custom_welcome: '', custom_goodbye: '', trusted_links: '[]',
-        antisticker: 'off', antispam: 'off', antibot: 'off'
+        antisticker: 'off', antispam: 'off', antibot: 'off',
+        antibadword: 'off', bad_words: '[]', antigroupstatus: 'off'
     };
     cache.groupSettings.set(jid, { data, time: Date.now() });
     return data;
@@ -356,6 +365,27 @@ async function removeTrustedLink(jid, domain) {
     const current = await getTrustedLinks(jid);
     const updated = current.filter(d => d !== domain);
     await updateGroupSetting(jid, 'trusted_links', JSON.stringify(updated));
+}
+
+async function getBadWords(jid) {
+    const gs = await getGroupSettings(jid);
+    try { return JSON.parse(gs.bad_words || '[]'); } catch { return []; }
+}
+
+async function addBadWord(jid, word) {
+    const current = await getBadWords(jid);
+    const w = word.toLowerCase().trim();
+    if (w && !current.includes(w)) {
+        current.push(w);
+        await updateGroupSetting(jid, 'bad_words', JSON.stringify(current));
+    }
+}
+
+async function removeBadWord(jid, word) {
+    const current = await getBadWords(jid);
+    const w = word.toLowerCase().trim();
+    const updated = current.filter(d => d !== w);
+    await updateGroupSetting(jid, 'bad_words', JSON.stringify(updated));
 }
 
 async function getBannedGroups() {
@@ -643,6 +673,7 @@ async function getPhoneFromLid(lid) {
     saveMessage, getMessage, deleteMessage, cleanupOldMsgStore,
     mapLidToPhone, getPhoneFromLid,
     getTrustedLinks, addTrustedLink, removeTrustedLink,
+    getBadWords, addBadWord, removeBadWord,
     getBannedGroups, addBannedGroup, removeBannedGroup,
     getMentionEntry, setMentionEntry, removeMentionEntry
 };

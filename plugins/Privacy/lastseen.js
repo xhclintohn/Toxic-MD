@@ -1,7 +1,7 @@
 import ownerMiddleware from '../../utils/botUtil/Ownermiddleware.js';
 import { getDeviceMode } from '../../lib/deviceMode.js';
 import { sendInteractive } from '../../lib/sendInteractive.js';
-import { ButtonV2 } from '../../lib/WABuilder.js';
+import { ButtonV2 } from '../../lib/buttons.js';
 
 export default async (context) => {
     await ownerMiddleware(context, async () => {

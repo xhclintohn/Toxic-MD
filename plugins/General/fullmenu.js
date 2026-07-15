@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { getSettings } from '../../lib/fastSettings.js';
 import { getDeviceMode } from '../../lib/deviceMode.js';
-import { ButtonV2 } from '../../lib/WABuilder.js';
+import { ButtonV2 } from '../../lib/buttons.js';
 
 export default {
   name: 'fullmenu',
