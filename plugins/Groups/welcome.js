@@ -1,7 +1,7 @@
 import { getGroupSettings, updateGroupSetting } from '../../database/config.js';
 import middleware from '../../utils/botUtil/middleware.js';
 import { getDeviceMode } from '../../lib/deviceMode.js';
-import { ButtonV2 } from '../../lib/buttons.js';
+import { ButtonV2 } from '@whiskeysockets/baileys';
 
 export default async (context) => {
     await middleware(context, async () => {

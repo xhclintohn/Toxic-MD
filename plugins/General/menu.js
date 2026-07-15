@@ -7,7 +7,7 @@ const __dirname = dirname(__filename);
 import { generateWAMessageFromContent, proto } from '@whiskeysockets/baileys';
 import { getDeviceMode } from '../../lib/deviceMode.js';
 import { sendInteractive } from '../../lib/sendInteractive.js';
-import { ButtonV2 } from '../../lib/buttons.js';
+import { ButtonV2 } from '@whiskeysockets/baileys';
 import { getGreeting } from '../../lib/language.js';
 
 const getTimeGreeting = () => {

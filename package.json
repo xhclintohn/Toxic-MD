@@ -46,7 +46,6 @@
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8",
-    "better-sqlite3": "^12.8.0",
     "canvas": "^2.11.2",
     "canvacord": "^5.4.10"
   }

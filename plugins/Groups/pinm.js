@@ -1,6 +1,6 @@
 import { getDeviceMode } from '../../lib/deviceMode.js';
 import { sendInteractive } from '../../lib/sendInteractive.js';
-import { ButtonV2 } from '../../lib/buttons.js';
+import { ButtonV2 } from '@whiskeysockets/baileys';
 
 if (!global._toxicPinPending) global._toxicPinPending = new Map();
 

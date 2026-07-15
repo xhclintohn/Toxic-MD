@@ -16,12 +16,16 @@ const fmt = (msg) => `╭─❏ 「 ANTIBOT 」\n│ ${msg}\n╰─────�
 const BURST_WINDOW_MS = 3000;
 const BURST_THRESHOLD = 10;
 const KICK_SCORE = 2;
+const MAX_WARNS = 2;
+const KICK_IMMUNITY_MS = 30000;
+
 const _burstLog = new Map();
-const _warned = new Set();
+const _warnCount = new Map();
+const _recentlyKicked = new Map();
 const _processed = new Set();
 
-const _gsCache = new Map(); // jid -> { val, ts }
-const _GS_TTL  = 30_000;   // 30-second per-group cache
+const _gsCache = new Map();
+const _GS_TTL = 30_000;
 
 async function _cachedGS(jid) {
     const now = Date.now();
@@ -33,7 +37,6 @@ async function _cachedGS(jid) {
     return val;
 }
 
-
 function trackBurst(key) {
     const now = Date.now();
     if (!_burstLog.has(key)) _burstLog.set(key, []);
@@ -44,7 +47,22 @@ function trackBurst(key) {
     return timestamps.length >= BURST_THRESHOLD;
 }
 
-async function punish(client, m, senderNum, trackKey, reason, forceKick) {
+function _isRecentlyKicked(trackKey) {
+    if (!_recentlyKicked.has(trackKey)) return false;
+    const ts = _recentlyKicked.get(trackKey);
+    if (Date.now() - ts < KICK_IMMUNITY_MS) return true;
+    _recentlyKicked.delete(trackKey);
+    return false;
+}
+
+function _markKicked(trackKey) {
+    _recentlyKicked.set(trackKey, Date.now());
+    if (_recentlyKicked.size > 2000) { const first = _recentlyKicked.keys().next().value; _recentlyKicked.delete(first); }
+}
+
+async function punish(client, m, senderNum, trackKey, mode, forceKick) {
+    if (_isRecentlyKicked(trackKey)) return;
+
     const meta = await client.groupMetadata(m.chat);
     const sender = resolveTargetJid(m.sender, meta.participants) || m.sender;
     if (!sender) return;
@@ -58,27 +76,41 @@ async function punish(client, m, senderNum, trackKey, reason, forceKick) {
 
     if (isAdmin) return;
     if (!isBotAdmin) {
-        if (_warned.has('noadmin:' + m.chat)) return;
-        _warned.add('noadmin:' + m.chat);
+        const noAdminKey = 'noadmin:' + m.chat;
+        if (_isRecentlyKicked(noAdminKey)) return;
+        _markKicked(noAdminKey);
         return client.sendMessage(m.chat, {
-            text: fmt(`🤖 Spotted @${sNum} looking bot-like (${reason}), but I can't act.\n│ Make me admin so ANTIBOT can actually kick bots. 🙄`),
+            text: fmt(`🤖 Spotted @${sNum} looking bot-like, but I can't act.\n│ Make me admin so ANTIBOT can actually kick bots. 🙄`),
             mentions: [sender]
         }).catch(() => {});
     }
 
-    if (!forceKick && !_warned.has(trackKey)) {
-        _warned.add(trackKey);
-        if (_warned.size > 5000) { const first = _warned.values().next().value; _warned.delete(first); }
+    if (forceKick) {
+        _warnCount.delete(trackKey);
+        _markKicked(trackKey);
+        try { await client.groupParticipantsUpdate(m.chat, [sender], 'remove'); } catch {}
         return client.sendMessage(m.chat, {
-            text: fmt(`👀 @${sNum} smells like a bot to me. (${reason})\n│ Do that again and you're GONE. Last warning, don't test me. 🙄`),
+            text: fmt(`🤖💨 @${sNum} got YEETED.\n│ Told you not to test me. Bots aren't welcome here, byeee. 🚫`),
             mentions: [sender]
         });
     }
 
-    _warned.delete(trackKey);
+    const count = (_warnCount.get(trackKey) || 0) + 1;
+    _warnCount.set(trackKey, count);
+    if (_warnCount.size > 5000) { const first = _warnCount.keys().next().value; _warnCount.delete(first); }
+
+    if (count < MAX_WARNS) {
+        return client.sendMessage(m.chat, {
+            text: fmt(`👀 @${sNum} smells like a bot to me. Bots aren't allowed!\n│ Warning ${count}/${MAX_WARNS}. Do that again.`),
+            mentions: [sender]
+        });
+    }
+
+    _warnCount.delete(trackKey);
+    _markKicked(trackKey);
     try { await client.groupParticipantsUpdate(m.chat, [sender], 'remove'); } catch {}
     return client.sendMessage(m.chat, {
-        text: fmt(`🤖💨 @${sNum} got YEETED.\n│ ${reason}\n│ Told you not to test me. Bots aren't welcome here, byeee. 🚫`),
+        text: fmt(`🤖💨 @${sNum} got YEETED.\n│ Told you not to test me. Bots aren't welcome here, byeee. 🚫`),
         mentions: [sender]
     });
 }
@@ -106,32 +138,28 @@ export default async (client, m) => {
         if (!mode || mode === 'off' || mode === 0 || mode === false || mode === '0') return;
 
         const fromMe = m.key?.fromMe;
+        if (fromMe) return;
+
         const senderNum = _num(m.sender);
+        const trackKey = m.chat + ':' + senderNum;
+
+        if (_isRecentlyKicked(trackKey)) return;
+
         const text = m.body || m.text || '';
         const rawKeyJid = m.key?.participant || m.key?.participantAlt || '';
         const isBurst = trackBurst(m.chat + ':' + senderNum);
         const { score, signals } = computeBotScore({ id: m.id, rawKeyJid, resolvedSender: m.sender, text, isBurst });
 
-        if (fromMe) return;
-
-        const trackKey = m.chat + ':' + senderNum;
-
         const knownBots = await _withTimeout(getKnownBots(), 8000, 'getKnownBots()').catch(() => []);
         if (knownBots.includes(senderNum)) {
-            return punish(client, m, senderNum, trackKey, 'marked as a known bot', true);
+            return punish(client, m, senderNum, trackKey, mode, true);
         }
 
         if (score < 1) return;
 
-        const reasonParts = [];
-        if (signals.baileysId) reasonParts.push('non-standard message ID');
-        if (signals.lidOversized) reasonParts.push('fake sender ID');
-        if (signals.styledFont) reasonParts.push('spammy stylized text');
-        if (signals.burst) reasonParts.push('message flooding');
-        const reason = reasonParts.join(', ');
-
-        const forceKick = mode === 'remove' || score >= KICK_SCORE;
-        return punish(client, m, senderNum, trackKey, reason, forceKick);
+        const isKickMode = mode === 'kick' || mode === 'remove';
+        const forceKick = isKickMode || score >= KICK_SCORE;
+        return punish(client, m, senderNum, trackKey, mode, forceKick);
     } catch (e) {
         console.log('❌ [ANTIBOT INTERNAL]:', e?.message || e);
     }

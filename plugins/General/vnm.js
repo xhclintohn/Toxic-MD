@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { generateWAMessageFromContent } from '@whiskeysockets/baileys';
 import { sendInteractive } from '../../lib/sendInteractive.js';
-import { ButtonV2 } from '../../lib/buttons.js';
+import { ButtonV2 } from '@whiskeysockets/baileys';
 
 const THUMB = 'https://img2.pixhost.to/images/9055/745533062_rafaofficial.jpg';
 const API_BASE = 'https://api.synoxcloud.xyz';

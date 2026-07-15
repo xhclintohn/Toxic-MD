@@ -190,7 +190,10 @@ const PG_SCHEMA = [
     )`,
     `CREATE TABLE IF NOT EXISTS lid_phone (lid TEXT PRIMARY KEY, phone TEXT NOT NULL)`,
     `CREATE INDEX IF NOT EXISTS idx_ch_num ON conversation_history(num)`,
-    `CREATE INDEX IF NOT EXISTS idx_ms_ts ON msg_store(timestamp)`
+    `CREATE INDEX IF NOT EXISTS idx_ms_ts ON msg_store(timestamp)`,
+    `CREATE INDEX IF NOT EXISTS idx_ms_jid ON msg_store(jid)`,
+    `CREATE INDEX IF NOT EXISTS idx_ch_ts ON conversation_history(timestamp)`,
+    `CREATE INDEX IF NOT EXISTS idx_gs_jid ON group_settings(jid)`
 ];
 
 async function tryInitPg() {
@@ -200,7 +203,7 @@ async function tryInitPg() {
             ssl: { rejectUnauthorized: false },
             connectionTimeoutMillis: 10000,
             idleTimeoutMillis: 300000,
-            max: 5,
+            max: 10,
             min: 1,
             allowExitOnIdle: false,
             keepAlive: true,
