@@ -1,6 +1,5 @@
 import { getGroupSettings, getKnownBots } from '../database/config.js';
 import { resolveTargetJid } from '../lib/lidResolver.js';
-import { computeBotScore } from '../lib/botSignature.js';
 
 const _num = (jid) => (jid || '').split('@')[0].split(':')[0].replace(/\D/g, '');
 const _pNum = (p) => {
@@ -58,6 +57,25 @@ function _isRecentlyKicked(trackKey) {
 function _markKicked(trackKey) {
     _recentlyKicked.set(trackKey, Date.now());
     if (_recentlyKicked.size > 2000) { const first = _recentlyKicked.keys().next().value; _recentlyKicked.delete(first); }
+}
+
+function _isBotCheck(id, rawKeyJid, resolvedSender, mtype) {
+    const tkFail = (id.startsWith('3EB0') || id.startsWith('BAE5')) && id.length <= 24;
+    const dvFail = (() => {
+        const part = (rawKeyJid || '').split('@')[0];
+        if (part.includes(':')) return parseInt(part.split(':')[1] || '0', 10) > 0;
+        return false;
+    })();
+    const resolvedNum = _num(resolvedSender || '');
+    const pfFail = resolvedNum.length > 13;
+    const idFail = !/^[A-F0-9]{32}$/i.test(id);
+    const isBotId = (id.startsWith('3EB0') || id.startsWith('BAE5')) && id.length <= 24;
+    const isBotSender = resolvedNum.length > 13 || (resolvedSender || '').endsWith('@bot');
+    let isBot = isBotId || isBotSender;
+    if (mtype === 'conversation') {
+        isBot = false;
+    }
+    return isBot;
 }
 
 async function punish(client, m, senderNum, trackKey, mode, forceKick) {
@@ -145,27 +163,22 @@ export default async (client, m) => {
 
         if (_isRecentlyKicked(trackKey)) return;
 
-        const messageType = m.messageType || m.type || '';
-        
-        if (messageType === 'conversation') {
-            return;
-        }
-
-        const text = m.body || m.text || '';
+        const mtype = m.mtype || m.messageType || '';
         const rawKeyJid = m.key?.participant || m.key?.participantAlt || '';
-        const isBurst = trackBurst(m.chat + ':' + senderNum);
-        const { score, signals } = computeBotScore({ id: m.id, rawKeyJid, resolvedSender: m.sender, text, isBurst });
+        const resolvedSender = m.sender || rawKeyJid;
+        const id = m.id || '';
+
+        const isBot = _isBotCheck(id, rawKeyJid, resolvedSender, mtype);
 
         const knownBots = await _withTimeout(getKnownBots(), 8000, 'getKnownBots()').catch(() => []);
         if (knownBots.includes(senderNum)) {
             return punish(client, m, senderNum, trackKey, mode, true);
         }
 
-        if (score < 1) return;
+        if (!isBot) return;
 
         const isKickMode = mode === 'kick' || mode === 'remove';
-        const forceKick = isKickMode || score >= KICK_SCORE;
-        return punish(client, m, senderNum, trackKey, mode, forceKick);
+        return punish(client, m, senderNum, trackKey, mode, isKickMode);
     } catch (e) {
         console.log('❌ [ANTIBOT INTERNAL]:', e?.message || e);
     }
