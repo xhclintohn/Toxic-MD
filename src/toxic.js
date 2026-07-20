@@ -687,7 +687,7 @@ export default async (client, m, chatUpdate, store) => {
                         }
                         let senderRaw = deletedMessage.key.participant || deletedMessage.key.remoteJid || '';
                         if (senderRaw.endsWith('@lid')) {
-                            const resolved = await resolveSenderJid(senderRaw, chatJidToSearch, client).catch(() => null);
+                            const resolved = await resolveSenderJid(senderRaw, chatJidToSearch, client, deletedMessage.key).catch(() => null);
                             if (resolved && !resolved.endsWith('@lid')) {
                                 senderRaw = resolved;
                             } else {
@@ -696,7 +696,7 @@ export default async (client, m, chatUpdate, store) => {
                         const sender = client.decodeJid(senderRaw);
                         let deleterRaw = m.key.participant || '';
                         if (deleterRaw.endsWith('@lid')) {
-                            const resolved = await resolveSenderJid(deleterRaw, chatJidToSearch, client).catch(() => null);
+                            const resolved = await resolveSenderJid(deleterRaw, chatJidToSearch, client, m.key).catch(() => null);
                             if (resolved && !resolved.endsWith('@lid')) {
                                 deleterRaw = resolved;
                             } else {
