@@ -1,5 +1,6 @@
 import { sendInteractive } from '../../lib/sendInteractive.js';
 import { resolveSenderJid } from '../../lib/lidResolver.js';
+import { getDevice } from '@whiskeysockets/baileys';
 
 const _num = (jid) => (jid || '').split('@')[0].split(':')[0].replace(/\D/g, '');
 
@@ -9,13 +10,37 @@ const getDeviceId = (rawJid) => {
     return 0;
 };
 
+const DEVICE_LABELS = {
+    android: 'Android',
+    ios: 'iOS',
+    web: 'Web',
+    desktop: 'Desktop',
+    unknown: 'Unknown'
+};
+
 const getPlatform = (msgId, rawKeyJid) => {
+    // Primary: Baileys' own getDevice() decodes the message ID scheme itself
+    // (android/ios/web/desktop/unknown) — this is the accurate source, not a guess.
+    let detected = 'unknown';
+    try {
+        detected = getDevice(msgId || '') || 'unknown';
+    } catch {
+        detected = 'unknown';
+    }
+
+    if (detected && detected !== 'unknown') {
+        const label = DEVICE_LABELS[detected] || detected;
+        return (rawKeyJid || '').endsWith('@lid') ? `${label} (Linked Device)` : label;
+    }
+
+    // Fallback: only used when getDevice() can't classify the ID at all.
+    // Explicitly labeled "guessed" so it's never confused with a confirmed result.
     const id = msgId || '';
-    if (id.startsWith('3EB0')) return 'Desktop / Web';
-    if (id.startsWith('3A')) return 'iOS';
-    if ((rawKeyJid || '').endsWith('@lid')) return 'iOS (Linked Device)';
+    if (id.startsWith('3EB0')) return 'Desktop / Web (guessed)';
+    if (id.startsWith('3A')) return 'iOS (guessed)';
+    if ((rawKeyJid || '').endsWith('@lid')) return 'iOS (Linked Device, guessed)';
     if (id.length === 16 && id.startsWith('BAE5')) return 'Baileys / Bot';
-    return 'Android';
+    return 'Android (guessed)';
 };
 
 const runChecks = (id, rawKeyJid, resolvedSender, mtype) => {
@@ -73,7 +98,7 @@ export default {
                 lidResolved = true;
             } else if (isLid) {
                 try {
-                    const r = await resolveSenderJid(rawKeyJid, m.chat, client);
+                    const r = await resolveSenderJid(rawKeyJid, m.chat, client, m.key);
                     if (r && !r.endsWith('@lid')) {
                         resolvedSender = r;
                         lidResolved = true;
