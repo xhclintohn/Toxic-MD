@@ -55,7 +55,7 @@ const EXTRA_ALIASES = {
   eval:       ['ev', 'evl'],
   shell:      ['sh', 'bash', 'terminal', 'exec'],
   restart:    ['reboot', 'rs', 'redeploy'],
-  resetwarn:    [`dwarn', 'resetwarn', 'dewarn', 'warnreset', 'removewarn',],
+  resetwarn:    ['dwarn', 'resetwarn', 'dewarn', 'warnreset', 'removewarn'],
   stickerwm:  ['wm', 'watermark', 'stickermark'],
   tr:         ['translate', 'tl', 'trans', 'trt'],
   togif:      ['tomp4', 'giftomp4'],
