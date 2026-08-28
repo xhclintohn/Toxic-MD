@@ -402,10 +402,10 @@ export default async (context) => {
                     const _fallback = textContent
                         ? `[The user sent an image with this caption: "${textContent}". Vision is unavailable, acknowledge you got the image and respond to the caption.]`
                         : `[The user sent an image but vision is unavailable. Acknowledge you received their image and tell them to try the .vision command.]`;
-                    response = await _callGroq('llama-3.1-8b-instant', [...baseHistory, { role: 'user', content: _fallback }], 300);
+                    response = await _callGroq('openai/gpt-oss-20b', [...baseHistory, { role: 'user', content: _fallback }], 300);
                 }
             } else {
-                response = await _callGroq('llama-3.1-8b-instant', [...baseHistory, { role: 'user', content: userContent }], 300);
+                response = await _callGroq('openai/gpt-oss-20b', [...baseHistory, { role: 'user', content: userContent }], 300);
             }
             if (!response) {
                 client.sendMessage(remoteJid, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
