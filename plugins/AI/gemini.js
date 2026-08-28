@@ -42,7 +42,7 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
       try {
           await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
           const res = await _callGroq({
-                  model: 'llama-3.3-70b-versatile',
+                  model: 'openai/gpt-oss-120b',
                   messages: [
                       { role: 'system', content: 'You are Gemini, Google\'s most advanced AI. Be thorough, accurate, and slightly sophisticated in your answers.' },
                       { role: 'user', content: text }
