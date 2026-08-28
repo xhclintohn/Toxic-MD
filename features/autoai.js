@@ -391,7 +391,7 @@ export default async (context) => {
         try {
             const baseHistory = [{ role: 'system', content: SYSTEM_PROMPT }, ...history.slice(-16)];
             if (useVision) {
-                const _visionModels = ['llama-3.2-11b-vision-preview','meta-llama/llama-4-scout-17b-16e-instruct','llama-3.2-90b-vision-preview'];
+                const _visionModels = ['qwen/qwen3.6-27b','qwen/qwen3.8-27b'];
                 for (const _vm of _visionModels) {
                     try {
                         response = await _callGroq(_vm, [...baseHistory, { role: 'user', content: userContent }], 600);
