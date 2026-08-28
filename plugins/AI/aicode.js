@@ -51,7 +51,7 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
       try {
           await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
           const res = await _callGroq({
-                  model: 'llama-3.3-70b-versatile',
+                  model: 'openai/gpt-oss-120b',
                   messages: [
                       { role: 'system', content: `You are an expert ${language} programmer. Generate clean, working code with no markdown formatting, no backticks, no explanations — just the raw code. Output ONLY the code itself.` },
                       { role: 'user', content: prompt }
