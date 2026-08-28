@@ -429,7 +429,7 @@ export default async (context) => {
     ];
 
     async function callGroq(msgs, useTools) {
-        const payload = { model: 'llama-3.3-70b-versatile', messages: msgs, max_tokens: 1024 };
+        const payload = { model: 'openai/gpt-oss-120b', messages: msgs, max_tokens: 1024 };
         if (useTools) { payload.tools = tools; payload.tool_choice = 'auto'; payload.parallel_tool_calls = false; }
         let currentKey = GROQ_KEY;
         for (let attempt = 0; attempt < 5; attempt++) {
