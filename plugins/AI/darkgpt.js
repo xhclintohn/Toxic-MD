@@ -43,7 +43,7 @@ export default {
             throw new Error('All GROQ keys exhausted');
         };
             const response = await _callGroq({
-                    model: 'llama-3.3-70b-versatile',
+                    model: 'openai/gpt-oss-120b',
                     messages: [
                         {
                             role: 'system',
