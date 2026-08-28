@@ -43,7 +43,7 @@ export default async (context) => {
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
         const res = await _callGroq({
-                model: 'llama-3.3-70b-versatile',
+                model: 'openai/gpt-oss-120b',
                 messages: [
                     { role: 'system', content: 'You are a highly capable AI assistant. Answer accurately and concisely.' },
                     { role: 'user', content: text }
