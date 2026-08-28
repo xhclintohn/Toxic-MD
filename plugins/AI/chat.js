@@ -59,7 +59,7 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
               { role: 'user', content: text }
           ];
 
-          const res = await _callGroq({ model: 'llama-3.3-70b-versatile', messages, max_tokens: 1024, temperature: 0.7 });
+          const res = await _callGroq({ model: 'openai/gpt-oss-120b', messages, max_tokens: 1024, temperature: 0.7 });
 
           if (!res.ok) throw new Error(`API error: ${res.status}`);
           const data = await res.json();
