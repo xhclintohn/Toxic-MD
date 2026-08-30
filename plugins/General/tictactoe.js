@@ -51,16 +51,18 @@ async function sendBoard(sock, m, prefix, board, statusLine, ended) {
   const displayBoard = renderBoard(board).split('\n').map(l => `│ ${l}`).join('\n');
   const txt = `╭─❏ 「 TIC TAC TOE 」\n│ ${statusLine}\n│\n${displayBoard}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
   
-  const gameUrl = `https://github.com{encodeURIComponent(statusLine)}&board=${encodeURIComponent(board.map(x => x || '-').join(''))}`;
-
   const builder = new AIRich(sock)
     .setTitle('🎮 Tic Tac Toe MiniApp')
-    .addText(txt);
+    .addText(txt)
+    .addText('\n✨ *Available Moves Launcher:*');
 
   if (ended) {
-    builder.addText(`\n[🔁 Play Again New Game](https://github.com/xhclintohn/Toxic-MD)`);
+    builder.addText(`\n[🔁 Play Again New Game](!${prefix}ttt)`);
   } else {
-    builder.addText(`\n[🌐 Open Game MiniApp Canvas](${gameUrl})`);
+    emptyIndexes(board).forEach(i => {
+      builder.addText(`\n[Slot ${i + 1} ➔ Choose Place](!${prefix}ttt ${i + 1})`);
+    });
+    builder.addText(`\n[🚫 Quit Current Session](!${prefix}ttt end)`);
   }
 
   await builder.send(m.chat, { quoted: m });
@@ -91,7 +93,7 @@ export default {
       if (!input) {
         const board = Array(9).fill(null);
         games.set(key, board);
-        await sendBoard(sock, m, prefix, board, 'Tap the link to open game canvas.', false);
+        await sendBoard(sock, m, prefix, board, 'Tap a dynamic link below to pick your spot.', false);
         return;
       }
 
