@@ -85,20 +85,26 @@ async function sendBoard(client, m, prefix, board, statusLine, ended) {
   const txt = `╭─❏ 「 TIC TAC TOE 」\n│ ${statusLine}\n│\n${renderBoard(board).split('\n').map(l => `│ ${l}`).join('\n')}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
   const buttons = buildFlowButtons(prefix, board, ended);
 
-  await client.sendMessage(m.chat, {
+  const messagePayload = {
     viewOnceMessage: {
       message: {
+        messageContextInfo: {
+          deviceListMetadata: {},
+          deviceListMetadataVersion: 2
+        },
         interactiveMessage: {
-          header: { title: 'Tic Tac Toe', titleType: 'TEXT' },
           body: { text: txt },
           footer: { text: 'Toxic-MD' },
+          header: { title: 'Tic Tac Toe', hasMediaAttachment: false },
           nativeFlowMessage: {
             buttons: buttons
           }
         }
       }
     }
-  }, { quoted: m });
+  };
+
+  await client.sendMessage(m.chat, messagePayload, { quoted: m });
 }
 
 export default {
