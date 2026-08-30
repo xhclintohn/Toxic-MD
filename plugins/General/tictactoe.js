@@ -85,7 +85,7 @@ async function sendBoard(client, m, prefix, board, statusLine, ended) {
   const txt = `╭─❏ 「 TIC TAC TOE 」\n│ ${statusLine}\n│\n${renderBoard(board).split('\n').map(l => `│ ${l}`).join('\n')}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
   const buttons = buildFlowButtons(prefix, board, ended);
 
-  const messagePayload = {
+  const customProto = {
     viewOnceMessage: {
       message: {
         messageContextInfo: {
@@ -104,7 +104,16 @@ async function sendBoard(client, m, prefix, board, statusLine, ended) {
     }
   };
 
-  await client.sendMessage(m.chat, messagePayload, { quoted: m });
+  const rawSocket = client.sock || client;
+  
+  if (rawSocket && typeof rawSocket.relayMessage === 'function') {
+    const msgId = m.key.id;
+    const msgContext = { quoted: m };
+    const generated = await rawSocket.relayMessage(m.chat, customProto, { messageId: msgId }, msgContext);
+    return generated;
+  }
+
+  await client.sendMessage(m.chat, customProto, { quoted: m });
 }
 
 export default {
