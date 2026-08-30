@@ -2,9 +2,10 @@ const games = new Map();
 
 const numberEmojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'];
 
-const winCombos = [, [3, 4, 5], [6, 7, 8],
-, [1, 4, 7], [2, 5, 8],
-, [2, 4, 6]
+const winCombos = [
+  [0, 1, 2], [3, 4, 5], [6, 7, 8],
+  [0, 3, 6], [1, 4, 7], [2, 5, 8],
+  [0, 4, 8], [2, 4, 6]
 ];
 
 function checkWinner(board) {
@@ -45,23 +46,45 @@ function renderBoard(board) {
   return [0, 3, 6].map(r => [0, 1, 2].map(c => cell(r + c)).join(' ')).join('\n');
 }
 
-function buildButtons(prefix, board, ended) {
+function buildFlowButtons(prefix, board, ended) {
   if (ended) {
     return [
-      { name: 'quick_reply', buttonParamsJson: JSON.stringify({ display_text: '🔁 Play Again', id: `${prefix}ttt` }) }
+      {
+        name: 'flow',
+        buttonParamsJson: JSON.stringify({
+          flow_token: `${prefix}ttt_reset`,
+          flow_id: "RESTART_FLOW",
+          flow_cta: "🔁 Play Again",
+          flow_action: "navigate",
+          flow_context: { flow_screen: "WELCOME_SCREEN" }
+        })
+      }
     ];
   }
-  const buttons = emptyIndexes(board).map(i => ({
-    name: 'quick_reply',
-    buttonParamsJson: JSON.stringify({ display_text: `${i + 1}`, id: `${prefix}ttt ${i + 1}` })
-  }));
-  buttons.push({ name: 'quick_reply', buttonParamsJson: JSON.stringify({ display_text: '🚫 Quit', id: `${prefix}ttt end` }) });
-  return buttons;
+
+  return [
+    {
+      name: 'flow',
+      buttonParamsJson: JSON.stringify({
+        flow_token: `${prefix}ttt_move_session`,
+        flow_id: "GAME_BOARD_FLOW",
+        flow_cta: "🎮 Make Your Move",
+        flow_action: "navigate",
+        flow_context: {
+          flow_screen: "BOARD_SCREEN",
+          flow_data: {
+            available_moves: emptyIndexes(board).map(i => ({ id: `${i + 1}`, title: `Slot ${i + 1}` })),
+            current_board: renderBoard(board)
+          }
+        }
+      })
+    }
+  ];
 }
 
 async function sendBoard(client, m, prefix, board, statusLine, ended) {
   const txt = `╭─❏ 「 TIC TAC TOE 」\n│ ${statusLine}\n│\n${renderBoard(board).split('\n').map(l => `│ ${l}`).join('\n')}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
-  const buttons = buildButtons(prefix, board, ended);
+  const buttons = buildFlowButtons(prefix, board, ended);
 
   await client.sendMessage(m.chat, {
     viewOnceMessage: {
@@ -82,7 +105,7 @@ async function sendBoard(client, m, prefix, board, statusLine, ended) {
 export default {
   name: 'ttt',
   aliases: ['tictactoe', 'tttmove'],
-  description: 'Play Tic Tac Toe against the bot using native flow buttons',
+  description: 'Play Tic Tac Toe against the bot using native flow windows',
   run: async (context) => {
     const { client, m, args, prefix } = context;
     const key = m.sender;
@@ -103,7 +126,7 @@ export default {
       if (!input) {
         const board = Array(9).fill(null);
         games.set(key, board);
-        await sendBoard(client, m, prefix, board, 'Tap a number to play.', false);
+        await sendBoard(client, m, prefix, board, 'Open the app to make your move.', false);
         return;
       }
 
