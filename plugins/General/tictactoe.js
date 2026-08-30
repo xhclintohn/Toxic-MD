@@ -45,83 +45,34 @@ function renderBoard(board) {
   return [0, 3, 6].map(r => [0, 1, 2].map(c => cell(r + c)).join(' ')).join('\n');
 }
 
-function buildFlowButtons(prefix, board, ended) {
-  if (ended) {
-    return [
-      {
-        name: 'flow',
-        buttonParamsJson: JSON.stringify({
-          flow_token: `${prefix}ttt_reset`,
-          flow_id: "RESTART_FLOW",
-          flow_cta: "🔁 Play Again",
-          flow_action: "navigate",
-          flow_context: { flow_screen: "WELCOME_SCREEN" }
-        })
-      }
-    ];
-  }
-
-  return [
-    {
-      name: 'flow',
-      buttonParamsJson: JSON.stringify({
-        flow_token: `${prefix}ttt_move_session`,
-        flow_id: "GAME_BOARD_FLOW",
-        flow_cta: "🎮 Make Your Move",
-        flow_action: "navigate",
-        flow_context: {
-          flow_screen: "BOARD_SCREEN",
-          flow_data: {
-            available_moves: emptyIndexes(board).map(i => ({ id: `${i + 1}`, title: `Slot ${i + 1}` })),
-            current_board: renderBoard(board)
-          }
-        }
-      })
-    }
-  ];
-}
-
-async function sendBoard(client, m, prefix, board, statusLine, ended) {
-  const txt = `╭─❏ 「 TIC TAC TOE 」\n│ ${statusLine}\n│\n${renderBoard(board).split('\n').map(l => `│ ${l}`).join('\n')}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
-  const buttons = buildFlowButtons(prefix, board, ended);
-
-  const customProto = {
-    viewOnceMessage: {
-      message: {
-        messageContextInfo: {
-          deviceListMetadata: {},
-          deviceListMetadataVersion: 2
-        },
-        interactiveMessage: {
-          body: { text: txt },
-          footer: { text: 'Toxic-MD' },
-          header: { title: 'Tic Tac Toe', hasMediaAttachment: false },
-          nativeFlowMessage: {
-            buttons: buttons
-          }
-        }
-      }
-    }
-  };
-
-  const rawSocket = client.sock || client;
+async function sendBoard(sock, m, prefix, board, statusLine, ended) {
+  const { AIRich } = await import('../../lib/WABuilder.js');
   
-  if (rawSocket && typeof rawSocket.relayMessage === 'function') {
-    const msgId = m.key.id;
-    const msgContext = { quoted: m };
-    const generated = await rawSocket.relayMessage(m.chat, customProto, { messageId: msgId }, msgContext);
-    return generated;
+  const displayBoard = renderBoard(board).split('\n').map(l => `│ ${l}`).join('\n');
+  const txt = `╭─❏ 「 TIC TAC TOE 」\n│ ${statusLine}\n│\n${displayBoard}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+  
+  const gameUrl = `https://github.com{encodeURIComponent(statusLine)}&board=${encodeURIComponent(board.map(x => x || '-').join(''))}`;
+
+  const builder = new AIRich(sock)
+    .setTitle('🎮 Tic Tac Toe MiniApp')
+    .addText(txt);
+
+  if (ended) {
+    builder.addText(`\n[🔁 Play Again New Game](https://github.com/xhclintohn/Toxic-MD)`);
+  } else {
+    builder.addText(`\n[🌐 Open Game MiniApp Canvas](${gameUrl})`);
   }
 
-  await client.sendMessage(m.chat, customProto, { quoted: m });
+  await builder.send(m.chat, { quoted: m });
 }
 
 export default {
   name: 'ttt',
   aliases: ['tictactoe', 'tttmove'],
-  description: 'Play Tic Tac Toe against the bot using native flow windows',
+  description: 'Play Tic Tac Toe against the bot using rich mini-app container links',
   run: async (context) => {
     const { client, m, args, prefix } = context;
+    const sock = client.sock || client;
     const key = m.sender;
 
     try {
@@ -140,7 +91,7 @@ export default {
       if (!input) {
         const board = Array(9).fill(null);
         games.set(key, board);
-        await sendBoard(client, m, prefix, board, 'Open the app to make your move.', false);
+        await sendBoard(sock, m, prefix, board, 'Tap the link to open game canvas.', false);
         return;
       }
 
@@ -158,7 +109,7 @@ export default {
 
       const idx = pos - 1;
       if (board[idx] !== null) {
-        await sendBoard(client, m, prefix, board, 'That spot is taken, pick another.', false);
+        await sendBoard(sock, m, prefix, board, 'That spot is taken, pick another.', false);
         return;
       }
 
@@ -167,13 +118,13 @@ export default {
 
       if (winner === 'X') {
         games.delete(key);
-        await sendBoard(client, m, prefix, board, '🎉 You win!', true);
+        await sendBoard(sock, m, prefix, board, '🎉 You win!', true);
         return;
       }
 
       if (isFull(board)) {
         games.delete(key);
-        await sendBoard(client, m, prefix, board, "🤝 It's a draw!", true);
+        await sendBoard(sock, m, prefix, board, "🤝 It's a draw!", true);
         return;
       }
 
@@ -183,18 +134,18 @@ export default {
 
       if (winner === 'O') {
         games.delete(key);
-        await sendBoard(client, m, prefix, board, '💀 Bot wins!', true);
+        await sendBoard(sock, m, prefix, board, '💀 Bot wins!', true);
         return;
       }
 
       if (isFull(board)) {
         games.delete(key);
-        await sendBoard(client, m, prefix, board, "🤝 It's a draw!", true);
+        await sendBoard(sock, m, prefix, board, "🤝 It's a draw!", true);
         return;
       }
 
       games.set(key, board);
-      await sendBoard(client, m, prefix, board, 'Your turn.', false);
+      await sendBoard(sock, m, prefix, board, 'Your turn.', false);
 
     } catch (error) {
       console.error(`TicTacToe error: ${error.stack}`);
