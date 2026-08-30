@@ -2,10 +2,9 @@ const games = new Map();
 
 const numberEmojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'];
 
-const winCombos = [
-  [0, 1, 2], [3, 4, 5], [6, 7, 8],
-  [0, 3, 6], [1, 4, 7], [2, 5, 8],
-  [0, 4, 8], [2, 4, 6]
+const winCombos = [, [3, 4, 5], [6, 7, 8],
+, [1, 4, 7], [2, 5, 8],
+, [2, 4, 6]
 ];
 
 function checkWinner(board) {
@@ -90,7 +89,7 @@ async function sendBoard(client, m, prefix, board, statusLine, ended) {
     viewOnceMessage: {
       message: {
         interactiveMessage: {
-          header: { title: 'Tic Tac Toe', hasMediaAttachment: false },
+          header: { title: 'Tic Tac Toe', titleType: 'TEXT' },
           body: { text: txt },
           footer: { text: 'Toxic-MD' },
           nativeFlowMessage: {
