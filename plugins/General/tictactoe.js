@@ -2,10 +2,9 @@ const games = new Map();
 
 const numberEmojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'];
 
-const winCombos = [
-  [0, 1, 2], [3, 4, 5], [6, 7, 8],
-  [0, 3, 6], [1, 4, 7], [2, 5, 8],
-  [0, 4, 8], [2, 4, 6]
+const winCombos = [, [3, 4, 5], [6, 7, 8],
+, [1, 4, 7], [2, 5, 8],
+, [2, 4, 6]
 ];
 
 function checkWinner(board) {
@@ -61,13 +60,23 @@ function buildButtons(prefix, board, ended) {
 }
 
 async function sendBoard(client, m, prefix, board, statusLine, ended) {
+  const txt = `╭─❏ 「 TIC TAC TOE 」\n│ ${statusLine}\n│\n${renderBoard(board).split('\n').map(l => `│ ${l}`).join('\n')}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+  const buttons = buildButtons(prefix, board, ended);
+
   await client.sendMessage(m.chat, {
-    text: `╭─❏ 「 TIC TAC TOE 」\n│ ${statusLine}\n│\n${renderBoard(board).split('\n').map(l => `│ ${l}`).join('\n')}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`,
-    title: 'Tic Tac Toe',
-    subtitle: 'You are ❌, Bot is ⭕',
-    footer: 'Toxic-MD',
-    interactiveButtons: buildButtons(prefix, board, ended)
-  });
+    viewOnceMessage: {
+      message: {
+        interactiveMessage: {
+          header: { title: 'Tic Tac Toe', hasMediaAttachment: false },
+          body: { text: txt },
+          footer: { text: 'Toxic-MD' },
+          nativeFlowMessage: {
+            buttons: buttons
+          }
+        }
+      }
+    }
+  }, { quoted: m });
 }
 
 export default {
