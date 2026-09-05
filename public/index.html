@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-image: url('https://files.catbox.moe/cv6puq.jpg');
+            background-color: #0a1a2f; /* Dark blue fallback */
+            background-size: cover;
+            background-position: center;
+            font-family: 'Roboto', sans-serif; /* Clean, professional font */
+            color: #e0e7ff; /* Light text for contrast */
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 25px;
+            background: linear-gradient(145deg, rgba(10, 26, 47, 0.95), rgba(30, 58, 138, 0.95)); /* Dark blue gradient */
+            border: 1px solid #1e3a8a; /* Deep blue border */
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 188, 212, 0.2); /* Subtle cyan glow */
+        }
+        
+        h1 {
+            color: #00bcd4; /* Cyan for vibrancy */
+            font-size: 38px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px rgba(0, 188, 212, 0.3); /* Subtle glow */
+        }
+        
+        .beautified-text {
+            color: #e0e7ff; /* Light blue-white for readability */
+            font-size: 24px;
+            font-weight: 400;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+        
+        .beautified-text span {
+            color: #00bcd4; /* Cyan for emphasis */
+            font-weight: 700;
+        }
+        
+        .icons {
+            margin-top: 25px;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .icons a {
+            display: inline-block;
+            padding: 12px;
+            background: linear-gradient(145deg, #1e3a8a, #0a1a2f); /* Blue gradient button */
+            border: 2px solid #00bcd4; /* Cyan border */
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 188, 212, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .icons a:hover {
+            transform: translateY(-2px); /* Lift effect */
+            box-shadow: 0 4px 15px rgba(0, 188, 212, 0.5); /* Stronger cyan glow */
+            background: linear-gradient(145deg, #2b6cb0, #1e3a8a); /* Lighter gradient */
+        }
+        
+        .icons img {
+            width: 64px; /* Large buttons */
+            height: 64px;
+            filter: drop-shadow(0 0 5px rgba(0, 188, 212, 0.3)); /* Subtle cyan shadow */
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 20px;
+                padding: 20px;
+            }
+            h1 {
+                font-size: 30px;
+            }
+            .beautified-text, .beautified-text span {
+                font-size: 20px;
+            }
+            .icons img {
+                width: 48px; /* Slightly smaller for mobile */
+                height: 48px;
+            }
+            .icons a {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Toxic-MD Activated</h1>
+        <p class="beautified-text">Connection established. You’ve <span>successfully</span> linked to the <span>Toxic-MD WhatsApp bot</span>. System is <span>fully operational</span> and ready to dominate.</p>
+        
+        <div class="icons">
+            <a href="https://github.com/xhclintohn/Toxic-v2"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/github.svg" alt="GitHub profile link"></a>
+            <a href="https://wa.me/254735342808"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/whatsapp.svg" alt="WhatsApp contact link"></a>
+        </div>
+        <p>© <script>document.write(new Date().getFullYear());</script> <span style="color: #00bcd4;">Toxic-MD</span></p>
+    </div>
+</body>
+</html>
