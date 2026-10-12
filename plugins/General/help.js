@@ -32,10 +32,11 @@ ${body}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞�
             allCommands.sort();
 
             const body = allCommands.map(cmd => `│ *${effectivePrefix}${cmd}*`).join('\n');
-            await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
-            return await client.sendMessage(m.chat, {
+            await client.sendMessage(m.chat, {
                 text: fmt('ALL COMMANDS', `│ Total: ${allCommands.length} commands\n│ Use *${effectivePrefix}help <command>* for full usage + description\n│ \n${body}`)
             });
+            await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
+            return;
         }
 
         const cmdName = args[0].toLowerCase().replace(/^\./, '');
@@ -334,8 +335,9 @@ ${body}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞�
         if (helpData[cmdName]) {
             const info = helpData[cmdName];
             const body = `│ 📌 *Command:* ${cmdName}\n│ 📖 *Usage:* ${info.usage}\n│ ℹ️ *Description:*\n│ ${info.desc}`;
-            await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-            return await client.sendMessage(m.chat, { text: fmt(`HELP: ${cmdName.toUpperCase()}`, body) });
+            await client.sendMessage(m.chat, { text: fmt(`HELP: ${cmdName.toUpperCase()}`, body) });
+            await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
+            return;
         }
 
         const pluginsDir = path.join(__dirname, '..');
@@ -346,8 +348,9 @@ ${body}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞�
             if (files.includes(cmdName + '.js')) {
                 found = true;
                 const body = `│ 📌 *Command:* ${cmdName}\n│ 📁 *Category:* ${cat}\n│ 📖 *Usage:* ${effectivePrefix}${cmdName}\n│ ℹ️ No detailed help available for this command yet.`;
-                await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                return await client.sendMessage(m.chat, { text: fmt(`HELP: ${cmdName.toUpperCase()}`, body) });
+                await client.sendMessage(m.chat, { text: fmt(`HELP: ${cmdName.toUpperCase()}`, body) });
+                await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
+                return;
             }
         }
 
@@ -355,6 +358,9 @@ ${body}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞�
             await client.sendMessage(m.chat, {
                 text: fmt('HELP', `│ ❌ Command "*${cmdName}*" not found.\n│ Use *${effectivePrefix}help* to list all commands.`)
             });
+            await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+            return;
         }
+        await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
     }
 };

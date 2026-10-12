@@ -40,45 +40,31 @@ const deepGetMessage = (m, store) => {
             const msgs = store.messages[m.chat];
             return msgs.get?.({ id: m.quoted?.id })?.message || null;
         },
+        () => {
+            try {
+                if (global.crmstore && m.quoted?.id) {
+                    const loaded = global.crmstore.loadMessage(m.quoted.id, m.chat);
+                    if (loaded?.message) return loaded.message;
+                    const byId = global.crmstore.loadMessageById(m.quoted.id);
+                    if (byId?.message) return byId.message;
+                }
+            } catch {}
+            return null;
+        },
+        () => store?.loadMessage?.(m.chat, m.quoted?.id)?.message || null,
         () => m.quoted?.fakeObj,
     ];
     for (const fn of sources) {
         try {
             const r = fn();
-            if (r && typeof r === 'object' && Object.keys(r).length > 0) return r;
+            if (r && typeof r === "object" && Object.keys(r).length > 0) return r;
         } catch {}
     }
     return null;
 };
 
-const isRichShape = (obj) => {
-    if (!obj || typeof obj !== 'object') return false;
-    return !!(
-        obj.interactiveMessage ||
-        obj.buttonsMessage ||
-        obj.templateMessage ||
-        obj.listMessage ||
-        obj.nativeFlowMessage ||
-        obj.interactiveResponseMessage ||
-        obj.highlyStructuredMessage ||
-        obj.productMessage ||
-        obj.documentMessage ||
-        obj.imageMessage ||
-        obj.videoMessage ||
-        obj.audioMessage ||
-        obj.stickerMessage
-    );
-};
-
 const buildFullCapture = (raw, m) => {
-    // Keep AIRich / interactive / media intact; only unwrap outer ephemeral/viewOnce wrappers
-    let core = raw;
-    if (!isRichShape(raw)) {
-        core = unwrap(raw) || raw;
-    } else {
-        const un = unwrap(raw);
-        if (un && isRichShape(un)) core = un;
-    }
+    const core = unwrap(raw) || raw;
     const contextInfo = m.msg?.contextInfo || m.quoted?.contextInfo || null;
     const messageContextInfo = raw?.messageContextInfo || m.quoted?.fakeObj?.messageContextInfo || null;
 

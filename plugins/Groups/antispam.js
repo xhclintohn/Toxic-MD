@@ -24,7 +24,7 @@ export default {
 
         if (!val) {
             await client.sendMessage(m.chat, { react: { text: '📋', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, fmt(`Status: *${current.toUpperCase()}*\n│ \n│ Threshold: 5 messages / 5 seconds\n│ \n│ Usage:\n│ *${prefix}antispam on*   → warn spammers\n│ *${prefix}antispam kick* → kick spammers\n│ *${prefix}antispam off*  → disable\n│ \n│ Aliases: on/enable/warn/kick/off/disable`));
+            return sendInteractive(client, m, fmt(`Status: *${current.toUpperCase()}*\n│ \n│ Flood: 8 msgs / 6s · Same text: 4x / 20s · 18+/min\n│ \n│ Usage:\n│ *${prefix}antispam on*   → warn spammers\n│ *${prefix}antispam kick* → kick spammers\n│ *${prefix}antispam off*  → disable\n│ \n│ Aliases: on/enable/warn/kick/off/disable`));
         }
 
         let newVal;
@@ -39,6 +39,6 @@ export default {
         await updateGroupSetting(m.chat, 'antispam', newVal);
         await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
         const desc = newVal === 'off' ? 'disabled ❌' : newVal === 'kick' ? 'enabled in KICK mode 🦾' : 'enabled in WARN mode ⚠️';
-        return sendInteractive(client, m, fmt(`Anti-Spam ${desc}\n│ \n│ Spammers (5+ msgs in 5s) will be ${newVal === 'off' ? 'ignored' : newVal === 'kick' ? 'deleted + kicked' : 'deleted + warned'}`));
+        return sendInteractive(client, m, fmt(`Anti-Spam ${desc}\n│ \n│ Spammers (flood / repeat) will be ${newVal === 'off' ? 'ignored' : newVal === 'kick' ? 'deleted + kicked' : 'deleted + warned'}`));
     }
 };

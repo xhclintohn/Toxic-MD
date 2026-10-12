@@ -22,11 +22,13 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
               await client.sendMessage(m.chat, { react: { text: '\u274c', key: m.reactKey } });
               await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
               return sendInteractive(client, m, `\u256d\u2500\u2500\u2500(    TOXIC-MD    )\u2500\u2500\u2500\n\u251c\u2500\u2500\u2500\u226b E\u0280\u0280o\u0280 \u226a\u2500\u2500\u2500\n\u251c \n\u251c Reply to an image with a prompt.\n\u251c Example: ${prefix}imgedit make it look like night\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2609\n> \u00a9\ud835\udcaf\ud835\udcce\ud835\udccc\ud835\udcc2\ud835\udcc3\ud835\udcc1 \ud835\udcb1\ud835\udcb5 \ud835\udcfd\ud835\udcf5_\ud835\udcec\ud835\udcf5\ud835\udcf2\ud835\udcf7\ud835\udcfc\ud835\udcf8\ud835\udcf7`);
+              await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
           }
 
           if (!prompt) {
               await client.sendMessage(m.chat, { react: { text: '\u274c', key: m.reactKey } });
               return sendInteractive(client, m, `\u256d\u2500\u2500\u2500(    TOXIC-MD    )\u2500\u2500\u2500\n\u251c\u2500\u2500\u2500\u226b E\u0280\u0280o\u0280 \u226a\u2500\u2500\u2500\n\u251c \n\u251c Add a prompt you idiot.\n\u251c Example: ${prefix}imgedit make it look like night\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2609\n> \u00a9\ud835\udcaf\ud835\udcce\ud835\udccc\ud835\udcc2\ud835\udcc3\ud835\udcc1 \ud835\udcb1\ud835\udcb5 \ud835\udcfd\ud835\udcf5_\ud835\udcec\ud835\udcf5\ud835\udcf2\ud835\udcf7\ud835\udcfc\ud835\udcf8\ud835\udcf7`);
+              await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
           }
 
           await client.sendMessage(m.chat, { react: { text: '\u231b', key: m.reactKey } });
@@ -44,6 +46,7 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
           } catch {
               await client.sendMessage(m.chat, { react: { text: '\u274c', key: m.reactKey } });
               await sendInteractive(client, m, `\u256d\u2500\u2500\u2500(    TOXIC-MD    )\u2500\u2500\u2500\n\u251c\u2500\u2500\u2500\u226b F\u1d00ɪ\u029f\u1d07\u1d05 \u226a\u2500\u2500\u2500\n\u251c \n\u251c AI edit failed. Try again.\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2609\n> \u00a9\ud835\udcaf\ud835\udcce\ud835\udccc\ud835\udcc2\ud835\udcc3\ud835\udcc1 \ud835\udcb1\ud835\udcb5 \ud835\udcfd\ud835\udcf5_\ud835\udcec\ud835\udcf5\ud835\udcf2\ud835\udcf7\ud835\udcfc\ud835\udcf8\ud835\udcf7`);
+              await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
           }
       }
   };

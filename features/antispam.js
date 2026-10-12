@@ -1,4 +1,4 @@
-import { getGroupSettings, addWarn, resetWarn, getWarnLimit } from '../database/config.js';
+import { getGroupSettings, addWarn, resetWarn, getWarnLimit, banUser } from '../database/config.js';
 import { resolveTargetJid } from '../lib/lidResolver.js';
 
 const DEV_NUMBER = '254114885159';
@@ -13,18 +13,62 @@ const _pNum = (p) => {
 
 const fmt = (msg) => `╭─❏ 「 ANTISPAM 」\n│ ${msg}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
-const SPAM_THRESHOLD = 5;
-const SPAM_WINDOW_MS = 5000;
-const _msgLog = new Map();
+// Flood: too many messages in a short window (not aggressive)
+const FLOOD_THRESHOLD = 8;
+const FLOOD_WINDOW_MS = 6000;
 
-function trackMessage(key) {
+// Same-text spam: identical body repeated
+const REPEAT_THRESHOLD = 4;
+const REPEAT_WINDOW_MS = 20000;
+
+// Soft rate: many msgs in one minute (backup)
+const MINUTE_THRESHOLD = 18;
+const MINUTE_WINDOW_MS = 60000;
+
+const _msgLog = new Map();
+const _textLog = new Map();
+const _minuteLog = new Map();
+const _cooldown = new Map();
+
+function pruneMap(map, max = 4000) {
+    if (map.size > max) {
+        const first = map.keys().next().value;
+        map.delete(first);
+    }
+}
+
+function trackTimestamps(map, key, windowMs) {
     const now = Date.now();
-    if (!_msgLog.has(key)) _msgLog.set(key, []);
-    const timestamps = _msgLog.get(key).filter(t => now - t < SPAM_WINDOW_MS);
-    timestamps.push(now);
-    _msgLog.set(key, timestamps);
-    if (_msgLog.size > 5000) { const first = _msgLog.keys().next().value; _msgLog.delete(first); }
-    return timestamps.length;
+    if (!map.has(key)) map.set(key, []);
+    const list = map.get(key).filter(t => now - t < windowMs);
+    list.push(now);
+    map.set(key, list);
+    pruneMap(map);
+    return list.length;
+}
+
+function trackRepeat(key, text, windowMs) {
+    const now = Date.now();
+    const normalized = String(text || '').trim().toLowerCase().slice(0, 200);
+    if (!normalized || normalized.length < 2) return 0;
+    if (!_textLog.has(key)) _textLog.set(key, []);
+    const list = _textLog.get(key).filter(e => now - e.t < windowMs);
+    list.push({ t: now, text: normalized });
+    _textLog.set(key, list);
+    pruneMap(_textLog);
+    return list.filter(e => e.text === normalized).length;
+}
+
+function extractBody(m) {
+    try {
+        if (m.body) return String(m.body);
+        if (m.text) return String(m.text);
+        if (m.message?.conversation) return String(m.message.conversation);
+        if (m.message?.extendedTextMessage?.text) return String(m.message.extendedTextMessage.text);
+        if (m.message?.imageMessage?.caption) return String(m.message.imageMessage.caption);
+        if (m.message?.videoMessage?.caption) return String(m.message.videoMessage.caption);
+    } catch {}
+    return '';
 }
 
 export default async (client, m) => {
@@ -35,20 +79,44 @@ export default async (client, m) => {
 
         const gs = await getGroupSettings(m.chat);
         const mode = gs?.antispam || 'off';
-        if (mode === 'off') return;
+        if (mode === 'off' || mode === false || mode === 'false') return;
 
         const senderNum = _num(m.sender);
-        const trackKey = m.chat + ':' + senderNum;
-        const count = trackMessage(trackKey);
-        if (count < SPAM_THRESHOLD) return;
+        if (!senderNum) return;
+
+        // cooldown after action (avoid double-kick spam)
+        const cdKey = m.chat + ':' + senderNum;
+        if (_cooldown.has(cdKey) && Date.now() - _cooldown.get(cdKey) < 15000) return;
+
+        const trackKey = cdKey;
+        const body = extractBody(m);
+
+        const floodCount = trackTimestamps(_msgLog, trackKey, FLOOD_WINDOW_MS);
+        const minuteCount = trackTimestamps(_minuteLog, trackKey, MINUTE_WINDOW_MS);
+        const repeatCount = trackRepeat(trackKey, body, REPEAT_WINDOW_MS);
+
+        const isFlood = floodCount >= FLOOD_THRESHOLD;
+        const isRepeat = repeatCount >= REPEAT_THRESHOLD;
+        const isMinute = minuteCount >= MINUTE_THRESHOLD;
+
+        if (!isFlood && !isRepeat && !isMinute) return;
 
         _msgLog.delete(trackKey);
+        _textLog.delete(trackKey);
+        _minuteLog.delete(trackKey);
+        _cooldown.set(cdKey, Date.now());
 
-        const meta = await client.groupMetadata(m.chat);
-        const sender = resolveTargetJid(m.sender, meta.participants);
+        let reason = 'spamming';
+        if (isRepeat) reason = `repeating the same message (${repeatCount}x)`;
+        else if (isFlood) reason = `flooding (${floodCount}+ msgs / ${FLOOD_WINDOW_MS / 1000}s)`;
+        else if (isMinute) reason = `message flood (${minuteCount}+ / min)`;
+
+        const meta = await client.groupMetadata(m.chat).catch(() => null);
+        if (!meta) return;
+        const sender = resolveTargetJid(m.sender, meta.participants) || m.sender;
         if (!sender) return;
 
-        const sNum = _num(sender);
+        const sNum = _num(sender) || senderNum;
         const botRaw = client.decodeJid ? client.decodeJid(client.user.id) : (client.user?.id || '');
         const botNum = _num(botRaw);
 
@@ -56,30 +124,52 @@ export default async (client, m) => {
         const isBotAdmin = meta.participants.some(p => _pNum(p) === botNum && (p.admin === 'admin' || p.admin === 'superadmin'));
 
         if (isAdmin) return;
-        if (!isBotAdmin) return;
+        if (sNum === botNum || sNum === DEV_NUMBER) return;
 
-        if (mode === 'kick') {
+        // Always ban from bot when spam detected (while antispam is on)
+        try {
+            if (sNum && sNum.length >= 7 && sNum.length <= 15) {
+                await banUser(sNum);
+            }
+        } catch {}
+
+        // Try delete the spam message
+        try {
+            if (m.key) await client.sendMessage(m.chat, { delete: m.key }).catch(() => {});
+        } catch {}
+
+        const kickMode = mode === 'kick' || mode === 'hard' || mode === 'strict' || mode === 'ban';
+
+        if (kickMode && isBotAdmin) {
             try { await client.groupParticipantsUpdate(m.chat, [sender], 'remove'); } catch {}
             return client.sendMessage(m.chat, {
-                text: fmt(`🚨 @${sNum} KICKED for spamming!\n│ Sent ${SPAM_THRESHOLD}+ messages in ${SPAM_WINDOW_MS / 1000}s\n│ Spammers don't last long here. 😈`),
+                text: fmt(`🚨 @${sNum} removed & banned!\n│ Reason: ${reason}\n│ Bot access revoked.`),
                 mentions: [sender]
             });
         }
 
-        const MAX_WARNS = await getWarnLimit(m.chat);
-        const warnCount = await addWarn(m.chat, sNum);
-        const remaining = MAX_WARNS - warnCount;
-        if (warnCount >= MAX_WARNS) {
-            await resetWarn(m.chat, sNum);
+        // warn mode (or kick failed / bot not admin)
+        let warnCount = 0;
+        let MAX_WARNS = 3;
+        try {
+            MAX_WARNS = await getWarnLimit(m.chat).catch(() => 3) || 3;
+            warnCount = await addWarn(m.chat, sNum).catch(() => 0) || 0;
+        } catch {}
+
+        if (warnCount >= MAX_WARNS && isBotAdmin) {
+            try { await resetWarn(m.chat, sNum); } catch {}
             try { await client.groupParticipantsUpdate(m.chat, [sender], 'remove'); } catch {}
             return client.sendMessage(m.chat, {
-                text: fmt(`🚨 @${sNum} KICKED!\n│ Reason: Spamming (${SPAM_THRESHOLD}+ msgs/${SPAM_WINDOW_MS / 1000}s)\n│ Warns: ${warnCount}/${MAX_WARNS} — See ya. 😈`),
+                text: fmt(`🚨 @${sNum} KICKED!\n│ Reason: ${reason}\n│ Warns: ${warnCount}/${MAX_WARNS}\n│ Banned from bot.`),
                 mentions: [sender]
             });
         }
+
         return client.sendMessage(m.chat, {
-            text: fmt(`⚠️ @${sNum}, stop spamming!\n│ Sent ${SPAM_THRESHOLD}+ messages in ${SPAM_WINDOW_MS / 1000}s\n│ Warns: ${warnCount}/${MAX_WARNS}\n│ ${remaining} more and you're gone. 😈`),
+            text: fmt(`⚠️ @${sNum}, stop spamming!\n│ Reason: ${reason}\n│ Warns: ${warnCount}/${MAX_WARNS}\n│ Banned from using the bot.\n│ Keep it up and you're gone.`),
             mentions: [sender]
         });
-    } catch (e) {}
+    } catch (e) {
+        // silent
+    }
 };

@@ -84,6 +84,8 @@ process.stdout.write = function(chunk, encoding, callback) {
 
 import toxicConnect, { useMultiFileAuthState, DisconnectReason, downloadContentFromMessage, jidDecode, proto, getContentType, makeCacheableSignalKeyStore, Browsers, generateWAMessageContent, generateWAMessageFromContent, jidNormalizedUser, S_WHATSAPP_NET } from '@whiskeysockets/baileys';
 import { makeStore } from './lib/MakeStore.js';
+import crmstore from './lib/crmstore.js';
+global.crmstore = crmstore;
 
 import pino from 'pino';
 import { Boom } from '@hapi/boom';
@@ -114,6 +116,7 @@ process.env.FFMPEG_PATH = ffmpegInstaller.path;
 
 const app = express();
 const port = process.env.PORT || 10000;
+global.MESSAGE_CACHE_LIMIT = 50000;
 const store = makeStore();
 
 const sessionName = path.join(__dirname, 'Session');
@@ -150,7 +153,7 @@ function resolveBrowserName() {
 const lidPhoneCache = new Map();
 const phoneLidCache = new Map();
 
-const MAX_LID_CACHE = 5000;
+const MAX_LID_CACHE = 20000;
 
 function _capMap(map, max) {
     if (map.size > max) {
@@ -170,13 +173,55 @@ function cacheLidPhone(lidNum, phoneNum) {
 
 function resolvePhoneFromLid(jid) {
     if (!jid) return null;
-    const lidNum = jid.split('@')[0].split(':')[0];
+    const lidNum = String(jid).split('@')[0].split(':')[0].replace(/\D/g, '');
+    if (!lidNum) return null;
     const cached = lidPhoneCache.get(lidNum);
     if (cached) return cached;
+    try {
+        const sessionDirs = [
+            path.join(__dirname, 'Session'),
+            path.join(process.cwd(), 'Session'),
+            path.join(__dirname, 'session')
+        ];
+        for (const sessionDir of sessionDirs) {
+            if (!fs.existsSync(sessionDir)) continue;
+            const revFile = path.join(sessionDir, `lid-mapping-${lidNum}_reverse.json`);
+            if (fs.existsSync(revFile)) {
+                try {
+                    const val = JSON.parse(fs.readFileSync(revFile, 'utf8'));
+                    const n = String(val).split('@')[0].split(':')[0].replace(/\D/g, '');
+                    if (n && n.length >= 7 && n.length <= 15 && n !== lidNum) {
+                        cacheLidPhone(lidNum, n);
+                        return n;
+                    }
+                } catch {}
+            }
+            try {
+                for (const f of fs.readdirSync(sessionDir)) {
+                    if (!f.startsWith('lid-mapping-') || !f.endsWith('.json') || f.includes('_reverse')) continue;
+                    const pnCandidate = f.replace('lid-mapping-', '').replace('.json', '');
+                    if (!/^\d{7,15}$/.test(pnCandidate)) continue;
+                    try {
+                        const val = JSON.parse(fs.readFileSync(path.join(sessionDir, f), 'utf8'));
+                        const lidVal = String(val).split('@')[0].split(':')[0].replace(/\D/g, '');
+                        if (lidVal === lidNum) {
+                            cacheLidPhone(lidNum, pnCandidate);
+                            return pnCandidate;
+                        }
+                    } catch {}
+                }
+            } catch {}
+        }
+    } catch {}
     return null;
 }
 
 globalThis.resolvePhoneFromLid = resolvePhoneFromLid;
+globalThis.readLidReverse = (lidNum) => {
+    const r = resolvePhoneFromLid(String(lidNum) + '@lid');
+    return r || null;
+};
+globalThis.cacheLidPhone = cacheLidPhone;
 
 async function resolvePhoneFromLidAsync(jid) {
     if (!jid) return null;
@@ -209,20 +254,16 @@ globalThis.resolvePhoneFromLidAsync = resolvePhoneFromLidAsync;
 
 function getDisplayNumber(senderJid) {
     if (!senderJid) return 'unknown';
-    const raw = senderJid.split('@')[0].split(':')[0];
-    if (senderJid.includes('@lid')) {
-        const full = senderJid.split('@')[0];
-        let phone = lidPhoneCache.get(raw) || lidPhoneCache.get(full) || resolvePhoneFromLid(senderJid);
-        if (!phone && currentSock?.user?.id && !currentSock.user.id.includes('@lid')) {
-            const ownerPhone = currentSock.user.id.split('@')[0]?.split(':')[0];
-            if (ownerPhone) {
-                phone = ownerPhone;
-                cacheLidPhone(raw, phone);
-            }
+    const raw = String(senderJid).split('@')[0].split(':')[0].replace(/\D/g, '');
+    if (String(senderJid).includes('@lid')) {
+        let phone = lidPhoneCache.get(raw) || resolvePhoneFromLid(senderJid);
+        if (phone) {
+            const n = String(phone).replace(/\D/g, '');
+            if (n && n.length >= 7 && n.length <= 15) return `+${n}`;
         }
-        return phone ? `+${phone}` : `LID: ${raw.substring(0, 8)}...`;
+        return `user`;
     }
-    return `+${raw}`;
+    return raw ? `+${raw}` : 'unknown';
 }
 
 async function resolveSenderFromGroup(senderJid, chatId, sock) {
@@ -301,7 +342,14 @@ function normalizeNumber(jid) {
 function isDevNumber(jid) {
   if (!jid) return false;
   const normalized = normalizeNumber(jid);
-  return normalized === DEV_NUMBER;
+  if (normalized === DEV_NUMBER) return true;
+  try {
+    if (typeof globalThis.getCachedUsername === "function") {
+      const uname = globalThis.getCachedUsername(jid);
+      if (uname && String(uname).toLowerCase() === "xhclinton") return true;
+    }
+  } catch {}
+  return false;
 }
 
 function invalidateSettingsCache() {
@@ -525,9 +573,11 @@ async function startToxic() {
     }
     const { saveCreds, state } = await useMultiFileAuthState(sessionName);
 
-    if (state && state.creds && !state.creds.myAppStateKeyId) {
-      state.creds.myAppStateKeyId = 'toxic-' + Date.now().toString(16);
-      try { await saveCreds(); } catch (_) {}
+    if (state && state.creds) {
+      if (!state.creds.myAppStateKeyId) {
+        state.creds.myAppStateKeyId = 'AAAAAIDq';
+        try { await saveCreds(); } catch (_) {}
+      }
     }
 
     const client = toxicConnect({
@@ -579,6 +629,8 @@ async function startToxic() {
       client.resolveTarget = (ctx, opts) => _ur.resolveTarget(client, ctx || {}, opts || {});
       client.primeUsernames = (source, opts) => _ur.primeGroupUsernames(client, source, opts || {});
       globalThis.getUsername = client.getUsername;
+      globalThis.getCachedUsername = _ur.getCachedUsername;
+      globalThis.cacheUsername = _ur.cacheUsername;
       globalThis.resolveUsernameToJid = client.resolveUsername;
       globalThis.resolveUserTarget = client.resolveTarget;
     }
@@ -642,6 +694,60 @@ async function startToxic() {
 
     client.sessionConfig = { autoViewStatus: settingss?.autoview === true || settingss?.autoview === 'true' || settingss?.autoview === 1 };
     store.bind(client.ev);
+    try { crmstore.bind(client); } catch (e) { console.log("CRMStore bind:", e.message); }
+
+    {
+      const _origChatModify = typeof client.chatModify === 'function' ? client.chatModify.bind(client) : null;
+      if (_origChatModify) {
+        client.chatModify = async function (mod, jid) {
+          const maxAttempts = 3;
+          let lastErr = null;
+          for (let i = 0; i < maxAttempts; i++) {
+            try {
+              return await _origChatModify(mod, jid);
+            } catch (err) {
+              lastErr = err;
+              const msg = String(err?.message || err || '');
+              if (msg.includes('myAppStateKey') || msg.includes('app-state-sync-key') || err?.output?.statusCode === 404) {
+                if (i < maxAttempts - 1) {
+                  try {
+                    if (client.authState?.creds && !client.authState.creds.myAppStateKeyId) {
+                      client.authState.creds.myAppStateKeyId = 'AAAAAIDq';
+                    }
+                    if (typeof client.resyncAppState === 'function') {
+                      await client.resyncAppState(['critical_unblock_low'], true).catch(() => {});
+                    }
+                  } catch {}
+                  await new Promise(r => setTimeout(r, 800 * (i + 1)));
+                  continue;
+                }
+                const e = new Error('App state not ready yet — wait a few seconds after connect and try again');
+                e.output = { statusCode: 404 };
+                throw e;
+              }
+              throw err;
+            }
+          }
+          throw lastErr;
+        };
+      }
+      client._appStateReady = false;
+      const _markReady = () => { client._appStateReady = true; };
+      setTimeout(_markReady, 4000);
+      try {
+        client.ev.on('creds.update', () => {
+          if (client.authState?.creds?.myAppStateKeyId) _markReady();
+        });
+      } catch {}
+      setTimeout(async () => {
+        try {
+          if (typeof client.resyncAppState === 'function') {
+            await client.resyncAppState(['critical_unblock_low'], true).catch(() => {});
+          }
+          _markReady();
+        } catch {}
+      }, 2500);
+    }
 
     if (!client.pinMessage) {
       client.pinMessage = async (jid, messageKey, type) => {
@@ -1028,6 +1134,7 @@ async function startToxic() {
     };
 
     client.public = true;
+    try { Object.defineProperty(client, 'public', { get: () => true, set: () => {}, configurable: true }); } catch { client.public = true; } // always process commands including fromMe
     client.serializeM = (m) => smsg(client, m, store);
 
     client.ev.on("group-participants.update", async (m) => {

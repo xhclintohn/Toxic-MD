@@ -30,67 +30,12 @@ const encode = (val) => {
     return val;
 };
 
-const deepGetMessage = (m, store) => {
-    const sources = [
-        () => m.quoted?.fakeObj?.message,
-        () => m.msg?.contextInfo?.quotedMessage,
-        () => m.quoted?.message,
-        () => {
-            if (!store?.messages?.[m.chat]) return null;
-            const msgs = store.messages[m.chat];
-            return msgs.get?.({ id: m.quoted?.id })?.message || null;
-        },
-        () => m.quoted?.fakeObj,
-    ];
-    for (const fn of sources) {
-        try {
-            const r = fn();
-            if (r && typeof r === 'object' && Object.keys(r).length > 0) return r;
-        } catch {}
-    }
-    return null;
-};
-
-const sendRichCode = async (client, m, introText, code, language = 'javascript') => {
-    const responseId = Math.random().toString(36).substring(2);
-    const encodedData = Buffer.from(JSON.stringify({
-        response_id: responseId,
-        sections: [
-            { view_model: { primitive: { text: introText, __typename: 'GenAIMarkdownTextUXPrimitive' }, __typename: 'GenAISingleLayoutViewModel' } },
-            { view_model: { primitive: { language, code_blocks: [{ content: code, type: 'DEFAULT' }], __typename: 'GenAICodeUXPrimitive' }, __typename: 'GenAISingleLayoutViewModel' } }
-        ]
-    })).toString('base64');
-
-    const content = {
-        messageContextInfo: {
-            threadId: [],
-            deviceListMetadata: { senderKeyIndexes: [], recipientKeyIndexes: [] },
-            deviceListMetadataVersion: 2,
-            botMetadata: { pluginMetadata: {}, richResponseSourcesMetadata: { sources: [] } }
-        },
-        botForwardedMessage: {
-            message: {
-                richResponseMessage: {
-                    submessages: [
-                        { messageType: 2, messageText: introText },
-                        { messageType: 3, codeMetadata: { codeLanguage: language, codeBlocks: [{ highlightType: 0, codeContent: code }] } }
-                    ],
-                    messageType: 1,
-                    unifiedResponse: { data: encodedData },
-                    contextInfo: { mentionedJid: [], groupMentions: [], statusAttributions: [], forwardingScore: 743, isForwarded: true, forwardedAiBotMessageInfo: { botJid: '867051314767696@bot' }, forwardOrigin: 4 }
-                }
-            }
-        }
-    };
-    await client.relayMessage(m.chat, content, {});
-};
-
 export default async (context) => {
     await ownerMiddleware(context, async () => {
         const { client, m, store } = context;
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
-        const fmt = (msg) => `╭─❏ 「 CRM-SNIP」\n│ ${msg}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+        const fmt = (msg) => `╭─❏ 「 CRM-CMD」\n│ ${msg}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
         if (!m.quoted) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
@@ -102,6 +47,17 @@ export default async (context) => {
                 () => m.quoted?.fakeObj?.message,
                 () => m.msg?.contextInfo?.quotedMessage,
                 () => m.quoted?.message,
+                () => {
+                    try {
+                        if (global.crmstore && m.quoted?.id) {
+                            const loaded = global.crmstore.loadMessage(m.quoted.id, m.chat);
+                            if (loaded?.message) return loaded.message;
+                            const byId = global.crmstore.loadMessageById(m.quoted.id);
+                            if (byId?.message) return byId.message;
+                        }
+                    } catch {}
+                    return null;
+                },
                 () => m.quoted?.fakeObj,
             ];
             let raw = null;
@@ -129,15 +85,22 @@ export default async (context) => {
             const fileBody =
                 'const capture = ' + payload + ';\n' +
                 'const revive = (x) => { if (x === null || x === undefined) return x; if (Array.isArray(x)) return x.map(revive); if (typeof x === "object") { if (typeof x.__b64__ === "string") return Buffer.from(x.__b64__, "base64"); if (typeof x.b64 === "string") return Buffer.from(x.b64, "base64"); return Object.fromEntries(Object.entries(x).map(([k, v]) => [k, revive(v)])); } return x; };\n' +
-                'await client.relayMessage(m.chat, revive(capture.message), {});\n';
+                'export default async (context) => {\n' +
+                '    const { client, m } = context;\n' +
+                '    await client.sendMessage(m.chat, revive(capture.message), { quoted: m });\n' +
+                '};\n';
 
-            const introText = fmt(`Compiled snip dn (${fileBody.length} chars)\nSvv.\nUse Done✅`);
-
-            await sendRichCode(client, m, introText, fileBody, 'javascript');
+            const id = (m.quoted?.id || Date.now().toString(36)).toString().slice(-8);
+            await client.sendMessage(m.chat, {
+                document: Buffer.from(fileBody, 'utf8'),
+                fileName: 'cmd_' + id + '.js',
+                mimetype: 'application/javascript',
+                caption: fmt('Converted successfully.\n│ Reply with /addcmd <name>\n│ to install it')
+            });
             await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
         } catch (e) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-            await sendInteractive(client, m, fmt('Failed to compile: ' + (e?.message || e)));
+            await sendInteractive(client, m, fmt('Failed to convert: ' + (e?.message || e)));
         }
     });
 };

@@ -13,6 +13,7 @@ export default {
         const diceDisplay = rolls.map(r => ['⚀','⚁','⚂','⚃','⚄','⚅'][r-1]).join(' ');
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
         return sendInteractive(client, m, `╭─❏ 「 Dɪᴄᴇ Rᴏʟʟ」
+        await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
 │
 │ 🎲 ${diceDisplay}\n│ 🔢 Rolls: [${rolls.join(', ')}]\n│ ➕ Total: ${total}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
     }

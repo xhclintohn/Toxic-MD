@@ -14,25 +14,116 @@ const lidMappingCache = new Map();
 
 function resolveLidToJid(jid) {
   if (!jid) return jid;
-  if (jid.endsWith('@lid')) {
-    const lid = jid.split('@')[0].split(':')[0];
-    let mapped = lidMappingCache.get(lid)
-      || (globalThis.lidPhoneCache && globalThis.lidPhoneCache.get(lid));
-    if (!mapped && globalThis.resolvePhoneFromLid) {
+  if (!String(jid).endsWith('@lid')) return jid;
+  const lid = String(jid).split('@')[0].split(':')[0].replace(/\D/g, '');
+  if (!lid) return jid;
+
+  let mapped = lidMappingCache.get(lid)
+    || (globalThis.lidPhoneCache && globalThis.lidPhoneCache.get(lid));
+
+  if (!mapped && globalThis.resolvePhoneFromLid) {
+    try {
       const r = globalThis.resolvePhoneFromLid(jid);
       if (r && typeof r === 'string' && !r.endsWith('@lid')) mapped = r;
-    }
-    if (mapped && typeof mapped === 'string') {
-      const num = mapped.split('@')[0].replace(/\D/g, '');
-      if (num) {
-        if (!lidMappingCache.has(lid)) lidMappingCache.set(lid, num);
-        return num + '@s.whatsapp.net';
+    } catch {}
+  }
+
+  if (!mapped) {
+    try {
+      const { resolveJidFromLid } = require ? null : null;
+    } catch {}
+    try {
+      // session reverse files via global helper if present
+      if (typeof globalThis.readLidReverse === 'function') {
+        mapped = globalThis.readLidReverse(lid);
       }
+    } catch {}
+  }
+
+  if (mapped && typeof mapped === 'string') {
+    const num = mapped.split('@')[0].replace(/\D/g, '');
+    if (num && num.length >= 7 && num.length <= 15 && num !== lid) {
+      lidMappingCache.set(lid, num);
+      if (globalThis.lidPhoneCache) globalThis.lidPhoneCache.set(lid, num);
+      return num + '@s.whatsapp.net';
     }
-    return jid;
   }
   return jid;
 }
+
+function isLidJid(j) {
+  return !!(j && String(j).endsWith('@lid'));
+}
+function isPnJid(j) {
+  return !!(j && (String(j).endsWith('@s.whatsapp.net') || String(j).endsWith('@hosted')));
+}
+function lidNumOf(j) {
+  if (!j) return '';
+  return String(j).split('@')[0].split(':')[0].replace(/\D/g, '');
+}
+function pnNumOf(j) {
+  if (!j) return '';
+  return String(j).split('@')[0].split(':')[0].replace(/\D/g, '');
+}
+
+function preferPhoneJid(primary, alt) {
+  if (isPnJid(primary)) return primary;
+  if (isPnJid(alt)) return alt;
+  if (isLidJid(primary) && alt) {
+    const resolved = resolveLidToJid(primary);
+    if (resolved && isPnJid(resolved)) return resolved;
+    if (!isLidJid(alt)) return alt;
+  }
+  if (isLidJid(alt)) {
+    const resolved = resolveLidToJid(alt);
+    if (resolved && isPnJid(resolved)) return resolved;
+  }
+  if (isLidJid(primary)) {
+    const resolved = resolveLidToJid(primary);
+    if (resolved && isPnJid(resolved)) return resolved;
+  }
+  return primary || alt || '';
+}
+
+function storePair(conn, lidJid, pnJid) {
+  if (!isLidJid(lidJid) || !isPnJid(pnJid)) return;
+  const lidNum = lidNumOf(lidJid);
+  const pnNum = pnNumOf(pnJid);
+  if (!lidNum || !pnNum || lidNum === pnNum || pnNum.length < 7 || pnNum.length > 15) return;
+  lidMappingCache.set(lidNum, pnNum);
+  if (globalThis.lidPhoneCache) globalThis.lidPhoneCache.set(lidNum, pnNum);
+  if (typeof globalThis.cacheLidPhone === 'function') {
+    try { globalThis.cacheLidPhone(lidNum, pnNum); } catch {}
+  }
+  try {
+    conn?.signalRepository?.lidMapping?.storeLIDPNMappings?.([
+      { lid: lidJid.includes('@') ? lidJid : lidNum + '@lid', pn: pnJid.includes('@') ? pnJid : pnNum + '@s.whatsapp.net' }
+    ])?.catch?.(() => {});
+  } catch {}
+}
+
+function seedParticipants(conn, participants) {
+  if (!Array.isArray(participants) || !participants.length) return;
+  for (const p of participants) {
+    try {
+      const id = p.id || p.jid || '';
+      const lidField = p.lid || '';
+      const phone = p.phoneNumber || p.phone_number || p.pn || '';
+      let lidJid = null;
+      let pnJid = null;
+      if (isLidJid(id)) lidJid = id;
+      else if (isLidJid(lidField)) lidJid = lidField;
+      if (isPnJid(id)) pnJid = id;
+      if (phone) {
+        const n = String(phone).replace(/\D/g, '');
+        if (n.length >= 7 && n.length <= 15) pnJid = n + '@s.whatsapp.net';
+      }
+      if (lidJid && pnJid) storePair(conn, lidJid, pnJid);
+    } catch {}
+  }
+}
+
+const preferPn = preferPhoneJid;
 
 function smsg(conn, m, store, resolvedChatJid = null) {
   if (!m) return {};
@@ -55,31 +146,50 @@ function smsg(conn, m, store, resolvedChatJid = null) {
     m.fromMe = m.key.fromMe;
     m.isGroup = m.chat?.endsWith("@g.us");
     
+    // Learn mapping whenever both LID + PN appear on the same key
+    try {
+      if (m.isGroup) {
+        storePair(conn, m.key.participant, m.key.participantAlt);
+        storePair(conn, m.key.participantAlt, m.key.participant);
+      } else {
+        storePair(conn, m.key.remoteJid, m.key.remoteJidAlt);
+        storePair(conn, m.key.remoteJidAlt, m.key.remoteJid);
+      }
+    } catch {}
+
     let rawSender;
     if (m.fromMe && conn.user?.id) {
       rawSender = conn.user.id;
-    } else if (m.key.participantAlt) {
-      rawSender = m.key.participantAlt;
-    } else if (m.key.participant) {
-      rawSender = m.key.participant;
+    } else if (m.isGroup) {
+      rawSender = preferPhoneJid(m.key.participant, m.key.participantAlt);
     } else {
-      rawSender = m.chat;
+      rawSender = preferPhoneJid(m.key.remoteJid, m.key.remoteJidAlt);
     }
-    
+    if (!rawSender) rawSender = m.chat;
     rawSender = resolveLidToJid(rawSender);
     m.sender = conn.decodeJid(rawSender);
-    
+    m.senderLid = isLidJid(m.key.participant) ? m.key.participant
+      : (isLidJid(m.key.remoteJid) ? m.key.remoteJid : null);
+
     if (m.isGroup) {
-      let rawParticipant;
-      if (m.key.participantAlt) {
-        rawParticipant = m.key.participantAlt;
-      } else if (m.key.participant) {
-        rawParticipant = m.key.participant;
-      } else {
-        rawParticipant = "";
-      }
+      let rawParticipant = preferPhoneJid(m.key.participant, m.key.participantAlt) || "";
       rawParticipant = resolveLidToJid(rawParticipant);
       m.participant = conn.decodeJid(rawParticipant) || "";
+    }
+
+    // Still on LID? ask Baileys lidMapping and cache for next time
+    if (m.sender && isLidJid(m.sender) && conn?.signalRepository?.lidMapping?.getPNForLID) {
+      const _lid = m.sender;
+      Promise.resolve(conn.signalRepository.lidMapping.getPNForLID(_lid))
+        .then((pn) => {
+          if (!pn || typeof pn !== 'string' || !isPnJid(pn)) return;
+          storePair(conn, _lid, pn);
+          // Hot-update this message object for any later sync use
+          try {
+            if (m.sender && isLidJid(m.sender)) m.sender = conn.decodeJid(pn);
+          } catch {}
+        })
+        .catch(() => {});
     }
   }
 
@@ -243,4 +353,4 @@ function smsg(conn, m, store, resolvedChatJid = null) {
   return m;
 }
 
-export { smsg, lidMappingCache };
+export { smsg, lidMappingCache, seedParticipants, storePair, preferPhoneJid, resolveLidToJid };

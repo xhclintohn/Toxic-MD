@@ -1,6 +1,6 @@
 {
   "name": "Toxic-md",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "A lightning-fast WhatsApp bot with multi-device support, built on Node.js & Baileys.",
   "main": "index.js",
   "type": "module",
@@ -15,7 +15,7 @@
     "@ffmpeg-installer/ffmpeg": "latest",
     "@hapi/boom": "^10.0.1",
     "@vitalets/google-translate-api": "^9.2.0",
-    "@whiskeysockets/baileys": "npm:toxic-baileys@latest",
+    "@whiskeysockets/baileys": "github:xhclintohn/Baileys#test",
     "acrcloud": "^1.2.0",
     "awesome-phonenumber": "^6.2.0",
     "axios": "latest",

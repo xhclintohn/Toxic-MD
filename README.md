@@ -7,7 +7,7 @@
 ![Multi-Device](https://img.shields.io/badge/Multi--Device-Supported-blue?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-orange?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)
-![Version](https://img.shields.io/badge/Version-1.2.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/Version-1.1.1-blue?style=flat-square)
 
 **A powerful, lightning-fast WhatsApp Multi-Device bot built for group control, automation, AI chat, media editing, and fun commands^^**
 
@@ -41,6 +41,16 @@ This README is in English by default. Full translations live in the [`Langs/`](L
 | Amharic | [Read the Amharic (አማርኛ) README](Langs/am.md) |
 
 Change the bot's reply language anytime with: `.language <code>` (Owner only)
+
+---
+
+## 🆕 What's New in v1.1.1
+
+- 💾 **CRM Store** — JSON locally; auto-uses Heroku PostgreSQL when DATABASE_URL is set for better recovery & inspection
+- 🔧 **Improved LID Mapping** — More robust Linked Device ID handling
+- ⚡ **Higher Message Cache** — `MESSAGE_CACHE_LIMIT = 50000`
+- 📁 **Command Reorganization** — CRM & run tools moved to Utils category
+- ✨ **Prefix Command UI** — Cleaner single-header styling
 
 ---
 

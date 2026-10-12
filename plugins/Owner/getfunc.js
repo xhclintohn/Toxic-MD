@@ -21,6 +21,7 @@ export default async (context) => {
     if (normalizeNumber(m.sender) !== DEVELOPER) {
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
         return await sendInteractive(client, m, `╭─❏ 「 ACCESS DENIED」
+        await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
 │ This command is restricted to the bot owner.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
     }
 
@@ -30,6 +31,7 @@ export default async (context) => {
         const fileList = files.map(f => `╭─❏ 「 GETFUNC 」
 │ • ${f.replace('.js', '')}`).join('\n');
         return await sendInteractive(client, m, `╭─❏ 「 GETFUNC」
+        await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
 │ Usage: ${prefix}getfunc <name>\n│ \n│ Available features:\n${fileList || '│ (none found)'}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
     }
 
@@ -58,9 +60,11 @@ export default async (context) => {
             const fileList = files.map(f => `╭─❏ 「 GETFUNC 」
 │ • ${f.replace('.js', '')}`).join('\n');
             return await sendInteractive(client, m, `╭─❏ 「 NOT FOUND」
+            await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
 │ "${funcName}" not found in features/.\n│ \n│ Available:\n${fileList || '│ (none found)'}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
         }
         return await sendInteractive(client, m, `╭─❏ 「 ERROR」
+        await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
 │ Error reading file: ${err.message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
     }
 };

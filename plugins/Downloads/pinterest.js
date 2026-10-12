@@ -1,129 +1,72 @@
 import fetch from 'node-fetch';
 import { sendInteractive } from '../../lib/sendInteractive.js';
 
-export default {
-  name: 'pinterest',
-  aliases: ['pin', 'pinterestimg'],
-  description: 'Fetches Pinterest images for your basic needs',
-  run: async (context) => {
-    const { client, m, text } = context;
-    await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
+const SEARCH_API = 'https://api.snowping.cfd/api/search/pinterest';
+const URL_API = 'https://api.ryuu-dev.my.id/downloader/pinterest';
+const RYUU_KEY = 'ryuu-apis-9c049100c28fc39e1791732697814';
+
+function isPinterestUrl(t) {
+    return /pinterest\.com|pin\.it/i.test(String(t || ''));
+}
+
+export default async (context) => {
+    const { client, m, text, prefix } = context;
+    await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } }).catch(() => {});
+    const fmt = (msg) => `╭─❏ 「 PINTEREST 」\n│ ${msg}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+
+    if (!text) {
+        await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+        return sendInteractive(client, m, fmt(`Usage:\n│ ${prefix}pinterest Spider man\n│ ${prefix}pinterest https://pin.it/...`));
+    }
 
     try {
-      const query = (text || '').trim();
-      if (!query) {
+        if (isPinterestUrl(text.trim())) {
+            const r = await fetch(URL_API + '?url=' + encodeURIComponent(text.trim()), {
+                headers: { 'X-RYUU-APIKEY': RYUU_KEY, 'User-Agent': 'Mozilla/5.0' },
+                timeout: 25000
+            });
+            const d = await r.json();
+            const res = d.result || d.data || d;
+            const image = res.image || res.thumbnail || res.images?.orig?.url;
+            const video = res.video || (res.is_video ? res.video : null);
+            const title = res.title || res.description || 'Pinterest';
+            if (!image && !video) throw new Error('No media found for that pin');
+
+            await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
+            if (video) {
+                await client.sendMessage(m.chat, {
+                    video: { url: video },
+                    caption: fmt(`*${title}*\n│ @${res.username || res.fullname || 'pin'}`)
+                });
+            } else {
+                await client.sendMessage(m.chat, {
+                    image: { url: image },
+                    caption: fmt(`*${title}*\n│ @${res.username || res.fullname || 'pin'}`)
+                });
+            }
+            return;
+        }
+
+        const r = await fetch(SEARCH_API + '?query=' + encodeURIComponent(text.trim()), {
+            headers: { 'User-Agent': 'Mozilla/5.0' },
+            timeout: 20000
+        });
+        const d = await r.json();
+        const results = d.result || d.results || d.data || [];
+        if (!Array.isArray(results) || !results.length) throw new Error('No images found');
+
+        const picks = results.slice(0, 5);
+        await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
+        for (const url of picks) {
+            const img = typeof url === 'string' ? url : (url.url || url.image || url.thumbnail);
+            if (!img) continue;
+            await client.sendMessage(m.chat, {
+                image: { url: img },
+                caption: fmt(`Search: *${text}*`)
+            }).catch(() => {});
+        }
+    } catch (e) {
         await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-        return sendInteractive(client, m, "╭─❏ 「 PINTEREST」\n│ Give me a search term, you visually impaired fool.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧");
-      }
-
-      const apiUrl = `https://api.theresav.biz.id/search/pinterest?query=${encodeURIComponent(query)}&type=image&apikey=tIdZJ`;
-      const res = await fetch(apiUrl);
-      const data = await res.json();
-
-      if (!data.status || !data.result || data.result.length === 0) {
-        await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-        return sendInteractive(client, m, `╭─❏ 「 PINTEREST」\n│ No Pinterest images for "${query}".\n│ Your search is as pointless as you are.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
-      }
-
-      const images = data.result
-        .filter(img => img && img.directLink)
-        .slice(0, 10);
-
-      if (images.length === 0) {
-        await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-        return sendInteractive(client, m, `╭─❏ 「 PINTEREST」\n│ No valid images found.\n│ Even Pinterest rejected your taste.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
-      }
-
-      await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
-
-      const imageUrls = images.map(img => ({
-        imagePreviewUrl: img.directLink,
-        sourceUrl: img.link || 'https://pinterest.com'
-      }));
-
-      const captionLines = images.map((img, i) => `${i + 1}. ${img.link || img.directLink}`).join('\n');
-      const captionText = `📌 *Pinterest Search*\n\n🔍 Query: ${query}\n📊 Found: ${images.length}/${data.totalResult || data.result.length} images\n\n${captionLines}`;
-
-      const sections = images.map(img => ({
-        view_model: {
-          primitive: {
-            media: {
-              url: img.directLink,
-              mime_type: 'image/jpeg'
-            },
-            imagine_type: 3,
-            status: { status: 'READY' },
-            __typename: 'GenAIImaginePrimitive'
-          },
-          __typename: 'GenAISingleLayoutViewModel'
-        }
-      }));
-
-      sections.push({
-        view_model: {
-          primitive: {
-            text: captionText,
-            __typename: 'GenAIMarkdownTextUXPrimitive'
-          },
-          __typename: 'GenAISingleLayoutViewModel'
-        }
-      });
-
-      await client.relayMessage(
-        m.chat,
-        {
-          messageContextInfo: {
-            deviceListMetadata: {},
-            deviceListMetadataVersion: 2,
-            botMetadata: {
-              pluginMetadata: {},
-              richResponseSourcesMetadata: {}
-            }
-          },
-          botForwardedMessage: {
-            message: {
-              richResponseMessage: {
-                messageType: 1,
-                submessages: [
-                  {
-                    messageType: 1,
-                    gridImageMetadata: {
-                      gridImageUrl: {
-                        imagePreviewUrl: images[0].directLink
-                      },
-                      imageUrls: imageUrls
-                    }
-                  },
-                  {
-                    messageType: 2,
-                    messageText: captionText
-                  }
-                ],
-                unifiedResponse: {
-                  data: Buffer.from(JSON.stringify({
-                    response_id: `pinterest-${Date.now()}`,
-                    sections
-                  })).toString('base64')
-                },
-                contextInfo: {
-                  forwardingScore: 1,
-                  isForwarded: true,
-                  forwardedAiBotMessageInfo: {
-                    botJid: '0@bot'
-                  },
-                  forwardOrigin: 4
-                }
-              }
-            }
-          }
-        },
-        {}
-      );
-
-    } catch (error) {
-      console.error('Pinterest error:', error);
-      await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-      await sendInteractive(client, m, `╭─❏ 「 PINTEREST ERROR」\n│ Search failed. Your taste is probably trash anyway.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+        sendInteractive(client, m, fmt(`Failed: ${e.message}`));
     }
-  }
 };

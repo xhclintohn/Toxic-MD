@@ -14,58 +14,47 @@ export default async (context) => {
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
         await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
         return await sendInteractive(client, m, 
-          `` +
           `╭─❏ 「 PREFIX 」
-│ Already prefixless, you clueless twit! 😈\n` +
-          `╭─❏ 「 PREFIX 」
-│ Stop wasting my time! 🖕\n` +
-          `╰───────────────
+│ Already prefixless, you clueless twit! 😈
+╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
         );
       }
       await updateSetting('prefix', '');
       await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
       await sendInteractive(client, m, 
-        `` +
         `╭─❏ 「 PREFIX 」
-│ Prefix obliterated! 🔥\n` +
-        `╭─❏ 「 PREFIX 」
-│ I’m prefixless now, bow down! 😈\n` +
-        `╰───────────────
+│ Prefix obliterated! 🔥
+│ I’m prefixless now, bow down! 😈
+╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
       );
     } else if (newPrefix) {
       if (settings.prefix === newPrefix) {
         await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
         return await sendInteractive(client, m, 
-          `` +
           `╭─❏ 「 PREFIX 」
-│ Prefix is already ${newPrefix}, moron! 😈\n` +
-          `╭─❏ 「 PREFIX 」
-│ Try something new, fool! 🥶\n` +
-          `╰───────────────
+│ Prefix is already ${newPrefix}, moron! 😈
+│ Try something new, fool! 🥶
+╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
         );
       }
       await updateSetting('prefix', newPrefix);
       await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
       await sendInteractive(client, m, 
-        `` +
         `╭─❏ 「 PREFIX 」
-│ New prefix set to ${newPrefix}! 🔥\n` +
-        `╭─❏ 「 PREFIX 」
-│ Obey the new order, king! 😈\n` +
-        `╰───────────────
+│ New prefix set to ${newPrefix}! 🔥
+│ Obey the new order, king! 😈
+╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
       );
     } else {
       await sendInteractive(client, m, 
-        `` +
         `╭─❏ 「 PREFIX 」
-│ Current Prefix: ${settings.prefix || 'No prefix, peasant! 🥶'}\n` +
-        `╭─❏ 「 PREFIX 」
-│ Use "${settings.prefix || '.'}prefix null" to go prefixless or "${settings.prefix || '.'}prefix <symbol>" to set one, noob!\n` +
-        `╰───────────────
+│ Current Prefix: ${settings.prefix || 'No prefix, peasant! 🥶'}
+│ Use "${settings.prefix || '.'}prefix null" to go prefixless or "${settings.prefix || '.'}prefix <symbol>" to set one, noob!
+╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
       );
     }

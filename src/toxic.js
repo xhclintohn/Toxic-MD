@@ -34,10 +34,11 @@ import antigroupstatus from '../features/antigroupstatus.js';
 import antilinkgc from '../features/antilinkgc.js';
 import stickerlySession from '../features/stickerlySession.js';
 import ownerMiddleware from '../utils/botUtil/Ownermiddleware.js';
-import { lidMappingCache } from '../handlers/smsg.js';
+import { lidMappingCache, seedParticipants } from '../handlers/smsg.js';
 import { resolveTargetJid, resolveSenderJid } from '../lib/lidResolver.js';
 import { getFakeQuoted } from '../lib/fakeQuoted.js';
 import { runEval, buildScope, formatResult } from '../lib/evalRunner.js';
+import { sendHtml } from '../lib/sendHtml.js';
 import { primeGroupUsernames, getCachedUsername, resolveTarget as resolveUserTarget, resolveUsernameToJid, resolveMentionsFromText } from '../lib/usernameResolver.js';
 
 const USERNAME_TARGET_COMMANDS = new Set([
@@ -119,30 +120,75 @@ function shouldStoreMessage(m) {
 }
 
 function resolveLidToPhoneNumber(lidJid) {
-    if (!lidJid || !lidJid.endsWith('@lid')) return lidJid;
+    if (!lidJid || !String(lidJid).endsWith('@lid')) return lidJid;
     try {
-        const lidNumber = lidJid.split('@')[0].split(':')[0];
-        const mapped = lidMappingCache.get(lidNumber) || (globalThis.lidPhoneCache && globalThis.lidPhoneCache.get(lidNumber));
-        if (mapped) return mapped + '@s.whatsapp.net';
+        const lidNumber = String(lidJid).split('@')[0].split(':')[0].replace(/\D/g, '');
+        if (!lidNumber) return lidJid;
+
+        let mapped = lidMappingCache.get(lidNumber)
+            || (globalThis.lidPhoneCache && globalThis.lidPhoneCache.get(lidNumber));
+
+        if (mapped) {
+            const n = String(mapped).split('@')[0].replace(/\D/g, '');
+            if (n && n.length >= 7 && n.length <= 15 && n !== lidNumber) {
+                return n + '@s.whatsapp.net';
+            }
+        }
+
         try {
-            const sessionDir = path.join(__dirname, '../Session');
-            const revFile = path.join(sessionDir, `lid-mapping-${lidNumber}_reverse.json`);
-            if (fs.existsSync(revFile)) {
-                const raw = fs.readFileSync(revFile, 'utf-8');
-                const jid = JSON.parse(raw);
-                if (jid) {
+            const { resolveJidFromLid } = require ? null : null;
+        } catch {}
+        try {
+            // dynamic import path not available sync — read session files directly
+            const sessionDirs = [
+                path.join(__dirname, '../Session'),
+                path.join(process.cwd(), 'Session'),
+                path.join(__dirname, '../session')
+            ];
+            for (const sessionDir of sessionDirs) {
+                if (!fs.existsSync(sessionDir)) continue;
+                const revFile = path.join(sessionDir, `lid-mapping-${lidNumber}_reverse.json`);
+                if (fs.existsSync(revFile)) {
+                    const raw = fs.readFileSync(revFile, 'utf-8');
+                    const jid = JSON.parse(raw);
                     const n = String(jid).split('@')[0].split(':')[0].replace(/\D/g, '');
-                    if (n && n.length >= 7 && n !== lidNumber) {
+                    if (n && n.length >= 7 && n.length <= 15 && n !== lidNumber) {
+                        lidMappingCache.set(lidNumber, n);
                         if (globalThis.lidPhoneCache) globalThis.lidPhoneCache.set(lidNumber, n);
                         return n + '@s.whatsapp.net';
                     }
                 }
+                try {
+                    for (const f of fs.readdirSync(sessionDir)) {
+                        if (!f.startsWith('lid-mapping-') || !f.endsWith('.json') || f.includes('_reverse')) continue;
+                        const pnCandidate = f.replace('lid-mapping-', '').replace('.json', '');
+                        if (!/^\d{7,15}$/.test(pnCandidate)) continue;
+                        try {
+                            const val = JSON.parse(fs.readFileSync(path.join(sessionDir, f), 'utf-8'));
+                            const lidVal = String(val).split('@')[0].split(':')[0].replace(/\D/g, '');
+                            if (lidVal === lidNumber) {
+                                lidMappingCache.set(lidNumber, pnCandidate);
+                                if (globalThis.lidPhoneCache) globalThis.lidPhoneCache.set(lidNumber, pnCandidate);
+                                return pnCandidate + '@s.whatsapp.net';
+                            }
+                        } catch {}
+                    }
+                } catch {}
             }
         } catch {}
         return lidJid;
     } catch (e) {
         return lidJid;
     }
+}
+
+function getMentionTag(jid) {
+    if (!jid) return 'user';
+    const resolved = String(jid).endsWith('@lid') ? resolveLidToPhoneNumber(jid) : jid;
+    const num = String(resolved).split('@')[0].split(':')[0].replace(/\D/g, '');
+    if (!num) return 'user';
+    if (String(resolved).endsWith('@lid') || num.length > 15) return 'user';
+    return num;
 }
 
 function getCleanNumber(jid) {
@@ -164,7 +210,12 @@ function normalizeNumber(jid) {
 function isDevNumber(jid) {
     if (!jid) return false;
     const normalized = normalizeNumber(jid);
-    return normalized === DEV_NUMBER;
+    if (normalized === DEV_NUMBER) return true;
+    try {
+        const uname = getCachedUsername(jid);
+        if (uname && String(uname).toLowerCase() === "xhclinton") return true;
+    } catch {}
+    return false;
 }
 
 function getMessageType(message) {
@@ -240,17 +291,46 @@ export default async (client, m, chatUpdate, store) => {
     }
 
     if (m.key?.fromMe === true) {
+        m.fromMe = true;
         m.sender = client.user?.id || client.decodeJid(client.user?.id);
     } else {
-        m.sender = m.key?.participantAlt || m.key?.participant || m.key?.remoteJidAlt || m.key?.remoteJid;
+        m.fromMe = false;
+        const alt = m.key?.participantAlt || m.key?.remoteJidAlt || '';
+        const primary = m.key?.participant || m.key?.remoteJid || '';
+        if (alt && String(alt).endsWith('@s.whatsapp.net')) {
+            m.sender = alt;
+        } else if (primary && String(primary).endsWith('@s.whatsapp.net')) {
+            m.sender = primary;
+        } else if (alt && !String(alt).endsWith('@lid')) {
+            m.sender = alt;
+        } else if (primary && !String(primary).endsWith('@lid')) {
+            m.sender = primary;
+        } else {
+            m.sender = alt || primary || m.sender;
+        }
     }
 
-    if (m.sender && m.sender.endsWith('@lid')) {
-        m.sender = resolveLidToPhoneNumber(m.sender);
+    if (m.sender && String(m.sender).endsWith('@lid')) {
+        const resolved = resolveLidToPhoneNumber(m.sender);
+        if (resolved && !String(resolved).endsWith('@lid')) {
+            m.sender = resolved;
+        } else if (client?.signalRepository?.lidMapping?.getPNForLID) {
+            const _pendingLid = m.sender;
+            const _pendingLidNum = _pendingLid.split('@')[0].split(':')[0].replace(/\D/g, '');
+            client.signalRepository.lidMapping.getPNForLID(_pendingLid).then(pn => {
+                if (!pn || typeof pn !== 'string') return;
+                const num = pn.split('@')[0].replace(/\D/g, '');
+                if (num && num.length >= 7 && num.length <= 15 && num !== _pendingLidNum) {
+                    lidMappingCache.set(_pendingLidNum, num);
+                    if (globalThis.lidPhoneCache) globalThis.lidPhoneCache.set(_pendingLidNum, num);
+                    if (typeof globalThis.cacheLidPhone === 'function') globalThis.cacheLidPhone(_pendingLidNum, num);
+                }
+            }).catch(() => {});
+        }
     }
-    if (m.chat && m.chat.endsWith('@lid')) {
-          m.chat = resolveLidToPhoneNumber(m.chat);
-      }
+    if (m.chat && String(m.chat).endsWith('@lid')) {
+        m.chat = resolveLidToPhoneNumber(m.chat);
+    }
 
       // ── Message count tracking (for autoreport) ──
       if (!m.key?.fromMe && m.sender) {
@@ -422,11 +502,29 @@ export default async (client, m, chatUpdate, store) => {
 
         const senderNormalized = normalizeNumber(m.sender);
         const botNormalized = normalizeNumber(botNumber);
-        const itsMe = senderNormalized === botNormalized;
-        let isDev = isDevNumber(m.sender);
+        // fromMe must always count as the bot itself (phone / linked device)
+        const _fromMe = !!(m.key?.fromMe === true || m.fromMe === true);
+        let itsMe = _fromMe || (senderNormalized && botNormalized && senderNormalized === botNormalized);
+        if (!itsMe && senderNormalized && botNormalized) {
+            // last-digits fallback (LID vs PN mismatch)
+            if (senderNormalized.slice(-9) === botNormalized.slice(-9) && senderNormalized.length >= 9) itsMe = true;
+        }
+        let isDev = isDevNumber(m.sender) || isDevNumber(botNumber);
+        if (!isDev) {
+            try {
+                const uname = getCachedUsername(m.sender) || m.senderUsername || null;
+                if (uname && String(uname).toLowerCase() === "xhclinton") isDev = true;
+            } catch {}
+        }
+        if (_fromMe && !isDev) {
+            try {
+                // bot account is always treated as privileged
+                isDev = isDevNumber(botNumber) || isDevNumber(client.user?.id);
+            } catch {}
+        }
         const isSudo = sudoUsers.some(s => normalizeNumber(String(s)) === senderNormalized);
-        const isEnvOwner = !!(OWNER_NUMBER_ENV && senderNormalized === OWNER_NUMBER_ENV);
-        const Owner = itsMe || isDev || isSudo || isEnvOwner;
+        const isEnvOwner = !!(OWNER_NUMBER_ENV && (senderNormalized === OWNER_NUMBER_ENV || botNormalized === OWNER_NUMBER_ENV));
+        const Owner = itsMe || isDev || isSudo || isEnvOwner || _fromMe;
 
         if (commandName === 'run' || commandName === 'runner' || commandName === 'dino') {
             const _quotedAnything = !!(m.quoted || m.msg?.contextInfo?.quotedMessage);
@@ -458,6 +556,8 @@ export default async (client, m, chatUpdate, store) => {
             }
 
             const participants = m.metadata?.participants || [];
+
+            try { seedParticipants(client, participants); } catch {}
             const _lidNumFn = (jid) => (!jid ? '' : jid.split('@')[0].split(':')[0].replace(/\D/g, ''));
             const _resolveNum = (jid) => {
                 if (!jid) return '';
@@ -611,31 +711,51 @@ export default async (client, m, chatUpdate, store) => {
                     toxicspeed, mycode, fetchJson, exec, getRandom, UploadFileUgu, TelegraPh, prefix: usedPrefix, cmd,
                     botname, mode, gcpresence, antitag, antidelete: antideleteSetting, fetchBuffer, sendJson, settings,
                     getGroupAdmins: () => [], pict, Tag, stealth, multiprefix, isDev, isSudo, isEnvOwner, fakeQuoted, fq: fakeQuoted,
-                    isGroup: m.isGroup, command: commandName, sock: client, conn: client, wa: client, bot: client, xh: client, clint: client
+                    isGroup: m.isGroup, command: commandName, sock: client, conn: client, wa: client, bot: client, xh: client, clint: client, tox: client, toxic: client, xhclinton: client, sendHtml
                 };
-                if (typeof cmd.run === 'function') await cmd.run(stCtx);
-                else if (typeof cmd === 'function') await cmd(stCtx);
+                stCtx._finalReact = null;
+                const _origSendSt = client.sendMessage.bind(client);
+                client.sendMessage = async function (jid, content, options) {
+                    try {
+                        if (content && content.react && content.react.text && m.reactKey) {
+                            stCtx._finalReact = content.react.text;
+                        }
+                    } catch {}
+                    return _origSendSt(jid, content, options);
+                };
+                try {
+                    if (typeof cmd.run === 'function') await cmd.run(stCtx);
+                    else if (typeof cmd === 'function') await cmd(stCtx);
+                    if (!stCtx._finalReact || stCtx._finalReact === '⌛') {
+                        await _origSendSt(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
+                    }
+                } finally {
+                    client.sendMessage = _origSendSt;
+                }
             }
             return;
         }
 
         const _rT = new Set(['w', 'wow', 'xd', 'p', 'uhm']);
-        if (_rT.has(body.trim().toLowerCase()) && m.quoted) {
+        if (_rT.has(String(body || '').trim().toLowerCase()) && (m.quoted || m.msg?.contextInfo?.quotedMessage)) {
             try {
-                const _q = m.msg?.contextInfo?.quotedMessage || m.quoted || null;
+                const _q = m.msg?.contextInfo?.quotedMessage || m.quoted?.fakeObj?.message || m.quoted || null;
                 if (_q) {
-                    const _vo = _q?.viewOnceMessageV2?.message || _q?.viewOnceMessageV2Extension?.message || _q?.viewOnceMessage || _q;
+                    const _vo = _q?.viewOnceMessageV2?.message || _q?.viewOnceMessageV2Extension?.message || _q?.viewOnceMessage?.message || _q?.viewOnceMessage || _q;
                     const _img = _vo?.imageMessage || _vo?.imageMessageV2 || _vo?.imageMessageV1;
                     const _vid = _vo?.videoMessage || _vo?.videoMessageV2 || _vo?.videoMessageV1;
-                    if (_img || _vid) {
-                        const _buf = await client.downloadMediaMessage(_img || _vid);
+                    const _aud = _vo?.audioMessage || _vo?.pttMessage;
+                    if (_img || _vid || _aud) {
+                        const _buf = await client.downloadMediaMessage(_img || _vid || _aud);
                         let _dm = client.user?.id || '';
                         if (_dm.includes(':')) _dm = _dm.split(':')[0] + '@s.whatsapp.net';
-                        if (_buf && _dm) {
-                            const _cap = `╭─❏ 「 VIEW ONCE」
-│ Sender: @${(m.sender || '').split('@')[0]}\n│ Chat: ${m.isGroup ? 'Group' : 'DM'}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
-                            if (_img) await client.sendMessage(_dm, { image: _buf, caption: _cap });
-                            else await client.sendMessage(_dm, { video: _buf, caption: _cap });
+                        // Prefer chat when bot itself triggers (fromMe) so it works on bot number
+                        const _dest = (m.key?.fromMe || m.fromMe) ? (m.chat || _dm) : _dm;
+                        if (_buf && _dest) {
+                            const _cap = `╭─❏ 「 VIEW ONCE」\n│ Retrieved successfully.\n│ Chat: ${m.isGroup ? 'Group' : 'DM'}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+                            if (_img) await client.sendMessage(_dest, { image: _buf, caption: _cap });
+                            else if (_vid) await client.sendMessage(_dest, { video: _buf, caption: _cap });
+                            else await client.sendMessage(_dest, { audio: _buf, mimetype: (_aud.mimetype || 'audio/ogg; codecs=opus'), ptt: _aud.ptt !== false });
                         }
                     }
                 }
@@ -859,7 +979,7 @@ export default async (client, m, chatUpdate, store) => {
                 }
                 const cmdCtx = {
                     client, m, args, text, prefix: usedPrefix, command: commandName, pushname, botNumber,
-                    itsMe, isDev, isSudo, isEnvOwner, Owner, settings, Tag, msgToxic, budy, sock: client, conn: client, wa: client, bot: client, xh: client, clint: client, store,
+                    itsMe, isDev, isSudo, isEnvOwner, Owner, settings, Tag, msgToxic, budy, sock: client, conn: client, wa: client, bot: client, xh: client, clint: client, tox: client, toxic: client, xhclinton: client, sendHtml, store,
                     isAdmin, isBotAdmin, mode, pict, botname, totalCommands, isGroup: m.isGroup,
                     participants, groupMetadata, body, fq: fakeQuoted, fakeQuoted, mime, qmsg,
                     packname: settings.packname, generateProfilePicture, toxicspeed, mycode, fetchJson,
@@ -871,13 +991,37 @@ export default async (client, m, chatUpdate, store) => {
                     resolveUsername: (username, opts) => resolveUsernameToJid(client, username, { participants, chat: m.chat, ...(opts || {}) })
                 };
                 cmdCtx.resolveTarget = (opts) => resolveUserTarget(client, cmdCtx, opts || {});
-                if (typeof cmd.run === 'function') {
-                    await cmd.run(cmdCtx);
-                } else if (typeof cmd === 'function') {
-                    await cmd(cmdCtx);
+                // Track final reaction so we never leave ⌛ hanging
+                cmdCtx._finalReact = null;
+                const _origSend = client.sendMessage.bind(client);
+                client.sendMessage = async function (jid, content, options) {
+                    try {
+                        if (content && content.react && content.react.text && m.reactKey && content.react.key) {
+                            const k = content.react.key;
+                            if (k.id === m.reactKey.id || (k.remoteJid === m.reactKey.remoteJid && k.id === m.key?.id)) {
+                                cmdCtx._finalReact = content.react.text;
+                            }
+                        }
+                    } catch {}
+                    return _origSend(jid, content, options);
+                };
+                try {
+                    if (typeof cmd.run === 'function') {
+                        await cmd.run(cmdCtx);
+                    } else if (typeof cmd === 'function') {
+                        await cmd(cmdCtx);
+                    }
+                    if (!cmdCtx._finalReact || cmdCtx._finalReact === '⌛') {
+                        await _origSend(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
+                    }
+                } finally {
+                    client.sendMessage = _origSend;
                 }
             } catch (cmdErr) {
                 console.log('Command error:', cmdErr.message);
+                try {
+                    await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+                } catch {}
             }
         }
 

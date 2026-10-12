@@ -2,11 +2,38 @@
 
 [⬅ Back to main README](../README.md)
 
-**Toxic-MD**는 **Baileys Multi-Device**로 구축된 현대적인 WhatsApp 봇입니다. 그룹 관리, 작업 자동화 및 채팅 보호를 도와드립니다.
+**Toxic-MD** 는 Baileys Multi-Device 기반의 현대적인 WhatsApp 봇입니다. 그룹 관리, 자동화, 채팅 보호 및 재미있고 유용한 명령을 제공합니다.
 
-### v1.2.0의 새로운 기능
-- 🌐 **언어 시스템** — `.language`로 언어 변경. 17개 언어 지원.
-- 📊 **자동 보고서** — 24시간마다 그룹 통계.
+### What's New in v1.1.1
+- 🌐 **Language System** — Change language with `.language`. 17 languages supported.
+- 📊 **Auto Reports** — Daily group stats every 24 hours. Toggle with `.autoreport on/off`.
+- 🖼️ **CDN Upload** — Upload media to WhatsApp CDN and get URL with `.cdnwa`.
+- 💾 **CRM Store** — Persistent JSON message storage for better recovery and inspection.
+- 🔧 **Improved LID Mapping** — Better handling of Linked Device identifiers.
+- ⚡ **Higher Message Cache** — MESSAGE_CACHE_LIMIT set to 50000 for improved reliability.
+
+### Key Features
+| Feature | Details |
+| --- | --- |
+| ✅ Multi-Device Support | No constant QR scanning required |
+| ⚡ Fast & Stable | Optimized for continuous uptime |
+| 🚀 Easy Deployment | Works on any hosting platform |
+| 🧑‍💻 Beginner Friendly | Simple setup, clear documentation |
+| 🔧 Highly Customizable | Flexible prefix, modes, settings, and languages |
+| 🤖 AI-Powered | Auto AI chat with Groq/Llama |
+| 🛡️ Group Protection | Anti-link, anti-badword, anti-group-status, anti-delete, view-once recovery, and more |
+| 🌐 Multi-Language | 17 languages supported |
+| 📊 Auto Reports | Daily group activity summaries |
+
+### Quick Start
+1. Clone / download the bot
+2. Install dependencies: `npm install`
+3. Configure settings
+4. Run: `npm start`
+
+Full installation guides (Termux, Heroku, Railway, VPS, etc.) are in the main [README](../README.md).
+
+Change the bot's reply language anytime with: `.language <code>` (Owner only)
 
 ---
 

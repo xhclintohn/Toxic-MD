@@ -58,7 +58,7 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
                   ],
                   max_tokens: 1500, temperature: 0.2
           });
-          if (!res.ok) { let detail=''; try { const ej=await res.json(); detail=ej?.error?.message||JSON.stringify(ej).slice(0,180);} catch{} throw new Error(`API error: ${res.status}${detail?(' — '+detail):''}`); }
+          if (!res.ok) throw new Error(`API error: ${res.status}`);
           const data = await res.json();
           const code = data.choices?.[0]?.message?.content?.trim();
           if (!code) throw new Error('No code generated.');

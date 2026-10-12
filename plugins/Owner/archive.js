@@ -11,7 +11,9 @@ export default async (context) => {
         if (m.chat.endsWith('@broadcast') || m.chat.endsWith('@newsletter')) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
             return sendInteractive(client, m, `╭─❏ 「 ARCHIVE 」
-│ \n│ Cannot archive this type of chat.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+│ Cannot archive this type of chat.
+╰───────────────
+> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
         }
 
         let lastMessages;
@@ -20,21 +22,26 @@ export default async (context) => {
         }
 
         try {
-            await client.chatModify(
-                {
-                    archive: true,
-                    lastMessages
-                },
-                m.chat
-            );
-
-            await sendInteractive(client, m, `╭─❏ 「 ARCHIVED」
-│ Chat archived.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+            await client.chatModify({ archive: true, lastMessages }, m.chat);
+            await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
+            await sendInteractive(client, m, `╭─❏ 「 ARCHIVED 」
+│ Chat archived.
+╰───────────────
+> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
         } catch (err) {
-    await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-            console.error('Archive chat failed:', err);
-            await sendInteractive(client, m, `╭─❏ 「 ERROR」
-│ Failed to archive chat.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+            await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+            const msg = String(err?.message || err || '');
+            if (msg.includes('myAppStateKey') || msg.includes('App state not ready') || msg.includes('app-state') || err?.output?.statusCode === 404) {
+                return sendInteractive(client, m, `╭─❏ 「 NOT READY 」
+│ App state still syncing after connect.
+│ Wait a few seconds then try again.
+╰───────────────
+> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+            }
+            await sendInteractive(client, m, `╭─❏ 「 ERROR 」
+│ Failed to archive chat.
+╰───────────────
+> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
         }
     });
 };

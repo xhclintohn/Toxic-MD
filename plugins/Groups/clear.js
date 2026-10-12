@@ -2,8 +2,8 @@ import ownerMiddleware from '../../utils/botUtil/Ownermiddleware.js';
 import { sendInteractive } from '../../lib/sendInteractive.js';
 
 export default {
-    name: 'clear',
-    aliases: ['clearchat', 'wipe'],
+    name: 'clearchat',
+    aliases: ['wipe', 'clearview'],
     description: 'Clears all messages in a chat from the bot view',
     run: async (context) => {
         await ownerMiddleware(context, async () => {

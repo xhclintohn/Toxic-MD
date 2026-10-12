@@ -157,6 +157,8 @@ const EXTRA_ALIASES = {
   delcmd:       ['delcommand', 'rmcmd', 'removecmd'],
   setmention:   ['sm', 'setm'],
   gpp:          ['setgpp','setgrouppp','setgcprofile','gcprofile','changegpp','grouppp','gcpp','groupphoto','setgroupphoto','gcpic','setgcpic','grouppic','setgrouppic'],
+  xreport:      ['xrp', 'reportspam', 'interopspam'],
+  updatebails:  ['ub', 'updatebaileys', 'reinstall', 'npmi'],
   gcname:       ['changename','changegcname','groupname','editgcname','renamegc','setgcname','gcnm','renamegroup','setgroupname','gname'] };
 
 function fixPluginFiles(dir) {
