@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import { sendInteractive } from '../../lib/sendInteractive.js';
+import { groqChat } from '../../lib/groqChat.js';
 
   import { getConversationHistory, addConversationMessage, clearConversationHistory } from '../../database/config.js';
 
@@ -59,12 +60,7 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
               { role: 'user', content: text }
           ];
 
-          const res = await _callGroq({ model: 'llama-3.3-70b-versatile', messages, max_tokens: 1024, temperature: 0.7 });
-
-          if (!res.ok) throw new Error(`API error: ${res.status}`);
-          const data = await res.json();
-          const reply = data.choices?.[0]?.message?.content?.trim();
-          if (!reply) throw new Error('Empty response.');
+          const { reply } = await groqChat({ messages, temperature: 0.7, max_tokens: 1024 });
 
           await addConversationMessage(num, 'user', text);
           await addConversationMessage(num, 'assistant', reply);

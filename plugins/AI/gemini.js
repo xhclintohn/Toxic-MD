@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import { sendInteractive } from '../../lib/sendInteractive.js';
+import { groqChat } from '../../lib/groqChat.js';
 
 
   export default async (context) => {
@@ -41,19 +42,7 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
 
       try {
           await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
-          const res = await _callGroq({
-                  model: 'llama-3.3-70b-versatile',
-                  messages: [
-                      { role: 'system', content: 'You are Gemini, Google\'s most advanced AI. Be thorough, accurate, and slightly sophisticated in your answers.' },
-                      { role: 'user', content: text }
-                  ],
-                  max_tokens: 1024, temperature: 0.7
-              });
-          if (!res.ok)
-          if (!res.ok) throw new Error(`API error: ${res.status}`);
-          const data = await res.json();
-          const reply = data.choices?.[0]?.message?.content?.trim();
-          if (!reply) throw new Error('Empty AI response.');
+          const { reply } = await groqChat({ messages, temperature: 0.7, max_tokens: 1024 });
           await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
           await sendInteractive(client, m, `╭─❏ 「 Gᴇᴍɪɴɪ Rᴇsᴘᴏɴsᴇ」
 │ ${reply}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);

@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import { sendInteractive } from '../../lib/sendInteractive.js';
+import { groqChat } from '../../lib/groqChat.js';
 
 
   export default async (context) => {
@@ -41,14 +42,8 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
 
       try {
           await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
-          const res = await _callGroq({
-                  model: 'llama-3.3-70b-versatile',
-                  messages: [
-                      { role: 'system', content: 'You are a helpful AI assistant powered by Groq\'s ultra-fast inference. Answer simply and clearly.' },
-                      { role: 'user', content: text }
-                  ],
-                  max_tokens: 1024, temperature: 0.7
-              });
+          const { reply } = await groqChat({ messages: typeof messages !== "undefined" ? messages : [ { role: "system", content: "You are a helpful AI assistant." }, { role: "user", content: text } ], temperature: 0.7, max_tokens: 1500 });
+          const res = { ok: true, json: async () => ({ choices: [{ message: { content: reply } }] }) };
           if (!res.ok) throw new Error(`Groq API error: ${res.status}`);
           const data = await res.json();
           const content = data.choices?.[0]?.message?.content?.trim();
