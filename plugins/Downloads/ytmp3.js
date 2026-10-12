@@ -1,47 +1,44 @@
-import fetch from 'node-fetch';
 import { sendInteractive } from '../../lib/sendInteractive.js';
-  const NEXRAY_MP3 = 'https://api.nexray.web.id/downloader/ytmp3?url=';
+import { ryuuYoutube } from '../../lib/ryuuYt.js';
 
-  function extractYtId(url) {
-      const m = url.match(new RegExp('(?:youtu\\.be/|youtube\\.com/(?:watch\\?v=|shorts/|embed/|v/))([A-Za-z0-9_-]{11})'));
-      return m ? m[1] : null;
+export default {
+  name: 'ytmp3',
+  aliases: ['yta', 'ytaudio'],
+  description: 'Download YouTube audio as MP3',
+  run: async (context) => {
+    const { client, m, text } = context;
+    await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
+
+    const fmt = (msg) => `╭─❏ 「 YTMP3」\n│ ${msg}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+
+    try {
+      const url = (text || '').trim();
+      if (!url || !/(youtube\.com|youtu\.be)/i.test(url)) {
+        await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+        return sendInteractive(client, m, fmt('Provide a YouTube URL.\n│ Example: .ytmp3 https://youtu.be/Ps_6IcvAEm8'));
+      }
+
+      const media = await ryuuYoutube(url, 'mp3');
+      await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
+      await client.sendMessage(m.chat, {
+        audio: { url: media.link },
+        mimetype: 'audio/mpeg',
+        fileName: `${(media.title || 'audio').slice(0, 80)}.mp3`,
+        contextInfo: {
+          externalAdReply: {
+            title: media.title || 'YouTube Audio',
+            body: [media.channel, media.duration].filter(Boolean).join(' · ') || 'Toxic-MD',
+            thumbnailUrl: media.thumbnail || undefined,
+            sourceUrl: url,
+            mediaType: 1,
+            renderLargerThumbnail: true
+          }
+        }
+      }, { quoted: m });
+    } catch (error) {
+      console.error('ytmp3 error:', error);
+      await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+      await sendInteractive(client, m, fmt(`Failed: ${error.message || error}`));
+    }
   }
-
-  export default async (context) => {
-      const { client, m, text, prefix } = context;
-        await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
-      if (!text) {
-          await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-          return sendInteractive(client, m, `╭─❏ 「 YTMP3」\n│ Example: ${prefix}ytmp3 https://youtu.be/xxxx\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
-      }
-      const ytUrl = text.trim();
-      const id = extractYtId(ytUrl);
-      if (!id) {
-          await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-          return sendInteractive(client, m, '╭─❏ 「 YTMP3」\n│ Invalid YouTube link.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
-      }
-      await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
-      try {
-          const fullUrl = `https://youtube.com/watch?v=${id}`;
-          const r = await fetch(NEXRAY_MP3 + encodeURIComponent(fullUrl), { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 30000 });
-          const d = await r.json();
-          if (!d.status || !d.result?.url) throw new Error('API failed or no audio URL');
-          const { title, quality, url: audioUrl } = d.result;
-          const dlRes = await fetch(audioUrl, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 40000 });
-          if (!dlRes.ok) throw new Error('Download failed: ' + dlRes.status);
-          const buf = Buffer.from(await dlRes.arrayBuffer());
-          await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
-          await client.sendMessage(m.chat, {
-              audio: buf,
-              mimetype: 'audio/mpeg',
-              ptt: false,
-              fileName: `${title || 'youtube-audio'}.mp3`
-          });
-          await sendInteractive(client, m, `╭─❏ 「 YouTube MP3」
-│ 🎵 ${title || 'Unknown'}\n│ 🔊 Quality: ${quality || '320'}kbps\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
-      } catch (e) {
-          await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-          sendInteractive(client, m, `│ Failed: ${e.message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
-      }
-  };
-  
+};

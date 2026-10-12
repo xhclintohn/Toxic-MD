@@ -42,7 +42,7 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
       try {
           await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
           const res = await _callGroq({
-                  model: 'openai/gpt-oss-120b',
+                  model: 'llama-3.3-70b-versatile',
                   messages: [
                       { role: 'system', content: 'You are Gemini, Google\'s most advanced AI. Be thorough, accurate, and slightly sophisticated in your answers.' },
                       { role: 'user', content: text }
@@ -50,7 +50,7 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
                   max_tokens: 1024, temperature: 0.7
               });
           if (!res.ok)
-          if (!res.ok) throw new Error(`API error: ${res.status}`);
+          if (!res.ok) { let detail=''; try { const ej=await res.json(); detail=ej?.error?.message||JSON.stringify(ej).slice(0,180);} catch{} throw new Error(`API error: ${res.status}${detail?(' — '+detail):''}`); }
           const data = await res.json();
           const reply = data.choices?.[0]?.message?.content?.trim();
           if (!reply) throw new Error('Empty AI response.');

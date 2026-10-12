@@ -47,7 +47,7 @@ export default async (context) => {
         const prompt = text ? text.trim() : 'Describe this image in detail. Be thorough but concise.';
 
         const res = await _callGroq({
-                model: 'qwen/qwen3.6-27b',
+                model: 'meta-llama/llama-4-scout-17b-16e-instruct',
                 messages: [
                     {
                         role: 'user',

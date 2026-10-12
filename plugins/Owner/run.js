@@ -17,17 +17,38 @@ const unwrap = (msg) => {
     return cur;
 };
 
+const isRichShape = (obj) => {
+    if (!obj || typeof obj !== 'object') return false;
+    return !!(
+        obj.interactiveMessage ||
+        obj.buttonsMessage ||
+        obj.templateMessage ||
+        obj.listMessage ||
+        obj.nativeFlowMessage ||
+        obj.interactiveResponseMessage ||
+        obj.highlyStructuredMessage ||
+        obj.productMessage ||
+        obj.viewOnceMessage ||
+        obj.viewOnceMessageV2 ||
+        obj.ephemeralMessage ||
+        obj.documentMessage ||
+        obj.imageMessage ||
+        obj.videoMessage ||
+        obj.audioMessage ||
+        obj.stickerMessage
+    );
+};
+
 export default async (context) => {
     await ownerMiddleware(context, async () => {
         const { client, m } = context;
-        const sock = client, conn = client, bot = client, xh = client, clint = client, wa = client;
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
         const fmt = (msg) => `╭─❏ 「 RUN」\n│ ${msg}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
         if (!m.quoted) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, fmt('Reply to a .js file from .crm, or to any message/buttons/interactive media to recreate and send it.'));
+            return sendInteractive(client, m, fmt('Reply to a .js file from .crm, or to any message/buttons/AIRich/interactive media to recreate and send it.'));
         }
 
         try {
@@ -48,21 +69,38 @@ export default async (context) => {
             }
 
             const sources = [
-                () => m.quoted?.fakeObj?.message,
                 () => m.msg?.contextInfo?.quotedMessage,
+                () => m.quoted?.fakeObj?.message,
                 () => m.quoted?.message,
                 () => m.quoted?.fakeObj,
             ];
             let raw = null;
             for (const fn of sources) {
-                try { const r = fn(); if (r && typeof r === 'object' && Object.keys(r).length > 0) { raw = r; break; } } catch {}
+                try {
+                    const r = fn();
+                    if (r && typeof r === 'object' && Object.keys(r).length > 0) {
+                        raw = r;
+                        break;
+                    }
+                } catch {}
             }
 
             if (!raw) {
                 await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
                 return sendInteractive(client, m, fmt('Could not read that message.'));
             }
-            const core = unwrap(raw) || raw;
+
+            // Prefer full structure for AIRich / interactive — only unwrap wrappers, keep rich payload
+            let core = raw;
+            if (!isRichShape(raw)) {
+                const un = unwrap(raw);
+                if (un && typeof un === 'object') core = un;
+            } else {
+                // still peel a single outer ephemeral/viewOnce if present so relay gets the inner rich body
+                const un = unwrap(raw);
+                if (un && isRichShape(un)) core = un;
+            }
+
             await sendJson(client, m.chat, core);
             await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
         } catch (e) {

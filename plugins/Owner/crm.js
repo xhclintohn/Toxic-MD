@@ -51,8 +51,34 @@ const deepGetMessage = (m, store) => {
     return null;
 };
 
+const isRichShape = (obj) => {
+    if (!obj || typeof obj !== 'object') return false;
+    return !!(
+        obj.interactiveMessage ||
+        obj.buttonsMessage ||
+        obj.templateMessage ||
+        obj.listMessage ||
+        obj.nativeFlowMessage ||
+        obj.interactiveResponseMessage ||
+        obj.highlyStructuredMessage ||
+        obj.productMessage ||
+        obj.documentMessage ||
+        obj.imageMessage ||
+        obj.videoMessage ||
+        obj.audioMessage ||
+        obj.stickerMessage
+    );
+};
+
 const buildFullCapture = (raw, m) => {
-    const core = unwrap(raw) || raw;
+    // Keep AIRich / interactive / media intact; only unwrap outer ephemeral/viewOnce wrappers
+    let core = raw;
+    if (!isRichShape(raw)) {
+        core = unwrap(raw) || raw;
+    } else {
+        const un = unwrap(raw);
+        if (un && isRichShape(un)) core = un;
+    }
     const contextInfo = m.msg?.contextInfo || m.quoted?.contextInfo || null;
     const messageContextInfo = raw?.messageContextInfo || m.quoted?.fakeObj?.messageContextInfo || null;
 

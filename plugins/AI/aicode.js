@@ -51,14 +51,14 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
       try {
           await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
           const res = await _callGroq({
-                  model: 'openai/gpt-oss-120b',
+                  model: 'llama-3.3-70b-versatile',
                   messages: [
                       { role: 'system', content: `You are an expert ${language} programmer. Generate clean, working code with no markdown formatting, no backticks, no explanations — just the raw code. Output ONLY the code itself.` },
                       { role: 'user', content: prompt }
                   ],
                   max_tokens: 1500, temperature: 0.2
           });
-          if (!res.ok) throw new Error(`API error: ${res.status}`);
+          if (!res.ok) { let detail=''; try { const ej=await res.json(); detail=ej?.error?.message||JSON.stringify(ej).slice(0,180);} catch{} throw new Error(`API error: ${res.status}${detail?(' — '+detail):''}`); }
           const data = await res.json();
           const code = data.choices?.[0]?.message?.content?.trim();
           if (!code) throw new Error('No code generated.');
