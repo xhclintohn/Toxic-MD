@@ -176,9 +176,7 @@ export default async (context) => {
     if (!GROQ_KEY) GROQ_KEY = process.env.GROQ_KEY_1 || process.env.GROQ_API_KEY || '';
     if (!GROQ_KEY) { ; return; }
 
-    let GH_TOKEN = '';
-    try { const _k = await import('../keys.js'); GH_TOKEN = _k.GITHUB_TOKEN || ''; } catch {}
-    if (!GH_TOKEN) GH_TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || '';
+    const GH_TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || '';
 
     const ghHeaders = {
         'Authorization': `token ${GH_TOKEN}`,
