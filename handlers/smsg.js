@@ -212,8 +212,17 @@ function smsg(conn, m, store, resolvedChatJid = null) {
       m.msg = m.message[m.mtype];
     }
 
+    const _strMsg = typeof m.msg === 'string' ? m.msg : '';
+    const _nestedConv =
+      m.message?.deviceSentMessage?.message?.conversation ||
+      m.message?.ephemeralMessage?.message?.conversation ||
+      m.message?.viewOnceMessage?.message?.conversation ||
+      m.message?.viewOnceMessageV2?.message?.conversation ||
+      '';
     m.body =
+      _strMsg ||
       m.message?.conversation ||
+      _nestedConv ||
       m.msg?.caption ||
       m.msg?.text ||
       (m.mtype === "listResponseMessage" && m.msg?.singleSelectReply?.selectedRowId) ||
@@ -223,11 +232,13 @@ function smsg(conn, m, store, resolvedChatJid = null) {
       "";
 
     m.text =
+      _strMsg ||
       (m.mtype === "buttonsResponseMessage" && m.msg?.selectedButtonId) ||
       (m.mtype === "interactiveResponseMessage" && (() => { try { return JSON.parse(m.msg?.nativeFlowResponseMessage?.paramsJson)?.id || ''; } catch { return ''; } })()) ||
       m.msg?.text ||
       m.msg?.caption ||
       m.message?.conversation ||
+      _nestedConv ||
       m.msg?.contentText ||
       m.msg?.selectedDisplayText ||
       m.msg?.title ||

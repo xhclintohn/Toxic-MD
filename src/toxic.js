@@ -381,28 +381,30 @@ export default async (client, m, chatUpdate, store) => {
         antibot(client, m).catch(e => console.log('❌ [ANTIBOT]:', e.message));
     }
 
-    if (m.key?.fromMe) {
+        if (m.key?.fromMe || m.fromMe) {
         const _allPfx = ['.','!','#','/','$','?','+','-','*','\~','@','%','&','^','=','|'];
-        let _fmBody = (m.text || m.body || m.message?.conversation || m.message?.extendedTextMessage?.text || '').trim();
-        if (!_fmBody && m.message?.interactiveResponseMessage?.nativeFlowResponseMessage?.paramsJson) {
-            try { const _pfj = m.message.interactiveResponseMessage.nativeFlowResponseMessage.paramsJson; _fmBody = (typeof _pfj === 'string' ? JSON.parse(_pfj) : _pfj)?.id || ''; } catch {}
-        }
-        if (!_fmBody && m.message?.buttonsResponseMessage?.selectedButtonId) {
-            _fmBody = m.message.buttonsResponseMessage.selectedButtonId;
-        }
-        if (!_fmBody && m.message?.templateButtonReplyMessage?.selectedId) {
-            _fmBody = m.message.templateButtonReplyMessage.selectedId;
-        }
-        if (!_fmBody && m.message?.deviceSentMessage?.message?.interactiveResponseMessage?.nativeFlowResponseMessage?.paramsJson) {
-            try { const _pfj = m.message.deviceSentMessage.message.interactiveResponseMessage.nativeFlowResponseMessage.paramsJson; _fmBody = (typeof _pfj === 'string' ? JSON.parse(_pfj) : _pfj)?.id || ''; } catch {}
-        }
-        if (!_fmBody && m.message?.deviceSentMessage?.message?.buttonsResponseMessage?.selectedButtonId) {
-            _fmBody = m.message.deviceSentMessage.message.buttonsResponseMessage.selectedButtonId;
-        }
-        if (!_fmBody && m.message?.ephemeralMessage?.message?.interactiveResponseMessage?.nativeFlowResponseMessage?.paramsJson) {
-            try { const _pfj = m.message.ephemeralMessage.message.interactiveResponseMessage.nativeFlowResponseMessage.paramsJson; _fmBody = (typeof _pfj === 'string' ? JSON.parse(_pfj) : _pfj)?.id || ''; } catch {}
-        }
+        const _deepText = (msg) => {
+            if (!msg || typeof msg !== 'object') return '';
+            if (typeof msg.conversation === 'string') return msg.conversation;
+            if (typeof msg.extendedTextMessage?.text === 'string') return msg.extendedTextMessage.text;
+            if (typeof msg.imageMessage?.caption === 'string') return msg.imageMessage.caption;
+            if (typeof msg.videoMessage?.caption === 'string') return msg.videoMessage.caption;
+            if (msg.deviceSentMessage?.message) return _deepText(msg.deviceSentMessage.message);
+            if (msg.ephemeralMessage?.message) return _deepText(msg.ephemeralMessage.message);
+            if (msg.viewOnceMessage?.message) return _deepText(msg.viewOnceMessage.message);
+            if (msg.viewOnceMessageV2?.message) return _deepText(msg.viewOnceMessageV2.message);
+            if (msg.viewOnceMessageV2Extension?.message) return _deepText(msg.viewOnceMessageV2Extension.message);
+            try {
+                const id = msg.interactiveResponseMessage?.nativeFlowResponseMessage?.paramsJson;
+                if (id) return (typeof id === 'string' ? JSON.parse(id) : id)?.id || '';
+            } catch {}
+            return msg.buttonsResponseMessage?.selectedButtonId || msg.templateButtonReplyMessage?.selectedId || '';
+        };
+        let _fmBody = (m.text || m.body || _deepText(m.message) || '').trim();
+        if (!_fmBody) _fmBody = _deepText(m.message?.deviceSentMessage?.message || m.message).trim();
         if (!_fmBody || !_allPfx.some(p => _fmBody.startsWith(p))) return;
+        m.text = _fmBody;
+        m.body = _fmBody;
     }
 
     try {
@@ -422,8 +424,14 @@ export default async (client, m, chatUpdate, store) => {
         const { prefix, mode, gcpresence, antitag, antidelete: antideleteSetting, antilink: antilinkSetting, chatbotpm: chatbotpmSetting, packname, multiprefix, stealth } = settings;
 
         var body =
+            m.text ||
+            m.body ||
             m.message?.conversation ||
             m.message?.extendedTextMessage?.text ||
+            m.message?.deviceSentMessage?.message?.conversation ||
+            m.message?.deviceSentMessage?.message?.extendedTextMessage?.text ||
+            m.message?.ephemeralMessage?.message?.conversation ||
+            m.message?.ephemeralMessage?.message?.extendedTextMessage?.text ||
             m.message?.imageMessage?.caption ||
             m.message?.videoMessage?.caption ||
             m.message?.documentMessage?.caption ||
@@ -431,7 +439,6 @@ export default async (client, m, chatUpdate, store) => {
             m.message?.listResponseMessage?.singleSelectReply?.selectedRowId ||
             m.message?.templateButtonReplyMessage?.selectedId ||
             m.message?.interactiveResponseMessage?.nativeFlowResponseMessage?.paramsJson ||
-            m.text ||
             "";
 
         body = typeof body === 'string' ? body : '';
