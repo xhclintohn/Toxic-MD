@@ -17,22 +17,26 @@ export default {
 
     try {
       const raw = (text || '').trim();
-      if (!raw || !extractYtId(raw)) {
+      const id = extractYtId(raw);
+      if (!raw || !id) {
         await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
         return sendInteractive(client, m, fmt(`Example: ${prefix || '.'}ytmp3 https://youtu.be/Ps_6IcvAEm8`));
       }
-      const id = extractYtId(raw);
       const fullUrl = `https://youtube.com/watch?v=${id}`;
       const media = await ryuuYoutube(fullUrl, 'mp3');
       const buf = await downloadBuffer(media.link);
       const title = (media.title || 'youtube-audio').slice(0, 80);
 
-      await client.sendMessage(m.chat, {
-        audio: buf,
-        mimetype: 'audio/mpeg',
-        ptt: false,
-        fileName: `${title}.mp3`
-      }, { quoted: m });
+      await client.sendMessage(
+        m.chat,
+        {
+          audio: buf,
+          mimetype: 'audio/mpeg',
+          ptt: false,
+          fileName: `${title}.mp3`
+        },
+        { quoted: m }
+      );
 
       await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
       await sendInteractive(client, m, fmt(`🎵 ${title}\n│ ⏱ ${media.duration || '-'}`));

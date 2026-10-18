@@ -1,6 +1,5 @@
-import yts from 'yt-search';
 import { sendInteractive } from '../../lib/sendInteractive.js';
-import { ryuuYoutube, downloadBuffer } from '../../lib/ryuuYt.js';
+import { playSearchDownload, ryuuYoutube, downloadBuffer } from '../../lib/ryuuYt.js';
 
 export default {
   name: 'play',
@@ -19,39 +18,35 @@ export default {
       }
 
       const isYoutubeLink = /(?:https?:\/\/)?(?:youtu\.be\/|(?:www\.|m\.)?youtube\.com\/)/i.test(query);
-      let ytUrl = query;
-      let titleHint = query;
-
-      if (!isYoutubeLink) {
-        const search = await yts(query);
-        const video = search?.videos?.[0];
-        if (!video?.url) {
-          await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-          return sendInteractive(client, m, fmt(`No results for "${query}".`));
-        }
-        ytUrl = video.url;
-        titleHint = video.title || query;
+      let media;
+      if (isYoutubeLink) {
+        media = await ryuuYoutube(query, 'mp3');
+      } else {
+        media = await playSearchDownload(query);
       }
 
-      const media = await ryuuYoutube(ytUrl, 'mp3');
       const buf = await downloadBuffer(media.link);
-      const title = (media.title || titleHint || 'audio').slice(0, 80);
+      const title = (media.title || query || 'audio').slice(0, 80);
 
-      await client.sendMessage(m.chat, {
-        audio: buf,
-        mimetype: 'audio/mpeg',
-        fileName: `${title}.mp3`,
-        contextInfo: {
-          externalAdReply: {
-            title,
-            body: [media.channel, media.duration].filter(Boolean).join(' · ') || 'Toxic-MD',
-            thumbnailUrl: media.thumbnail || undefined,
-            sourceUrl: ytUrl,
-            mediaType: 1,
-            renderLargerThumbnail: true
+      await client.sendMessage(
+        m.chat,
+        {
+          audio: buf,
+          mimetype: 'audio/mpeg',
+          fileName: `${title}.mp3`,
+          contextInfo: {
+            externalAdReply: {
+              title,
+              body: [media.channel, media.duration].filter(Boolean).join(' · ') || 'Toxic-MD',
+              thumbnailUrl: media.thumbnail || undefined,
+              sourceUrl: media.videoUrl || (isYoutubeLink ? query : undefined),
+              mediaType: 1,
+              renderLargerThumbnail: true
+            }
           }
-        }
-      }, { quoted: m });
+        },
+        { quoted: m }
+      );
 
       await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
     } catch (error) {
