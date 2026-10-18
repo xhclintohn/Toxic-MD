@@ -1,5 +1,6 @@
 import { sendInteractive } from '../../lib/sendInteractive.js';
 import { playSearchDownload, ryuuYoutube, downloadBuffer } from '../../lib/ryuuYt.js';
+import { sendAudioSafe } from '../../lib/sendAudioSafe.js';
 
 export default {
   name: 'play',
@@ -27,26 +28,14 @@ export default {
 
       const buf = await downloadBuffer(media.link);
       const title = (media.title || query || 'audio').slice(0, 80);
+      const meta = [media.channel, media.duration].filter(Boolean).join(' · ');
+      const caption = `╭─❏ 「 PLAY」\n│ 🎵 ${title}${meta ? `\n│ ${meta}` : ''}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
-      await client.sendMessage(
-        m.chat,
-        {
-          audio: buf,
-          mimetype: 'audio/mpeg',
-          fileName: `${title}.mp3`,
-          contextInfo: {
-            externalAdReply: {
-              title,
-              body: [media.channel, media.duration].filter(Boolean).join(' · ') || 'Toxic-MD',
-              thumbnailUrl: media.thumbnail || undefined,
-              sourceUrl: media.videoUrl || (isYoutubeLink ? query : undefined),
-              mediaType: 1,
-              renderLargerThumbnail: true
-            }
-          }
-        },
-        { quoted: m }
-      );
+      await sendAudioSafe(client, m.chat, buf, {
+        title,
+        quoted: m,
+        caption
+      });
 
       await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
     } catch (error) {

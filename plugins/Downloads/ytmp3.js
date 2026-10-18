@@ -1,5 +1,6 @@
 import { sendInteractive } from '../../lib/sendInteractive.js';
 import { ryuuYoutube, downloadBuffer } from '../../lib/ryuuYt.js';
+import { sendAudioSafe } from '../../lib/sendAudioSafe.js';
 
 function extractYtId(url) {
   const m = String(url || '').match(/(?:youtu\.be\/|v=|shorts\/|embed\/)([a-zA-Z0-9_-]{11})/);
@@ -26,20 +27,15 @@ export default {
       const media = await ryuuYoutube(fullUrl, 'mp3');
       const buf = await downloadBuffer(media.link);
       const title = (media.title || 'youtube-audio').slice(0, 80);
+      const caption = `╭─❏ 「 YTMP3」\n│ 🎵 ${title}\n│ ⏱ ${media.duration || '-'}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
-      await client.sendMessage(
-        m.chat,
-        {
-          audio: buf,
-          mimetype: 'audio/mpeg',
-          ptt: false,
-          fileName: `${title}.mp3`
-        },
-        { quoted: m }
-      );
+      await sendAudioSafe(client, m.chat, buf, {
+        title,
+        quoted: m,
+        caption
+      });
 
       await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
-      await sendInteractive(client, m, fmt(`🎵 ${title}\n│ ⏱ ${media.duration || '-'}`));
     } catch (e) {
       console.error('ytmp3 error:', e);
       await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
