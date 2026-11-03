@@ -161,33 +161,6 @@ const EXTRA_ALIASES = {
   updatebails:  ['ub', 'updatebaileys', 'reinstall', 'npmi'],
   gcname:       ['changename','changegcname','groupname','editgcname','renamegc','setgcname','gcnm','renamegroup','setgroupname','gname'] };
 
-function fixPluginFiles(dir) {
-  try {
-    const files = fs.readdirSync(dir);
-    for (const file of files) {
-      const filePath = path.join(dir, file);
-      const stat = fs.statSync(filePath);
-      if (stat.isDirectory()) {
-        fixPluginFiles(filePath);
-      } else if (file.endsWith('.js')) {
-        let content = fs.readFileSync(filePath, 'utf8');
-        let newContent = content;
-        newContent = newContent.replace(/^[ \t]+import /gm, 'import ');
-        newContent = newContent.replace(/^[ \t]+export default /gm, 'export default ');
-        newContent = newContent.replace(/^[ \t]+export /gm, 'export ');
-        if (newContent !== content) {
-          fs.writeFileSync(filePath, newContent);
-        }
-      }
-    }
-  } catch(e) {}
-}
-
-const pluginsPath = path.join(__dirname, '..', 'plugins');
-if (fs.existsSync(pluginsPath)) {
-  fixPluginFiles(pluginsPath);
-}
-
 export const commands = {};
 export const aliases = {};
 

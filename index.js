@@ -152,6 +152,8 @@ function resolveBrowserName() {
 
 const lidPhoneCache = new Map();
 const phoneLidCache = new Map();
+const lidMissCache = new Map();
+const LID_MISS_TTL_MS = 60 * 1000;
 
 const MAX_LID_CACHE = 20000;
 
@@ -177,6 +179,9 @@ function resolvePhoneFromLid(jid) {
     if (!lidNum) return null;
     const cached = lidPhoneCache.get(lidNum);
     if (cached) return cached;
+    const missAt = lidMissCache.get(lidNum);
+    if (missAt && (Date.now() - missAt) < LID_MISS_TTL_MS) return null;
+    if (missAt) lidMissCache.delete(lidNum);
     try {
         const sessionDirs = [
             path.join(__dirname, 'Session'),
@@ -213,6 +218,8 @@ function resolvePhoneFromLid(jid) {
             } catch {}
         }
     } catch {}
+    lidMissCache.set(lidNum, Date.now());
+    if (lidMissCache.size > 2000) lidMissCache.delete(lidMissCache.keys().next().value);
     return null;
 }
 
@@ -286,10 +293,10 @@ async function resolveSenderFromGroup(senderJid, chatId, sock) {
     return senderJid;
 }
 
-async function autoScanGroupsForSudo(sock, sudoUsers) {
+async function autoScanGroupsForSudo(sock, sudoUsers, cachedGroups) {
     if (!sock || !sudoUsers?.length) return;
     try {
-        const groups = await sock.groupFetchAllParticipating();
+        const groups = cachedGroups || await sock.groupFetchAllParticipating();
         for (const [, meta] of Object.entries(groups || {})) {
             for (const p of meta.participants || []) {
                 const pLid = (p.lid || '').split('@')[0].split(':')[0];
@@ -564,7 +571,14 @@ async function startToxic() {
     const { autobio } = settingss;
     let version;
     try {
-        const _vResp = await fetch('https://raw.githubusercontent.com/WhiskeySockets/Baileys/master/src/Defaults/baileys-version.json');
+        const _vController = new AbortController();
+        const _vTimer = setTimeout(() => _vController.abort(), 8000);
+        let _vResp;
+        try {
+            _vResp = await fetch('https://raw.githubusercontent.com/WhiskeySockets/Baileys/master/src/Defaults/baileys-version.json', { signal: _vController.signal });
+        } finally {
+            clearTimeout(_vTimer);
+        }
         version = (await _vResp.json()).version;
         if (!Array.isArray(version) || version.length < 3) throw new Error('bad version');
     } catch (_ve) {
@@ -1074,6 +1088,7 @@ async function startToxic() {
               if (_pn) {
                 if (!globalThis._toxicPushNames) globalThis._toxicPushNames = new Map();
                 globalThis._toxicPushNames.set(_sPhone, _pn);
+                if (globalThis._toxicPushNames.size > 4000) globalThis._toxicPushNames.delete(globalThis._toxicPushNames.keys().next().value);
                 if (globalThis.lidPhoneCache && mek.key.participant && mek.key.participant.endsWith('@lid')) {
                   const _lidNum = mek.key.participant.split('@')[0].split(':')[0];
                   if (_lidNum && !globalThis.lidPhoneCache.has(_lidNum)) {
@@ -1234,7 +1249,7 @@ async function startToxic() {
             }
             const { getSudoUsers } = await import('./database/config.js');
             const sudoList = await getSudoUsers().catch(() => []);
-            autoScanGroupsForSudo(client, sudoList).catch(() => {});
+            autoScanGroupsForSudo(client, sudoList, groups).catch(() => {});
           } catch {}
         }, 4000);
 

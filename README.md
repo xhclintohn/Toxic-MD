@@ -7,7 +7,7 @@
 ![Multi-Device](https://img.shields.io/badge/Multi--Device-Supported-blue?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-orange?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)
-![Version](https://img.shields.io/badge/Version-1.1.1-blue?style=flat-square)
+![Version](https://img.shields.io/badge/Version-1.2.3-blue?style=flat-square)
 
 **A powerful, lightning-fast WhatsApp Multi-Device bot built for group control, automation, AI chat, media editing, and fun commands^^**
 
@@ -41,6 +41,18 @@ This README is in English by default. Full translations live in the [`Langs/`](L
 | Amharic | [Read the Amharic (አማርኛ) README](Langs/am.md) |
 
 Change the bot's reply language anytime with: `.language <code>` (Owner only)
+
+---
+
+## 🆕 What's New in v1.2.3
+
+- ⚡ **Per-Chat Message Store** — Capped at 500 messages per chat, with trimming at most once per 1000 inserts instead of scanning the whole map on every message
+- 💾 **CRM Store** — Trimming no longer sorts all stored messages on every save, in-memory cap is 20000, and disk writes are coalesced to at most once every 3 minutes
+- 🔧 **Faster Startup** — Plugin loading no longer rewrites every plugin file on every startup
+- ⚡ **LID Lookups** — Misses are remembered for 60 seconds instead of scanning the whole Session folder on every message, and the push-name and LID mapping caches are capped
+- ⚡ **Faster Connect** — The group list fetched on connect is reused for the sudo scan instead of fetching all groups a second time, and the Baileys version fetch now times out after 8 seconds instead of stalling startup
+- 🔐 **Full Session Bundle** — Session loading now accepts the full compressed session bundle from the pairing site, including signal and app-state keys, while still accepting the old credentials-only session ID; invalid session data no longer overwrites a working session
+- 📦 **Dependencies** — Floating `latest` and `*` versions are pinned to their current stable releases, with no major-version changes and the Baileys fork unchanged
 
 ---
 

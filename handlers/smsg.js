@@ -44,6 +44,7 @@ function resolveLidToJid(jid) {
     const num = mapped.split('@')[0].replace(/\D/g, '');
     if (num && num.length >= 7 && num.length <= 15 && num !== lid) {
       lidMappingCache.set(lid, num);
+      if (lidMappingCache.size > 20000) lidMappingCache.delete(lidMappingCache.keys().next().value);
       if (globalThis.lidPhoneCache) globalThis.lidPhoneCache.set(lid, num);
       return num + '@s.whatsapp.net';
     }
@@ -91,6 +92,7 @@ function storePair(conn, lidJid, pnJid) {
   const pnNum = pnNumOf(pnJid);
   if (!lidNum || !pnNum || lidNum === pnNum || pnNum.length < 7 || pnNum.length > 15) return;
   lidMappingCache.set(lidNum, pnNum);
+  if (lidMappingCache.size > 20000) lidMappingCache.delete(lidMappingCache.keys().next().value);
   if (globalThis.lidPhoneCache) globalThis.lidPhoneCache.set(lidNum, pnNum);
   if (typeof globalThis.cacheLidPhone === 'function') {
     try { globalThis.cacheLidPhone(lidNum, pnNum); } catch {}
