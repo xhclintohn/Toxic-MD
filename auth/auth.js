@@ -56,6 +56,24 @@ async function authenticationn() {
             return;
         }
 
+        const retrievalMatch = String(sessionData).trim().match(/^https?:\/\/[^\/\s]+\/session\/([0-9a-f]{24})$/i);
+        if (retrievalMatch) {
+            try {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), 15000);
+                const resp = await fetch(String(sessionData).trim(), { signal: controller.signal, headers: { 'Cache-Control': 'no-store' } });
+                clearTimeout(timer);
+                if (!resp.ok) {
+                    console.log('❌ Wrong session! — session link expired or not found, pair again for a fresh link');
+                    return;
+                }
+                sessionData = (await resp.text()).trim();
+            } catch {
+                console.log('❌ Wrong session! — could not fetch session bundle from the link');
+                return;
+            }
+        }
+
         let decodedText;
         let parsed;
         try {
