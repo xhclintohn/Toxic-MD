@@ -1,6 +1,6 @@
 import ownerMiddleware from '../../utils/botUtil/Ownermiddleware.js';
 import { getSettings, getSudoUsers, removeSudoUser } from '../../database/config.js';
-import { resolvePhoneNumber } from '../../lib/lidResolver.js';
+import { resolvePhoneNumber, resolveSenderJid } from '../../lib/lidResolver.js';
 import { sendInteractive } from '../../lib/sendInteractive.js';
 
 function cleanPhone(input) {
@@ -18,10 +18,24 @@ export default async (context) => {
 
         let numberToRemove;
 
+        const resolveTargetPhone = async (rawTarget) => {
+            if (!rawTarget) return '';
+            if (String(rawTarget).endsWith('@lid')) {
+                try {
+                    const resolved = await Promise.race([
+                        resolveSenderJid(rawTarget, m.chat, client, m.key).catch(() => null),
+                        new Promise(r => setTimeout(() => r(null), 2500))
+                    ]);
+                    if (resolved && !String(resolved).endsWith('@lid')) return cleanPhone(resolved);
+                } catch {}
+            }
+            return cleanPhone(resolvePhoneNumber(rawTarget, participants));
+        };
+
         if (m.quoted) {
-            numberToRemove = cleanPhone(resolvePhoneNumber(m.quoted.sender, participants));
+            numberToRemove = await resolveTargetPhone(m.quoted.sender);
         } else if (m.mentionedJid && m.mentionedJid.length > 0) {
-            numberToRemove = cleanPhone(resolvePhoneNumber(m.mentionedJid[0], participants));
+            numberToRemove = await resolveTargetPhone(m.mentionedJid[0]);
         } else {
             numberToRemove = cleanPhone((args || []).join('') || args?.[0] || '');
         }

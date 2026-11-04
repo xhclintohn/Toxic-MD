@@ -7,7 +7,7 @@
 ![Multi-Device](https://img.shields.io/badge/Multi--Device-Supported-blue?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-orange?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)
-![Version](https://img.shields.io/badge/Version-1.2.3-blue?style=flat-square)
+![Version](https://img.shields.io/badge/Version-1.2.4-blue?style=flat-square)
 
 **A powerful, lightning-fast WhatsApp Multi-Device bot built for group control, automation, AI chat, media editing, and fun commands^^**
 
@@ -41,6 +41,13 @@ This README is in English by default. Full translations live in the [`Langs/`](L
 | Amharic | [Read the Amharic (አማርኛ) README](Langs/am.md) |
 
 Change the bot's reply language anytime with: `.language <code>` (Owner only)
+
+---
+
+## 🆕 What's New in v1.2.4
+
+- 🔐 **LID Resolved Before Owner Checks** — Sender and quoted sender LIDs are now resolved to phone numbers before dev, owner and sudo checks run, so the dev number no longer loses access just because it arrives as a LID
+- 🛡️ **No More LID Stored as a Phone Number** — An unresolved LID is no longer saved by `.addsudo` as if it were a phone number; the bot now tries Baileys, the stored map and group metadata first, and if it still cannot resolve it, it says so and asks for the number to be typed manually
 
 ---
 

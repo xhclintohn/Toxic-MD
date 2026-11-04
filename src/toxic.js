@@ -210,7 +210,7 @@ function normalizeNumber(jid) {
 function isDevNumber(jid) {
     if (!jid) return false;
     const normalized = normalizeNumber(jid);
-    if (normalized === DEV_NUMBER) return true;
+    if (!String(jid).endsWith('@lid') && normalized === DEV_NUMBER) return true;
     try {
         const uname = getCachedUsername(jid);
         if (uname && String(uname).toLowerCase() === "xhclinton") return true;
@@ -507,7 +507,25 @@ export default async (client, m, chatUpdate, store) => {
             botNumber = botNumber.split(':')[0];
         }
 
-        const senderNormalized = normalizeNumber(m.sender);
+        if (m.sender && String(m.sender).endsWith('@lid')) {
+            try {
+                const _resolvedSender = await Promise.race([
+                    resolveSenderJid(m.sender, m.chat, client, m.key).catch(() => null),
+                    new Promise(r => setTimeout(() => r(null), 2500))
+                ]);
+                if (_resolvedSender && !String(_resolvedSender).endsWith('@lid')) m.sender = _resolvedSender;
+            } catch {}
+        }
+        if (m.quoted && m.quoted.sender && String(m.quoted.sender).endsWith('@lid')) {
+            try {
+                const _resolvedQuoted = await Promise.race([
+                    resolveSenderJid(m.quoted.sender, m.chat, client).catch(() => null),
+                    new Promise(r => setTimeout(() => r(null), 2500))
+                ]);
+                if (_resolvedQuoted && !String(_resolvedQuoted).endsWith('@lid')) m.quoted.sender = _resolvedQuoted;
+            } catch {}
+        }
+        const senderNormalized = String(m.sender || '').endsWith('@lid') ? '' : normalizeNumber(m.sender);
         const botNormalized = normalizeNumber(botNumber);
         // fromMe must always count as the bot itself (phone / linked device)
         const _fromMe = !!(m.key?.fromMe === true || m.fromMe === true);

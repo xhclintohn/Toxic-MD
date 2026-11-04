@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.4
+
+- LID handling: the sender and quoted sender are now resolved from LID to phone number before owner, dev and sudo checks run, using Baileys lidMapping, the stored LID-phone map and fresh group metadata, with a 2.5 second cap so an unresolvable LID never stalls a message.
+- LID handling: an unresolved LID is no longer treated as a phone number. `resolvePhoneNumber` now returns empty instead of the LID digits, so `.addsudo`, `.delsudo` and `.unban` can no longer store a LID as a sudo or banned number. `.addsudo` and `.delsudo` now try the async resolver first and, when a LID still cannot be resolved, say so and ask for the number to be typed manually.
+- LID handling: a LID is no longer matched against the dev number by its digits alone, and the startup group scan now uses the group metadata phoneNumber field for LID participants and now also warms the dev number's mapping, not just sudo users.
+- No Baileys change: Baileys only learns a LID-to-phone mapping when a message carries both identities, so an unresolvable LID is a WhatsApp privacy limit, not a Baileys bug, and is now reported instead of stored wrongly.
+
 ## 1.2.3
 
 - Performance: per-chat message store capped at 500 messages instead of scaling with the global cache limit, and message-map trimming now runs at most once per 1000 inserts instead of scanning the whole map on every message.
