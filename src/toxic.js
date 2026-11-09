@@ -35,7 +35,7 @@ import antilinkgc from '../features/antilinkgc.js';
 import stickerlySession from '../features/stickerlySession.js';
 import ownerMiddleware from '../utils/botUtil/Ownermiddleware.js';
 import { lidMappingCache, seedParticipants } from '../handlers/smsg.js';
-import { resolveTargetJid, resolveSenderJid } from '../lib/lidResolver.js';
+import { resolveTargetJid, resolveSenderJid, resolveQuotedJid } from '../lib/lidResolver.js';
 import { getFakeQuoted } from '../lib/fakeQuoted.js';
 import { runEval, buildScope, formatResult } from '../lib/evalRunner.js';
 import { sendHtml } from '../lib/sendHtml.js';
@@ -519,8 +519,8 @@ export default async (client, m, chatUpdate, store) => {
         if (m.quoted && m.quoted.sender && String(m.quoted.sender).endsWith('@lid')) {
             try {
                 const _resolvedQuoted = await Promise.race([
-                    resolveSenderJid(m.quoted.sender, m.chat, client).catch(() => null),
-                    new Promise(r => setTimeout(() => r(null), 2500))
+                    resolveQuotedJid(m.quoted.sender, { chatJid: m.chat, quotedChatJid: m.quoted.chat, quotedId: m.quoted.id, isGroup: !!m.isGroup, client, store, getMessage: (id) => msgStore.getMessage(id) }).catch(() => null),
+                    new Promise(r => setTimeout(() => r(null), 4000))
                 ]);
                 if (_resolvedQuoted && !String(_resolvedQuoted).endsWith('@lid')) m.quoted.sender = _resolvedQuoted;
             } catch {}
