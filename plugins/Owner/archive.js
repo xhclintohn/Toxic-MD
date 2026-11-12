@@ -22,7 +22,11 @@ export default async (context) => {
         }
 
         try {
-            await client.chatModify({ archive: true, lastMessages }, m.chat);
+            if (typeof client.archiveChat === 'function') {
+                await client.archiveChat(m.chat, true, lastMessages);
+            } else {
+                await client.chatModify({ archive: true, lastMessages }, m.chat);
+            }
             await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
             await sendInteractive(client, m, `╭─❏ 「 ARCHIVED 」
 │ Chat archived.
