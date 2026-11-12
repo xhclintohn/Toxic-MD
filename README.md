@@ -7,7 +7,7 @@
 ![Multi-Device](https://img.shields.io/badge/Multi--Device-Supported-blue?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-orange?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)
-![Version](https://img.shields.io/badge/Version-1.2.5-blue?style=flat-square)
+![Version](https://img.shields.io/badge/Version-1.2.6-blue?style=flat-square)
 
 **A powerful, lightning-fast WhatsApp Multi-Device bot built for group control, automation, AI chat, media editing, and fun commands^^**
 
@@ -41,6 +41,15 @@ This README is in English by default. Full translations live in the [`Langs/`](L
 | Amharic | [Read the Amharic (አማርኛ) README](Langs/am.md) |
 
 Change the bot's reply language anytime with: `.language <code>` (Owner only)
+
+---
+
+## 🆕 What's New in v1.2.6
+
+- 📢 **Channel Status Command** — New `.chstatus` command (owner only, 12 aliases) posts text or media as a status on the bot channel: plain text, reply to a text, reply to an image with its caption, or reply to an image and add your own caption, with an optional channel JID as the first argument
+- 👥 **Group Status on the Real Function** — `.gstatus` now posts through Baileys `sendGroupStatus`, with the same text, reply and media handling as `.chstatus`, plus three new aliases
+- 🧹 **Clear That Actually Clears** — `.clear` now clears the chat instead of deleting it, with an optional `keepstarred` argument, and the broken clear helper that always errored is fixed
+- 📥 **Archive, Unarchive and Delete** — `.archive` now uses the Baileys wrapper, and new `.unarchive` and `.deletechat` owner commands round out chat management
 
 ---
 
