@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.8
+
+- Vision: `.vision` now uses Groq's `qwen/qwen3.8-27b` model. The old `meta-llama/llama-4-scout-17b-16e-instruct` model was shut down by Groq on 17/07/2026, which is why every vision request failed with a 404. The new model is the only vision model on Groq's current supported list, verified against Groq's own docs on 12/11/2026.
+- AI chat: the shared Groq fallback list now only tries `openai/gpt-oss-120b` and `openai/gpt-oss-20b`. The Llama 3.3 and 3.1 entries were retired from self-serve Groq accounts on 16/08/2026 and only exist for enterprise contracts now, and the Llama 4 Scout entry is the same dead model as above, so every chat command (`.gpt`, `.groq`, `.chat`, `.gemini`, `.aicode`, `.darkgpt`) was wasting attempts on models that can never answer.
+- Auto AI: the automatic vision path now tries only `qwen/qwen3.8-27b` instead of the retired `qwen/qwen3.6-27b` first.
+
 ## 1.2.7
 
 - Group status: `.gstatus` now calls Baileys `sendGroupStatus` with the new `(jid, content)` shape from Baileys 1.8.0, which posts a real group status through the `groupStatusMessageV2` message. The old shape posted through the status-mentions mechanism and the status never showed inside the group. All `.gstatus` behaviour is unchanged: the same text, reply and media handling, `all` mode, group link and JID targeting, and aliases.
