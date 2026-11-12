@@ -391,7 +391,7 @@ export default async (context) => {
         try {
             const baseHistory = [{ role: 'system', content: SYSTEM_PROMPT }, ...history.slice(-16)];
             if (useVision) {
-                const _visionModels = ['qwen/qwen3.6-27b','qwen/qwen3.8-27b'];
+                const _visionModels = ['qwen/qwen3.8-27b'];
                 for (const _vm of _visionModels) {
                     try {
                         response = await _callGroq(_vm, [...baseHistory, { role: 'user', content: userContent }], 600);
