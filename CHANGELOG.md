@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.10
+
+- Update Baileys: `.updatebails` (and its aliases `.ub`, `.updatebaileys`, `.reinstall`, `.npmi`) now installs only Baileys from the test branch instead of deleting `node_modules` and the lockfile and reinstalling everything. The old behaviour ran the bot out of memory and was killed, leaving a half-installed `node_modules` behind. The command now reports the Baileys version before and after, says nothing was deleted if it fails, and asks for a panel restart so the new Baileys loads. Running it now pulls Baileys 1.8.1 from the test branch, which carries the media group-status fix.
+
 ## 1.2.9
 
 - Group status media: `.gstatus` now unwraps ephemeral and view-once wrappers before looking for media, so images and videos sent in disappearing chats or as view-once messages are found instead of being missed. Media downloads now fall back to the bot's own quoted-message download when the direct download fails or comes back empty, and a failed download now says so clearly instead of sending broken content.
