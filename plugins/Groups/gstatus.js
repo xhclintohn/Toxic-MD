@@ -11,31 +11,19 @@ async function _downloadMedia(sourceMsg, type) {
 
 async function _sendStatusToGroup(client, jid, mediaType, buffer, caption) {
   if (mediaType === 'image') {
-    await client.sendMessage(jid, {
-      image: buffer, caption: caption || '',
-      contextInfo: { isGroupStatus: true, statusSourceType: 'IMAGE', statusAttributions: [{ type: 10 }], statusAudienceMetadata: { audienceType: 'CLOSE_FRIENDS' } }
-    });
+    return client.sendGroupStatus({ image: buffer, caption: caption || '' }, [jid]);
   } else if (mediaType === 'video') {
-    await client.sendMessage(jid, {
-      video: buffer, caption: caption || '',
-      contextInfo: { isGroupStatus: true, statusSourceType: 'VIDEO', statusAttributions: [{ type: 10 }], statusAudienceMetadata: { audienceType: 'CLOSE_FRIENDS' } }
-    });
+    return client.sendGroupStatus({ video: buffer, caption: caption || '' }, [jid]);
   } else if (mediaType === 'audio') {
-    await client.sendMessage(jid, {
-      audio: buffer, mimetype: 'audio/mp4',
-      contextInfo: { isGroupStatus: true, statusSourceType: 'AUDIO', statusAttributions: [{ type: 10 }], statusAudienceMetadata: { audienceType: 'CLOSE_FRIENDS' } }
-    });
+    return client.sendGroupStatus({ audio: buffer, mimetype: 'audio/mp4' }, [jid]);
   } else {
-    await client.sendMessage(jid, {
-      text: caption || '',
-      contextInfo: { isGroupStatus: true, statusSourceType: 'TEXT', statusAttributions: [{ type: 10 }], statusAudienceMetadata: { audienceType: 'CLOSE_FRIENDS' } }
-    });
+    return client.sendGroupStatus({ text: caption || '' }, [jid]);
   }
 }
 
 export default {
   name: 'gstatus',
-  aliases: ['groupstatus', 'gs'],
+  aliases: ['groupstatus', 'gs', 'gstat', 'groupst', 'gstatuspost'],
   description: 'Posts media or text as a silent group status.',
   run: async (context) => {
     const { client, m, prefix, IsGroup, botname } = context;
@@ -44,6 +32,11 @@ export default {
       if (!botname) {
         await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
         return client.sendMessage(m.chat, { text: _fmt('Bot name is not set.') });
+      }
+
+      if (typeof client.sendGroupStatus !== 'function') {
+        await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
+        return client.sendMessage(m.chat, { text: _fmt('Baileys is too old for group status.\n│ Update Baileys to 1.7.0 or newer, then try again.') });
       }
 
       const bodyStr = (m.body || '').trim();
@@ -63,18 +56,18 @@ export default {
         const quoted = m.message?.extendedTextMessage?.contextInfo?.quotedMessage;
         if (m.message?.imageMessage) {
           sourceMsg = m.message.imageMessage; mediaType = 'image';
-          caption = m.message.imageMessage?.caption || inlineText || null;
+          caption = inlineText || m.message.imageMessage?.caption || null;
         } else if (m.message?.videoMessage) {
           sourceMsg = m.message.videoMessage; mediaType = 'video';
-          caption = m.message.videoMessage?.caption || inlineText || null;
+          caption = inlineText || m.message.videoMessage?.caption || null;
         } else if (m.message?.audioMessage) {
           sourceMsg = m.message.audioMessage; mediaType = 'audio';
         } else if (quoted?.imageMessage) {
           sourceMsg = quoted.imageMessage; mediaType = 'image';
-          caption = quoted.imageMessage?.caption || inlineText || null;
+          caption = inlineText || quoted.imageMessage?.caption || null;
         } else if (quoted?.videoMessage) {
           sourceMsg = quoted.videoMessage; mediaType = 'video';
-          caption = quoted.videoMessage?.caption || inlineText || null;
+          caption = inlineText || quoted.videoMessage?.caption || null;
         } else if (quoted?.audioMessage) {
           sourceMsg = quoted.audioMessage; mediaType = 'audio';
         }
@@ -176,19 +169,19 @@ export default {
 
       if (m.message?.imageMessage) {
         sourceMsg = m.message.imageMessage; mediaType = 'image';
-        caption = m.message.imageMessage?.caption || inlineText || null;
+        caption = inlineText || m.message.imageMessage?.caption || null;
       } else if (m.message?.videoMessage) {
         sourceMsg = m.message.videoMessage; mediaType = 'video';
-        caption = m.message.videoMessage?.caption || inlineText || null;
+        caption = inlineText || m.message.videoMessage?.caption || null;
       } else if (m.message?.audioMessage) {
         sourceMsg = m.message.audioMessage; mediaType = 'audio';
       } else if (quoted) {
         if (quoted.imageMessage) {
           sourceMsg = quoted.imageMessage; mediaType = 'image';
-          caption = quoted.imageMessage?.caption || inlineText || null;
+          caption = inlineText || quoted.imageMessage?.caption || null;
         } else if (quoted.videoMessage) {
           sourceMsg = quoted.videoMessage; mediaType = 'video';
-          caption = quoted.videoMessage?.caption || inlineText || null;
+          caption = inlineText || quoted.videoMessage?.caption || null;
         } else if (quoted.audioMessage) {
           sourceMsg = quoted.audioMessage; mediaType = 'audio';
         } else if (quoted.conversation || quoted.extendedTextMessage?.text) {
