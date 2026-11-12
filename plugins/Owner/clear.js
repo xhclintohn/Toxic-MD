@@ -3,7 +3,7 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
 
 export default async (context) => {
     await ownerMiddleware(context, async () => {
-        const { client, m, store } = context;
+        const { client, m, store, args } = context;
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
         if (!m?.chat) return;
@@ -22,7 +22,12 @@ export default async (context) => {
                 lastMessages = store.chats[m.chat].slice(-1);
             }
 
-            await client.chatModify({ delete: true, lastMessages }, m.chat);
+            const keepStarred = Array.isArray(args) && args.some((a) => String(a).toLowerCase() === 'keepstarred');
+            if (typeof client.clearChat === 'function') {
+                await client.clearChat(m.chat, lastMessages, keepStarred ? { deleteStarred: false } : undefined);
+            } else {
+                await client.chatModify({ clear: true, lastMessages, deleteStarred: keepStarred ? false : undefined }, m.chat);
+            }
             await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
             await sendInteractive(client, m, `╭─❏ 「 CLEARED 」
 │ Chat cleared.
