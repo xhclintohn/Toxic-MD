@@ -82,7 +82,7 @@ process.stdout.write = function(chunk, encoding, callback) {
     return _origWrite(chunk, encoding, callback);
 };
 
-import toxicConnect, { useMultiFileAuthState, DisconnectReason, downloadContentFromMessage, jidDecode, proto, getContentType, makeCacheableSignalKeyStore, Browsers, generateWAMessageContent, generateWAMessageFromContent, jidNormalizedUser, S_WHATSAPP_NET } from '@whiskeysockets/baileys';
+import toxicConnect, { useMultiFileAuthState, DisconnectReason, downloadContentFromMessage, jidDecode, proto, getContentType, makeCacheableSignalKeyStore, Browsers, generateWAMessageContent, generateWAMessageFromContent, jidNormalizedUser, S_WHATSAPP_NET, ALL_WA_PATCH_NAMES } from '@whiskeysockets/baileys';
 import { makeStore } from './lib/MakeStore.js';
 import crmstore from './lib/crmstore.js';
 global.crmstore = crmstore;
@@ -728,7 +728,7 @@ async function startToxic() {
                       client.authState.creds.myAppStateKeyId = 'AAAAAIDq';
                     }
                     if (typeof client.resyncAppState === 'function') {
-                      await client.resyncAppState(['critical_unblock_low'], true).catch(() => {});
+                      await client.resyncAppState(ALL_WA_PATCH_NAMES, true).catch(() => {});
                     }
                   } catch {}
                   await new Promise(r => setTimeout(r, 800 * (i + 1)));
@@ -755,7 +755,7 @@ async function startToxic() {
       setTimeout(async () => {
         try {
           if (typeof client.resyncAppState === 'function') {
-            await client.resyncAppState(['critical_unblock_low'], true).catch(() => {});
+            await client.resyncAppState(ALL_WA_PATCH_NAMES, true).catch(() => {});
           }
           _markReady();
         } catch {}
@@ -1198,6 +1198,10 @@ async function startToxic() {
       }
 
       if (connection === "open") {
+        if (typeof client.resyncAppState === 'function') {
+          client.resyncAppState(ALL_WA_PATCH_NAMES, true).catch(() => {});
+          console.log('🔄 App state resync started');
+        }
         global._toxicSessionTs = Math.floor(Date.now() / 1000);
         global._toxicSeenIds = new Set();
         global._toxicRealTime = false;
