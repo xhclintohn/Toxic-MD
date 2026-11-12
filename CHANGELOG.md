@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.9
+
+- Group status media: `.gstatus` now unwraps ephemeral and view-once wrappers before looking for media, so images and videos sent in disappearing chats or as view-once messages are found instead of being missed. Media downloads now fall back to the bot's own quoted-message download when the direct download fails or comes back empty, and a failed download now says so clearly instead of sending broken content.
+- Group status media: video, audio and sticker details are now carried through. Videos keep their mimetype and gifPlayback flag, voice notes keep their mimetype and push-to-talk flag instead of being forced to audio/mp4, and replying to a sticker now posts the sticker instead of being ignored. Text behaviour, caption precedence, `all` mode and aliases are unchanged.
+
 ## 1.2.8
 
 - Vision: `.vision` now uses Groq's `qwen/qwen3.8-27b` model. The old `meta-llama/llama-4-scout-17b-16e-instruct` model was shut down by Groq on 17/07/2026, which is why every vision request failed with a 404. The new model is the only vision model on Groq's current supported list, verified against Groq's own docs on 12/11/2026.
