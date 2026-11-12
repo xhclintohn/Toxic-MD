@@ -2,20 +2,52 @@ import { downloadContentFromMessage } from '@whiskeysockets/baileys';
 
 const _fmt = (msg) => `╭─❏ 「 GROUP STATUS 」\n│ ${msg}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
-async function _downloadMedia(sourceMsg, type) {
-  const stream = await downloadContentFromMessage(sourceMsg, type);
+function _unwrap(msg) {
+  let cur = msg;
+  for (let i = 0; i < 5 && cur && typeof cur === 'object'; i++) {
+    const inner = cur.ephemeralMessage?.message || cur.viewOnceMessage?.message || cur.viewOnceMessageV2?.message || cur.viewOnceMessageV2Extension?.message;
+    if (!inner) break;
+    cur = inner;
+  }
+  return cur;
+}
+
+async function _collect(stream) {
   const chunks = [];
   for await (const chunk of stream) chunks.push(chunk);
   return Buffer.concat(chunks);
 }
 
-async function _sendStatusToGroup(client, jid, mediaType, buffer, caption) {
+async function _downloadMedia(sourceMsg, type, m, fromQuoted) {
+  let firstError = null;
+  try {
+    const buf = await _collect(await downloadContentFromMessage(sourceMsg, type));
+    if (buf && buf.length) return buf;
+    firstError = new Error('downloaded media was empty');
+  } catch (e) {
+    firstError = e;
+  }
+  const fallback = fromQuoted ? m?.quoted?.download : m?.download;
+  if (typeof fallback === 'function') {
+    try {
+      const out = await fallback.call(fromQuoted ? m.quoted : m);
+      const buf = Buffer.isBuffer(out) ? out : await _collect(out);
+      if (buf && buf.length) return buf;
+    } catch {}
+  }
+  throw firstError || new Error('downloaded media was empty');
+}
+
+async function _sendStatusToGroup(client, jid, mediaType, buffer, caption, attrs) {
+  const a = attrs || {};
   if (mediaType === 'image') {
     return client.sendGroupStatus(jid, { image: buffer, caption: caption || '' });
   } else if (mediaType === 'video') {
-    return client.sendGroupStatus(jid, { video: buffer, caption: caption || '' });
+    return client.sendGroupStatus(jid, { video: buffer, caption: caption || '', gifPlayback: !!a.gifPlayback, mimetype: a.mimetype || 'video/mp4' });
   } else if (mediaType === 'audio') {
-    return client.sendGroupStatus(jid, { audio: buffer, mimetype: 'audio/mp4' });
+    return client.sendGroupStatus(jid, { audio: buffer, mimetype: a.mimetype || 'audio/mp4', ptt: !!a.ptt });
+  } else if (mediaType === 'sticker') {
+    return client.sendGroupStatus(jid, { sticker: buffer, mimetype: a.mimetype || 'image/webp' });
   } else {
     return client.sendGroupStatus(jid, { text: caption || '' });
   }
@@ -53,23 +85,61 @@ export default {
         let sourceMsg = null;
         let caption = inlineText;
 
-        const quoted = m.message?.extendedTextMessage?.contextInfo?.quotedMessage;
-        if (m.message?.imageMessage) {
-          sourceMsg = m.message.imageMessage; mediaType = 'image';
-          caption = inlineText || m.message.imageMessage?.caption || null;
-        } else if (m.message?.videoMessage) {
-          sourceMsg = m.message.videoMessage; mediaType = 'video';
-          caption = inlineText || m.message.videoMessage?.caption || null;
-        } else if (m.message?.audioMessage) {
-          sourceMsg = m.message.audioMessage; mediaType = 'audio';
+        const rootMsg = _unwrap(m.message || {});
+        const quoted = _unwrap(rootMsg?.extendedTextMessage?.contextInfo?.quotedMessage
+          || rootMsg?.imageMessage?.contextInfo?.quotedMessage
+          || rootMsg?.videoMessage?.contextInfo?.quotedMessage
+          || m.quoted?.message
+          || null);
+        let mediaAttrs = {};
+        let fromQuoted = false;
+        if (rootMsg?.imageMessage) {
+          sourceMsg = rootMsg.imageMessage; mediaType = 'image';
+          caption = inlineText || rootMsg.imageMessage?.caption || null;
+          mediaAttrs = { mimetype: rootMsg.imageMessage?.mimetype || null };
+        } else if (rootMsg?.videoMessage) {
+          sourceMsg = rootMsg.videoMessage; mediaType = 'video';
+          caption = inlineText || rootMsg.videoMessage?.caption || null;
+          mediaAttrs = { mimetype: rootMsg.videoMessage?.mimetype || null, gifPlayback: !!rootMsg.videoMessage?.gifPlayback };
+        } else if (rootMsg?.audioMessage) {
+          sourceMsg = rootMsg.audioMessage; mediaType = 'audio';
+          mediaAttrs = { mimetype: rootMsg.audioMessage?.mimetype || null, ptt: !!rootMsg.audioMessage?.ptt };
+        } else if (rootMsg?.stickerMessage) {
+          sourceMsg = rootMsg.stickerMessage; mediaType = 'sticker';
+          mediaAttrs = { mimetype: rootMsg.stickerMessage?.mimetype || null };
         } else if (quoted?.imageMessage) {
           sourceMsg = quoted.imageMessage; mediaType = 'image';
           caption = inlineText || quoted.imageMessage?.caption || null;
+          mediaAttrs = { mimetype: quoted.imageMessage?.mimetype || null };
+          fromQuoted = true;
         } else if (quoted?.videoMessage) {
           sourceMsg = quoted.videoMessage; mediaType = 'video';
           caption = inlineText || quoted.videoMessage?.caption || null;
+          mediaAttrs = { mimetype: quoted.videoMessage?.mimetype || null, gifPlayback: !!quoted.videoMessage?.gifPlayback };
+          fromQuoted = true;
         } else if (quoted?.audioMessage) {
           sourceMsg = quoted.audioMessage; mediaType = 'audio';
+          mediaAttrs = { mimetype: quoted.audioMessage?.mimetype || null, ptt: !!quoted.audioMessage?.ptt };
+          fromQuoted = true;
+        } else if (quoted?.stickerMessage) {
+          sourceMsg = quoted.stickerMessage; mediaType = 'sticker';
+          mediaAttrs = { mimetype: quoted.stickerMessage?.mimetype || null };
+          fromQuoted = true;
+        }
+
+        if (m.quoted && !sourceMsg) {
+          try {
+            if (typeof m.quoted.download === 'function') {
+              const buf = await m.quoted.download();
+              if (buf && buf.length) {
+                const mt = (m.quoted.mimetype || m.quoted.mtype || '').toLowerCase();
+                if (m.quoted.mtype === 'stickerMessage' || mt === 'image/webp') { mediaType = 'sticker'; sourceMsg = { _buf: buf }; mediaAttrs = { mimetype: m.quoted.mimetype || null }; }
+                else if (mt.includes('image') || m.quoted.mtype === 'imageMessage') { mediaType = 'image'; sourceMsg = { _buf: buf }; mediaAttrs = { mimetype: m.quoted.mimetype || null }; }
+                else if (mt.includes('video') || m.quoted.mtype === 'videoMessage') { mediaType = 'video'; sourceMsg = { _buf: buf }; mediaAttrs = { mimetype: m.quoted.mimetype || null, gifPlayback: !!m.quoted.gifPlayback }; }
+                else if (mt.includes('audio') || m.quoted.mtype === 'audioMessage') { mediaType = 'audio'; sourceMsg = { _buf: buf }; mediaAttrs = { mimetype: m.quoted.mimetype || null, ptt: !!m.quoted.ptt }; }
+              }
+            }
+          } catch {}
         }
 
         if (!sourceMsg && !inlineText) {
@@ -81,10 +151,14 @@ export default {
 
         let buffer = null;
         if (sourceMsg && mediaType) {
-          try { buffer = await _downloadMedia(sourceMsg, mediaType); }
-          catch (e) {
-            await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-            return client.sendMessage(m.chat, { text: _fmt('Failed to download media: ' + e.message) });
+          if (sourceMsg._buf) {
+            buffer = sourceMsg._buf;
+          } else {
+            try { buffer = await _downloadMedia(sourceMsg, mediaType, m, fromQuoted); }
+            catch (e) {
+              await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
+              return client.sendMessage(m.chat, { text: _fmt('Failed to download media: ' + e.message) });
+            }
           }
         }
 
@@ -99,7 +173,7 @@ export default {
         const results = { success: [], failed: [] };
         for (const jid of groupJids) {
           try {
-            await _sendStatusToGroup(client, jid, mediaType, buffer, caption);
+            await _sendStatusToGroup(client, jid, mediaType, buffer, caption, mediaAttrs);
             results.success.push(allGroups[jid]?.subject || jid);
           } catch (e) {
             results.failed.push({ name: allGroups[jid]?.subject || jid, error: (e.message || '').slice(0, 60) });
@@ -161,29 +235,48 @@ export default {
       let sourceMsg = null;
       let mediaType = null;
 
-      const quoted = m.message?.extendedTextMessage?.contextInfo?.quotedMessage
-        || m.message?.imageMessage?.contextInfo?.quotedMessage
-        || m.message?.videoMessage?.contextInfo?.quotedMessage
+      const rootMsg = _unwrap(m.message || {});
+      const quoted = _unwrap(rootMsg?.extendedTextMessage?.contextInfo?.quotedMessage
+        || rootMsg?.imageMessage?.contextInfo?.quotedMessage
+        || rootMsg?.videoMessage?.contextInfo?.quotedMessage
         || m.quoted?.message
-        || null;
+        || null);
+      let mediaAttrs = {};
+      let fromQuoted = false;
 
-      if (m.message?.imageMessage) {
-        sourceMsg = m.message.imageMessage; mediaType = 'image';
-        caption = inlineText || m.message.imageMessage?.caption || null;
-      } else if (m.message?.videoMessage) {
-        sourceMsg = m.message.videoMessage; mediaType = 'video';
-        caption = inlineText || m.message.videoMessage?.caption || null;
-      } else if (m.message?.audioMessage) {
-        sourceMsg = m.message.audioMessage; mediaType = 'audio';
+      if (rootMsg?.imageMessage) {
+        sourceMsg = rootMsg.imageMessage; mediaType = 'image';
+        caption = inlineText || rootMsg.imageMessage?.caption || null;
+        mediaAttrs = { mimetype: rootMsg.imageMessage?.mimetype || null };
+      } else if (rootMsg?.videoMessage) {
+        sourceMsg = rootMsg.videoMessage; mediaType = 'video';
+        caption = inlineText || rootMsg.videoMessage?.caption || null;
+        mediaAttrs = { mimetype: rootMsg.videoMessage?.mimetype || null, gifPlayback: !!rootMsg.videoMessage?.gifPlayback };
+      } else if (rootMsg?.audioMessage) {
+        sourceMsg = rootMsg.audioMessage; mediaType = 'audio';
+        mediaAttrs = { mimetype: rootMsg.audioMessage?.mimetype || null, ptt: !!rootMsg.audioMessage?.ptt };
+      } else if (rootMsg?.stickerMessage) {
+        sourceMsg = rootMsg.stickerMessage; mediaType = 'sticker';
+        mediaAttrs = { mimetype: rootMsg.stickerMessage?.mimetype || null };
       } else if (quoted) {
         if (quoted.imageMessage) {
           sourceMsg = quoted.imageMessage; mediaType = 'image';
           caption = inlineText || quoted.imageMessage?.caption || null;
+          mediaAttrs = { mimetype: quoted.imageMessage?.mimetype || null };
+          fromQuoted = true;
         } else if (quoted.videoMessage) {
           sourceMsg = quoted.videoMessage; mediaType = 'video';
           caption = inlineText || quoted.videoMessage?.caption || null;
+          mediaAttrs = { mimetype: quoted.videoMessage?.mimetype || null, gifPlayback: !!quoted.videoMessage?.gifPlayback };
+          fromQuoted = true;
         } else if (quoted.audioMessage) {
           sourceMsg = quoted.audioMessage; mediaType = 'audio';
+          mediaAttrs = { mimetype: quoted.audioMessage?.mimetype || null, ptt: !!quoted.audioMessage?.ptt };
+          fromQuoted = true;
+        } else if (quoted.stickerMessage) {
+          sourceMsg = quoted.stickerMessage; mediaType = 'sticker';
+          mediaAttrs = { mimetype: quoted.stickerMessage?.mimetype || null };
+          fromQuoted = true;
         } else if (quoted.conversation || quoted.extendedTextMessage?.text) {
           caption = (quoted.conversation || quoted.extendedTextMessage?.text || '') + (inlineText ? '\n' + inlineText : '');
         }
@@ -195,9 +288,10 @@ export default {
             const buf = await m.quoted.download();
             if (buf && buf.length) {
               const mt = (m.quoted.mimetype || m.quoted.mtype || '').toLowerCase();
-              if (mt.includes('image') || m.quoted.mtype === 'imageMessage') { mediaType = 'image'; sourceMsg = { _buf: buf }; }
-              else if (mt.includes('video') || m.quoted.mtype === 'videoMessage') { mediaType = 'video'; sourceMsg = { _buf: buf }; }
-              else if (mt.includes('audio') || m.quoted.mtype === 'audioMessage') { mediaType = 'audio'; sourceMsg = { _buf: buf }; }
+              if (m.quoted.mtype === 'stickerMessage' || mt === 'image/webp') { mediaType = 'sticker'; sourceMsg = { _buf: buf }; mediaAttrs = { mimetype: m.quoted.mimetype || null }; }
+              else if (mt.includes('image') || m.quoted.mtype === 'imageMessage') { mediaType = 'image'; sourceMsg = { _buf: buf }; mediaAttrs = { mimetype: m.quoted.mimetype || null }; }
+              else if (mt.includes('video') || m.quoted.mtype === 'videoMessage') { mediaType = 'video'; sourceMsg = { _buf: buf }; mediaAttrs = { mimetype: m.quoted.mimetype || null, gifPlayback: !!m.quoted.gifPlayback }; }
+              else if (mt.includes('audio') || m.quoted.mtype === 'audioMessage') { mediaType = 'audio'; sourceMsg = { _buf: buf }; mediaAttrs = { mimetype: m.quoted.mimetype || null, ptt: !!m.quoted.ptt }; }
             }
           }
         } catch {}
@@ -215,14 +309,20 @@ export default {
         if (sourceMsg._buf) {
           buffer = sourceMsg._buf;
         } else {
-          const stream = await downloadContentFromMessage(sourceMsg, mediaType);
-          const chunks = [];
-          for await (const chunk of stream) chunks.push(chunk);
-          buffer = Buffer.concat(chunks);
+          try {
+            buffer = await _downloadMedia(sourceMsg, mediaType, m, fromQuoted);
+          } catch (e) {
+            await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
+            return client.sendMessage(m.chat, { text: _fmt('Failed to download media: ' + e.message) });
+          }
+        }
+        if (!buffer || !buffer.length) {
+          await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
+          return client.sendMessage(m.chat, { text: _fmt('Failed to download media: downloaded media was empty') });
         }
       }
 
-      await _sendStatusToGroup(client, targetGroupJid, mediaType, buffer, caption);
+      await _sendStatusToGroup(client, targetGroupJid, mediaType, buffer, caption, mediaAttrs);
 
       await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
       if (!IsGroup) {
