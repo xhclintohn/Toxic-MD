@@ -11,13 +11,13 @@ async function _downloadMedia(sourceMsg, type) {
 
 async function _sendStatusToGroup(client, jid, mediaType, buffer, caption) {
   if (mediaType === 'image') {
-    return client.sendGroupStatus({ image: buffer, caption: caption || '' }, [jid]);
+    return client.sendGroupStatus(jid, { image: buffer, caption: caption || '' });
   } else if (mediaType === 'video') {
-    return client.sendGroupStatus({ video: buffer, caption: caption || '' }, [jid]);
+    return client.sendGroupStatus(jid, { video: buffer, caption: caption || '' });
   } else if (mediaType === 'audio') {
-    return client.sendGroupStatus({ audio: buffer, mimetype: 'audio/mp4' }, [jid]);
+    return client.sendGroupStatus(jid, { audio: buffer, mimetype: 'audio/mp4' });
   } else {
-    return client.sendGroupStatus({ text: caption || '' }, [jid]);
+    return client.sendGroupStatus(jid, { text: caption || '' });
   }
 }
 
@@ -36,7 +36,7 @@ export default {
 
       if (typeof client.sendGroupStatus !== 'function') {
         await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-        return client.sendMessage(m.chat, { text: _fmt('Baileys is too old for group status.\n│ Update Baileys to 1.7.0 or newer, then try again.') });
+        return client.sendMessage(m.chat, { text: _fmt('Baileys is too old for group status.\n│ Update Baileys to 1.8.0 or newer, then try again.') });
       }
 
       const bodyStr = (m.body || '').trim();
