@@ -24,7 +24,7 @@ async function _sendStatusToGroup(client, jid, mediaType, buffer, caption) {
 export default {
   name: 'gstatus',
   aliases: ['groupstatus', 'gs', 'gstat', 'groupst', 'gstatuspost'],
-  description: 'Posts media or text as a silent group status.',
+  description: 'Posts media or text as a group status.',
   run: async (context) => {
     const { client, m, prefix, IsGroup, botname } = context;
 
