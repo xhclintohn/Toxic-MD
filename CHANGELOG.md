@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.6
+
+- Channel status: new `.chstatus` command (owner only) with 12 aliases posts text or media as a status on the bot channel through Baileys `sendChannelStatus`. It takes plain text, reply-to-text, reply-to-image with its own caption, or reply-to-image plus command text, where the command text wins as the caption. It defaults to the bot channel and also accepts a channel JID or bare channel number as the first argument, and says clearly when the bot is not an admin of the channel.
+- Group status: `.gstatus` now posts through Baileys `sendGroupStatus` instead of a hand-built message, with the same text, reply and media handling as `.chstatus`, the same `all` mode and group link or JID targeting, and three new aliases. The command text now wins over a media caption, matching `.chstatus`.
+- Chat management: `.clear` now actually clears the chat through Baileys `clearChat` instead of deleting it, with an optional `keepstarred` argument that keeps starred messages. The other clear command and the `clearChatMessages` helper no longer use the invalid `clearChat` modification shape that always errored, and now clear through `clearChat` too.
+- Chat management: `.archive` now uses Baileys `archiveChat`, and two new owner commands arrive: `.deletechat` deletes the chat and `.unarchive` brings an archived chat back. All four fall back to the matching `chatModify` shape when the Baileys wrapper is not available.
+
 ## 1.2.5
 
 - LID handling: replying to a message in a DM with `.ban` no longer returns a LID. Quoted senders are now resolved from the original stored message (in-memory store and saved message record, using the original key's phone-number identity) and, in a DM, from the DM chat itself, with the new `resolveQuotedJid` helper in `lib/lidResolver.js` and a 4 second cap in `src/toxic.js` so an unresolvable quoted LID never stalls a message.
