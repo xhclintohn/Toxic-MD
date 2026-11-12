@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.7
+
+- Group status: `.gstatus` now calls Baileys `sendGroupStatus` with the new `(jid, content)` shape from Baileys 1.8.0, which posts a real group status through the `groupStatusMessageV2` message. The old shape posted through the status-mentions mechanism and the status never showed inside the group. All `.gstatus` behaviour is unchanged: the same text, reply and media handling, `all` mode, group link and JID targeting, and aliases.
+- App state: the bot now syncs all app-state collections when it connects, and the chat-modify retry now resyncs all collections too. The old code only resynced `critical_unblock_low`, while clear, archive, delete, mute and pin patches live in the `regular` collections, so `.clear`, `.archive`, `.deletechat` and `.unarchive` could keep failing with "app state not ready" right after starting.
+
 ## 1.2.6
 
 - Channel status: new `.chstatus` command (owner only) with 12 aliases posts text or media as a status on the bot channel through Baileys `sendChannelStatus`. It takes plain text, reply-to-text, reply-to-image with its own caption, or reply-to-image plus command text, where the command text wins as the caption. It defaults to the bot channel and also accepts a channel JID or bare channel number as the first argument, and says clearly when the bot is not an admin of the channel.
