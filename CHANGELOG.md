@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.11
+
+- New domain links: the trial check now calls the Nyx Hosting API on hosting.nyxtech.web.id instead of hosting.toxicx.tech, and the expiry and renewal messages now point at hosting.nyxtech.web.id. Both addresses serve the same site, so the trial check and the renewal flow work exactly as before.
+- MainBot site: the `.script` command now shows https://hosting.nyxtech.web.id as the bot site instead of https://toxicx.tech.
+
 ## 1.2.10
 
 - Update Baileys: `.updatebails` (and its aliases `.ub`, `.updatebaileys`, `.reinstall`, `.npmi`) now installs only Baileys from the test branch instead of deleting `node_modules` and the lockfile and reinstalling everything. The old behaviour ran the bot out of memory and was killed, leaving a half-installed `node_modules` behind. The command now reports the Baileys version before and after, says nothing was deleted if it fails, and asks for a panel restart so the new Baileys loads. Running it now pulls Baileys 1.8.1 from the test branch, which carries the media group-status fix.
