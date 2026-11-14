@@ -34,7 +34,7 @@ async function fetchTrialStatus(userId) {
     let res;
     try {
       const _appName = process.env.HEROKU_APP_NAME ? `?app=${encodeURIComponent(process.env.HEROKU_APP_NAME)}` : '';
-      const url = `https://hosting.toxicx.tech/api/bots/trial-check/${userId}${_appName}`;
+      const url = `https://hosting.nyxtech.web.id/api/bots/trial-check/${userId}${_appName}`;
       res = await fetch(url, { signal: controller.signal });
     } finally {
       clearTimeout(timer);
@@ -62,7 +62,7 @@ async function runTrialCheck(socket, userId, botJid) {
             '',
             'This bot is being removed from our servers.',
             '',
-            '💳 Renew at *hosting.toxicx.tech* to keep using the bot.',
+            '💳 Renew at *hosting.nyxtech.web.id* to keep using the bot.',
             '',
             '_Toxic-Hosting_'
           ].join('\n')
@@ -141,7 +141,7 @@ async function connectionHandler(socket, connectionUpdate, reconnect) {
               '',
               'This bot will be permanently deleted in 24 hours unless you renew.',
               '',
-              'Renew now at: hosting.toxicx.tech',
+              'Renew now at: hosting.nyxtech.web.id',
               '',
               '- Toxic Hosting'
             ].join('\n')
