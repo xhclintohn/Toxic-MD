@@ -35,7 +35,7 @@ export default {
 │ https://github.com/xhclintohn/Toxic-MD
 │ 
 │ 🌐 MainBot Site:
-│ https://toxicx.tech
+│ https://hosting.nyxtech.web.id
 │ 
 │ ⭐ Stars : ${repoInfo.stars}
 │ 🍴 Forks : ${repoInfo.forks}
