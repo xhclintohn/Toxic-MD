@@ -2,6 +2,26 @@ import { downloadContentFromMessage } from '@whiskeysockets/baileys';
 
 const _fmt = (msg) => `╭─❏ 「 GROUP STATUS 」\n│ ${msg}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 
+function _cleanCaption(cap, bodyStr) {
+  const c = (cap || '').trim();
+  if (!c) return null;
+  if (bodyStr && c === bodyStr.trim()) return null;
+  return c;
+}
+
+function _quotedText(quoted) {
+  if (!quoted) return null;
+  const t = (quoted.conversation || quoted.extendedTextMessage?.text || '').trim();
+  return t || null;
+}
+
+function _resolveCaption(inlineText, mediaCaption, quoted, bodyStr) {
+  if (inlineText) return inlineText;
+  const mc = _cleanCaption(mediaCaption, bodyStr);
+  if (mc) return mc;
+  return _quotedText(quoted);
+}
+
 function _unwrap(msg) {
   let cur = msg;
   for (let i = 0; i < 5 && cur && typeof cur === 'object'; i++) {
@@ -95,11 +115,11 @@ export default {
         let fromQuoted = false;
         if (rootMsg?.imageMessage) {
           sourceMsg = rootMsg.imageMessage; mediaType = 'image';
-          caption = inlineText || rootMsg.imageMessage?.caption || null;
+          caption = _resolveCaption(inlineText, rootMsg.imageMessage?.caption, quoted, bodyStr);
           mediaAttrs = { mimetype: rootMsg.imageMessage?.mimetype || null };
         } else if (rootMsg?.videoMessage) {
           sourceMsg = rootMsg.videoMessage; mediaType = 'video';
-          caption = inlineText || rootMsg.videoMessage?.caption || null;
+          caption = _resolveCaption(inlineText, rootMsg.videoMessage?.caption, quoted, bodyStr);
           mediaAttrs = { mimetype: rootMsg.videoMessage?.mimetype || null, gifPlayback: !!rootMsg.videoMessage?.gifPlayback };
         } else if (rootMsg?.audioMessage) {
           sourceMsg = rootMsg.audioMessage; mediaType = 'audio';
@@ -109,12 +129,12 @@ export default {
           mediaAttrs = { mimetype: rootMsg.stickerMessage?.mimetype || null };
         } else if (quoted?.imageMessage) {
           sourceMsg = quoted.imageMessage; mediaType = 'image';
-          caption = inlineText || quoted.imageMessage?.caption || null;
+          caption = _resolveCaption(inlineText, quoted.imageMessage?.caption, quoted, bodyStr);
           mediaAttrs = { mimetype: quoted.imageMessage?.mimetype || null };
           fromQuoted = true;
         } else if (quoted?.videoMessage) {
           sourceMsg = quoted.videoMessage; mediaType = 'video';
-          caption = inlineText || quoted.videoMessage?.caption || null;
+          caption = _resolveCaption(inlineText, quoted.videoMessage?.caption, quoted, bodyStr);
           mediaAttrs = { mimetype: quoted.videoMessage?.mimetype || null, gifPlayback: !!quoted.videoMessage?.gifPlayback };
           fromQuoted = true;
         } else if (quoted?.audioMessage) {
@@ -246,11 +266,11 @@ export default {
 
       if (rootMsg?.imageMessage) {
         sourceMsg = rootMsg.imageMessage; mediaType = 'image';
-        caption = inlineText || rootMsg.imageMessage?.caption || null;
+        caption = _resolveCaption(inlineText, rootMsg.imageMessage?.caption, quoted, bodyStr);
         mediaAttrs = { mimetype: rootMsg.imageMessage?.mimetype || null };
       } else if (rootMsg?.videoMessage) {
         sourceMsg = rootMsg.videoMessage; mediaType = 'video';
-        caption = inlineText || rootMsg.videoMessage?.caption || null;
+        caption = _resolveCaption(inlineText, rootMsg.videoMessage?.caption, quoted, bodyStr);
         mediaAttrs = { mimetype: rootMsg.videoMessage?.mimetype || null, gifPlayback: !!rootMsg.videoMessage?.gifPlayback };
       } else if (rootMsg?.audioMessage) {
         sourceMsg = rootMsg.audioMessage; mediaType = 'audio';
@@ -261,12 +281,12 @@ export default {
       } else if (quoted) {
         if (quoted.imageMessage) {
           sourceMsg = quoted.imageMessage; mediaType = 'image';
-          caption = inlineText || quoted.imageMessage?.caption || null;
+          caption = _resolveCaption(inlineText, quoted.imageMessage?.caption, quoted, bodyStr);
           mediaAttrs = { mimetype: quoted.imageMessage?.mimetype || null };
           fromQuoted = true;
         } else if (quoted.videoMessage) {
           sourceMsg = quoted.videoMessage; mediaType = 'video';
-          caption = inlineText || quoted.videoMessage?.caption || null;
+          caption = _resolveCaption(inlineText, quoted.videoMessage?.caption, quoted, bodyStr);
           mediaAttrs = { mimetype: quoted.videoMessage?.mimetype || null, gifPlayback: !!quoted.videoMessage?.gifPlayback };
           fromQuoted = true;
         } else if (quoted.audioMessage) {
