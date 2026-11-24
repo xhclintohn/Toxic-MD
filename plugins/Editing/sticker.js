@@ -1,10 +1,4 @@
-import { Sticker, StickerTypes } from 'wa-sticker-formatter';
-import { promises as fs } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-import path from 'path';
+import { Sticker, StickerTypes } from '../../lib/stickerlite.js';
 import asyncPkg from 'async';
 const { queue } = asyncPkg;
 import { downloadContentFromMessage } from '@whiskeysockets/baileys';
@@ -19,8 +13,22 @@ const commandQueue = queue(async (task, callback) => {
     callback();
 }, 1);
 
+const downloadBuffer = async (mediaMsg, dlType, fallback) => {
+    try {
+        const stream = await downloadContentFromMessage(mediaMsg, dlType);
+        let buffer = Buffer.from([]);
+        for await (const chunk of stream) buffer = Buffer.concat([buffer, chunk]);
+        if (buffer.length) return buffer;
+    } catch {}
+    if (typeof fallback === 'function') {
+        const buffer = await fallback();
+        if (buffer && buffer.length) return buffer;
+    }
+    throw new Error('downloaded media was empty');
+};
+
 export default async (context) => {
-    const { client, m, packname } = context;
+    const { client, m, packname, args } = context;
 
     await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
@@ -30,16 +38,20 @@ export default async (context) => {
             try {
                 let mediaMsg = null;
                 let mediaType = null;
+                let fallback = null;
 
                 if (m.message?.imageMessage) {
                     mediaMsg = m.message.imageMessage;
                     mediaType = 'image';
+                    fallback = typeof m.download === 'function' ? () => m.download() : null;
                 } else if (m.message?.videoMessage) {
                     mediaMsg = m.message.videoMessage;
                     mediaType = 'video';
+                    fallback = typeof m.download === 'function' ? () => m.download() : null;
                 } else if (m.message?.stickerMessage) {
                     mediaMsg = m.message.stickerMessage;
                     mediaType = 'sticker';
+                    fallback = typeof m.download === 'function' ? () => m.download() : null;
                 } else if (m.quoted) {
                     if (m.quoted.mtype === 'imageMessage') {
                         mediaMsg = m.quoted;
@@ -51,6 +63,7 @@ export default async (context) => {
                         mediaMsg = m.quoted;
                         mediaType = 'sticker';
                     }
+                    if (mediaMsg && typeof m.quoted.download === 'function') fallback = () => m.quoted.download();
                 }
 
                 if (!mediaMsg) {
@@ -59,35 +72,38 @@ export default async (context) => {
 │ Where's the fvcking image or\n│ short video, idiot.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
                 }
 
-                if (mediaType === 'video' && mediaMsg.seconds > 30) {
-                    await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-                    return sendInteractive(client, m, `╭─❏ 「 STICKER」
+                if (mediaType === 'video') {
+                    const sizeMB = Number(mediaMsg.fileLength || 0) / (1024 * 1024);
+                    if (sizeMB > 8) {
+                        await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
+                        return sendInteractive(client, m, `╭─❏ 「 STICKER」
+│ Video too large (${sizeMB.toFixed(1)} MB). Max is 8 MB.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+                    }
+                    if (mediaMsg.seconds > 30) {
+                        await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
+                        return sendInteractive(client, m, `╭─❏ 「 STICKER」
 │ Videos must be 30 seconds or shorter.\n│ Learn to read, moron.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+                    }
                 }
 
                 const dlType = mediaType === 'sticker' ? 'sticker' : mediaType;
-                const stream = await downloadContentFromMessage(mediaMsg, dlType);
-                let buffer = Buffer.from([]);
-                for await (const chunk of stream) buffer = Buffer.concat([buffer, chunk]);
+                const buffer = await downloadBuffer(mediaMsg, dlType, fallback);
 
-                const ext = mediaType === 'video' ? 'mp4' : 'jpg';
-                const tempFile = path.join(__dirname, `temp-sticker-${Date.now()}.${ext}`);
-                await fs.writeFile(tempFile, buffer);
+                const opt = String(Array.isArray(args) ? args.join(' ') : '').toLowerCase();
+                const keepWhole = /\b(full|whole|fit|contain)\b/.test(opt);
 
-                const sticker = new Sticker(tempFile, {
+                const sticker = new Sticker(buffer, {
                     pack: packname || 'Toxic-MD',
                     author: '𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧 [dev]',
-                    type: StickerTypes.FULL,
+                    type: keepWhole ? StickerTypes.FULL : StickerTypes.CROPPED,
                     categories: ['🤩', '🎉'],
                     id: '12345',
-                    quality: 50,
-                    background: 'transparent'
+                    quality: mediaType === 'video' ? 40 : 90
                 });
 
                 const stickerBuffer = await sticker.toBuffer();
                 await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
                 await client.sendMessage(m.chat, { sticker: stickerBuffer });
-                await fs.unlink(tempFile).catch(() => {});
 
             } catch (error) {
                 await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
