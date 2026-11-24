@@ -153,6 +153,13 @@ export default {
           `${prefix}antiviewonce on`
         ) +
         fmt(
+          'Auto-React',
+          'Reacts to every message with a different emoji.',
+          settings.autoreact === 'dm' ? '✅ DM only' : settings.autoreact === 'gc' ? '✅ GC only' : settings.autoreact ? '✅ ON (All)' : '❌ OFF',
+          `${prefix}autoreact on/dm/gc/off`,
+          `${prefix}autoreact on`
+        ) +
+        fmt(
           'Stealth Mode',
           'Auto-deletes commands and bot replies 8 seconds after execution.',
           settings.stealth === true || settings.stealth === 'true' ? '✅ ON' : '❌ OFF',

@@ -11,6 +11,7 @@ const BOT = {
     antidelete: 'Anti-Delete',
     antiedit: 'Anti-Edit',
     antiviewonce: 'Anti-View Once',
+    autoreact: 'Auto-React',
     chatbotpm: 'Chatbot PM',
     autoai: 'Auto AI Reply',
     stealth: 'Stealth Mode',
