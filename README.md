@@ -7,7 +7,7 @@
 ![Multi-Device](https://img.shields.io/badge/Multi--Device-Supported-blue?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-orange?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)
-![Version](https://img.shields.io/badge/Version-1.2.10-blue?style=flat-square)
+![Version](https://img.shields.io/badge/Version-1.2.14-blue?style=flat-square)
 
 **A powerful, lightning-fast WhatsApp Multi-Device bot built for group control, automation, AI chat, media editing, and fun commands^^**
 
@@ -41,6 +41,30 @@ This README is in English by default. Full translations live in the [`Langs/`](L
 | Amharic | [Read the Amharic (አማርኛ) README](Langs/am.md) |
 
 Change the bot's reply language anytime with: `.language <code>` (Owner only)
+
+---
+
+## 🆕 What's New in v1.2.14
+
+- 📊 **Vote on Polls With a Tap** — reply to a poll with `.vote` and tap a button to vote, quick-reply buttons for up to 3 options and a list for bigger polls
+- 👁️ **View-Once Reveal That Actually Works** — `.vv` and `.vvx` now recover view-once photos, videos and voice notes from the sender's own live copy when WhatsApp strips the media keys
+- 😈 **Auto-React** — new `.autoreact` command, the bot reacts to messages with a different emoji every time. `.autoreact on` reacts everywhere, `.autoreact dm` only in DMs, `.autoreact gc` only in groups
+- 🗑️ **Antidelete Recovers More** — deleted view-once media, buttons, poll votes, reactions, live locations, contacts and group invites are now recovered too
+- 🧹 **`.clear` From Anywhere** — clear a number or a group JID without being in that chat, and it asks what to clear when used bare
+- 🎵 **Sticker Audio** — new `.stickeraudio` (`.sa`) command turns audio into a sticker
+- 📌 **Pin Commands Fixed** — `.pin` uses the new Baileys pin API, and `.pinchat` pins a whole chat
+
+---
+
+## 🆕 What's New in v1.2.13
+
+- 🚀 **Bot Stays Fast Over Time** — failed LID lookups are cached instead of rescanning the Session folder on every message, LID mapping files are no longer deleted by cleanup, unchanged mappings skip the database write, the device cache now expires properly, and the bot admin check refetches at most once a minute per group. No more replies arriving minutes late after the bot has been running a while
+
+---
+
+## 🆕 What's New in v1.2.12
+
+- ✨ **`.sticker` Fixed, No More Sharp** — stickers are now made with FFmpeg through the new stickerlite engine, so they work even where sharp is broken. Images fill the square by default, `.s full` keeps the whole picture, videos over 8 MB or 30 seconds are rejected with a clear message, and there are two new aliases: `.stik` and `.stikpack`
 
 ---
 

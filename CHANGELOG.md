@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.2.14
+
+- Poll voting: reply to a poll with `.vote` and tap a button to vote. Polls with up to 3 options get quick-reply buttons, bigger polls get a list. The bot saves each poll's voting key the moment the poll arrives, so tapping a button votes with the right key.
+- View-once reveal fixed: `.vv` and `.vvx` now recover view-once photos, videos and voice notes from the sender's own live copy when WhatsApp strips the media keys, instead of failing with a blank error.
+- Auto-react: new `.autoreact` command. The bot reacts to messages with a different emoji every time, never the same twice in a row. `.autoreact on` reacts everywhere, `.autoreact dm` only in DMs, `.autoreact gc` only in groups, and `.autoreact off` stops it. It also shows up in `.on`, `.off` and `.settings`.
+- Antidelete recovers more: deleted view-once media (including voice notes) is recovered from the sender's copy, and deleted buttons and interactive messages, poll votes, reactions, live locations, contacts and group invites are now recovered too. When a deleted message can't be fully rebuilt, it shows any text it finds instead of saying it couldn't be recovered.
+- Group status captions: `.gstatus` no longer keeps a caption that is just the command itself, and replying to a message uses that message's text as the caption.
+- Clear from anywhere: `.clear` now works on a number or a group JID, not just the chat you're in, and asks what to clear when you use it bare.
+- Sticker audio: new `.stickeraudio` (`.sa`) command turns audio into a sticker.
+- Pin commands: `.pin` now uses the new Baileys pin API, and `.pinchat` is a new command for pinning a whole chat.
+
+## 1.2.13
+
+- Slowdown fixes: the bot no longer rescans the whole Session directory for every message from an unresolvable LID. Failed LID scans are now cached for 60 seconds in both the message handler and the LID resolver, and the session cleanup no longer deletes Baileys' LID mapping files, so the fast direct file lookup keeps working. LID pairs that are already cached with the same value are no longer rewritten to the database on every group message. The device cache is now managed by Baileys with TTL eviction instead of a plain Map that never expired. The bot admin check now refetches group metadata at most once a minute per group instead of on every message.
+
+## 1.2.12
+
+- Sticker command fixed: `.sticker` (and `.s`, `.stk`, `.stkr`, `.make`, `.stik`, `.stikpack`) no longer uses wa-sticker-formatter, which needs sharp. It now uses the new `lib/stickerlite.js` engine, which converts with FFmpeg and writes the pack and author EXIF into the WebP itself. Images fill the square by default, and `.s full` keeps the whole picture. Videos are rejected over 8 MB or 30 seconds, and animated stickers are re-packed with the new watermark instead of being re-encoded. The sticker watermark setting and the pack and author identity are unchanged.
+
 ## 1.2.11
 
 - New domain links: the trial check now calls the Nyx Hosting API on hosting.nyxtech.web.id instead of hosting.toxicx.tech, and the expiry and renewal messages now point at hosting.nyxtech.web.id. Both addresses serve the same site, so the trial check and the renewal flow work exactly as before.
