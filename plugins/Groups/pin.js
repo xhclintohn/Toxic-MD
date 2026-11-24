@@ -25,7 +25,11 @@ export default {
 
             try {
                 await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-                await client.pinMessage(m.chat, messageKey, isUnpin ? 0 : 1);
+                if (isUnpin) {
+                    await client.unpinMessage(m.chat, messageKey);
+                } else {
+                    await client.pinMessage(m.chat, messageKey);
+                }
                 await sendInteractive(client, m, `╭─❏ 「 PIN 」
 ╭─❏ 「 ${isUnpin ? 'UNPINNED' : 'PINNED'} 」\n│ \n│ Message ${isUnpin ? 'unpinned' : 'pinned'} successfully.\n╰───────────────\n> ©𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
             } catch (error) {
