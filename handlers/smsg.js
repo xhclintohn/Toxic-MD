@@ -91,6 +91,7 @@ function storePair(conn, lidJid, pnJid) {
   const lidNum = lidNumOf(lidJid);
   const pnNum = pnNumOf(pnJid);
   if (!lidNum || !pnNum || lidNum === pnNum || pnNum.length < 7 || pnNum.length > 15) return;
+  if (lidMappingCache.get(lidNum) === pnNum) return;
   lidMappingCache.set(lidNum, pnNum);
   if (lidMappingCache.size > 20000) lidMappingCache.delete(lidMappingCache.keys().next().value);
   if (globalThis.lidPhoneCache) globalThis.lidPhoneCache.set(lidNum, pnNum);
