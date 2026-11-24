@@ -1,6 +1,4 @@
 import fs from 'fs';
-import os from 'os';
-import v8 from 'v8';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -99,6 +97,7 @@ import { imageToWebp, videoToWebp, writeExifImg, writeExifVid } from './lib/exif
 import { isUrl, generateMessageTag, getBuffer, getSizeMedia, fetchJson, sleep } from './lib/botFunctions.js';
 import authenticationn from './auth/auth.js';
 import { smsg } from './handlers/smsg.js';
+import { rememberPoll } from './lib/pollSecrets.js';
 import { getBannedUsers, banUser, mapLidToPhone, getPhoneFromLid } from './database/config.js';
 import { restoreFromGist, startBackupInterval } from './lib/dbBackup.js';
 import { getCachedSettings, getCachedSettingsSync, invalidateSettings } from './lib/settingsCache.js';
@@ -133,23 +132,6 @@ const DEV_NUMBER = '254114885159';
 
 let currentSock = null;
 
-function resolveBrowserDescriptor() {
-  const platform = os.platform();
-  if (platform === "darwin") return "Mac OS";
-  if (platform === "win32") return "Windows";
-  if (platform === "linux") return "Ubuntu";
-  return os.type();
-}
-
-function resolveBrowserName() {
-  const platform = os.platform();
-  if (platform === "darwin") return "Safari";
-  if (platform === "win32") return "Edge";
-  return "Chrome";
-}
-
-
-
 const lidPhoneCache = new Map();
 const phoneLidCache = new Map();
 const lidMissCache = new Map();
@@ -166,6 +148,7 @@ function _capMap(map, max) {
 
 function cacheLidPhone(lidNum, phoneNum) {
     if (!lidNum || !phoneNum || lidNum === phoneNum) return;
+    if (lidPhoneCache.get(lidNum) === phoneNum) return;
     lidPhoneCache.set(lidNum, phoneNum);
     phoneLidCache.set(phoneNum, lidNum);
     _capMap(lidPhoneCache, MAX_LID_CACHE);
@@ -598,7 +581,6 @@ async function startToxic() {
       syncFullHistory: false,
       markOnlineOnConnect: false,
       connectTimeoutMs: 60000,
-      userDevicesCache: new Map(),
       defaultQueryTimeoutMs: 60000,
       keepAliveIntervalMs: 25000,
       generateHighQualityLinkPreview: true,
@@ -622,7 +604,7 @@ async function startToxic() {
         } catch (error) { return message; }
       },
       version,
-      browser: [resolveBrowserDescriptor(), resolveBrowserName(), String(v8.cachedDataVersionTag())],
+      browser: Browsers.android('Chrome'),
       logger: pino({ level: 'silent' }),
       auth: {
         creds: state.creds,
@@ -1101,6 +1083,16 @@ async function startToxic() {
               }
             }
           }
+          try {
+            const _pollContent = mek.message?.pollCreationMessageV3 || mek.message?.pollCreationMessage;
+            if (_pollContent) {
+              const _sec = mek.message?.messageContextInfo?.messageSecret || mek.messageContextInfo?.messageSecret || m.message?.messageContextInfo?.messageSecret || m.messageContextInfo?.messageSecret || null;
+              const _creator = mek.key.participant || mek.key.remoteJid || remoteJid;
+              const _key = mek.key || {};
+              const _opts = (_pollContent.options || []).map(o => o.optionName).filter(Boolean);
+              if (_sec) rememberPoll(remoteJid, mek.key.id, _sec, _creator, { participantAlt: _key.participantAlt || '', remoteJidAlt: _key.remoteJidAlt || '', addressingMode: _key.addressingMode || '', options: _opts });
+            }
+          } catch {}
           toxic(client, m, { type: "notify" }, store).catch(e => console.log('❌ [TOXIC ASYNC]:', e.message));
           setImmediate(() => {
               if (settings?.autoread === true || settings?.autoread === 'true' || settings?.autoread === 1) { client.readMessages([mek.key]).catch(() => {}); }
@@ -1357,7 +1349,7 @@ function cleanupSessionFiles() {
     try {
         if (!fs.existsSync(sessionName)) return;
         const files = fs.readdirSync(sessionName);
-        const keepFiles = ['creds.json', 'app-state-sync-version-', 'pre-key-', 'session-', 'sender-key-', 'app-state-sync-key-'];
+        const keepFiles = ['creds.json', 'app-state-sync-version-', 'pre-key-', 'session-', 'sender-key-', 'app-state-sync-key-', 'lid-mapping-'];
         files.forEach(file => {
             const filePath = path.join(sessionName, file);
             try {

@@ -23,6 +23,7 @@ import * as msgStore from '../lib/MessageStore.js';
 import antistatusmention from '../features/antistatusmention.js';
 import autoai from '../features/autoai.js';
 import antiviewonce from '../features/antiviewonce.js';
+import autoreact from '../features/autoreact.js';
 import toxicaiFeature from '../features/toxicai.js';
 import afkFeature from '../features/afk.js';
 import mentionResponder from '../features/mentionResponder.js';
@@ -39,6 +40,7 @@ import { resolveTargetJid, resolveSenderJid, resolveQuotedJid } from '../lib/lid
 import { getFakeQuoted } from '../lib/fakeQuoted.js';
 import { runEval, buildScope, formatResult } from '../lib/evalRunner.js';
 import { sendHtml } from '../lib/sendHtml.js';
+import { handlePollVoteTap, extractPollVoteId } from '../lib/pollVote.js';
 import { primeGroupUsernames, getCachedUsername, resolveTarget as resolveUserTarget, resolveUsernameToJid, resolveMentionsFromText } from '../lib/usernameResolver.js';
 
 const USERNAME_TARGET_COMMANDS = new Set([
@@ -72,6 +74,8 @@ if (!global._toxicGroupMetaCache) global._toxicGroupMetaCache = new Map();
 const _groupMetaCache = global._toxicGroupMetaCache;
 const _groupMetaInFlight = new Map();
 const GROUP_META_TTL = 300000;
+const _botAdminRecheckAt = new Map();
+const BOT_ADMIN_RECHECK_MS = 60000;
 
 async function fastGroupMetadata(client, jid) {
       const now = Date.now();
@@ -119,11 +123,17 @@ function shouldStoreMessage(m) {
     return !remoteJid.includes('@broadcast') && !remoteJid.includes('@newsletter');
 }
 
+const lidScanMissCache = new Map();
+const LID_SCAN_MISS_TTL_MS = 60 * 1000;
+
 function resolveLidToPhoneNumber(lidJid) {
     if (!lidJid || !String(lidJid).endsWith('@lid')) return lidJid;
     try {
         const lidNumber = String(lidJid).split('@')[0].split(':')[0].replace(/\D/g, '');
         if (!lidNumber) return lidJid;
+        const missAt = lidScanMissCache.get(lidNumber);
+        if (missAt && (Date.now() - missAt) < LID_SCAN_MISS_TTL_MS) return lidJid;
+        if (missAt) lidScanMissCache.delete(lidNumber);
 
         let mapped = lidMappingCache.get(lidNumber)
             || (globalThis.lidPhoneCache && globalThis.lidPhoneCache.get(lidNumber));
@@ -176,6 +186,8 @@ function resolveLidToPhoneNumber(lidJid) {
                 } catch {}
             }
         } catch {}
+        lidScanMissCache.set(lidNumber, Date.now());
+        if (lidScanMissCache.size > 2000) lidScanMissCache.delete(lidScanMissCache.keys().next().value);
         return lidJid;
     } catch (e) {
         return lidJid;
@@ -273,13 +285,137 @@ function getViewOnceMedia(rawMessage) {
     const voWrapper = rawMessage.viewOnceMessage || rawMessage.viewOnceMessageV2 || rawMessage.viewOnceMessageV2Extension;
     if (voWrapper) {
         const inner = voWrapper.message || voWrapper;
-        return { image: inner.imageMessage || null, video: inner.videoMessage || null };
+        return { image: inner.imageMessage || null, video: inner.videoMessage || null, audio: inner.audioMessage || inner.pttMessage || null };
     }
     const inner = extractInnerMessage(rawMessage);
     return {
         image: inner?.imageMessage?.viewOnce ? inner.imageMessage : null,
-        video: inner?.videoMessage?.viewOnce ? inner.videoMessage : null
+        video: inner?.videoMessage?.viewOnce ? inner.videoMessage : null,
+        audio: inner?.audioMessage?.viewOnce ? inner.audioMessage : (inner?.pttMessage?.viewOnce ? inner.pttMessage : null)
     };
+}
+
+function hasMediaKeys(mm) {
+    return !!(mm && (mm.url || mm.directPath || mm.mediaKey));
+}
+
+function unwrapViewOnce(raw) {
+    if (!raw) return null;
+    const voKeys = ['viewOnceMessageV2Extension', 'viewOnceMessageV2', 'viewOnceMessage'];
+    for (const k of voKeys) {
+        if (raw[k]?.message) return raw[k].message;
+    }
+    return raw;
+}
+
+function mediaKindOf(inner) {
+    if (!inner) return null;
+    if (inner.imageMessage) return 'image';
+    if (inner.videoMessage) return 'video';
+    if (inner.audioMessage || inner.pttMessage) return 'audio';
+    return null;
+}
+
+async function downloadDeletedMedia(client, store, chatJid, senderJid, mediaMsg, type) {
+    if (mediaMsg && hasMediaKeys(mediaMsg)) {
+        try {
+            const buf = await downloadMedia(client, mediaMsg, type);
+            if (buf?.length) return buf;
+        } catch {}
+    }
+    try {
+        const cache = Array.isArray(store?.chats?.[chatJid]) ? store.chats[chatJid] : [];
+        const sender = String(senderJid || '').split(':')[0];
+        const cands = cache.map((x) => {
+            if (!x) return null;
+            const raw = x.message || null;
+            if (!raw) return null;
+            const inner = unwrapViewOnce(raw);
+            const kind = mediaKindOf(inner);
+            const mm = kind ? inner[kind + 'Message'] : null;
+            const ts = x.timestamp || (x.messageTimestamp ? Number(x.messageTimestamp) * 1000 : 0);
+            const xs = String(x.sender || x.key?.participant || '').split(':')[0];
+            return { mm, ts, xs, hasKeys: hasMediaKeys(mm) };
+        }).filter(c => c && c.hasKeys && c.xs === sender && (Date.now() - c.ts) < 300000);
+        cands.sort((a, b) => b.ts - a.ts);
+        if (cands.length) {
+            const pick = cands[0];
+            const buf = await downloadMedia(client, pick.mm, type);
+            if (buf?.length) return buf;
+        }
+    } catch {}
+    return null;
+}
+
+function describeInteractive(msg) {
+    if (!msg) return '';
+    const parts = [];
+    const im = msg.interactiveMessage;
+    if (im) {
+        if (im.body?.text) parts.push(im.body.text);
+        if (im.header?.title) parts.push(im.header.title);
+        if (im.header?.subtitle) parts.push(im.header.subtitle);
+        if (im.footer?.text) parts.push(im.footer.text);
+        const flow = im.nativeFlowMessage;
+        if (flow?.buttons) {
+            for (const b of flow.buttons) {
+                if (b?.name) parts.push('[' + b.name + ']');
+            }
+        }
+        if (flow?.paramsJson) {
+            try {
+                const pj = JSON.parse(flow.paramsJson);
+                if (pj?.display_text) parts.push(pj.display_text);
+            } catch {}
+        }
+    }
+    const bm = msg.buttonsMessage;
+    if (bm) {
+        if (bm.contentText) parts.push(bm.contentText);
+        if (bm.headerText) parts.push(bm.headerText);
+        if (bm.footerText) parts.push(bm.footerText);
+        for (const b of (bm.buttons || [])) {
+            if (b?.buttonText?.displayText) parts.push('[' + b.buttonText.displayText + ']');
+        }
+    }
+    const lm = msg.listMessage;
+    if (lm) {
+        if (lm.description) parts.push(lm.description);
+        if (lm.title) parts.push(lm.title);
+        if (lm.buttonText) parts.push('[' + lm.buttonText + ']');
+        for (const s of (lm.sections || [])) {
+            for (const r of (s.rows || [])) {
+                if (r?.title) parts.push('• ' + r.title + (r.description ? ' — ' + r.description : ''));
+            }
+        }
+    }
+    const tm = msg.templateMessage?.hydratedTemplate;
+    if (tm) {
+        if (tm.hydratedContentText) parts.push(tm.hydratedContentText);
+        if (tm.hydratedTitleText) parts.push(tm.hydratedTitleText);
+        if (tm.hydratedFooterText) parts.push(tm.hydratedFooterText);
+        for (const b of (tm.hydratedButtons || [])) {
+            if (b?.hydratedButtonText?.displayText) parts.push('[' + b.hydratedButtonText.displayText + ']');
+        }
+    }
+    const tr = msg.templateButtonReplyMessage;
+    if (tr?.selectedDisplayText) parts.push('Tapped: ' + tr.selectedDisplayText);
+    const br = msg.buttonsResponseMessage;
+    if (br?.selectedDisplayText) parts.push('Tapped: ' + br.selectedDisplayText);
+    const lr = msg.listResponseMessage;
+    if (lr?.title) parts.push('Picked: ' + lr.title + (lr.description ? ' — ' + lr.description : ''));
+    return parts.filter(Boolean).join('\n');
+}
+
+function extractAnyText(msg) {
+    if (!msg) return '';
+    if (msg.conversation) return msg.conversation;
+    if (msg.extendedTextMessage?.text) return msg.extendedTextMessage.text;
+    if (msg.imageMessage?.caption) return msg.imageMessage.caption;
+    if (msg.videoMessage?.caption) return msg.videoMessage.caption;
+    if (msg.documentMessage?.caption) return msg.documentMessage.caption;
+    if (msg.documentWithCaptionMessage?.message?.documentMessage?.caption) return msg.documentWithCaptionMessage.message.documentMessage.caption;
+    return '';
 }
 
 export default async (client, m, chatUpdate, store) => {
@@ -379,6 +515,12 @@ export default async (client, m, chatUpdate, store) => {
 
     if (m.chat && m.chat.endsWith('@g.us')) {
         antibot(client, m).catch(e => console.log('❌ [ANTIBOT]:', e.message));
+    }
+
+    const _tapBody = extractPollVoteId(m);
+    if (_tapBody.startsWith('pv|')) {
+        await handlePollVoteTap(client, m, resolveLidToPhoneNumber).catch(e => console.log('❌ [POLLVOTE]:', e?.message || e));
+        return;
     }
 
         if (m.key?.fromMe || m.fromMe) {
@@ -623,7 +765,10 @@ export default async (client, m, chatUpdate, store) => {
                 if (isAdminRole && (senderMatchPhone || senderMatchLid)) isAdmin = true;
                 if (isAdminRole && _numMatch(pNum, botNumP)) isBotAdmin = true;
             }
-            if (!isBotAdmin && m.isGroup && participants.length > 0) {
+            const lastRecheck = _botAdminRecheckAt.get(m.chat) || 0;
+            if (!isBotAdmin && m.isGroup && participants.length > 0 && Date.now() - lastRecheck >= BOT_ADMIN_RECHECK_MS) {
+                _botAdminRecheckAt.set(m.chat, Date.now());
+                if (_botAdminRecheckAt.size > 200) _botAdminRecheckAt.delete(_botAdminRecheckAt.keys().next().value);
                 try {
                     const freshMeta = await client.groupMetadata(m.chat);
                     const freshParticipants = freshMeta?.participants || [];
@@ -792,6 +937,7 @@ export default async (client, m, chatUpdate, store) => {
             status_saver(client, m, Owner, usedPrefix).catch(e => console.log('❌ [STATUS_SAVER]:', e.message)),
             afkFeature(client, m).catch(e => console.log('❌ [AFK]:', e.message)),
             antiviewonce(client, m).catch(e => console.log('❌ [ANTIVIEWONCE]:', e.message)),
+            autoreact(client, m).catch(e => console.log('❌ [AUTOREACT]:', e.message)),
             stickerlySession(client, m).catch(e => console.log('❌ [STICKERLY]:', e.message)),
         ];
         if (m.isGroup) {
@@ -884,8 +1030,22 @@ export default async (client, m, chatUpdate, store) => {
                         try {
                             if (voMedia) {
                                 const hdr = `╭─❏ 「 DELETED MSG 」\n│ Time: ${deleteTime}\n│ Chat: ${groupName}\n│ Type: ${messageType}\n│ Deleted by: @${deleter}\n│ Sender: @${sender.split('@')[0]}\n╰───────────────`;
-                                if (voMedia.image) { const buf = await downloadMedia(client, voMedia.image, 'image'); await client.sendMessage(botJid, { image: buf, caption: hdr + '\n\n👁️ *Deleted View Once Image*', mentions: [sender] }); }
-                                else if (voMedia.video) { const buf = await downloadMedia(client, voMedia.video, 'video'); await client.sendMessage(botJid, { video: buf, caption: hdr + '\n\n👁️ *Deleted View Once Video*', mentions: [sender] }); }
+                                const senderJid = deletedMessage.key.participant || deletedMessage.key.remoteJid || '';
+                                if (voMedia.image) {
+                                    const buf = await downloadDeletedMedia(client, store, chatJidToSearch, senderJid, voMedia.image, 'image');
+                                    if (buf?.length) await client.sendMessage(botJid, { image: buf, caption: hdr + '\n\n👁️ *Deleted View Once Image*', mentions: [sender] });
+                                    else await client.sendMessage(botJid, { text: hdr + '\n\n👁️ *Deleted View Once Image (media unavailable)*', mentions: [sender] });
+                                }
+                                else if (voMedia.video) {
+                                    const buf = await downloadDeletedMedia(client, store, chatJidToSearch, senderJid, voMedia.video, 'video');
+                                    if (buf?.length) await client.sendMessage(botJid, { video: buf, caption: hdr + '\n\n👁️ *Deleted View Once Video*', mentions: [sender] });
+                                    else await client.sendMessage(botJid, { text: hdr + '\n\n👁️ *Deleted View Once Video (media unavailable)*', mentions: [sender] });
+                                }
+                                else if (voMedia.audio) {
+                                    const buf = await downloadDeletedMedia(client, store, chatJidToSearch, senderJid, voMedia.audio, 'audio');
+                                    if (buf?.length) { await client.sendMessage(botJid, { text: hdr + '\n\n👁️ *Deleted View Once Audio*', mentions: [sender] }); await client.sendMessage(botJid, { audio: buf, ptt: voMedia.audio.ptt || false, mimetype: voMedia.audio.mimetype || 'audio/ogg; codecs=opus' }); }
+                                    else await client.sendMessage(botJid, { text: hdr + '\n\n👁️ *Deleted View Once Audio (media unavailable)*', mentions: [sender] });
+                                }
                                 else { await client.sendMessage(botJid, { text: hdr + '\n\n👁️ *Deleted View Once (media unavailable)*', mentions: [sender] }); }
                             } else {
                                 const msg = extractInnerMessage(rawMessage);
@@ -900,7 +1060,13 @@ export default async (client, m, chatUpdate, store) => {
                                 else if (msg.contactMessage) { await client.sendMessage(botJid, { text: hdr + `\n╰───────────────☉\n\n👤 *Deleted Contact:*\n${msg.contactMessage.displayName || 'Contact'}`, mentions: [sender] }); await client.sendMessage(botJid, { contacts: { displayName: msg.contactMessage.displayName, contacts: [{ vcard: msg.contactMessage.vcard }] } }); }
                                 else if (msg.locationMessage) { await client.sendMessage(botJid, { text: hdr + `\n╰───────────────\n\n📍 *Deleted Location*`, mentions: [sender] }); await client.sendMessage(botJid, { location: { degreesLatitude: msg.locationMessage.degreesLatitude, degreesLongitude: msg.locationMessage.degreesLongitude, name: msg.locationMessage.name || '', address: msg.locationMessage.address || '' } }); }
                                 else if (msg.pollCreationMessage || msg.pollCreationMessageV3) { const poll = msg.pollCreationMessage || msg.pollCreationMessageV3; const pOpts = (poll.options || []).map(o => o.optionName).join('\n々 '); await client.sendMessage(botJid, { text: hdr + `\n╰───────────────\n\n📊 *Deleted Poll:*\n${poll.name || 'Poll'}\n々 ${pOpts}`, mentions: [sender] }); }
-                                else { await client.sendMessage(botJid, { text: hdr + `\n╰───────────────\n\n⚠️ *Deleted content could not be recovered*`, mentions: [sender] }); }
+                                else if (msg.pollUpdateMessage) { const pu = msg.pollUpdateMessage; const pk = pu.pollCreationMessageKey || {}; await client.sendMessage(botJid, { text: hdr + `\n╰───────────────\n\n🗳️ *Deleted Vote:*\nPoll: ${pk.id || '?'}\nVoted by: @${sender.split('@')[0]}`, mentions: [sender] }); }
+                                else if (msg.reactionMessage) { const rm = msg.reactionMessage; await client.sendMessage(botJid, { text: hdr + `\n╰───────────────\n\n${rm.text ? '❤️ *Deleted Reaction:* ' + rm.text : '❤️ *Deleted Reaction*'}${rm.key?.id ? '\nOn message: ' + rm.key.id : ''}`, mentions: [sender] }); }
+                                else if (msg.interactiveMessage || msg.templateMessage || msg.buttonsMessage || msg.listMessage || msg.templateButtonReplyMessage || msg.buttonsResponseMessage || msg.listResponseMessage) { const desc = describeInteractive(msg); await client.sendMessage(botJid, { text: hdr + `\n╰───────────────\n\n🔘 *Deleted Buttons / Interactive:*\n${desc || 'No readable text'}`, mentions: [sender] }); }
+                                else if (msg.liveLocationMessage) { const ll = msg.liveLocationMessage; await client.sendMessage(botJid, { text: hdr + `\n╰───────────────\n\n📍 *Deleted Live Location*`, mentions: [sender] }); await client.sendMessage(botJid, { location: { degreesLatitude: ll.degreesLatitude, degreesLongitude: ll.degreesLongitude, name: ll.caption || '', address: '' } }); }
+                                else if (msg.contactsArrayMessage) { const names = (msg.contactsArrayMessage.contacts || []).map(c => c.displayName).filter(Boolean).join(', '); await client.sendMessage(botJid, { text: hdr + `\n╰───────────────\n\n👤 *Deleted Contacts:*\n${names || 'Contact'}`, mentions: [sender] }); }
+                                else if (msg.groupInviteMessage) { const gi = msg.groupInviteMessage; await client.sendMessage(botJid, { text: hdr + `\n╰───────────────\n\n👥 *Deleted Group Invite:*\n${gi.groupName || ''}\n${gi.inviteCode ? 'Code: ' + gi.inviteCode : ''}`, mentions: [sender] }); }
+                                else { const anyText = extractAnyText(msg); await client.sendMessage(botJid, { text: hdr + `\n╰───────────────\n\n⚠️ *Deleted content could not be recovered*${anyText ? '\n\n📝 *Text found:*\n' + anyText : ''}`, mentions: [sender] }); }
                             }
                         } catch (error) { console.log('❌ [ANTIDELETE ERROR]:', error.message); }
                 }
