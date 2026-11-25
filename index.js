@@ -695,6 +695,59 @@ async function startToxic() {
     }
 
     client.sessionConfig = { autoViewStatus: settingss?.autoview === true || settingss?.autoview === 'true' || settingss?.autoview === 1 };
+
+    client.ws.on('CB:status', async (node) => {
+      try {
+        const _from = node?.attrs?.from || '';
+        if (_from !== 'status@broadcast') return;
+        const _id = node?.attrs?.id || '';
+        const _participant = node?.attrs?.participant || '';
+        if (!_id || !_participant) return;
+        const _st = getCachedSettingsSync() || {};
+        const _autoviewOn = client.sessionConfig?.autoViewStatus === true || _st.autoview === true || _st.autoview === 'true' || _st.autoview === 1;
+        const _autolikeOn = _st.autolike === true || _st.autolike === 'true' || _st.autolike === 1;
+        if (!_autoviewOn && !_autolikeOn) return;
+        const _likeStatus = (_jid) => {
+          try {
+            const _botJid = client.decodeJid(client.user.id);
+            let _emoji = _st?.autolikeemoji;
+            if (!_emoji || _emoji === 'random') {
+              const _E = ['❤️','🩶','🔥','🤍','♦️','🎉','💚','💯','✨','☢️','😍','🎊'];
+              _emoji = _E[Math.floor(Math.random() * _E.length)];
+            }
+            const _reactKey = { remoteJid: 'status@broadcast', id: _id, participant: _jid };
+            client.sendMessage('status@broadcast',
+              { react: { text: _emoji, key: _reactKey } },
+              { statusJidList: [_jid, _botJid].filter(Boolean) }
+            ).catch(() => {});
+          } catch (e) {}
+        };
+        const _viewAndLike = (_jid) => {
+          const _key = { remoteJid: 'status@broadcast', id: _id, participant: _jid };
+          if (_autoviewOn) client.readMessages([_key]).catch(() => {});
+          if (_autolikeOn) _likeStatus(_jid);
+        };
+        let _posterJid = _participant;
+        let _needsResolve = false;
+        if (_participant.endsWith('@lid')) {
+          const _lidNum = _participant.split('@')[0].split(':')[0];
+          const _cached = lidPhoneCache?.get(_lidNum);
+          if (_cached) {
+            const _n = String(_cached).replace(/\D/g, '');
+            if (_n && _n !== _lidNum) _posterJid = _n + '@s.whatsapp.net';
+          } else {
+            _needsResolve = true;
+          }
+        }
+        _viewAndLike(_posterJid);
+        if (_needsResolve) {
+          resolveLidForStatus(client, _participant).then((_r) => {
+            if (_r && _r !== _participant) _viewAndLike(_r);
+          }).catch(() => {});
+        }
+      } catch {}
+    });
+
     store.bind(client.ev);
     try { crmstore.bind(client); } catch (e) { console.log("CRMStore bind:", e.message); }
 
