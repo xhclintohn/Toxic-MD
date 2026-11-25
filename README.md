@@ -7,7 +7,7 @@
 ![Multi-Device](https://img.shields.io/badge/Multi--Device-Supported-blue?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-orange?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)
-![Version](https://img.shields.io/badge/Version-1.2.14-blue?style=flat-square)
+![Version](https://img.shields.io/badge/Version-1.2.15-blue?style=flat-square)
 
 **A powerful, lightning-fast WhatsApp Multi-Device bot built for group control, automation, AI chat, media editing, and fun commands^^**
 
@@ -41,6 +41,19 @@ This README is in English by default. Full translations live in the [`Langs/`](L
 | Amharic | [Read the Amharic (አማርኛ) README](Langs/am.md) |
 
 Change the bot's reply language anytime with: `.language <code>` (Owner only)
+
+---
+
+## 🆕 What's New in v1.2.15
+
+- 📱 **Commands From Your Own Number Work Now** — when you command the bot from the number it's linked to, your messages arrive as "append" updates and the bot was dropping them before it even saw them. Now it lets its own number through, so commands work from your own DM and in groups
+- 👁️ **Auto View Status Is Instant Now** — the bot used to wait for a slow LID lookup before viewing each status, so statuses piled up and some were missed when a lot of features were on. Now it views the moment a status arrives, looks the number up in the background afterwards, and handles every status in a batch instead of only the first
+- 🔄 **No More Forced App Sync** — removed the forced app-state resync on connect and its log, Baileys handles the sync key on its own now
+- 🛡️ **Bots Stay Up** — the bot no longer kills itself when its main file changes, so it won't go off on its own anymore
+- 🔤 **Aliases Cleaned Up** — fixed duplicate alias entries that were silently dropping aliases, and collisions where one command shadowed another (`.pin` pins again, `.song` reaches the song command)
+- ✨ **New `.richtest` Command** — sends a test AI rich response with steps (`.richtest details` for the details variant)
+- 🔤 **Your Prefix Works Now** — fixed the set prefix being ignored while only `/` worked; the bot now reads your prefix reliably, trims it, and handles prefixless mode properly
+- 🎉 **Welcome Cards** — new members now get a generated welcome card with their profile picture, name, group name and member count, sent as a big preview with your welcome text (custom welcome images still win, and it falls back gracefully)
 
 ---
 

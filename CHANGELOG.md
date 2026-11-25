@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.2.15
+
+- Commands from the bot's own number now work: when you command the bot from the number it's linked to, your messages arrive as "append" updates and the bot was dropping them before it even saw them. Now it lets its own number's messages through, so commands work from your own number, in your own DM and in groups.
+- Auto view status is now instant: the bot used to wait for a slow LID lookup (signal repo, session files, a full group fetch) before viewing each status, so statuses piled up and some were missed when a lot of features were on. Now it views the status the moment it arrives, using the number it already knows or the raw key, and only looks the number up in the background afterwards. The status like still uses the right number. The bot also now handles every message in a batch instead of just the first one, so statuses that arrive together all get viewed instead of only the first.
+- Removed the forced app-state resync on connect and its log — Baileys resolves the sync key on its own now, so the bot doesn't need to force it.
+- The bot no longer kills itself when its main file changes. It used to watch its own file and exit on any change, and with nothing to restart it, it stayed down. Bots stay up now.
+- Cleaned up command aliases: fixed duplicate entries that were silently dropping aliases, and fixed collisions where one command's alias shadowed another — `.pin` pins a message again instead of triggering Pinterest, and `.song` reaches the song command.
+- New `.richtest` command that sends a test AI rich response with steps. Use `.richtest details` for the details variant.
+- The prefix you set now works reliably: the bot trims the prefix, handles prefixless mode properly (a command typed with a leading symbol still resolves), and no longer falls back to the default prefix when the settings read is slow — which is what made a custom prefix look ignored while `/` still worked.
+- Welcome messages now come with a generated card: when someone joins a group with welcome on, the bot builds an image with their profile picture, their name, the group name and the member count, and sends it as a big preview card with your welcome text. If you set a custom welcome image it still uses that, and if the card can't be built it falls back to the old behaviour.
+
 ## 1.2.14
 
 - Poll voting: reply to a poll with `.vote` and tap a button to vote. Polls with up to 3 options get quick-reply buttons, bigger polls get a list. The bot saves each poll's voting key the moment the poll arrives, so tapping a button votes with the right key.
