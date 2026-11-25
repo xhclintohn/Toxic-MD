@@ -1,6 +1,7 @@
 import { getGroupSettings, getSudoUsers, resetWarn } from '../database/config.js';
 import antiforeign from '../features/antiforeign.js';
 import { resolveTargetJid } from '../lib/lidResolver.js';
+import { sendWelcomeCard } from '../lib/welcomeCard.js';
 
 const DEVELOPER_NUMBER = "254114885159";
 
@@ -146,6 +147,17 @@ const Events = async (client, event, pict) => {
                 imageSource = dpUrl;
             }
 
+            let cardSent = false;
+            if (!welcomeImage) {
+                try {
+                    await sendWelcomeCard({ client, groupId: event.id, jid: participantJid, metadata, text: caption, mentions: [participantJid] });
+                    cardSent = true;
+                } catch (e) {
+                    console.log('[EVENTS] Welcome card failed, falling back:', e.message);
+                }
+            }
+
+            if (!cardSent) {
             try {
                 if (imageSource) {
                     await client.sendMessage(event.id, { image: { url: imageSource }, caption, mentions: [participantJid] });
@@ -157,6 +169,7 @@ const Events = async (client, event, pict) => {
                 try { await client.sendMessage(event.id, { text: caption, mentions: [participantJid] }); } catch (e2) {
                     console.log('[EVENTS] Welcome text send also failed:', e2.message);
                 }
+            }
             }
         }
     }
