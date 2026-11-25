@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.17
+
+- New `.setwallpaper` command (alias `.setwall`): reply to an image or send one with the caption to set it as the group's chat wallpaper. In a group it sets that group; from DM add the group JID or invite link, like `.setwall 120363000000000000@g.us`. The bot has to be in the group and an admin, since WhatsApp only lets admins change a group's theme. Needs toxic-baileys 1.8.4 or newer for the wallpaper media type.
+
 ## 1.2.16
 
 - Auto view status works again: WhatsApp now delivers some statuses a different way that the bot was acknowledging but never handing to the view code, so those statuses were never viewed or liked. The bot now catches statuses however they arrive and views them right away (and likes them too when autolike is on), using the poster's number when it can be resolved and the raw key otherwise.
