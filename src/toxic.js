@@ -606,8 +606,9 @@ export default async (client, m, chatUpdate, store) => {
         const pict = _toxicPict;
 
         const ALL_PREFIXES = ['.','!','#','/','$','?','+','-','*','\~','@','%','&','^','=','|'];
+        const _pfx = typeof prefix === 'string' ? prefix.trim() : prefix;
         let commandName = null;
-        let usedPrefix = prefix;
+        let usedPrefix = _pfx;
 
         if (body) {
             if (multiprefix === 'true' || multiprefix === true) {
@@ -616,20 +617,22 @@ export default async (client, m, chatUpdate, store) => {
                     const _r1 = body.slice(mp.length).trim().split(/\s+/)[0].toLowerCase();
                     commandName = _r1.replace(/^[^\w+]+/, '') || _r1;
                     usedPrefix = mp;
-                } else if (!prefix) {
-                    commandName = body.trim().split(/\s+/)[0].toLowerCase();
+                } else if (!_pfx) {
+                    const _r4 = body.trim().split(/\s+/)[0].toLowerCase();
+                    commandName = _r4.replace(/^[^\w+]+/, '') || _r4;
                 }
             } else {
-                if (prefix && body.startsWith(prefix)) {
-                    const _r2 = body.slice(prefix.length).trim().split(/\s+/)[0].toLowerCase();
+                if (_pfx && body.startsWith(_pfx)) {
+                    const _r2 = body.slice(_pfx.length).trim().split(/\s+/)[0].toLowerCase();
                     commandName = _r2.replace(/^[^\w+]+/, '') || _r2;
-                    usedPrefix = prefix;
-                } else if (body.startsWith('/') && prefix !== '/') {
+                    usedPrefix = _pfx;
+                } else if (body.startsWith('/') && _pfx !== '/') {
                     const _r3 = body.slice(1).trim().split(/\s+/)[0].toLowerCase();
                     commandName = _r3.replace(/^[^\w+]+/, '') || _r3;
                     usedPrefix = '/';
-                } else if (!prefix) {
-                    commandName = body.trim().split(/\s+/)[0].toLowerCase();
+                } else if (!_pfx) {
+                    const _r4 = body.trim().split(/\s+/)[0].toLowerCase();
+                    commandName = _r4.replace(/^[^\w+]+/, '') || _r4;
                 }
             }
         }
