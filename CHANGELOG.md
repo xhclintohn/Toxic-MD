@@ -87,3 +87,11 @@
 - Performance: the group list fetched on connect is reused for the sudo scan instead of fetching all groups a second time, and the Baileys version fetch now times out after 8 seconds instead of stalling startup.
 - Stability: session loading now accepts the full compressed session bundle from the pairing site, including signal and app-state keys, while still accepting the old credentials-only session ID. Invalid session data no longer overwrites a working session.
 - Dependencies: floating `latest` and `*` versions are pinned to their current stable releases, with no major-version changes and the Baileys fork unchanged.
+
+## 1.1.1
+
+- CRM Store: JSON locally; auto-uses Heroku PostgreSQL when DATABASE_URL is set for better recovery and inspection.
+- Improved LID mapping: more robust Linked Device ID handling.
+- Higher message cache: MESSAGE_CACHE_LIMIT = 50000.
+- Command reorganization: CRM and run tools moved to the Utils category.
+- Prefix command UI: cleaner single-header styling.

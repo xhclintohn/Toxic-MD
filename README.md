@@ -9,15 +9,22 @@
 ![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)
 ![Version](https://img.shields.io/badge/Version-1.2.16-blue?style=flat-square)
 
-**A powerful, lightning-fast WhatsApp Multi-Device bot built for group control, automation, AI chat, media editing, and fun commands^^**
+**A fast WhatsApp multi-device bot for group control, automation, AI chat, media editing and fun commands.**
 
 <img src="https://raw.githubusercontent.com/xhclintohn/Music-Clips-Collection/main/images/toxicx.png" width="100%" />
+
+[![Changelog](https://img.shields.io/badge/Changelog-View%20all%20versions-blue?style=for-the-badge)](CHANGELOG.md)
 
 </div>
 
 ---
 
-## 🌍 Read This README In Your Language
+Toxic-MD is a WhatsApp bot you run yourself. It manages groups, automates the boring stuff, protects your chats, and comes with a big set of utility and fun commands. It is built on [Toxic Baileys](https://github.com/xhclintohn/Baileys) — a fork of the Baileys WhatsApp Web API — so it stays connected without constant QR scanning.
+
+Every version and what changed in it lives in the [CHANGELOG](CHANGELOG.md).
+
+<details>
+<summary>Read this README in your language</summary>
 
 This README is in English by default. Full translations live in the [`Langs/`](Langs) folder:
 
@@ -40,163 +47,50 @@ This README is in English by default. Full translations live in the [`Langs/`](L
 | Yoruba | [Read the Yoruba (Yorùbá) README](Langs/yo.md) |
 | Amharic | [Read the Amharic (አማርኛ) README](Langs/am.md) |
 
-Change the bot's reply language anytime with: `.language <code>` (Owner only)
+Change the bot's reply language anytime with: `.language <code>` (owner only)
+
+</details>
 
 ---
 
-## 🆕 What's New in v1.2.16
-
-- 👁️ **Auto View Status Fixed** — WhatsApp started delivering some statuses a new way that the bot was silently dropping, so they never got viewed. The bot now catches statuses however they arrive and views them right away (and likes them too if autolike is on)
-
----
-
-## 🆕 What's New in v1.2.15
-
-- 📱 **Commands From Your Own Number Work Now** — when you command the bot from the number it's linked to, your messages arrive as "append" updates and the bot was dropping them before it even saw them. Now it lets its own number through, so commands work from your own DM and in groups
-- 👁️ **Auto View Status Is Instant Now** — the bot used to wait for a slow LID lookup before viewing each status, so statuses piled up and some were missed when a lot of features were on. Now it views the moment a status arrives, looks the number up in the background afterwards, and handles every status in a batch instead of only the first
-- 🔄 **No More Forced App Sync** — removed the forced app-state resync on connect and its log, Baileys handles the sync key on its own now
-- 🛡️ **Bots Stay Up** — the bot no longer kills itself when its main file changes, so it won't go off on its own anymore
-- 🔤 **Aliases Cleaned Up** — fixed duplicate alias entries that were silently dropping aliases, and collisions where one command shadowed another (`.pin` pins again, `.song` reaches the song command)
-- ✨ **New `.richtest` Command** — sends a test AI rich response with steps (`.richtest details` for the details variant)
-- 🔤 **Your Prefix Works Now** — fixed the set prefix being ignored while only `/` worked; the bot now reads your prefix reliably, trims it, and handles prefixless mode properly
-- 🎉 **Welcome Cards** — new members now get a generated welcome card with their profile picture, name, group name and member count, sent as a big preview with your welcome text (custom welcome images still win, and it falls back gracefully)
-
----
-
-## 🆕 What's New in v1.2.14
-
-- 📊 **Vote on Polls With a Tap** — reply to a poll with `.vote` and tap a button to vote, quick-reply buttons for up to 3 options and a list for bigger polls
-- 👁️ **View-Once Reveal That Actually Works** — `.vv` and `.vvx` now recover view-once photos, videos and voice notes from the sender's own live copy when WhatsApp strips the media keys
-- 😈 **Auto-React** — new `.autoreact` command, the bot reacts to messages with a different emoji every time. `.autoreact on` reacts everywhere, `.autoreact dm` only in DMs, `.autoreact gc` only in groups
-- 🗑️ **Antidelete Recovers More** — deleted view-once media, buttons, poll votes, reactions, live locations, contacts and group invites are now recovered too
-- 🧹 **`.clear` From Anywhere** — clear a number or a group JID without being in that chat, and it asks what to clear when used bare
-- 🎵 **Sticker Audio** — new `.stickeraudio` (`.sa`) command turns audio into a sticker
-- 📌 **Pin Commands Fixed** — `.pin` uses the new Baileys pin API, and `.pinchat` pins a whole chat
-
----
-
-## 🆕 What's New in v1.2.13
-
-- 🚀 **Bot Stays Fast Over Time** — failed LID lookups are cached instead of rescanning the Session folder on every message, LID mapping files are no longer deleted by cleanup, unchanged mappings skip the database write, the device cache now expires properly, and the bot admin check refetches at most once a minute per group. No more replies arriving minutes late after the bot has been running a while
-
----
-
-## 🆕 What's New in v1.2.12
-
-- ✨ **`.sticker` Fixed, No More Sharp** — stickers are now made with FFmpeg through the new stickerlite engine, so they work even where sharp is broken. Images fill the square by default, `.s full` keeps the whole picture, videos over 8 MB or 30 seconds are rejected with a clear message, and there are two new aliases: `.stik` and `.stikpack`
-
----
-
-## 🆕 What's New in v1.2.10
-
-- 🔄 **`.updatebails` Won't Kill the Bot Anymore** — it now swaps only Baileys instead of wiping everything and reinstalling, reports the version before and after, and pulls Baileys 1.8.1 with the media group-status fix
-
----
-
-## 🆕 What's New in v1.2.9
-
-- 🖼️ **Group Status Media That Actually Posts** — `.gstatus` now finds images and videos inside disappearing and view-once messages, falls back when a download fails, and keeps video, voice-note and sticker details intact
-- 🎞️ **Stickers Join Group Status** — replying to a sticker with `.gstatus` now posts the sticker, and videos keep their GIF playback flag
-
----
-
-## 🆕 What's New in v1.2.8
-
-- 👁️ **Vision Works Again** — `.vision` now uses Groq's current vision model, since the old one was shut down and every request failed
-- 🤖 **AI Chat Tries Only Live Models** — the shared Groq list drops the retired Llama models, so `.gpt`, `.groq`, `.chat` and friends stop wasting attempts on models that can't answer
-
----
-
-## 🆕 What's New in v1.2.7
-
-- 👥 **Group Statuses That Actually Show** — `.gstatus` now uses the new Baileys 1.8.0 group-status call, so the status really appears inside the group instead of vanishing
-- 🔄 **App State Syncs on Connect** — the bot now syncs all app-state collections the moment it connects, so `.clear`, `.archive` and friends work right after starting instead of reporting "not ready"
-
----
-
-## 🆕 What's New in v1.2.6
-
-- 📢 **Channel Status Command** — New `.chstatus` command (owner only, 12 aliases) posts text or media as a status on the bot channel: plain text, reply to a text, reply to an image with its caption, or reply to an image and add your own caption, with an optional channel JID as the first argument
-- 👥 **Group Status on the Real Function** — `.gstatus` now posts through Baileys `sendGroupStatus`, with the same text, reply and media handling as `.chstatus`, plus three new aliases
-- 🧹 **Clear That Actually Clears** — `.clear` now clears the chat instead of deleting it, with an optional `keepstarred` argument, and the broken clear helper that always errored is fixed
-- 📥 **Archive, Unarchive and Delete** — `.archive` now uses the Baileys wrapper, and new `.unarchive` and `.deletechat` owner commands round out chat management
-
----
-
-## 🆕 What's New in v1.2.5
-
-- 🔐 **Reply-to-Ban in DMs Fixed** — When you reply to a user's message in a DM with `.ban`, the bot now resolves the quoted LID from the original stored message and from the DM chat itself, so it bans the real phone number instead of returning a LID
-- 🛡️ **No More LID Stored as a Banned Number** — `.ban` now refuses an unresolvable LID with a clear message instead of banning its 15-digit LID as if it were a phone number
-
----
-
-## 🆕 What's New in v1.2.4
-
-- 🔐 **LID Resolved Before Owner Checks** — Sender and quoted sender LIDs are now resolved to phone numbers before dev, owner and sudo checks run, so the dev number no longer loses access just because it arrives as a LID
-- 🛡️ **No More LID Stored as a Phone Number** — An unresolved LID is no longer saved by `.addsudo` as if it were a phone number; the bot now tries Baileys, the stored map and group metadata first, and if it still cannot resolve it, it says so and asks for the number to be typed manually
-
----
-
-## 🆕 What's New in v1.2.3
-
-- ⚡ **Per-Chat Message Store** — Capped at 500 messages per chat, with trimming at most once per 1000 inserts instead of scanning the whole map on every message
-- 💾 **CRM Store** — Trimming no longer sorts all stored messages on every save, in-memory cap is 20000, and disk writes are coalesced to at most once every 3 minutes
-- 🔧 **Faster Startup** — Plugin loading no longer rewrites every plugin file on every startup
-- ⚡ **LID Lookups** — Misses are remembered for 60 seconds instead of scanning the whole Session folder on every message, and the push-name and LID mapping caches are capped
-- ⚡ **Faster Connect** — The group list fetched on connect is reused for the sudo scan instead of fetching all groups a second time, and the Baileys version fetch now times out after 8 seconds instead of stalling startup
-- 🔐 **Full Session Bundle** — Session loading now accepts the full compressed session bundle from the pairing site, including signal and app-state keys, while still accepting the old credentials-only session ID; invalid session data no longer overwrites a working session
-- 📦 **Dependencies** — Floating `latest` and `*` versions are pinned to their current stable releases, with no major-version changes and the Baileys fork unchanged
-
----
-
-## 🆕 What's New in v1.1.1
-
-- 💾 **CRM Store** — JSON locally; auto-uses Heroku PostgreSQL when DATABASE_URL is set for better recovery & inspection
-- 🔧 **Improved LID Mapping** — More robust Linked Device ID handling
-- ⚡ **Higher Message Cache** — `MESSAGE_CACHE_LIMIT = 50000`
-- 📁 **Command Reorganization** — CRM & run tools moved to Utils category
-- ✨ **Prefix Command UI** — Cleaner single-header styling
-
----
-
-## 📖 About
-
-**Toxic-MD** is a modern WhatsApp bot built on the **Baileys Multi-Device** library. It helps you manage groups, automate repetitive tasks, protect your chats, and enjoy a wide range of fun and utility commands — all in a single, easy-to-deploy package.
-
-### Why Toxic-MD?
+## Why Toxic-MD?
 
 | Feature | Details |
 |---|---|
-| ✅ Multi-Device Support | No constant QR scanning required |
-| ⚡ Fast & Stable | Optimized for continuous uptime |
-| 🚀 Easy Deployment | Works on any hosting platform |
-| 🧑‍💻 Beginner Friendly | Simple setup, clear documentation |
-| 🔧 Highly Customizable | Flexible prefix, modes, settings, and languages |
-| 🤖 AI-Powered | Auto AI chat with Groq/Llama |
-| 🛡️ Group Protection | Anti-link, anti-badword, anti-group-status, anti-delete, view-once recovery, and more |
-| 🌐 Multi-Language | 17 languages supported |
-| 📊 Auto Reports | Daily group stats posted to group status |
+| Multi-device support | No constant QR scanning required |
+| Fast and stable | Optimized for continuous uptime |
+| Easy deployment | Works on any hosting platform |
+| Beginner friendly | Simple setup, clear documentation |
+| Highly customizable | Flexible prefix, modes, settings and languages |
+| AI-powered | Auto AI chat with Groq/Llama |
+| Group protection | Anti-link, anti-badword, anti-group-status, anti-delete, view-once recovery and more |
+| Multi-language | 17 languages supported |
+| Auto reports | Daily group stats posted to group status |
 
-## Deploy the Bot
+---
 
-#### Step 1 — Fork the Repository
+## Deploy the bot
+
+**Step 1 — Fork the repository**
 
 [![Fork Repo](https://img.shields.io/badge/FORK%20REPOSITORY-brightgreen?style=for-the-badge&logo=github)](https://github.com/xhclintohn/Toxic-MD/fork)
 
-#### Step 2 — Pair Your WhatsApp
+**Step 2 — Pair your WhatsApp**
 
-[![Pair WhatsApp](https://img.shields.io/badge/PAIR%20WHATSAPP-blue?style=for-the-badge&logo=whatsapp&logoColor=white)](https://fork.toxicx.tech)
+[![Pair WhatsApp](https://img.shields.io/badge/PAIR%20WHATSAPP-blue?style=for-the-badge&logo=whatsapp&logoColor=white)](https://fork.nyxtechs.net)
 
-#### Step 3 — Deploy the Bot
+**Step 3 — Deploy the bot**
 
-[![Deploy Bot](https://img.shields.io/badge/DEPLOY%20BOT-orange?style=for-the-badge&logo=rocket)](https://fork.toxicx.tech)
+[![Deploy Bot](https://img.shields.io/badge/DEPLOY%20BOT-orange?style=for-the-badge&logo=rocket)](https://fork.nyxtechs.net)
 
-### Quick Start
+### Quick start
 
-1. Visit: **https://toxicx.tech/pairing**
+1. Visit **https://nyxtechs.net/pairing**
 2. Open WhatsApp on your phone
 3. Go to **Settings → Linked Devices**
 4. Tap **Pair Device** and scan or enter the pairing code
+
+Then set your session ID:
 
 ```env
 SESSION=YOUR_SESSION_ID
@@ -206,70 +100,118 @@ SESSION=YOUR_SESSION_ID
 
 ## Features
 
-#### 🤖 Automation
+**Automation**
 
-- Auto Read Messages, Auto View Status, Auto Like Status
-- Custom Auto Replies, Auto AI Chat (Groq/Llama), Auto Bio
-- Auto Report (Daily group stats)
+- Auto read messages, auto view status, auto like status
+- Custom auto replies, auto AI chat (Groq/Llama), auto bio
+- Auto report (daily group stats)
 
-#### 🛡️ Group Protection & Moderation
+**Group protection and moderation**
 
-- Anti-Link — blocks WhatsApp and external links
-- Anti-Bad Word — deletes/warns/kicks for a bad-word list, extensible per group
-- Anti-Group Status — deletes/warns/kicks non-admins who post a group status
-- Anti-Bot — detects and removes known bot accounts
-- Anti-Delete — retrieves deleted messages
-- View-Once Media Recovery
-- Anti-Status Mention, Anti-Foreign, Anti-Demote & Anti-Promote
-- Welcome & Goodbye Messages (customizable images/text)
-- Auto Warn & Auto Kick System
+- Anti-link — blocks WhatsApp and external links
+- Anti-bad word — deletes/warns/kicks for a bad-word list, extensible per group
+- Anti-group status — deletes/warns/kicks non-admins who post a group status
+- Anti-bot — detects and removes known bot accounts
+- Anti-delete — retrieves deleted messages
+- View-once media recovery
+- Anti-status mention, anti-foreign, anti-demote and anti-promote
+- Welcome and goodbye messages (customizable images/text)
+- Auto warn and auto kick system
 
-#### ⚙️ Useful Tools
+**Useful tools**
 
-- Sticker Maker (Image / Video / GIF), QR Code Generator
-- Media Downloader (YouTube, TikTok, IG, FB, etc.)
-- Profile & Group Info Commands, CDN Upload
-- Language Switcher (17 languages)
+- Sticker maker (image / video / GIF), QR code generator
+- Media downloader (YouTube, TikTok, IG, FB, etc.)
+- Profile and group info commands, CDN upload
+- Language switcher (17 languages)
 
-#### 🎮 Fun Commands
+**Fun commands**
 
-- Random Memes, Quotes & Facts, Mini Games
-- AI-Style Chat Commands, Media Editing (brat, trigger, wanted, wasted, etc.)
+- Random memes, quotes and facts, mini games
+- AI-style chat commands, media editing (brat, trigger, wanted, wasted, etc.)
 
-#### 🔧 System Controls
+**System controls**
 
-- Public / Private Mode Toggle, Bot Ping & Status Check
-- Restart Bot Command, Menu & Help Commands
-- Time-Based Greetings, Multi-Platform Update Support
+- Public / private mode toggle, bot ping and status check
+- Restart bot command, menu and help commands
+- Time-based greetings, multi-platform update support
 
 ---
 
-## 🛡️ Safety Notice
+## For developers
 
-> ⚠️ Using unofficial WhatsApp APIs may violate WhatsApp's Terms of Service. Toxic-MD is a self-hosted project. Use it responsibly.
+Toxic-MD runs on [Toxic Baileys](https://github.com/xhclintohn/Baileys). If you want to build your own bot on the same library, here is the connection setup it uses — the same style as the [Toxic Pairing](https://github.com/xdxhclinton3/Toxic-Pairing-XD) site.
 
-**Best Practices:**
+<details>
+<summary>Connection example (pairing code)</summary>
+
+```js
+import makeWASocket, {
+  useMultiFileAuthState,
+  Browsers,
+  makeCacheableSignalKeyStore,
+  DisconnectReason,
+} from '@whiskeysockets/baileys';
+import pino from 'pino';
+
+const { state, saveCreds } = await useMultiFileAuthState('session');
+
+const sock = makeWASocket({
+  auth: {
+    creds: state.creds,
+    keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'silent' })),
+  },
+  logger: pino({ level: 'silent' }),
+  browser: Browsers.android('Chrome'),
+  syncFullHistory: false,
+  markOnlineOnConnect: false,
+});
+
+sock.ev.on('creds.update', saveCreds);
+
+sock.ev.on('connection.update', async ({ connection, lastDisconnect, qr }) => {
+  if (qr && !state.creds.registered) {
+    const code = await sock.requestPairingCode('2547XXXXXXXX');
+    console.log('Pairing code:', code);
+  }
+  if (connection === 'open') console.log('Connected');
+  if (connection === 'close') {
+    const loggedOut = lastDisconnect?.error?.output?.statusCode === DisconnectReason.loggedOut;
+    if (!loggedOut) console.log('Disconnected — reconnecting...');
+  }
+});
+```
+
+</details>
+
+---
+
+## Safety notice
+
+> Using unofficial WhatsApp APIs may violate WhatsApp's Terms of Service. Toxic-MD is a self-hosted project. Use it responsibly.
+
+Best practices:
 
 - Use a secondary WhatsApp number, not your primary one
-- Enable Two-Step Verification on your account
+- Enable two-step verification on your account
 - Avoid spamming commands or over-automating activity
-- Use Private Mode to reduce visibility and risk
+- Use private mode to reduce visibility and risk
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 | Problem | Solution |
 |---|---|
 | Session expired | Re-pair your WhatsApp via the pairing link |
 | Bot not responding | Check your server/hosting logs for errors |
-| Ban warning received | Reduce automation frequency and switch to Private Mode |
+| Ban warning received | Reduce automation frequency and switch to private mode |
 
 ---
 
-## 📚 Disclaimer
+## Disclaimer
 
-> ⚠️ All features provided by Toxic-MD are strictly for **educational purposes only**.
+> All features provided by Toxic-MD are strictly for **educational purposes only**.
 > The developer is not responsible for any misuse, account bans, or violations of WhatsApp's policies that may result from using this bot.
 
 ---
@@ -280,6 +222,6 @@ SESSION=YOUR_SESSION_ID
 
 Simple • Powerful • Multi-Device WhatsApp Bot
 
-*Built with ❤️ by xh_clinton*
+*Built by xh_clinton*
 
 </div>
