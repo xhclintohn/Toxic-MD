@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.16
+
+- Auto view status works again: WhatsApp now delivers some statuses a different way that the bot was acknowledging but never handing to the view code, so those statuses were never viewed or liked. The bot now catches statuses however they arrive and views them right away (and likes them too when autolike is on), using the poster's number when it can be resolved and the raw key otherwise.
+
 ## 1.2.15
 
 - Commands from the bot's own number now work: when you command the bot from the number it's linked to, your messages arrive as "append" updates and the bot was dropping them before it even saw them. Now it lets its own number's messages through, so commands work from your own number, in your own DM and in groups.

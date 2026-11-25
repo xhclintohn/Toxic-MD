@@ -1,6 +1,6 @@
 {
   "name": "Toxic-md",
-  "version": "1.2.15",
+  "version": "1.2.16",
   "description": "A lightning-fast WhatsApp bot with multi-device support, built on Node.js & Baileys.",
   "main": "index.js",
   "type": "module",

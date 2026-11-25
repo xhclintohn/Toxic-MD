@@ -7,7 +7,7 @@
 ![Multi-Device](https://img.shields.io/badge/Multi--Device-Supported-blue?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-orange?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)
-![Version](https://img.shields.io/badge/Version-1.2.15-blue?style=flat-square)
+![Version](https://img.shields.io/badge/Version-1.2.16-blue?style=flat-square)
 
 **A powerful, lightning-fast WhatsApp Multi-Device bot built for group control, automation, AI chat, media editing, and fun commands^^**
 
@@ -41,6 +41,12 @@ This README is in English by default. Full translations live in the [`Langs/`](L
 | Amharic | [Read the Amharic (አማርኛ) README](Langs/am.md) |
 
 Change the bot's reply language anytime with: `.language <code>` (Owner only)
+
+---
+
+## 🆕 What's New in v1.2.16
+
+- 👁️ **Auto View Status Fixed** — WhatsApp started delivering some statuses a new way that the bot was silently dropping, so they never got viewed. The bot now catches statuses however they arrive and views them right away (and likes them too if autolike is on)
 
 ---
 
