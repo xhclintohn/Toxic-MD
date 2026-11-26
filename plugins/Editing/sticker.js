@@ -29,6 +29,7 @@ const downloadBuffer = async (mediaMsg, dlType, fallback) => {
 
 export default async (context) => {
     const { client, m, packname, args } = context;
+    const quotedCtx = context.quoted || null;
 
     await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
@@ -40,30 +41,31 @@ export default async (context) => {
                 let mediaType = null;
                 let fallback = null;
 
-                if (m.message?.imageMessage) {
-                    mediaMsg = m.message.imageMessage;
+                const quoted = quotedCtx || m.quoted;
+                if (m.mtype === 'imageMessage' || m.message?.imageMessage) {
+                    mediaMsg = m.message?.imageMessage || m.msg;
                     mediaType = 'image';
                     fallback = typeof m.download === 'function' ? () => m.download() : null;
-                } else if (m.message?.videoMessage) {
-                    mediaMsg = m.message.videoMessage;
+                } else if (m.mtype === 'videoMessage' || m.message?.videoMessage) {
+                    mediaMsg = m.message?.videoMessage || m.msg;
                     mediaType = 'video';
                     fallback = typeof m.download === 'function' ? () => m.download() : null;
-                } else if (m.message?.stickerMessage) {
-                    mediaMsg = m.message.stickerMessage;
+                } else if (m.mtype === 'stickerMessage' || m.message?.stickerMessage) {
+                    mediaMsg = m.message?.stickerMessage || m.msg;
                     mediaType = 'sticker';
                     fallback = typeof m.download === 'function' ? () => m.download() : null;
-                } else if (m.quoted) {
-                    if (m.quoted.mtype === 'imageMessage') {
-                        mediaMsg = m.quoted;
+                } else if (quoted) {
+                    if (quoted.mtype === 'imageMessage') {
+                        mediaMsg = quoted;
                         mediaType = 'image';
-                    } else if (m.quoted.mtype === 'videoMessage') {
-                        mediaMsg = m.quoted;
+                    } else if (quoted.mtype === 'videoMessage') {
+                        mediaMsg = quoted;
                         mediaType = 'video';
-                    } else if (m.quoted.mtype === 'stickerMessage') {
-                        mediaMsg = m.quoted;
+                    } else if (quoted.mtype === 'stickerMessage') {
+                        mediaMsg = quoted;
                         mediaType = 'sticker';
                     }
-                    if (mediaMsg && typeof m.quoted.download === 'function') fallback = () => m.quoted.download();
+                    if (mediaMsg && typeof quoted.download === 'function') fallback = () => quoted.download();
                 }
 
                 if (!mediaMsg) {
