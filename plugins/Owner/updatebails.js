@@ -40,7 +40,7 @@ export default {
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
                 );
 
-                const { stdout, stderr } = await execAsync(`npm install --no-save --no-audit --no-fund ${BAILEYS_SPEC}`, {
+                const { stdout, stderr } = await execAsync(`npm install --no-audit --no-fund ${BAILEYS_SPEC}`, {
                     cwd: root,
                     timeout: 10 * 60 * 1000,
                     maxBuffer: 20 * 1024 * 1024,
