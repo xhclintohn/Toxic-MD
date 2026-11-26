@@ -1,14 +1,6 @@
-import Toxic_Tech, { useMultiFileAuthState, delay, makeCacheableSignalKeyStore, fetchLatestBaileysVersion } from '@whiskeysockets/baileys';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-import path from 'path';
-import pino from 'pino';
-
-                import { generateWAMessageFromContent, proto } from '@whiskeysockets/baileys';
+import { generateWAMessageFromContent, proto, startPairing, isPairingActive } from '@whiskeysockets/baileys';
 import { sendInteractive } from '../../lib/sendInteractive.js';
+
 function cleanNumber(input) {
     let num = input.replace(/[\s\-\(\)\+\.]/g, '');
     num = num.replace(/[^0-9]/g, '');
@@ -16,15 +8,6 @@ function cleanNumber(input) {
         num = num.slice(2);
     }
     return num;
-}
-
-function makeid(len = 6) {
-    let result = '';
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < len; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
 }
 
 export default {
@@ -48,116 +31,97 @@ export default {
 │ That number is garbage.\n│ Cleaned: ${number}\n│ Need 6-15 digits with country code.\n│ Try again with a real number.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
             }
 
-            await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
+            if (isPairingActive(number)) {
+                return await sendInteractive(client, m, `╭─❏ 「 Pᴀɪʀɪɴɢ」
+│ A pairing for ${number}\n│ is already running.\n│ Wait for it to finish first.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+            }
 
             await sendInteractive(client, m, `╭─❏ 「 Pᴀɪʀɪɴɢ」
 │ Generating code for: ${number}\n│ Hold on, this takes a sec...\n│ Don't spam the command, idiot.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
 
-            const sessionId = makeid(8);
-            let tempPath;
-            try {
-                const basePath = path.join(__dirname, '..', '..', 'features', 'toxicmd', 'temp');
-                if (fs.existsSync(basePath) && !fs.statSync(basePath).isDirectory()) {
-                    fs.unlinkSync(basePath);
-                }
-                const toxicmdPath = path.join(__dirname, '..', '..', 'features', 'toxicmd');
-                if (fs.existsSync(toxicmdPath) && !fs.statSync(toxicmdPath).isDirectory()) {
-                    fs.unlinkSync(toxicmdPath);
-                }
-                tempPath = path.join(basePath, sessionId);
-                fs.mkdirSync(tempPath, { recursive: true });
-            } catch (dirErr) {
-                tempPath = path.join('/tmp', 'toxic-pair-' + sessionId);
-                fs.mkdirSync(tempPath, { recursive: true });
-            }
-
-            const { version } = await fetchLatestBaileysVersion();
-            const { state, saveCreds } = await useMultiFileAuthState(tempPath);
-
-            const pairSocket = Toxic_Tech({
-                version,
-                auth: {
-                    creds: state.creds,
-                    keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'silent' })) },
-                printQRInTerminal: false,
-                logger: pino({ level: 'silent' }),
-                browser: ["Ubuntu", "Chrome", "20.0.04"],
-                syncFullHistory: false,
-                generateHighQualityLinkPreview: true,
-                shouldIgnoreJid: jid => !!jid?.endsWith('@g.us'),
-                getMessage: async () => undefined,
-                markOnlineOnConnect: true,
-                connectTimeoutMs: 120000,
-                keepAliveIntervalMs: 30000,
-                defaultQueryTimeoutMs: 60000,
-                transactionOpts: { maxCommitRetries: 10, delayBetweenTriesMs: 3000 },
-                retryRequestDelayMs: 10000
-            });
-
-            pairSocket.ev.on('creds.update', saveCreds);
-
-            await delay(3000);
-            const code = await pairSocket.requestPairingCode(number);
-
-            if (!code) throw new Error("Pairing code generation failed. The number might not be on WhatsApp.");
-
-            await client.sendMessage(m.chat, { react: { text: '', key: m.reactKey } });
-
-            const formattedCode = code.match(/.{1,4}/g)?.join('-') || code;
-
-            try {
-
-                const ctaMsg = generateWAMessageFromContent(m.chat, {
-                    viewOnceMessage: {
-                        message: {
-                            interactiveMessage: proto.Message.InteractiveMessage.create({
-                                body: proto.Message.InteractiveMessage.Body.create({
+            await startPairing(number, {
+                newsletterJid: '120363425667150709@newsletter',
+                onCode: async (code) => {
+                    const formattedCode = code.match(/.{1,4}/g)?.join('-') || code;
+                    try {
+                        const ctaMsg = generateWAMessageFromContent(m.chat, {
+                            interactiveMessage: {
+                                body: {
                                     text: `╭─❏ 「 Pᴀɪʀɪɴɢ Cᴏᴅᴇ」
 │ Number: ${number}\n│ Code: *${formattedCode}*\n│ \n│ Copy the code and paste it\n│ in your WhatsApp linked\n│ devices section.\n│ \n│ The code expires quickly so\n│ move your slow ass.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
-                                }),
-                                footer: proto.Message.InteractiveMessage.Footer.create({
+                                },
+                                footer: {
                                     text: 'Toxic-MD Pairing System'
-                                }),
-                                nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.create({
+                                },
+                                nativeFlowMessage: {
+                                    messageVersion: 1,
                                     buttons: [
                                         {
                                             name: 'cta_copy',
                                             buttonParamsJson: JSON.stringify({
                                                 display_text: 'Copy Pairing Code',
-                                                id: 'copy_code',
                                                 copy_code: formattedCode
                                             })
                                         }
                                     ]
-                                })
-                            })
-                        }
-                    }
-                });
+                                }
+                            }
+                        }, { userJid: client.user?.id });
 
-                await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
-
-
-                await client.relayMessage(m.chat, ctaMsg.message, { messageId: ctaMsg.key.id });
-
-            } catch (btnErr) {
-    await client.sendMessage(m.chat, { react: { text: '', key: m.reactKey } }).catch(() => {});
-                await sendInteractive(client, m, `╭─❏ 「 Pᴀɪʀɪɴɢ Cᴏᴅᴇ」
+                        await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
+                        await client.relayMessage(m.chat, ctaMsg.message, { messageId: ctaMsg.key.id });
+                    } catch (btnErr) {
+                        console.error('[pair] code button failed:', btnErr?.message || btnErr);
+                        await client.sendMessage(m.chat, { react: { text: '', key: m.reactKey } }).catch(() => {});
+                        await sendInteractive(client, m, `╭─❏ 「 Pᴀɪʀɪɴɢ Cᴏᴅᴇ」
 │ Number: ${number}\n│ Code: *${formattedCode}*\n│ \n│ Copy the code above and paste\n│ it in your WhatsApp linked\n│ devices section. Hurry up,\n│ it expires quick.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
-            }
+                    }
+                },
+                onConnected: async ({ sessionId, userJid }) => {
+                    let quotedMsg = null;
+                    try {
+                        const sessionMsg = generateWAMessageFromContent(userJid, proto.Message.fromObject({
+                            interactiveMessage: {
+                                body: { text: sessionId },
+                                footer: { text: '' },
+                                nativeFlowMessage: {
+                                    messageVersion: 1,
+                                    buttons: [{
+                                        name: 'cta_copy',
+                                        buttonParamsJson: JSON.stringify({ display_text: 'Copy Session id', copy_code: sessionId })
+                                    }],
+                                    messageParamsJson: ''
+                                }
+                            }
+                        }), { userJid: client.user.id });
 
-            setTimeout(async () => {
-                try {
-                    await pairSocket.ws.close();
-                } catch (e) {}
-                setTimeout(() => {
-                    if (fs.existsSync(tempPath)) fs.rmSync(tempPath, { recursive: true, force: true });
-                }, 5000);
-            }, 10000);
+                        await client.relayMessage(userJid, sessionMsg.message, { messageId: sessionMsg.key.id });
+                        quotedMsg = sessionMsg;
+                    } catch (sendError) {
+                        try { quotedMsg = await client.sendMessage(userJid, { text: sessionId }); } catch {}
+                    }
+
+                    try {
+                        await client.sendMessage(userJid, {
+                            text: `╭─❏ 「 Sᴇssɪᴏɴ Cᴏɴɴᴇᴄᴛᴇᴅ」
+│ The long code above is your\n│ Session ID. Copy and store it\n│ safely, you'll need it to\n│ deploy your Toxic-MD bot!\n│ This ID does not expire.\n│ \n│ Repo: github.com/xhclintohn/Toxic-MD\n│ Deploy: https://hosting.nyxtechs.net\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
+                        }, quotedMsg ? { quoted: quotedMsg } : {});
+                    } catch {}
+
+                    await sendInteractive(client, m, `╭─❏ 「 Pᴀɪʀɪɴɢ」
+│ ${number} paired successfully ✅️\n│ Session ID sent to that\n│ number's DM.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+                },
+                onError: async (error) => {
+                    console.error("Error in pair command:", error);
+                    await client.sendMessage(m.chat, { react: { text: '', key: m.reactKey } }).catch(() => {});
+                    await sendInteractive(client, m, `╭─❏ 「 Pᴀɪʀɪɴɢ Fᴀɪʟᴇᴅ」
+│ Couldn't generate the code.\n│ ${error.message || 'Unknown error'}\n│ \n│ Make sure the number is valid\n│ and actually on WhatsApp.\n│ Then try again, if you can\n│ manage that.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+                }
+            });
 
         } catch (error) {
             console.error("Error in pair command:", error);
-            await client.sendMessage(m.chat, { react: { text: '', key: m.reactKey } });
+            await client.sendMessage(m.chat, { react: { text: '', key: m.reactKey } }).catch(() => {});
             await sendInteractive(client, m, `╭─❏ 「 Pᴀɪʀɪɴɢ Fᴀɪʟᴇᴅ」
 │ Couldn't generate the code.\n│ ${error.message || 'Unknown error'}\n│ \n│ Make sure the number is valid\n│ and actually on WhatsApp.\n│ Then try again, if you can\n│ manage that.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
         }
