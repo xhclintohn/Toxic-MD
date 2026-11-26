@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.18
+
+- `.pair` rebuilt on toxic-baileys' new `startPairing` handler: the code comes back fast (no more 3-second sleep or slow number check before asking WhatsApp), the socket stays alive until you actually link instead of dying after 10 seconds, and once paired the session ID is sent to that number's DM with a copy button. Needs toxic-baileys 1.8.5 or newer.
+- Fixed welcome messages silently doing nothing when the developer rejoined a group: the auto-promote check could exit the whole group-events handler before the welcome block ran.
+- Welcome messages no longer wait on profile-picture lookups they do not need, so they land right after a member joins.
+- Removed the welcome card; welcome messages are text again (or the group custom image / member profile picture when those options are set).
+- Antiviewonce now runs on toxic-baileys new `handleViewOnce` handler: view-once media is detected and downloaded the moment it arrives, and when WhatsApp withholds the media keys it is recovered from the sender own keyed copy automatically. Needs toxic-baileys 1.8.5 or newer.
+- `.setwallpaper` no longer zooms: the image is fitted onto a 1080x1920 portrait canvas with a blurred fill before upload, so square and landscape images fill the chat background without being cropped.
+
 ## 1.2.17
 
 - New `.setwallpaper` command (alias `.setwall`): reply to an image or send one with the caption to set it as the group's chat wallpaper. In a group it sets that group; from DM add the group JID or invite link, like `.setwall 120363000000000000@g.us`. The bot has to be in the group and an admin, since WhatsApp only lets admins change a group's theme. Needs toxic-baileys 1.8.4 or newer for the wallpaper media type.
