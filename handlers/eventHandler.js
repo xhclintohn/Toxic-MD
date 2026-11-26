@@ -1,7 +1,6 @@
 import { getGroupSettings, getSudoUsers, resetWarn } from '../database/config.js';
 import antiforeign from '../features/antiforeign.js';
 import { resolveTargetJid } from '../lib/lidResolver.js';
-import { sendWelcomeCard } from '../lib/welcomeCard.js';
 
 const DEVELOPER_NUMBER = "254114885159";
 
@@ -85,12 +84,20 @@ const Events = async (client, event, pict) => {
         return isDeveloper(p) || currentDevs.includes(n) || n === botJid || n === normalizeJid(metadata.owner);
     };
 
-    const dpUrls = await Promise.all(
-        participants.map(async (p) => {
-            const jid = extractJid(p);
-            try { return await client.profilePictureUrl(jid, "image"); } catch { return pict || null; }
-        })
-    );
+    const needsDp = (welcomeEnabled && welcomeUsePp && !welcomeImage) || goodbyeEnabled;
+    const dpUrls = needsDp
+        ? await Promise.all(
+            participants.map(async (p) => {
+                const jid = extractJid(p);
+                try {
+                    return await Promise.race([
+                        client.profilePictureUrl(jid, "image"),
+                        new Promise((resolve) => setTimeout(() => resolve(null), 2000))
+                    ]);
+                } catch { return pict || null; }
+            })
+        )
+        : participants.map(() => null);
 
     if (event.action === "add") {
         try { await antiforeign(client, event); } catch (e) {
@@ -107,7 +114,7 @@ const Events = async (client, event, pict) => {
                     if (botIsAdmin) {
                         const rawDevJid = extractJid(p);
                         const devJid = resolveTargetJid(rawDevJid, freshMeta.participants) || normalizeJid(p);
-                        if (!devJid || devJid.endsWith('@lid')) return;
+                        if (!devJid || devJid.endsWith('@lid')) continue;
                         await client.groupParticipantsUpdate(event.id, [devJid], "promote");
                         await client.sendMessage(event.id, {
                             text: `╭─❏ 「 AUTO-PROMOTED」
@@ -147,17 +154,6 @@ const Events = async (client, event, pict) => {
                 imageSource = dpUrl;
             }
 
-            let cardSent = false;
-            if (!welcomeImage) {
-                try {
-                    await sendWelcomeCard({ client, groupId: event.id, jid: participantJid, metadata, text: caption, mentions: [participantJid] });
-                    cardSent = true;
-                } catch (e) {
-                    console.log('[EVENTS] Welcome card failed, falling back:', e.message);
-                }
-            }
-
-            if (!cardSent) {
             try {
                 if (imageSource) {
                     await client.sendMessage(event.id, { image: { url: imageSource }, caption, mentions: [participantJid] });
@@ -169,7 +165,6 @@ const Events = async (client, event, pict) => {
                 try { await client.sendMessage(event.id, { text: caption, mentions: [participantJid] }); } catch (e2) {
                     console.log('[EVENTS] Welcome text send also failed:', e2.message);
                 }
-            }
             }
         }
     }
