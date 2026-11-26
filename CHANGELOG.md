@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.20
+
+- `.vv` / `.vvx` can now retrieve a view-once long after it was sent — up to 24 hours. They check the toxic-baileys sender-copy cache first, instead of only the bot message store which kept just the last 20 messages per chat (that is why retrieval used to fail after a few minutes in busy chats). Needs toxic-baileys 1.8.6 or newer.
+
 ## 1.2.19
 
 - `.update` now checks versions first: it compares your Toxic-MD and Baileys versions against GitHub and only updates what is outdated. If everything is current it says so and changes nothing. `.update check` reports versions without updating, `.update force` updates everything regardless.
