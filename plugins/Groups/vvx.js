@@ -79,6 +79,22 @@ export default async (context) => {
 
         if (!buffer || !buffer.length) {
             try {
+                const handler = client.viewOnceHandler;
+                if (handler?.downloadSenderCopy) {
+                    const got = await handler.downloadSenderCopy(m.quoted?.sender || '', kind);
+                    if (got?.buffer?.length) {
+                        buffer = got.buffer;
+                        kind = got.type === 'ptv' ? 'video' : (got.type || kind);
+                        pickedMedia = { mimetype: got.mimetype, ptt: true };
+                    }
+                }
+            } catch (e) {
+                lastErr = e;
+            }
+        }
+
+        if (!buffer || !buffer.length) {
+            try {
                 const sender = m.quoted?.sender || '';
                 const cache = Array.isArray(store?.chats?.[m.chat]) ? store.chats[m.chat] : [];
                 const mediaOf = (x) => {
@@ -98,7 +114,7 @@ export default async (context) => {
                     const mm = mediaOf(x);
                     const ts = x.timestamp || (x.messageTimestamp ? Number(x.messageTimestamp) * 1000 : 0);
                     return { id: x.key?.id, mtype: x.mtype, sender: x.sender || x.key?.participant || '', ts, hasKeys: hasKeys(mm), mm: mm || null, kind: kindOf(x) };
-                }).filter(c => c.hasKeys && (Date.now() - c.ts) < 300000);
+                }).filter(c => c.hasKeys && (Date.now() - c.ts) < 86400000);
                 const mine = all.filter(c => c.sender === sender).sort((a, b) => b.ts - a.ts);
                 if (mine.length) {
                     const pick = mine[0];
