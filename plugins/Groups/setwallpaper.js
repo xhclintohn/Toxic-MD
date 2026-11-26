@@ -1,9 +1,30 @@
+import sharp from 'sharp';
 import { setGroupWallpaper } from '../../lib/setGroupWallpaper.js';
 import { sendInteractive } from '../../lib/sendInteractive.js';
 
 const formatStylishReply = (message) => {
     return `╭─❏ 「 SETWALLPAPER 」\n│ \n│ ${message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 };
+
+async function fitWallpaper(buffer) {
+    try {
+        const W = 1080;
+        const H = 1920;
+        const meta = await sharp(buffer).metadata();
+        if (!meta.width || !meta.height) return buffer;
+        const ratio = meta.width / meta.height;
+        if (Math.abs(ratio - W / H) < 0.05) return buffer;
+        const background = await sharp(buffer).resize(W, H, { fit: 'cover' }).blur(30).toBuffer();
+        const foreground = await sharp(buffer).resize(W, H, { fit: 'inside' }).toBuffer();
+        const fgMeta = await sharp(foreground).metadata();
+        return await sharp(background)
+            .composite([{ input: foreground, top: Math.round((H - (fgMeta.height || H)) / 2), left: Math.round((W - (fgMeta.width || W)) / 2) }])
+            .jpeg({ quality: 88 })
+            .toBuffer();
+    } catch {
+        return buffer;
+    }
+}
 
 export default {
     name: 'setwallpaper',
@@ -63,7 +84,8 @@ export default {
                 return sendInteractive(client, m, formatStylishReply("I'm not in that group, so I can't set its wallpaper. Add me first."));
             }
 
-            await setGroupWallpaper(client, targetJid, imageBuffer);
+            const fitted = await fitWallpaper(imageBuffer);
+            await setGroupWallpaper(client, targetJid, fitted);
             await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
             return sendInteractive(client, m, formatStylishReply(`Wallpaper set for *${meta.subject || 'the group'}*`));
         } catch (error) {
