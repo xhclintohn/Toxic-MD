@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.19
+
+- `.update` now checks versions first: it compares your Toxic-MD and Baileys versions against GitHub and only updates what is outdated. If everything is current it says so and changes nothing. `.update check` reports versions without updating, `.update force` updates everything regardless.
+- Fixed `.update` / `.updatebails` Baileys reinstalls silently reverting on the next start: the reinstall now updates package-lock.json too, so npm cannot restore the old Baileys commit afterwards.
+- `.update` restart no longer needs pm2: if pm2 is not available, the bot relaunches itself after updating.
+
 ## 1.2.18
 
 - `.pair` rebuilt on toxic-baileys' new `startPairing` handler: the code comes back fast (no more 3-second sleep or slow number check before asking WhatsApp), the socket stays alive until you actually link instead of dying after 10 seconds, and once paired the session ID is sent to that number's DM with a copy button. Needs toxic-baileys 1.8.5 or newer.
