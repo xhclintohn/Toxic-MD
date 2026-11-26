@@ -14,7 +14,7 @@ export default async (client, m) => {
         if (!client?.ev || registered.has(client)) return;
         registered.add(client);
 
-        handleViewOnce(client, {
+        client.viewOnceHandler = handleViewOnce(client, {
             onViewOnce: async (result) => {
                 try {
                     const settings = await getCachedSettings();
