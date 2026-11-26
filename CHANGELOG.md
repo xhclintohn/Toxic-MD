@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.21
+
+- New `.settheme` command: set a WhatsApp chat theme on the current chat or group. `.settheme list` shows the themes, `.settheme 2` picks one by number (or use the name, like `.settheme emerald`), `.settheme color FF0000` sets a solid color background (add `doodle` for the pattern), and `.settheme clear` removes it. Works on a group JID or invite link too, like `.setwallpaper`. The bot must be a group admin. Needs toxic-baileys 1.8.7 or newer — run `.update` first.
+- `.sticker` now works when you caption an image or video with the command, not only when you reply to one.
+
 ## 1.2.20
 
 - `.vv` / `.vvx` can now retrieve a view-once long after it was sent — up to 24 hours. They check the toxic-baileys sender-copy cache first, instead of only the bot message store which kept just the last 20 messages per chat (that is why retrieval used to fail after a few minutes in busy chats). Needs toxic-baileys 1.8.6 or newer.
