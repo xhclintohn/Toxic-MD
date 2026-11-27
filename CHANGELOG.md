@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.23
+
+- New `.report` command: report spam to WhatsApp. Reply to a spam message and type `.report`, or use `.report 2547xxxxxxxx` / `.report @user` to report a number. Add `block` to also block them. Works in groups too, and shows the Report ID with a copy button. Owner only. Needs toxic-baileys 1.9.0 or newer — run `.update` first.
+- Bug reports moved from `.report` to `.bug` (aliases `.feedback`, `.bugreport`). The menu now points to `.bug`.
+- `.xreport` now uses the new reporting system and shows the Report ID.
+
 ## 1.2.22
 
 - Fixed the first command in a group sometimes being ignored: WhatsApp delivers some group messages twice with the same ID (first a sender-key copy with no text, then the real message), and the duplicate filter was throwing away the real one. The filter now lets the real copy through.
