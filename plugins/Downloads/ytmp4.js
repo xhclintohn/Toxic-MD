@@ -1,10 +1,5 @@
 import { sendInteractive } from '../../lib/sendInteractive.js';
-import { ryuuYoutube, downloadBuffer } from '../../lib/ryuuYt.js';
-
-function extractYtId(url) {
-  const m = String(url || '').match(/(?:youtu\.be\/|v=|shorts\/|embed\/)([a-zA-Z0-9_-]{11})/);
-  return m ? m[1] : null;
-}
+import { resolveYoutubeVideo, mediaBuffer, extractYtId } from '../../lib/downloaderChain.js';
 
 export default {
   name: 'ytmp4',
@@ -28,8 +23,8 @@ export default {
       const fullUrl = `https://youtube.com/watch?v=${id}`;
       await sendInteractive(client, m, fmt(`Processing ${quality}p…`));
 
-      const media = await ryuuYoutube(fullUrl, quality);
-      const buf = await downloadBuffer(media.link, 120000);
+      const media = await resolveYoutubeVideo(fullUrl, quality);
+      const buf = await mediaBuffer(media);
       const title = (media.title || 'youtube-video').slice(0, 80);
 
       await client.sendMessage(m.chat, {

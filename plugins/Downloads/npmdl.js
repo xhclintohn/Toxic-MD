@@ -20,10 +20,10 @@ export default {
             await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
             if (query.startsWith('@') && !query.includes('/')) {
-                const searchRes = await fetch(`https://yaemiko-narukami.vercel.app/search/npm?text=${encodeURIComponent(query)}`);
+                const searchRes = await fetch(`https://registry.npmjs.org/-/v1/search?text=${encodeURIComponent(query)}&size=5`);
                 const searchData = await searchRes.json();
-                
-                const list = searchData?.result || searchData?.results || searchData?.data || [];
+
+                const list = searchData?.objects || [];
                 if (!Array.isArray(list) || list.length === 0) {
                     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
                     return sendInteractive(client, m, `╭─❏ 「 Eʀʀᴏʀ」

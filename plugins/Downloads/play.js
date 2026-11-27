@@ -1,5 +1,5 @@
 import { sendInteractive } from '../../lib/sendInteractive.js';
-import { playSearchDownload, ryuuYoutube, downloadBuffer } from '../../lib/ryuuYt.js';
+import { resolveYoutubeAudio, mediaBuffer } from '../../lib/downloaderChain.js';
 import { sendAudioSafe } from '../../lib/sendAudioSafe.js';
 
 export default {
@@ -15,18 +15,11 @@ export default {
       const query = (text || '').trim();
       if (!query) {
         await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-        return sendInteractive(client, m, fmt('Give a song name OR a YouTube link.\n│ Example: .play harlem shake'));
+        return sendInteractive(client, m, fmt('Give a song name OR a YouTube link.\n│ Example: .play harlem shake\n│ Example: .play https://youtu.be/xxxx'));
       }
 
-      const isYoutubeLink = /(?:https?:\/\/)?(?:youtu\.be\/|(?:www\.|m\.)?youtube\.com\/)/i.test(query);
-      let media;
-      if (isYoutubeLink) {
-        media = await ryuuYoutube(query, 'mp3');
-      } else {
-        media = await playSearchDownload(query);
-      }
-
-      const buf = await downloadBuffer(media.link);
+      const media = await resolveYoutubeAudio(query);
+      const buf = await mediaBuffer(media);
       const title = (media.title || query || 'audio').slice(0, 80);
       const meta = [media.channel, media.duration].filter(Boolean).join(' · ');
       const caption = `╭─❏ 「 PLAY」\n│ 🎵 ${title}${meta ? `\n│ ${meta}` : ''}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;

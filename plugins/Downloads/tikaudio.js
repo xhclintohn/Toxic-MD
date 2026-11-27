@@ -1,37 +1,29 @@
-import fetch from 'node-fetch';
 import { sendInteractive } from '../../lib/sendInteractive.js';
-  const NEXRAY = 'https://api.nexray.web.id/downloader/tiktok?url=';
+import { resolveTiktok, dlDownload } from '../../lib/downloaderChain.js';
 
-  export default async (context) => {
-      const { client, m, text, prefix } = context;
-        await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
-      if (!text) {
-          await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-          return sendInteractive(client, m, `│ Example: ${prefix}tikaudio https://vt.tiktok.com/xxx\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
-      }
-      if (!text.includes('tiktok.com')) return sendInteractive(client, m, '│ That\'s not a TikTok link.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
-      await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
-      try {
-          const r = await fetch(NEXRAY + encodeURIComponent(text.trim()), { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 20000 });
-          const d = await r.json();
-          if (!d.status || !d.result) throw new Error('API failed');
-          const { title, music_info } = d.result;
-          if (!music_info?.url) throw new Error('No audio URL found');
-          const dlRes = await fetch(music_info.url, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 35000 });
-          if (!dlRes.ok) throw new Error('Download failed: ' + dlRes.status);
-          const buf = Buffer.from(await dlRes.arrayBuffer());
-          await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
-          await client.sendMessage(m.chat, {
-              audio: buf,
-              mimetype: 'audio/mpeg',
-              ptt: false,
-              fileName: `${music_info.title || title || 'tiktok-audio'}.mp3`
-          });
-          await sendInteractive(client, m, `╭─❏ 「 TikTok Audio」
-│ 🎵 ${music_info.title || title || 'N/A'}\n│ 👤 ${music_info.author || 'N/A'}\n│ ⏱ ${music_info.duration || 'N/A'}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
-      } catch (e) {
-          await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-          sendInteractive(client, m, `│ Failed: ${e.message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
-      }
-  };
-  
+export default async (context) => {
+  const { client, m, text, prefix } = context;
+  await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } }).catch(() => {});
+  if (!text) {
+    await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+    return sendInteractive(client, m, `╭─❏ 「 TikTok Audio」\n│ Example: ${prefix}tikaudio https://vt.tiktok.com/xxx\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+  }
+  if (!text.includes('tiktok.com')) return sendInteractive(client, m, '╭─❏ 「 TikTok Audio」\n│ That\'s not a TikTok link.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧');
+  try {
+    const media = await resolveTiktok(text.trim());
+    if (!media.music) throw new Error('No audio URL found');
+    const buf = await dlDownload(media.music, { headers: media.referer ? { Referer: media.referer } : {} });
+    await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
+    await client.sendMessage(m.chat, {
+      audio: buf,
+      mimetype: 'audio/mpeg',
+      ptt: false,
+      fileName: `${(media.musicTitle || media.title || 'tiktok-audio').slice(0, 60)}.mp3`
+    });
+    await sendInteractive(client, m, `╭─❏ 「 TikTok Audio」\n│ 🎵 ${(media.musicTitle || media.title || 'N/A').slice(0, 80)}\n│ 👤 ${media.author || 'N/A'}\n│ ⏱ ${media.duration || 'N/A'}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+  } catch (e) {
+    console.error('tikaudio error:', e);
+    await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+    sendInteractive(client, m, `╭─❏ 「 TikTok Audio」\n│ Failed: ${e.message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+  }
+};
