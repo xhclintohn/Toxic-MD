@@ -1,5 +1,6 @@
 import { uploadToUrl } from '../../lib/toUrl.js';
 import { sendInteractive } from '../../lib/sendInteractive.js';
+import { enhanceImage } from '../../lib/toxicApi.js';
 
 export default async (context) => {
     const { client, m } = context;
@@ -10,39 +11,22 @@ export default async (context) => {
 
     if (!/image/.test(mime)) {
         await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-        return sendInteractive(client, m, `╭─❏ 「 Mɪssɪɴɢ Iᴍᴀɢᴇ」
-│ Give me an image you dumbass\n│ Reply to an image first\n╰───────────────\n> ©𝐏𝐨𝐰𝐞᠊ʀᴇᴅ 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭ᴏɴ`);
+        return sendInteractive(client, m, `╭─❏ 「 Mɪssɪɴɢ Iᴍᴀɢᴇ」\n│ Give me an image first\n│ Reply to an image with .remini\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
     }
-
-    await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
     try {
         const media = await quoted.download();
         const imgUrl = await uploadToUrl(media);
-        
-        const formData = new FormData();
-        const imageResponse = await fetch(imgUrl);
-        const imageBlob = await imageResponse.blob();
-        formData.append('image', imageBlob, 'image.png');
-        formData.append('scale', '2');
-        formData.append('apikey', 'tIdZJ');
-
-        const resultResponse = await fetch('https://api.theresav.biz.id/tools/hd', {
-            method: 'POST',
-            body: formData
-        });
-
-        const resultBuffer = await resultResponse.buffer();
+        const enhancedUrl = await enhanceImage(imgUrl);
 
         await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
         await client.sendMessage(m.chat, {
-            image: resultBuffer,
-            caption: `╭─❏ 「 Eɴʜᴀɴᴄᴇᴅ Iᴍᴀɢᴇ」
-│ Your shitty image is now HD.\n│ Still looks like garbage though.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞᠊ʀᴇᴅ 𝐁ʏ 𝐱𝐡_𝐜𝐥ɪɴᴛᴏɴ`
+            image: { url: enhancedUrl },
+            caption: `╭─❏ 「 Eɴʜᴀɴᴄᴇᴅ Iᴍᴀɢᴇ」\n│ Your image is now HD.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
         });
-    } catch {
+    } catch (e) {
+        console.error('remini error:', e);
         await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-        await sendInteractive(client, m, `╭─❏ 「 Fᴀɪʟᴇᴅ」
-│ Enhancement failed. Try again.\n╰───────────────\n> ©𝐏ᴏᴡᴇ᠊ʀᴇᴅ 𝐁ʏ 𝐱ʜ_ᴄʟɪɴᴛᴏɴ`);
+        await sendInteractive(client, m, `╭─❏ 「 Fᴀɪʟᴇᴅ」\n│ Enhancement failed. Try again.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
     }
 };

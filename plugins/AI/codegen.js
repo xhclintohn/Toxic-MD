@@ -1,5 +1,5 @@
-import axios from 'axios';
 import { sendInteractive } from '../../lib/sendInteractive.js';
+import { groqChat } from '../../lib/groqChat.js';
 
 export default async (context) => {
     const { client, m, text } = context;
@@ -21,12 +21,14 @@ export default async (context) => {
 
     await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
     try {
-        const payload = {
-            customInstructions: prompt,
-            outputLang: language
-        };
-
-        const { data } = await axios.post("https://www.codeconvert.ai/api/generate-code", payload);
+        const { reply: data } = await groqChat({
+            messages: [
+                { role: 'system', content: `You are a code generator. Reply with ONLY the ${language} code for the request, no explanation, no markdown fences.` },
+                { role: 'user', content: prompt }
+            ],
+            temperature: 0.3,
+            max_tokens: 2048
+        });
 
         if (!data || typeof data !== "string") {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
