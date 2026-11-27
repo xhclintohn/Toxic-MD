@@ -28,22 +28,28 @@ export default {
             await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
             const encodedUrl = encodeURIComponent(url);
-            const apiUrl = `https://api.nekolabs.web.id/tools/shortlink/tinyurl?url=${encodedUrl}`;
+            let shortUrl = '';
+            let responseTime = 'N/A';
+            const started = Date.now();
 
-            const response = await axios.get(apiUrl, {
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                    'Accept': 'application/json'
-                },
-                timeout: 10000
-            });
-
-            if (!response.data?.success || !response.data?.result) {
-                throw new Error('API returned invalid response');
+            try {
+                const response = await axios.get(`https://tinyurl.com/api-create.php?url=${encodedUrl}`, {
+                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+                    timeout: 15000
+                });
+                const body = String(response.data || '').trim();
+                if (!/^https?:\/\/tinyurl\.com\//i.test(body)) throw new Error('TinyURL returned invalid response');
+                shortUrl = body;
+            } catch {
+                const response = await axios.get(`https://is.gd/create.php?format=simple&url=${encodedUrl}`, {
+                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+                    timeout: 15000
+                });
+                const body = String(response.data || '').trim();
+                if (!/^https?:\/\//i.test(body)) throw new Error('Shortener returned invalid response');
+                shortUrl = body;
             }
-
-            const shortUrl = response.data.result;
-            const responseTime = response.data.responseTime || 'N/A';
+            responseTime = `${Date.now() - started}ms`;
 
             await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
 

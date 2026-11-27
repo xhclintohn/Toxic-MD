@@ -27,7 +27,7 @@ export default {
         try {
             await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
-            const apiUrl = `https://api.nexray.web.id/maker/bratvid?text=${encodeURIComponent(text)}`;
+            const apiUrl = `https://api.nexray.eu.cc/maker/bratvid?text=${encodeURIComponent(text)}`;
             
             const videoResponse = await axios.get(apiUrl, {
                 responseType: 'arraybuffer',

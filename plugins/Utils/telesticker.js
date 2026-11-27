@@ -23,7 +23,7 @@ export default async (context) => {
 
         const apiUrl = `https://t.me/addstickers/${packName}`;
         const encodedUrl = encodeURIComponent(apiUrl);
-        const apiEndpoint = `https://api.nexray.web.id/tools/telegram-sticker?url=${encodedUrl}`;
+        const apiEndpoint = `https://api.nexray.eu.cc/tools/telegram-sticker?url=${encodedUrl}`;
 
         const response = await fetch(apiEndpoint, {
             method: 'GET',
