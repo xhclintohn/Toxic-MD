@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.2.22
+
+- Fixed the first command in a group sometimes being ignored: WhatsApp delivers some group messages twice with the same ID (first a sender-key copy with no text, then the real message), and the duplicate filter was throwing away the real one. The filter now lets the real copy through.
+- Sessions now use toxic-baileys' compact SQLite auth state: the whole session lives in one `auth.db` file instead of thousands of JSON files (22 MB down to about 3 MB), old pre-keys are pruned automatically, and your existing session migrates by itself on first start — no re-pairing. Needs toxic-baileys 1.8.8 or newer — run `.update` first.
+- Downloaders rebuilt: every downloader now tries several sources in order until one works (YouTube audio/video, TikTok, Pinterest, Instagram, Facebook, Twitter/X, Spotify and more), with a local yt-dlp fallback for YouTube. Dead APIs removed.
+- New downloaders: `.douyin`, `.applemusic`, `.terabox`, `.mega`, `.gdrive`, `.sfile`, `.ttimg`, `.videy`, `.aio`.
+- New search commands: `.ttstalk`, `.twstalk`, `.ytstalk`, `.robloxstalk`, `.pinstalk`, `.amfinder`.
+- New AI commands: `.blackbox`, `.claude`, `.deepseek`, `.quillbot`, `.bard`. `.codegen` and `.remini` fixed.
+- New tools: `.checkhost` (alias `.cekhost`), `.trackip`, `.subdomain`, `.phishcheck`, `.web2zip`, `.fontsearch`, `.readqr`, `.tthashtag`, `.amsend`, `.amverify`.
+- `.lyrics`, `.image`, `.google`, `.bratvid`, `.telesticker`, `.tinyurl`, `.npmdl`, `.capcut` and `.video` fixed — they were calling dead APIs.
+- `.removebg` fixed with a new background-removal service.
+- `.sa` (sticker audio) now also works on videos and caps the audio at 25 seconds.
+
+
 ## 1.2.21
 
 - New `.settheme` command: set a WhatsApp chat theme on the current chat or group. `.settheme list` shows the themes, `.settheme 2` picks one by number (or use the name, like `.settheme emerald`), `.settheme color FF0000` sets a solid color background (add `doodle` for the pattern), and `.settheme clear` removes it. Works on a group JID or invite link too, like `.setwallpaper`. The bot must be a group admin. Needs toxic-baileys 1.8.7 or newer — run `.update` first.

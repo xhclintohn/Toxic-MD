@@ -7,7 +7,7 @@
 ![Multi-Device](https://img.shields.io/badge/Multi--Device-Supported-blue?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-orange?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)
-![Version](https://img.shields.io/badge/Version-1.2.21-blue?style=flat-square)
+![Version](https://img.shields.io/badge/Version-1.2.22-blue?style=flat-square)
 
 **A fast WhatsApp multi-device bot for group control, automation, AI chat, media editing and fun commands.**
 
@@ -135,6 +135,7 @@ SESSION=YOUR_SESSION_ID
 - Public / private mode toggle, bot ping and status check
 - Restart bot command, menu and help commands
 - Time-based greetings, multi-platform update support
+- Compact SQLite sessions — one small database file instead of thousands of JSON files
 
 ---
 

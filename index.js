@@ -80,7 +80,7 @@ process.stdout.write = function(chunk, encoding, callback) {
     return _origWrite(chunk, encoding, callback);
 };
 
-import toxicConnect, { useMultiFileAuthState, DisconnectReason, downloadContentFromMessage, jidDecode, proto, getContentType, makeCacheableSignalKeyStore, Browsers, generateWAMessageContent, generateWAMessageFromContent, jidNormalizedUser, S_WHATSAPP_NET, ALL_WA_PATCH_NAMES } from '@whiskeysockets/baileys';
+import toxicConnect, { useMultiFileAuthState, useSqliteAuthState, DisconnectReason, downloadContentFromMessage, jidDecode, proto, getContentType, makeCacheableSignalKeyStore, Browsers, generateWAMessageContent, generateWAMessageFromContent, jidNormalizedUser, S_WHATSAPP_NET, ALL_WA_PATCH_NAMES } from '@whiskeysockets/baileys';
 import { makeStore } from './lib/MakeStore.js';
 import crmstore from './lib/crmstore.js';
 global.crmstore = crmstore;
@@ -574,7 +574,7 @@ async function startToxic() {
         version = [2, 3000, 1015901307];
         console.log('⚠️ [VERSION] Failed to fetch Baileys version, using fallback:', version.join('.'));
     }
-    const { saveCreds, state } = await useMultiFileAuthState(sessionName);
+    const { saveCreds, state } = await useSqliteAuthState(sessionName, { migrateFromFolder: sessionName });
 
     if (state && state.creds) {
       if (!state.creds.myAppStateKeyId) {
@@ -1002,15 +1002,17 @@ async function startToxic() {
           }
 
           if (type !== 'notify' && !mek.key.fromMe && remoteJid !== 'status@broadcast' && !remoteJid?.endsWith('@newsletter')) continue;
-          if (!global._toxicSeenIds) global._toxicSeenIds = new Set();
+          if (!global._toxicSeenIds) global._toxicSeenIds = new Map();
           const _msgId = mek?.key?.id;
           const _dedupKey = remoteJid?.endsWith('@newsletter') ? `nl_${remoteJid}_${_msgId}` : _msgId;
+          const _hasContent = mek.message ? Object.keys(mek.message).some(k => k !== 'senderKeyDistributionMessage' && k !== 'messageContextInfo') : false;
           if (_dedupKey) {
-            if (global._toxicSeenIds.has(_dedupKey)) {
+            const _seenContent = global._toxicSeenIds.get(_dedupKey);
+            if (_seenContent !== undefined && (_seenContent || !_hasContent)) {
               continue;
             }
-            global._toxicSeenIds.add(_dedupKey);
-            if (global._toxicSeenIds.size > 500) { const _old = global._toxicSeenIds.values().next().value; global._toxicSeenIds.delete(_old); }
+            global._toxicSeenIds.set(_dedupKey, _hasContent);
+            if (global._toxicSeenIds.size > 500) { const _old = global._toxicSeenIds.keys().next().value; global._toxicSeenIds.delete(_old); }
           }
           const settings = getCachedSettingsSync();
           getCachedSettings().catch(() => {});
@@ -1260,7 +1262,7 @@ async function startToxic() {
 
       if (connection === "open") {
         global._toxicSessionTs = Math.floor(Date.now() / 1000);
-        global._toxicSeenIds = new Set();
+        global._toxicSeenIds = new Map();
         global._toxicRealTime = false;
         reconnectAttempts = 0;
         global._toxicLastActivity = Date.now();
@@ -1414,7 +1416,7 @@ function cleanupSessionFiles() {
     try {
         if (!fs.existsSync(sessionName)) return;
         const files = fs.readdirSync(sessionName);
-        const keepFiles = ['creds.json', 'app-state-sync-version-', 'pre-key-', 'session-', 'sender-key-', 'app-state-sync-key-', 'lid-mapping-'];
+        const keepFiles = ['creds.json', 'auth.db', 'app-state-sync-version-', 'pre-key-', 'session-', 'sender-key-', 'app-state-sync-key-', 'lid-mapping-'];
         files.forEach(file => {
             const filePath = path.join(sessionName, file);
             try {
