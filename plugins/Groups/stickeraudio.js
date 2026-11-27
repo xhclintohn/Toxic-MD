@@ -46,6 +46,7 @@ const toOpus = async input => {
     const buf = await runFFmpeg([
         '-v', 'info',
         '-i', 'pipe:0',
+        '-t', '25',
         '-vn',
         '-map_metadata', '-1',
         '-c:a', 'libopus',
@@ -118,11 +119,12 @@ export default {
 
             const quoted = m.msg?.contextInfo?.quotedMessage || null;
             const audioContent = quoted?.audioMessage || m.msg?.audioMessage || m.quoted?.msg?.audioMessage || null;
-            if (!audioContent) {
-                return await fail('Reply to an audio message first,\n│ or send an audio with .stickeraudio\n│ as the caption.');
+            const videoContent = quoted?.videoMessage || m.msg?.videoMessage || m.quoted?.msg?.videoMessage || null;
+            if (!audioContent && !videoContent) {
+                return await fail('Reply to an audio or video message first,\n│ or send one with .stickeraudio\n│ as the caption.');
             }
 
-            const rawAudio = await client.downloadMediaMessage(audioContent);
+            const rawAudio = await client.downloadMediaMessage(audioContent || videoContent);
             if (!rawAudio || !rawAudio.length) {
                 return await fail("I couldn't download that audio.\n│ Try again or send it as a file.");
             }
@@ -139,6 +141,9 @@ export default {
                 } catch (e) {
                     log('attached image download failed, using fallback:', e?.message || e);
                 }
+            }
+            if ((!imageInput || !imageInput.length) && videoContent && !audioContent) {
+                imageInput = audioInput;
             }
             if (!imageInput || !imageInput.length) {
                 const fallbackPath = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'toxic.jpg');
