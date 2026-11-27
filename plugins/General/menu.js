@@ -58,7 +58,7 @@ export default {
                 rows: [
                     { title: '𝐅𝐮𝐥𝐥𝐌𝐞𝐧𝐮', description: 'Display all commands', id: `${prefix}fullmenu` },
                     { title: '𝐃𝐞𝐯', description: 'Send developer contact', id: `${prefix}dev` },
-                    { title: '𝐑𝐞𝐩𝐨𝐫𝐭', description: 'Report a bug to dev', id: `${prefix}report` },
+                    { title: '𝐑𝐞𝐩𝐨𝐫𝐭', description: 'Report a bug to dev', id: `${prefix}bug` },
                 ] },
             {
                 title: '𝙄𝙣𝙛𝙤 𝘽𝙤𝙩',
@@ -101,7 +101,7 @@ export default {
                 `│ ⌜ 𝘾𝙤𝙧𝙚 𝘾𝙤𝙢𝙢𝙖𝙣𝙙𝙨 ⌟\n` +
                 `│ ${prefix}fullmenu — Display all commands\n` +
                 `│ ${prefix}dev — Send developer contact\n` +
-                `│ ${prefix}report — Report a bug to dev\n` +
+                `│ ${prefix}bug — Report a bug to dev\n` +
                 `│ \n` +
                 `│ 𝙄𝙣𝙛𝙤 𝘽𝙤𝙩\n` +
                 `│ ${prefix}ping — Check bot speed\n` +
