@@ -2,38 +2,49 @@ import fetch from 'node-fetch';
 import { generateWAMessageFromContent } from '@whiskeysockets/baileys';
 import { sendInteractive } from '../../lib/sendInteractive.js';
 
+const box = (title, body) => `╭─❏ 「 ${title}」\n${body}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+
 export default async (context) => {
   const { client, m, text } = context;
-        await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
+  await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
   if (!text) {
-    return sendInteractive(client, m, `╭─❏ 「 CTA_COPY 」
-│ Tell me a song name you dumbass!\n│ Example: .lyrics Alone ft ava max\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+    return sendInteractive(client, m, box('LYRICS', '│ Tell me a song name!\n│ Example: .lyrics Alone ft ava max'));
   }
 
   try {
-    const encodedText = encodeURIComponent(text);
-    const apiUrl = `https://api.deline.web.id/tools/lyrics?title=${encodedText}`;
-    await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
-    const response = await fetch(apiUrl);
-    const data = await response.json();
+    let songTitle = 'Unknown';
+    let artistName = 'Unknown Artist';
+    let cleanLyrics = '';
 
-    if (!data.status || !data.result || data.result.length === 0) {
-      return sendInteractive(client, m, `╭─❏ 「 CTA_COPY 」
-│ No lyrics found for "${text}". Maybe the song sucks.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+    try {
+      const res = await fetch(`https://api.nexray.eu.cc/search/lyrics?q=${encodeURIComponent(text)}`, { timeout: 30000 });
+      const data = await res.json();
+      const r = data?.result;
+      if (data?.status && r?.lyrics?.plain_lyrics) {
+        songTitle = r.title || r.lyrics.track_name || 'Unknown';
+        artistName = r.artist || r.lyrics.artist_name || 'Unknown Artist';
+        cleanLyrics = r.lyrics.plain_lyrics;
+      }
+    } catch {}
+
+    if (!cleanLyrics) {
+      const res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(text)}`, { timeout: 30000 });
+      const list = await res.json();
+      const song = Array.isArray(list) ? list.find(s => s.plainLyrics) : null;
+      if (song) {
+        songTitle = song.trackName || song.name || 'Unknown';
+        artistName = song.artistName || 'Unknown Artist';
+        cleanLyrics = song.plainLyrics;
+      }
     }
 
-    const song = data.result[0];
-    if (!song.plainLyrics) {
-      return sendInteractive(client, m, `╭─❏ 「 CTA_COPY 」
-│ No plain lyrics for this one. Try another song, loser.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+    if (!cleanLyrics) {
+      await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+      return sendInteractive(client, m, box('LYRICS', `│ No lyrics found for "${text}".`));
     }
 
-    const cleanLyrics = song.plainLyrics;
-    const songTitle = song.trackName || song.name || 'Unknown';
-    const artistName = song.artistName || 'Unknown Artist';
-    const bodyText = `╭─❏ 「 LYRICS」
-│ ${songTitle} - ${artistName}\n│ \n${cleanLyrics}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+    const bodyText = box('LYRICS', `│ ${songTitle} - ${artistName}\n│ \n${cleanLyrics}`);
     const copyCode = `${songTitle} - ${artistName}\n\n${cleanLyrics}`.slice(0, 4096);
 
     try {
@@ -58,13 +69,13 @@ export default async (context) => {
         }
       );
       await client.relayMessage(m.chat, msg.message, { messageId: msg.key.id });
+      await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
     } catch {
       await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
       await client.sendMessage(m.chat, { text: bodyText });
     }
   } catch (error) {
     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-    await sendInteractive(client, m, `╭─❏ 「 LYRICS ERROR」
-│ Can't get lyrics for "${text}". Shit broke.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+    await sendInteractive(client, m, box('LYRICS ERROR', `│ Can't get lyrics for "${text}".`));
   }
 };
