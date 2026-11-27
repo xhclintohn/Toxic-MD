@@ -1,112 +1,75 @@
-import axios from 'axios';
-import { uploadTempUrl } from '../../lib/toUrl.js';
 import { sendInteractive } from '../../lib/sendInteractive.js';
 
+const box = (title, body) => `╭─❏ 「 ${title}」\n│ ${body}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+
+async function removalAi(buffer) {
+  const homeRes = await fetch('https://removal.ai/', {
+    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36' },
+    signal: AbortSignal.timeout(30000)
+  });
+  const homeHtml = await homeRes.text();
+  const nonces = [...new Set([...homeHtml.matchAll(/security["']?\s*[:=]\s*["']([a-f0-9]{10})["']/g)].map(m => m[1]))];
+  if (!nonces.length) nonces.push('d82109f663');
+
+  let token = null;
+  for (const nonce of nonces) {
+    try {
+      const tokenRes = await fetch(`https://removal.ai/wp-admin/admin-ajax.php?action=ajax_get_webtoken&security=${nonce}`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        signal: AbortSignal.timeout(30000)
+      });
+      const tokenData = await tokenRes.json().catch(() => null);
+      if (tokenData?.data?.webtoken) { token = tokenData.data.webtoken; break; }
+    } catch {}
+  }
+  if (!token) throw new Error('Could not get removal token');
+
+  const form = new FormData();
+  form.append('image_file', new Blob([buffer], { type: 'image/jpeg' }), 'image.jpg');
+
+  const res = await fetch('https://api.removal.ai/3.0/remove', {
+    method: 'POST',
+    headers: { 'Web-Token': token },
+    body: form,
+    signal: AbortSignal.timeout(90000)
+  });
+  const json = await res.json();
+  if (!json.url) throw new Error(json.message || json.error || 'Background removal failed');
+
+  const img = await fetch(json.url, { signal: AbortSignal.timeout(30000) });
+  if (!img.ok) throw new Error(`Result download HTTP ${img.status}`);
+  return Buffer.from(await img.arrayBuffer());
+}
+
 export default {
-    name: 'removebg',
-    aliases: ['nobg', 'rmbg', 'transparent'],
-    description: 'Removes background from images using AI',
-    run: async (context) => {
-        const { client, m, mime } = context;
-        
-        await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
+  name: 'removebg',
+  aliases: ['nobg', 'rmbg', 'transparent', 'removebackground'],
+  description: 'Remove the background from an image',
+  run: async (context) => {
+    const { client, m } = context;
+    await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } }).catch(() => {});
 
-        const quoted = m.quoted ? m.quoted : m;
-        const quotedMime = quoted.mimetype || mime || '';
-        
-        if (!/image/.test(quotedMime)) {
-            return client.sendMessage(m.chat, {
-                text: `╭─❏ 「 REMOVE BG」
-│ Do you have eyes? That's clearly\n│ not an image. Quote an actual image\n│ file, you incompetent fool.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`,
-                mentions: [m.sender]
-            });
-        }
-
-        try {
-            const media = await quoted.download();
-            if (!media) {
-                await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-                return sendInteractive(client, m, `╭─❏ 「 FAILED」
-│ Failed to download the image.\n│ Your device is probably as defective\n│ as your judgment.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
-            }
-
-            if (media.length > 10 * 1024 * 1024) {
-                await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-                return sendInteractive(client, m, `╭─❏ 「 FAILED」
-│ Image exceeds 10MB limit.\n│ Do you think I have infinite storage?\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
-            }
-
-            const imageUrl = await uploadTempUrl(media, 'png');
-            const encodedUrl = encodeURIComponent(imageUrl);
-            const removeBgApiUrl = `https://api.ootaizumi.web.id/tools/removebg?imageUrl=${encodedUrl}`;
-            
-            const response = await axios.get(removeBgApiUrl, {
-                headers: { 
-                    'accept': 'application/json',
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                },
-                timeout: 60000
-            });
-
-            if (!response.data.status || !response.data.result) {
-                throw new Error('The AI failed to process your image. Probably too complex for its intelligence.');
-            }
-
-            const transparentImageUrl = response.data.result;
-            const transparentResponse = await axios.get(transparentImageUrl, {
-                responseType: 'arraybuffer',
-                timeout: 30000
-            });
-
-            const transparentImage = Buffer.from(transparentResponse.data);
-
-            await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
-
-            await client.sendMessage(
-                m.chat,
-                { 
-                    image: transparentImage, 
-                    caption: `╭─❏ 「 REMOVE BG」
-│ Background successfully removed.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
-                }
-            );
-
-            if (transparentResponse.headers['content-type']?.includes('png')) {
-                await client.sendMessage(
-                    m.chat,
-                    {
-                        document: transparentImage,
-                        mimetype: 'image/png',
-                        fileName: `transparent_bg_${Date.now()}.png`,
-                        caption: `╭─❏ 「 PNG FILE」
-│ PNG version for higher quality.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
-                    }
-                );
-            }
-
-        } catch (err) {
-            console.error('RemoveBG error:', err);
-            
-            await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
-
-            let errorMessage = 'An unexpected error occurred';
-            
-            if (err.message.includes('timeout')) {
-                errorMessage = 'Processing took too long. Your image might be too complex or the server is busy.';
-            } else if (err.message.includes('Network Error')) {
-                errorMessage = 'Network connection failed. Check your internet, you digital neanderthal.';
-            } else if (err.message.includes('Upload process failed')) {
-                errorMessage = 'Failed to upload image for processing.';
-            } else if (err.message.includes('AI failed to process')) {
-                errorMessage = 'The AI could not process this image. Try something less abstract.';
-            } else if (err.message.includes('ENOTFOUND')) {
-                errorMessage = 'Cannot connect to the background removal service.';
-            } else {
-                errorMessage = 'Service failed. Try again later.';
-            }
-
-            await sendInteractive(client, m, `╭─❏ 「 FAILED」
-│ Background removal failed.\n│ Error: ${errorMessage}\n│ \n│ Suggestions:\n│ Use clear, high-contrast images\n│ Ensure subject has defined edges\n│ Try a simpler composition\n│ Check your internet connection\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
-        }
+    const quoted = m.quoted ? m.quoted : m;
+    const mime = quoted.mimetype || m.mimetype || '';
+    if (!/image/.test(mime)) {
+      await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+      return sendInteractive(client, m, box('REMOVE BG', 'Reply to an image first.'));
     }
+
+    try {
+      const media = await quoted.download();
+      const result = await removalAi(media);
+
+      await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
+      await client.sendMessage(m.chat, {
+        image: result,
+        mimetype: 'image/png',
+        caption: box('REMOVE BG', 'Background removed!')
+      });
+    } catch (e) {
+      console.error('removebg error:', e);
+      await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+      return sendInteractive(client, m, box('REMOVE BG', `Failed: ${e.message || e}`));
+    }
+  }
 };
