@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.26
+
+- `.tomp4` actually works now — it was being hijacked by `.togif`'s alias. It also converts audio stickers (video + sound together) and plain videos to MP4.
+- `.sa` stickers made from videos are now properly animated and fill the whole sticker (no more borders). Captioning a video with the command works again.
+- Fixed 4 more commands being shadowed by wrong aliases: `.bard`, `.npminfo`, `.clearchat` and `.callprivacy` now reach their real commands.
+
 ## 1.2.25
 
 - `.tempmail` rebuilt: the old email API died, so it now creates mail through a chain of working providers (with retries). New buttons on the result — Copy Email, and Check Inbox to view that exact mail's inbox with one tap. `.tempinbox` got a cleaner single-box layout.
