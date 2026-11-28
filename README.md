@@ -128,6 +128,7 @@ SESSION=YOUR_SESSION_ID
 **Fun commands**
 
 - Random memes, quotes and facts, mini games
+- Sports: live scores, fixtures, results and league tables (EPL, La Liga, KPL, NBA and more)
 - AI-style chat commands, media editing (brat, trigger, wanted, wasted, etc.)
 
 **System controls**

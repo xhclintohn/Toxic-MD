@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.27
+
+- New **Sports** category: `.livescore`, `.fixtures`, `.results` and `.table` for EPL, La Liga, Serie A, Bundesliga, Ligue 1, Champions League, Kenyan Premier League and NBA — match times in EAT, powered by ESPN with TheSportsDB as backup. `.table` renders a proper table view with P/W/D/L/GF/GA/GD/Pts (and Form where available). New `.sportsmenu` lists them all.
+
 ## 1.2.26
 
 - `.tomp4` actually works now — it was being hijacked by `.togif`'s alias. It also converts audio stickers (video + sound together) and plain videos to MP4.
