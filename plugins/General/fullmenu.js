@@ -27,7 +27,7 @@ export default {
       { name: 'AI', display: 'AIMENU', emoji: '🧠' },
       { name: 'Downloader', display: 'DOWNLOADMENU', emoji: '🎬' },
       { name: 'Editing', display: 'EDITING', emoji: '✂️' },
-      { name: 'Filters', display: 'EFFECTSMENU', emoji: '🎨' },
+      { name: 'Logos', display: 'LOGOMENU', emoji: '🎨' },
       { name: 'Anime', display: 'ANIMEMENU', emoji: '🎌' },
       { name: 'NSFW', display: '+18MENU', emoji: '🔞' },
       { name: 'Tools', display: 'UTILSMENU', emoji: '🔧' },

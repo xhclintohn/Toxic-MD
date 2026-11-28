@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 import { getSettings } from '../../lib/fastSettings.js';
-import effectsMod from '../../plugins/Filters/effects.js';
+import effectsMod from '../../plugins/Logos/effects.js';
 
 export default {
     name: 'logomenu',
