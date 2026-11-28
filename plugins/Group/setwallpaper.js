@@ -26,14 +26,36 @@ async function fitWallpaper(buffer) {
     }
 }
 
+const themeBlocked = async (client, jid) => {
+    if (!jid || !jid.endsWith('@g.us')) return false;
+    try {
+        const meta = await client.groupMetadata(jid);
+        if (!meta?.restrict) return false;
+        const botIds = [client.user?.id, client.user?.lid]
+            .filter(Boolean)
+            .map((x) => String(x).split('@')[0].split(':')[0]);
+        const me = (meta.participants || []).find((p) =>
+            botIds.includes(String(p.id || '').split('@')[0].split(':')[0]) ||
+            botIds.includes(String(p.lid || '').split('@')[0].split(':')[0]));
+        return !(me && (me.admin === 'admin' || me.admin === 'superadmin'));
+    } catch {
+        return false;
+    }
+};
+
 export default {
     name: 'setwallpaper',
     aliases: ['setwall'],
-    description: 'Set a group chat wallpaper from an image',
+    description: 'Set a chat wallpaper from an image',
     run: async (context) => {
-        const { client, m, IsGroup, prefix } = context;
+        const { client, m, prefix } = context;
         const quoted = context.quoted || m.quoted;
         const pfx = prefix || '.';
+
+        const fail = async (text) => {
+            await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+            return sendInteractive(client, m, formatStylishReply(text));
+        };
 
         try {
             await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
@@ -45,8 +67,7 @@ export default {
                 imageBuffer = await m.download().catch(() => null);
             }
             if (!imageBuffer) {
-                await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                return sendInteractive(client, m, formatStylishReply(`Send an image with the caption ${pfx}setwallpaper, or reply to an image with ${pfx}setwallpaper`));
+                return fail(`Send an image with the caption ${pfx}setwallpaper, or reply to an image with ${pfx}setwallpaper`);
             }
 
             const body = (m.body || '').trim();
@@ -62,36 +83,40 @@ export default {
                     const info = await client.groupGetInviteInfo(code);
                     targetJid = info.id;
                 } catch {
-                    await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                    return sendInteractive(client, m, formatStylishReply("That group link didn't work. Check it and try again."));
+                    return fail("That group link didn't work. Check it and try again.");
                 }
-            } else if (IsGroup || m.chat.endsWith('@g.us')) {
+            } else {
                 targetJid = m.chat;
             }
-            if (!targetJid) {
-                await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                return sendInteractive(client, m, formatStylishReply(`You're not in a group. Add the group JID or invite link, like ${pfx}setwall 120363000000000000@g.us`));
-            }
 
-            let meta = null;
-            try {
-                meta = await client.groupMetadata(targetJid);
-            } catch {
-                meta = null;
-            }
-            if (!meta) {
-                await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                return sendInteractive(client, m, formatStylishReply("I'm not in that group, so I can't set its wallpaper. Add me first."));
+            let subject = null;
+            if (targetJid.endsWith('@g.us')) {
+                let meta = null;
+                try {
+                    meta = await client.groupMetadata(targetJid);
+                } catch {
+                    meta = null;
+                }
+                if (!meta) {
+                    return fail("I'm not in that group, so I can't set its wallpaper. Add me first.");
+                }
+                subject = meta.subject;
+                if (await themeBlocked(client, targetJid)) {
+                    return fail('WhatsApp will drop this wallpaper in this group — only admins can edit group info here, and the bot is not an admin. Make the bot an admin, or set "Edit group info" to all participants, then run the command again.');
+                }
             }
 
             const fitted = await fitWallpaper(imageBuffer);
-            await setGroupWallpaper(client, targetJid, fitted);
+            if (typeof client.setChatWallpaper === 'function') {
+                await client.setChatWallpaper(targetJid, fitted);
+            } else {
+                await setGroupWallpaper(client, targetJid, fitted);
+            }
             await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, formatStylishReply(`Wallpaper set for *${meta.subject || 'the group'}*`));
+            return sendInteractive(client, m, formatStylishReply(`Wallpaper set${subject ? ` for *${subject}*` : ' for this chat'}`));
         } catch (error) {
             console.error('SetWallpaper error:', error);
-            await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, formatStylishReply('Failed to set the wallpaper. Try again.'));
+            return fail('Failed to set the wallpaper. Try again.');
         }
     }
 };

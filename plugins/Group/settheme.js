@@ -13,6 +13,29 @@ const PRESETS = Array.isArray(CHAT_THEMES) && CHAT_THEMES.length ? CHAT_THEMES :
     'WhatsApp-Green@Minimal'
 ];
 
+const COLOR_PRESETS = {
+    pink: 'ff69b4',
+    blue: '1e90ff',
+    purple: '9b59b6',
+    black: '121212',
+    green: '2ecc71',
+    red: 'e74c3c',
+    yellow: 'f1c40f',
+    orange: 'e67e22',
+    white: 'f5f6fa',
+    grey: '7f8c8d',
+    gray: '7f8c8d',
+    gold: 'd4af37',
+    teal: '008080',
+    cyan: '00ffff',
+    magenta: 'ff00ff',
+    lime: 'a3e635',
+    navy: '000080',
+    maroon: '800000',
+    olive: '808000',
+    brown: '8b5a2b'
+};
+
 const formatStylishReply = (message) => {
     return `╭─❏ 「 SETTHEME 」\n│ \n│ ${message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
 };
@@ -32,19 +55,49 @@ const matchPreset = (input) => {
 };
 
 const parseArgb = (input) => {
-    const cleaned = String(input || '').replace(/^#/, '').trim();
-    if (!/^[0-9a-fA-F]{6}$|^[0-9a-fA-F]{8}$/.test(cleaned)) return null;
-    const value = parseInt(cleaned, 16);
-    return cleaned.length === 6 ? (0xff000000 | value) >>> 0 : value >>> 0;
+    if (input == null) return null;
+    const key = String(input).trim().toLowerCase().replace(/^#/, '');
+    const hex = COLOR_PRESETS[key] || key;
+    if (!/^[0-9a-f]{6}$|^[0-9a-f]{8}$/.test(hex)) return null;
+    const value = parseInt(hex, 16);
+    return hex.length === 6 ? (0xff000000 | value) >>> 0 : value >>> 0;
 };
+
+const themeBlocked = async (client, jid) => {
+    if (!jid || !jid.endsWith('@g.us')) return false;
+    try {
+        const meta = await client.groupMetadata(jid);
+        if (!meta?.restrict) return false;
+        const botIds = [client.user?.id, client.user?.lid]
+            .filter(Boolean)
+            .map((x) => String(x).split('@')[0].split(':')[0]);
+        const me = (meta.participants || []).find((p) =>
+            botIds.includes(String(p.id || '').split('@')[0].split(':')[0]) ||
+            botIds.includes(String(p.lid || '').split('@')[0].split(':')[0]));
+        return !(me && (me.admin === 'admin' || me.admin === 'superadmin'));
+    } catch {
+        return false;
+    }
+};
+
+const BLOCKED_TEXT = 'WhatsApp will drop this theme in this group — only admins can edit group info here, and the bot is not an admin. Make the bot an admin, or set "Edit group info" to all participants, then run the command again.';
 
 export default {
     name: 'settheme',
     aliases: ['theme'],
-    description: 'Set a chat theme preset or solid color for a chat or group',
+    description: 'Set a chat theme preset, solid background color, or clear the theme for a chat or group',
     run: async (context) => {
-        const { client, m, IsGroup, prefix } = context;
+        const { client, m, prefix } = context;
         const pfx = prefix || '.';
+
+        const fail = async (text) => {
+            await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+            return sendInteractive(client, m, formatStylishReply(text));
+        };
+        const done = async (text) => {
+            await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
+            return sendInteractive(client, m, formatStylishReply(text));
+        };
 
         try {
             const body = (m.body || '').trim();
@@ -65,8 +118,7 @@ export default {
                     targetJid = info.id;
                     rest = rest.replace(linkMatch[0], '').trim();
                 } catch {
-                    await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                    return sendInteractive(client, m, formatStylishReply("That group link didn't work. Check it and try again."));
+                    return fail("That group link didn't work. Check it and try again.");
                 }
             } else {
                 targetJid = m.chat;
@@ -75,55 +127,67 @@ export default {
             const words = rest.split(/\s+/).filter(Boolean);
             const action = (words[0] || '').toLowerCase();
 
-            if (!action || action === 'list') {
+            if (!action || action === 'list' || action === 'help') {
                 const list = PRESETS.map((preset, index) => `${index + 1}. ${preset}`).join('\n│ ');
-                return sendInteractive(client, m, formatStylishReply(`Chat themes:\n│ ${list}\n│ \n│ Pick by number: ${pfx}settheme 2\n│ Or by name: ${pfx}settheme emerald\n│ Color: ${pfx}settheme color FF0000\n│ Remove: ${pfx}settheme clear`));
+                const colors = Object.keys(COLOR_PRESETS).filter((c) => c !== 'gray').join(', ');
+                return sendInteractive(client, m, formatStylishReply(`Chat themes:\n│ ${list}\n│ \n│ Pick by number: ${pfx}settheme 2\n│ Or by name: ${pfx}settheme emerald\n│ Solid color: ${pfx}settheme pink\n│ Any hex: ${pfx}settheme #ff69b4\n│ Light + dark: ${pfx}settheme blue navy\n│ Flat (no doodle): ${pfx}settheme blue nodoodle\n│ Colors: ${colors}\n│ Remove: ${pfx}settheme clear`));
             }
 
             if (typeof client.setChatTheme !== 'function' || typeof client.setChatThemeColor !== 'function') {
-                await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                return sendInteractive(client, m, formatStylishReply('Chat themes need the latest Baileys. Run .update first.'));
+                return fail('Chat themes need the latest Baileys. Run .update first.');
+            }
+
+            if (await themeBlocked(client, targetJid)) {
+                return fail(BLOCKED_TEXT);
             }
 
             await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
             if (action === 'clear' || action === 'reset' || action === 'default') {
                 await client.clearChatTheme(targetJid);
-                await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
-                return sendInteractive(client, m, formatStylishReply('Chat theme cleared'));
+                return done('Chat theme cleared');
             }
 
-            if (action === 'color' || action === 'colour') {
-                const light = parseArgb(words[1]);
-                if (light === null) {
-                    await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                    return sendInteractive(client, m, formatStylishReply(`Give a hex color, like ${pfx}settheme color FF0000`));
+            if (action === 'scheme' || action === 'colorscheme') {
+                if (!words[1]) return fail(`Give a scheme id, like ${pfx}settheme scheme Emerald@Minimal`);
+                await client.setChatTheme(targetJid, words[1]);
+                return done(`Theme set to *${words[1]}*`);
+            }
+
+            const colorWords = (action === 'color' || action === 'colour' || action === 'solid')
+                ? words.slice(1)
+                : words;
+            const light = parseArgb(colorWords[0]);
+            if (light !== null) {
+                const doodleOff = colorWords.some((word) => /^(nodoodle|no-doodle|plain)$/i.test(word));
+                const restWords = colorWords.slice(1).filter((word) => !/^(doodle|nodoodle|no-doodle|plain)$/i.test(word));
+                const dark = restWords[0] !== undefined ? parseArgb(restWords[0]) : light;
+                if (dark === null) {
+                    return fail(`That dark color is not valid. Use a color name or hex, like ${pfx}settheme blue navy`);
                 }
-                const dark = parseArgb(words[2]) ?? light;
-                const doodle = words.some((word) => word.toLowerCase() === 'doodle');
                 await client.setChatThemeColor(targetJid, {
                     backgroundLightArgb: light,
                     backgroundDarkArgb: dark,
-                    isDoodleEnabled: doodle
+                    isDoodleEnabled: !doodleOff
                 });
-                await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
-                return sendInteractive(client, m, formatStylishReply(`Theme color set${doodle ? ' with doodle' : ''}`));
+                return done(`Theme color set${doodleOff ? ' (flat, no doodle)' : ' with doodle'}`);
+            }
+
+            if (action === 'color' || action === 'colour' || action === 'solid') {
+                return fail(`Give a color name or hex, like ${pfx}settheme pink or ${pfx}settheme #ff69b4`);
             }
 
             const byNumber = /^\d+$/.test(words[0] || '') ? PRESETS[Number(words[0]) - 1] : null;
             const preset = byNumber || matchPreset(rest);
             if (!preset) {
-                await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                return sendInteractive(client, m, formatStylishReply(`Unknown theme. Use ${pfx}settheme list to see them.`));
+                return fail(`Unknown theme. Use ${pfx}settheme list to see them.`);
             }
 
             await client.setChatTheme(targetJid, preset);
-            await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, formatStylishReply(`Theme set to *${preset}*`));
+            return done(`Theme set to *${preset}*`);
         } catch (error) {
             console.error('SetTheme error:', error);
-            await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, formatStylishReply('Failed to set the theme. Try again.'));
+            return fail('Failed to set the theme. Try again.');
         }
     }
 };
