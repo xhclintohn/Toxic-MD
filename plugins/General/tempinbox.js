@@ -1,5 +1,5 @@
-import axios from 'axios';
 import { sendInteractive } from '../../lib/sendInteractive.js';
+import { checkTempInbox, formatInboxText, resolveSessionCode } from '../../lib/tempMail.js';
 
 export default {
     name: 'tempinbox',
@@ -9,54 +9,36 @@ export default {
         const { client, m, prefix } = context;
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
-        const args = m.body?.split(" ") || [];
-        const sessionId = args[1];
+        const rawArg = context.args?.[0] || m.body?.split(" ")?.[1];
+        const sessionId = rawArg ? (resolveSessionCode(rawArg) || rawArg) : null;
 
         if (!sessionId) {
             return sendInteractive(client, m, `╭─❏ 「 Tᴇᴍᴘ Iɴʙᴏx」
-│ Yo, where's the session ID?\n│ You created the temp mail, right?\n│ Usage: ${prefix}tempinbox YOUR_SESSION_ID\n│ Example: ${prefix}tempinbox U2Vzc2lvbjoc5LI1OhFHh4tv21skV965\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+│ Yo, where's the session ID?
+│ You created the temp mail, right?
+│ Usage: ${prefix}tempinbox YOUR_SESSION_ID
+│ Create one first with ${prefix}tempmail
+╰───────────────
+> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
         }
 
-        await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
-
         try {
-            const response = await axios.get(`https://api.nekolabs.web.id/tools/tempmail/v3/inbox?id=${sessionId}`, {
-                timeout: 30000
-            });
-
-            if (!response.data.success) {
-                throw new Error('Invalid session ID or inbox expired');
-            }
-
-            const { totalEmails, emails } = response.data.result;
+            const { total, emails } = await checkTempInbox(sessionId);
 
             await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
 
-            if (totalEmails === 0) {
+            if (total === 0) {
                 return sendInteractive(client, m, `╭─❏ 「 Tᴇᴍᴘ Iɴʙᴏx」
-│ Inbox is empty, genius.\n│ No emails yet.\n│ Use your temp email somewhere\n│ and check back.\n│ Total Emails: 0\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+│ Inbox is empty, genius.
+│ No emails yet.
+│ Use your temp email somewhere
+│ and check back.
+│ Total Emails: 0
+╰───────────────
+> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
             }
 
-            let inboxText = `╭─❏ 「 Tᴇᴍᴘ Iɴʙᴏx」
-│ Inbox: ${totalEmails} email${totalEmails > 1 ? 's' : ''} found\n`;
-
-            emails.forEach((email, index) => {
-                inboxText += `╭─❏ 「 TEMPINBOX 」
-│ \n│ Email ${index + 1}:\n│ From: ${email.from || 'Unknown'}\n│ Subject: ${email.subject || 'No Subject'}\n`;
-                
-                if (email.text && email.text.trim()) {
-                    const cleanText = email.text.replace(/\r\n/g, '\n').trim();
-                    inboxText += `╭─❏ 「 TEMPINBOX 」
-│ Content: ${cleanText.substring(0, 50)}${cleanText.length > 50 ? '...' : ''}\n`;
-                }
-                
-                if (email.downloadUrl) {
-                    inboxText += `╭─❏ 「 TEMPINBOX 」
-│ Attachment URL available\n`;
-                }
-            });
-
-            inboxText += `╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+            const inboxText = formatInboxText(total, emails);
 
             if (inboxText.length > 4000) {
                 const firstPart = inboxText.substring(0, 4000);
@@ -69,21 +51,16 @@ export default {
             }
 
         } catch (error) {
-            console.error('TempInbox error:', error);
+            console.error('TempInbox error:', error.message);
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
 
-            let errorMessage = `Failed to check inbox, your session ID is probably trash. `;
-            if (error.message.includes('Invalid session') || error.message.includes('404') || error.message.includes('Not Found')) {
-                errorMessage += "Session expired or invalid. Create a new email.";
-            } else if (error.message.includes('timeout')) {
-                errorMessage += "API timeout. Try again.";
-            } else if (error.message.includes('Network Error')) {
-                errorMessage += "Network issue. Check your connection.";
-            } else {
-                errorMessage += `Error: ${error.message}`;
-            }
+            const errorMessage = error.message.includes('Invalid session')
+                ? 'That session ID is trash. Create a new email with tempmail first.'
+                : 'Failed to check inbox. The email provider is not responding, try again in a bit.';
 
             await sendInteractive(client, m, `╭─❏ 「 Eʀʀᴏʀ」
-│ ${errorMessage}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
+│ ${errorMessage}
+╰───────────────
+> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`);
         }
     } };
