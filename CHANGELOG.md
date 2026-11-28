@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.2.24
+
+- New fancy `.menu` for Android: product-image header, limited-time-offer card, bottom sheet with Browse Categories (auto-loads every plugin folder with command counts — new folders show up by themselves) and a Hosting Site button (hosting.nyxtechs.net). Styled in Toxic-MD's own box format. iOS keeps the plain text menu.
+- New `.menu2`: full command list with a link-preview header, every category in its own box.
+- New `.menu3`: numbered category menu — reply with a number (or just send the number) to see that category's commands.
+- Plugin folders reorganised: Downloads → Downloader, Groups → Group, Utils → Tools, Effects → Filters, plus new Games (chess, coinflip, dice, games, runner, ttt) and Dev (eval, shell, getfunc, devpanel, getcmd, addcmd, delcmd, dev) folders. New `.gamesmenu` and `.devmenu` commands.
+- Command audit cleanup: 15 aliases that were shadowing real commands removed (`.alive`, `.online`, `.sticker`, `.test`, `.github`, `.tinyurl`, `.transcribe`, `.vupdate`, `.tempinbox`, `.effectsmenu`, `.gcname`, `.setgroupname` now reach their actual commands), duplicate listonline files merged into aliases, dead files removed, files renamed to match their command names. 420 commands, no duplicates.
+- New `.fakemsg <text>` (aliases `.editfake`, `.fakeedit`): reply to a message in a group to fake-edit it.
+- New `.delete2` (aliases `.del2`, `.dmsg2`, `.delmsg2`, `.delother2`): owner-only force delete — reply to a message to delete it and wipe the command trace.
+- `.sa` (sticker audio) now works when the command is the caption of a video or audio, not only on reply.
+- `.fakechat` error now shows the command name you actually typed.
+- `.settingsmenu` fixed (it was listing nothing).
+
 ## 1.2.23
 
 - New `.report` command: report spam to WhatsApp. Reply to a spam message and type `.report`, or use `.report 2547xxxxxxxx` / `.report @user` to report a number. Add `block` to also block them. Works in groups too, and shows the Report ID with a copy button. Owner only. Needs toxic-baileys 1.9.0 or newer — run `.update` first.
