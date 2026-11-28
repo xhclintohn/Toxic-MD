@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.25
+
+- `.tempmail` rebuilt: the old email API died, so it now creates mail through a chain of working providers (with retries). New buttons on the result — Copy Email, and Check Inbox to view that exact mail's inbox with one tap. `.tempinbox` got a cleaner single-box layout.
+- `.hentai` fixed: new image sources, sends 2 images matching your search.
+- `.tomp4` rebuilt: converts stickers to MP4 locally — no more dead API.
+- `.random-anime` fixed: now powered by AniList.
+- `.negro` rebuilt: darkens skin tones locally — no more dead API.
+- `.settheme` upgraded: pick from 20 color names (pink, blue, gold, teal...), any hex color, light/dark shades, doodle pattern on by default (`nodoodle` to switch it off), and `scheme <id>`. The chat background color now changes too, not just the bubbles. Needs toxic-baileys 1.9.1 — run `.update` first.
+- `.setwallpaper` now works in DMs as well as groups. Needs toxic-baileys 1.9.1 — run `.update` first.
+
 ## 1.2.24
 
 - New fancy `.menu` for Android: product-image header, limited-time-offer card, bottom sheet with Browse Categories (auto-loads every plugin folder with command counts — new folders show up by themselves) and a Hosting Site button (hosting.nyxtechs.net). Styled in Toxic-MD's own box format. iOS keeps the plain text menu.
