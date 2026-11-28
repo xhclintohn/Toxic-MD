@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.28
+
+- `.play` hardened: yt-dlp now uses the `default,tv_embedded` player clients and auto-retries when YouTube throws the "not a bot" check, API calls retry once when a provider rate-limits, and the faa search path was fixed (it was returning the watch page instead of a download link).
+- New **proxy pool** for downloaders: free proxies are fetched from public lists (plus your own `data/proxies.txt` if you add one), tested against YouTube, verified with yt-dlp, and used automatically as a fallback when the direct connection is blocked or bot-checked. The pool refreshes itself every 6 hours and drops proxies that fail.
+
 ## 1.2.27
 
 - New **Sports** category: `.livescore`, `.fixtures`, `.results` and `.table` for EPL, La Liga, Serie A, Bundesliga, Ligue 1, Champions League, Kenyan Premier League and NBA — match times in EAT, powered by ESPN with TheSportsDB as backup. `.table` renders a proper table view with P/W/D/L/GF/GA/GD/Pts (and Form where available). New `.sportsmenu` lists them all.

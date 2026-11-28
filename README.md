@@ -121,7 +121,7 @@ SESSION=YOUR_SESSION_ID
 **Useful tools**
 
 - Sticker maker (image / video / GIF), QR code generator
-- Media downloader (YouTube, TikTok, IG, FB, etc.)
+- Media downloader (YouTube, TikTok, IG, FB, etc.) with automatic proxy fallback
 - Profile and group info commands, CDN upload
 - Language switcher (17 languages)
 
