@@ -3,7 +3,7 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
 
 export default {
   name: 'script',
-  aliases: ['repo', 'source', 'github', 'git', 'gh', 'src', 'code', 'sourcecode'],
+  aliases: ['repo', 'source', 'git', 'gh', 'src', 'code', 'sourcecode'],
   description: 'Show GitHub repository info for Toxic-MD',
   run: async (context) => {
     const { client, m, botname, prefix = '' } = context;

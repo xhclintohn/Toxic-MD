@@ -4,7 +4,7 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
 
 export default {
     name: 'tempmail',
-    aliases: ['tempemail', 'tempinbox', 'tempmailcreate'],
+    aliases: ['tempemail', 'tempmailcreate'],
     description: 'Create temporary email for disposable inbox',
     run: async (context) => {
         const { client, m, prefix } = context;

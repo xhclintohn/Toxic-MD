@@ -4,7 +4,7 @@ import { getSettings } from '../../database/config.js';
 
 export default {
   name: 'aimenu',
-  aliases: ['aimenu'],
+  aliases: [],
   description: 'Displays only the AI menu',
   run: async (context) => {
     const { client, m, pict } = context;

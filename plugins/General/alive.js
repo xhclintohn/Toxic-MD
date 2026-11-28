@@ -20,7 +20,7 @@ const getTimeGreeting = () => {
 
 export default {
   name: 'alive',
-  aliases: ['bot', 'test', 'isalive', 'status'],
+  aliases: ['bot', 'isalive', 'status'],
   description: 'Checks if the bot is alive and running',
   run: async (context) => {
     const { client, m, prefix, pict } = context;

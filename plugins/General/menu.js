@@ -4,11 +4,14 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-import { generateWAMessageFromContent, proto } from '@whiskeysockets/baileys';
+import { generateWAMessageFromContent, proto, prepareWAMessageMedia } from '@whiskeysockets/baileys';
+import sharp from 'sharp';
+import { randomUUID } from 'crypto';
 import { getDeviceMode } from '../../lib/deviceMode.js';
 import { sendInteractive } from '../../lib/sendInteractive.js';
 import { ButtonV2 } from '@whiskeysockets/baileys';
 import { getGreeting } from '../../lib/language.js';
+import { getCommandCategories } from '../../lib/menuCommands.js';
 
 const getTimeGreeting = () => {
     try { return getGreeting(); } catch {
@@ -20,12 +23,91 @@ const getTimeGreeting = () => {
     }
 };
 
+const HOSTING_URL = 'https://hosting.nyxtechs.net';
+
+const locationQuoted = (pushName) => ({
+    key: { participant: '0@s.whatsapp.net', remoteJid: 'status@broadcast' },
+    message: {
+        locationMessage: {
+            name: `Hi ${pushName || 'User'}`,
+            jpegThumbnail: ''
+        }
+    }
+});
+
+const activeCatMenus = new Map();
+
+const unwrapContent = (rawMsg) => {
+    let content = rawMsg?.message;
+    while (content) {
+        if (content.deviceSentMessage?.message) { content = content.deviceSentMessage.message; continue; }
+        if (content.ephemeralMessage?.message) { content = content.ephemeralMessage.message; continue; }
+        if (content.viewOnceMessage?.message) { content = content.viewOnceMessage.message; continue; }
+        if (content.viewOnceMessageV2?.message) { content = content.viewOnceMessageV2.message; continue; }
+        if (content.viewOnceMessageV2Extension?.message) { content = content.viewOnceMessageV2Extension.message; continue; }
+        break;
+    }
+    return content;
+};
+
+const resolveChatIds = async (client, chat) => {
+    const ids = new Set([chat]);
+    try {
+        const lm = client.signalRepository?.lidMapping;
+        if (lm?.getPNForLID && chat.endsWith('@lid')) {
+            const pn = await lm.getPNForLID(chat);
+            if (pn) ids.add(pn);
+        }
+        if (lm?.getLIDForPN && chat.endsWith('@s.whatsapp.net')) {
+            const lid = await lm.getLIDForPN(chat);
+            if (lid) ids.add(lid);
+        }
+    } catch {}
+    return ids;
+};
+
+const registerCategoryHandler = async (client, m, pict, categories) => {
+    const key = m.chat + '|' + m.sender;
+    if (activeCatMenus.has(key)) {
+        client.ev.off('messages.upsert', activeCatMenus.get(key).handler);
+        activeCatMenus.delete(key);
+    }
+    const chatIds = await resolveChatIds(client, m.chat);
+    const handler = async (update) => {
+        try {
+            const msg = update.messages?.[0];
+            if (!msg?.message || !chatIds.has(msg.key.remoteJid)) return;
+            const content = unwrapContent(msg);
+            const resp = content?.interactiveResponseMessage?.nativeFlowResponseMessage;
+            if (!resp) return;
+            let params = {};
+            try { params = JSON.parse(resp.paramsJson || '{}'); } catch { return; }
+            const selectedId = params.id || params.selectedId;
+            if (!selectedId?.startsWith('menu_cat_')) return;
+            const catName = selectedId.replace('menu_cat_', '');
+            const cat = categories.find(c => c.name === catName);
+            if (!cat) return;
+            const text = `╭─❏ 「 ${cat.name}」\n` + cat.commands.map(c => `│ *${c}*`).join('\n') + `\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
+            await client.sendMessage(m.chat, { image: pict, caption: text, mentions: [m.sender] }, { quoted: msg });
+        } catch (e) {
+        }
+    };
+    client.ev.on('messages.upsert', handler);
+    activeCatMenus.set(key, { handler });
+    setTimeout(() => {
+        if (activeCatMenus.has(key)) {
+            client.ev.off('messages.upsert', activeCatMenus.get(key).handler);
+            activeCatMenus.delete(key);
+        }
+    }, 600000);
+};
+
 export default {
     name: 'menu',
     aliases: ['commands', 'list', 'cmds', 'm', 'cmd', 'commandlist', 'allcmds'],
     description: 'Displays the Toxic-MD command menu',
     run: async (context) => {
-        const { client, m, mode, pict, botname, prefix } = context;
+        const { client, m, mode, pict, botname, prefix, totalCommands } = context;
 
         await client.sendMessage(m.chat, { react: { text: '🤖', key: m.key } });
 
@@ -128,6 +210,138 @@ export default {
             return;
         }
 
+        let sentFancy = false;
+        try {
+            if (!pict?.length) throw new Error('no menu image');
+            const resized = await sharp(pict)
+                .resize(800, 436, { fit: 'cover', position: 'center' })
+                .jpeg({ quality: 90 })
+                .toBuffer();
+            const media = await prepareWAMessageMedia(
+                { image: resized },
+                { upload: client.waUploadToServer }
+            );
+            const { categories } = await getCommandCategories();
+            const catSections = categories.map(cat => ({
+                rows: [
+                    {
+                        title: cat.name,
+                        description: `There are ${cat.commands.length} commands`,
+                        id: `menu_cat_${cat.name}`
+                    }
+                ]
+            }));
+            const quoted = locationQuoted(m.pushName);
+            const caption =
+                `╭─❏ 「 Mᴇɴᴜ」\n` +
+                `│ \n` +
+                `│ ${greeting}, @${m.sender.split('@')[0].split(':')[0]}\n` +
+                `│ \n` +
+                `│ Bot: TOXIC-MD\n` +
+                `│ Prefix: ${prefix}\n` +
+                `│ Mode: ${mode}\n` +
+                `│ Total Commands: ${totalCommands}\n` +
+                `│ \n` +
+                `│ Select a category below.\n` +
+                `╰───────────────`;
+            const payload = {
+                interactiveMessage: {
+                    header: {
+                        title: botname || 'Menu',
+                        subtitle: '',
+                        hasMediaAttachment: true,
+                        productMessage: {
+                            product: {
+                                productImage: media.imageMessage,
+                                title: botname || 'Menu',
+                                description: 'Click to open hosting site',
+                                currencyCode: '',
+                                retailerId: '',
+                                url: HOSTING_URL,
+                                productImageCount: 1
+                            },
+                            businessOwnerJid: '0@s.whatsapp.net'
+                        }
+                    },
+                    body: { text: caption },
+                    footer: {
+                        text: `You can as well use:
+> ${prefix}menu2 (Full Text List)
+> ${prefix}menu3 (Interactive Reply Menu)
+> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`
+                    },
+                    nativeFlowMessage: {
+                        buttons: [
+                            {
+                                name: 'single_select',
+                                buttonParamsJson: '{"has_multiple_buttons":true}'
+                            },
+                            {
+                                name: 'call_permission_request',
+                                buttonParamsJson: '{"has_multiple_buttons":true}'
+                            },
+                            {
+                                name: 'cta_url',
+                                buttonParamsJson: JSON.stringify({
+                                    display_text: 'Hosting Site',
+                                    url: HOSTING_URL,
+                                    merchant_url: HOSTING_URL,
+                                    has_multiple_buttons: true
+                                })
+                            },
+                            {
+                                name: 'single_select',
+                                buttonParamsJson: JSON.stringify({
+                                    title: 'Browse Categories',
+                                    sections: catSections,
+                                    has_multiple_buttons: true
+                                })
+                            }
+                        ],
+                        messageParamsJson: JSON.stringify({
+                            limited_time_offer: {
+                                text: 'Advert: Nyx Hosting — host your WhatsApp bot at affordable price',
+                                url: HOSTING_URL,
+                                copy_code: 'hosting.nyxtechs.net',
+                                expiration_time: Date.now() + (24 * 60 * 60 * 1000)
+                            },
+                            bottom_sheet: {
+                                in_thread_buttons_limit: 2,
+                                divider_indices: [1, 2, 3, 4, 5, 999],
+                                list_title: 'Select Menu',
+                                button_title: 'Tap Here!'
+                            },
+                            tap_target_configuration: {
+                                title: botname || 'Menu',
+                                description: 'WhatsApp Bot',
+                                canonical_url: HOSTING_URL,
+                                domain: HOSTING_URL,
+                                button_index: 0
+                            }
+                        })
+                    },
+                    contextInfo: {
+                        mentionedJid: [m.sender],
+                        groupMentions: [],
+                        statusAttributions: [],
+                        forwardingScore: 1,
+                        isForwarded: true,
+                        quotedMessage: quoted.message,
+                        participant: quoted.key.participant,
+                        stanzaId: 'status@broadcast'
+                    }
+                }
+            };
+            await client.relayMessage(m.chat, payload, {
+                messageId: randomUUID()
+            });
+            await registerCategoryHandler(client, m, pict, categories);
+            sentFancy = true;
+        } catch (e) {
+            sentFancy = false;
+        }
+
+        if (!sentFancy) {
         try {
             const btnV2 = new ButtonV2(client);
             btnV2.setBody(menuText)
@@ -209,6 +423,7 @@ export default {
                         })),
                         footer: '' } });
             }
+        }
         }
 
         const xhClintonPaths = [

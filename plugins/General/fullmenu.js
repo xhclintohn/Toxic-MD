@@ -23,15 +23,19 @@ export default {
       { name: 'Owner', display: 'OWNERMENU', emoji: '👑' },
       { name: 'Heroku', display: 'HEROKUMENU', emoji: '☁️' },
       { name: 'Privacy', display: 'PRIVACYMENU', emoji: '🔒' },
-      { name: 'Groups', display: 'GROUPMENU', emoji: '👥' },
+      { name: 'Group', display: 'GROUPMENU', emoji: '👥' },
       { name: 'AI', display: 'AIMENU', emoji: '🧠' },
-      { name: 'Downloads', display: 'DOWNLOADMENU', emoji: '🎬' },
+      { name: 'Downloader', display: 'DOWNLOADMENU', emoji: '🎬' },
       { name: 'Editing', display: 'EDITING', emoji: '✂️' },
-      { name: 'Effects', display: 'EFFECTSMENU', emoji: '🎨' },
+      { name: 'Filters', display: 'EFFECTSMENU', emoji: '🎨' },
       { name: 'Anime', display: 'ANIMEMENU', emoji: '🎌' },
       { name: 'NSFW', display: '+18MENU', emoji: '🔞' },
-      { name: 'Utils', display: 'UTILSMENU', emoji: '🔧' },
-      { name: 'Reactions', display: 'REACTIONSMENU', emoji: '🎭' }
+      { name: 'Tools', display: 'UTILSMENU', emoji: '🔧' },
+      { name: 'Reactions', display: 'REACTIONSMENU', emoji: '🎭' },
+      { name: 'Coding', display: 'CODINGMENU', emoji: '💻' },
+      { name: 'Search', display: 'SEARCHMENU', emoji: '🔍' },
+      { name: 'Games', display: 'GAMESMENU', emoji: '🎮' },
+      { name: 'Dev', display: 'DEVMENU', emoji: '🧑‍💻' }
     ];
 
     const getGreeting = () => {

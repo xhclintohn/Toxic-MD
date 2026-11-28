@@ -30,7 +30,7 @@ export default {
     let menuText = `╭─❏ 「 SETTINGS MENU」
 │ Prefix: ${effectivePrefix || 'None'}\n│ \n`;
 
-    let commandFiles = fs.readdirSync('./plugins/Settings').filter(file => file.endsWith('/js'));
+    let commandFiles = fs.readdirSync('./plugins/Settings').filter(file => file.endsWith('.js'));
     for (const file of commandFiles) {
       const commandName = file.replace('/js', '');
       const fancyCommandName = toFancyFont(commandName);

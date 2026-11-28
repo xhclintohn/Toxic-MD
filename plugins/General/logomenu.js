@@ -1,10 +1,10 @@
 import { DateTime } from 'luxon';
 import { getSettings } from '../../lib/fastSettings.js';
-import effectsMod from '../../plugins/Effects/effects.js';
+import effectsMod from '../../plugins/Filters/effects.js';
 
 export default {
     name: 'logomenu',
-    aliases: ['effectsmenu', 'effectslist', 'logolist'],
+    aliases: ['effectslist', 'logolist'],
     description: 'Displays all available logo & effects commands',
     run: async (context) => {
         const { client, m } = context;
