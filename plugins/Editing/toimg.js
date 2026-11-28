@@ -6,7 +6,7 @@ import { sendInteractive } from '../../lib/sendInteractive.js';
 
 export default {
     name: 'toimg',
-    aliases: ['toimage', 'stickertoimg', 'sticker'],
+    aliases: ['toimage', 'stickertoimg'],
     description: 'Converts stickers to images',
     run: async (context) => {
         const { client, m } = context;

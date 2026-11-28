@@ -12,11 +12,12 @@ export default {
         await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
         let text = m.body.replace(new RegExp(`^${prefix}(iqc|iphonechat|fakechat|chatmock)\\s*`, 'i'), '').trim();
+        const invoked = (m.body.trim().split(/\s+/)[0] || '').replace(prefix, '').toLowerCase() || 'iqc';
 
         if (!text) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } });
             return sendInteractive(client, m, `╭─❏ 「 IQC」
-│ What am i, a mind reader?\n│ @` + m.sender.split('@')[0] + '! you forgot the text, genius.\n│ Example: ' + prefix + 'iqc Hello Clinton\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧', { mentions: [m.sender] });
+│ What am i, a mind reader?\n│ @` + m.sender.split('@')[0] + '! you forgot the text, genius.\n│ Example: ' + prefix + invoked + ' Hello Clinton\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧', { mentions: [m.sender] });
         }
 
         try {
