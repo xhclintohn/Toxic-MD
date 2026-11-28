@@ -1,31 +1,45 @@
 import fetch from 'node-fetch';
 import { sendInteractive } from '../../lib/sendInteractive.js';
 
+const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36';
+
+const PROVIDERS = [
+    { name: 'Konachan', base: 'https://konachan.com/post.json', random: true },
+    { name: 'Yande.re', base: 'https://yande.re/post.json', random: false }
+];
+
+async function searchProvider(provider, tags) {
+    const query = provider.random ? `${tags}+order:random` : tags;
+    const response = await fetch(`${provider.base}?tags=${encodeURIComponent(query)}&limit=30`, {
+        headers: { 'User-Agent': UA, Accept: 'application/json' },
+        timeout: 20000
+    });
+    if (!response.ok) throw new Error(`${provider.name} failed with status ${response.status}`);
+    const posts = await response.json();
+    if (!Array.isArray(posts)) return [];
+    return posts.filter((post) => post.file_url && /\.(jpe?g|png)$/i.test(post.file_url));
+}
+
+async function searchHentai(term) {
+    const tag = term.trim().toLowerCase().replace(/\s+/g, '_');
+    const attempts = [`${tag} rating:explicit`, `*${tag}* rating:explicit`];
+    for (const provider of PROVIDERS) {
+        for (const tags of attempts) {
+            try {
+                const posts = await searchProvider(provider, tags);
+                if (posts.length) return { provider: provider.name, posts };
+            } catch {}
+        }
+    }
+    return null;
+}
+
 export default async (context) => {
-    const { client, m, text, botname } = context;
-        await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
+    const { client, m, text } = context;
 
     const formatStylishReply = (message) => {
         return `╭─❏ 「 HENTAI 」
 │ ${message}\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐱𝐡_𝐜𝐥𝐢𝐧𝐭𝐨𝐧`;
-    };
-
-    const fetchWithRetry = async (url, options, retries = 3, delay = 1000) => {
-        for (let attempt = 1; attempt <= retries; attempt++) {
-            try {
-                const response = await fetch(url, options);
-                if (!response.ok) {
-                    throw new Error(`API failed with status ${response.status}`);
-                }
-                return response;
-            } catch (error) {
-                if (attempt === retries || error.type !== "request-timeout") {
-                    throw error;
-                }
-                console.error(`Attempt ${attempt} failed: ${error.message}. Retrying in ${delay}ms...`);
-                await new Promise(resolve => setTimeout(resolve, delay));
-            }
-        }
     };
 
     if (!text) {
@@ -34,57 +48,28 @@ export default async (context) => {
     }
 
     await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
+
     try {
-        const encodedQuery = encodeURIComponent(text);
-        const searchResponse = await fetchWithRetry(
-            `https://api.privatezia.biz.id/api/anime/thehentai-search?query=${encodedQuery}`,
-            { headers: { Accept: "application/json" }, timeout: 15000 }
-        );
-
-        const searchData = await searchResponse.json();
-
-        if (!searchData || !searchData.status || !searchData.data || !searchData.data.posts || searchData.data.posts.length === 0) {
+        const result = await searchHentai(text);
+        if (!result) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
             return sendInteractive(client, m, formatStylishReply("No results found for your query, fam! 😢 Try a different search term."));
         }
 
-        const firstResult = searchData.data.posts[0];
-        const contentUrl = firstResult.url;
-        const title = firstResult.title || "No title available";
-        const thumbnail = firstResult.imgSrc || null;
-        const views = firstResult.views || "Unknown";
-        const date = firstResult.date || "Unknown";
+        const picked = [...result.posts].sort(() => Math.random() - 0.5).slice(0, 2);
 
-        const encodedContentUrl = encodeURIComponent(contentUrl);
-        const downloadResponse = await fetchWithRetry(
-            `https://api.privatezia.biz.id/api/anime/thehentai-download?url=${encodedContentUrl}`,
-            { headers: { Accept: "application/json" }, timeout: 15000 }
-        );
-
-        const downloadData = await downloadResponse.json();
-
-        if (!downloadData || !downloadData.status || !downloadData.data || !downloadData.data.gallery || downloadData.data.gallery.length === 0) {
-            await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-            return sendInteractive(client, m, formatStylishReply("Couldn’t fetch the gallery for this content, fam! 😢 Try again later."));
+        for (const post of picked) {
+            const tags = (post.tags || '').split(' ').slice(0, 8).join(', ');
+            await client.sendMessage(m.chat, {
+                image: { url: post.file_url },
+                caption: formatStylishReply(`🎨 Hentai Content\n\n🔍 *Search:* ${text}\n🏷️ *Tags:* ${tags}\n📦 *Source:* ${result.provider}`)
+            });
         }
 
-        const gallery = downloadData.data.gallery;
-        const description = downloadData.data.description || "No description available";
-
-        for (const image of gallery) {
-            await client.sendMessage(
-                m.chat,
-                {
-                    image: { url: image.imgSrc },
-                    caption: formatStylishReply(
-                        `🎨 Hentai Content\n\n📌 *Title:* ${title}\n📝 *Description:* ${description}\n👀 *Views:* ${views}\n📅 *Date:* ${date}\n🖼️ *Image:* ${image.alt}`
-                    ) }
-            );
-        }
-
+        await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } }).catch(() => {});
     } catch (e) {
-    await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-        console.error("Hentai fetch error:", e);
-        sendInteractive(client, m, formatStylishReply('Something went wrong. Check your query and try again! 😎'));
+        await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
+        console.error('Hentai fetch error:', e.message);
+        return sendInteractive(client, m, formatStylishReply('Something went wrong. Check your query and try again! 😎'));
     }
 };
