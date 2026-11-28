@@ -77,8 +77,20 @@ const toWebp = input => runFFmpeg([
     '-v', 'error',
     '-i', 'pipe:0',
     '-frames:v', '1',
-    '-vf', 'scale=512:512:force_original_aspect_ratio=decrease,pad=512:512:(ow-iw)/2:(oh-ih)/2',
+    '-vf', 'scale=512:512:force_original_aspect_ratio=increase,crop=512:512',
     '-c:v', 'libwebp',
+    '-f', 'webp',
+    'pipe:1'
+], input);
+
+const toAnimatedWebp = input => runFFmpeg([
+    '-v', 'error',
+    '-i', 'pipe:0',
+    '-t', '25',
+    '-vf', 'fps=12,scale=512:512:force_original_aspect_ratio=increase,crop=512:512',
+    '-c:v', 'libwebp_anim',
+    '-loop', '0',
+    '-q:v', '60',
     '-f', 'webp',
     'pipe:1'
 ], input);
@@ -134,38 +146,74 @@ export default {
             const quotedCtx = context.quoted || m.quoted || null;
             let audioMsg = null, videoMsg = null, imageMsg = null;
             let audioFallback = null, videoFallback = null, imageFallback = null;
+            let audioDlType = 'audio', videoDlType = 'video';
 
-            if (m.mtype === 'audioMessage' || m.message?.audioMessage) {
-                audioMsg = m.message?.audioMessage || m.msg;
-                audioFallback = typeof m.download === 'function' ? () => m.download() : null;
-            } else if (m.mtype === 'videoMessage' || m.message?.videoMessage) {
-                videoMsg = m.message?.videoMessage || m.msg;
-                videoFallback = typeof m.download === 'function' ? () => m.download() : null;
-            } else if (m.mtype === 'imageMessage' || m.message?.imageMessage) {
-                imageMsg = m.message?.imageMessage || m.msg;
-                imageFallback = typeof m.download === 'function' ? () => m.download() : null;
+            const unwrapMsg = (raw) => {
+                let c = raw;
+                while (c && typeof c === 'object') {
+                    if (c.deviceSentMessage?.message) { c = c.deviceSentMessage.message; continue; }
+                    if (c.ephemeralMessage?.message) { c = c.ephemeralMessage.message; continue; }
+                    if (c.viewOnceMessage?.message) { c = c.viewOnceMessage.message; continue; }
+                    if (c.viewOnceMessageV2?.message) { c = c.viewOnceMessageV2.message; continue; }
+                    if (c.viewOnceMessageV2Extension?.message) { c = c.viewOnceMessageV2Extension.message; continue; }
+                    if (c.editedMessage?.message) { c = c.editedMessage.message; continue; }
+                    if (c.documentWithCaptionMessage?.message) { c = c.documentWithCaptionMessage.message; continue; }
+                    break;
+                }
+                return c;
+            };
+
+            const own = unwrapMsg(m.message);
+            const ownDl = typeof m.download === 'function' ? () => m.download() : null;
+            if (own?.audioMessage) {
+                audioMsg = own.audioMessage;
+                audioFallback = ownDl;
+            } else if (own?.videoMessage) {
+                videoMsg = own.videoMessage;
+                videoFallback = ownDl;
+            } else if (own?.imageMessage) {
+                imageMsg = own.imageMessage;
+                imageFallback = ownDl;
+            } else if (own?.documentMessage && /^(audio|video|image)\//.test(own.documentMessage.mimetype || '')) {
+                const mt = own.documentMessage.mimetype;
+                if (mt.startsWith('audio/')) { audioMsg = own.documentMessage; audioDlType = 'document'; audioFallback = ownDl; }
+                else if (mt.startsWith('video/')) { videoMsg = own.documentMessage; videoDlType = 'document'; videoFallback = ownDl; }
+                else { imageMsg = own.documentMessage; imageFallback = ownDl; }
+            }
+
+            if (!audioMsg && !videoMsg && !imageMsg && m.msg && typeof m.msg === 'object') {
+                if (m.mtype === 'audioMessage') { audioMsg = m.msg; audioFallback = ownDl; }
+                else if (m.mtype === 'videoMessage') { videoMsg = m.msg; videoFallback = ownDl; }
+                else if (m.mtype === 'imageMessage') { imageMsg = m.msg; imageFallback = ownDl; }
             }
 
             if (!audioMsg && !videoMsg && quotedCtx) {
+                const qDl = typeof quotedCtx.download === 'function' ? () => quotedCtx.download() : null;
                 if (quotedCtx.mtype === 'audioMessage') {
                     audioMsg = quotedCtx;
-                    audioFallback = typeof quotedCtx.download === 'function' ? () => quotedCtx.download() : null;
+                    audioFallback = qDl;
                 } else if (quotedCtx.mtype === 'videoMessage') {
                     videoMsg = quotedCtx;
-                    videoFallback = typeof quotedCtx.download === 'function' ? () => quotedCtx.download() : null;
+                    videoFallback = qDl;
                 } else if (quotedCtx.mtype === 'imageMessage') {
                     imageMsg = quotedCtx;
-                    imageFallback = typeof quotedCtx.download === 'function' ? () => quotedCtx.download() : null;
+                    imageFallback = qDl;
+                } else if (quotedCtx.mtype === 'documentMessage' && /^(audio|video|image)\//.test(quotedCtx.mimetype || '')) {
+                    const mt = quotedCtx.mimetype;
+                    if (mt.startsWith('audio/')) { audioMsg = quotedCtx; audioDlType = 'document'; audioFallback = qDl; }
+                    else if (mt.startsWith('video/')) { videoMsg = quotedCtx; videoDlType = 'document'; videoFallback = qDl; }
+                    else { imageMsg = quotedCtx; imageFallback = qDl; }
                 }
             }
 
             const audioContent = audioMsg;
             const videoContent = videoMsg;
             if (!audioContent && !videoContent) {
+                log('no media found. mtype=', m.mtype, 'own keys=', own ? Object.keys(own).join(',') : 'none', 'quoted mtype=', quotedCtx?.mtype || 'none');
                 return await fail('Reply to an audio or video message first,\n│ or send one with .stickeraudio\n│ as the caption.');
             }
 
-            const rawAudio = await downloadBuffer(audioContent || videoContent, audioContent ? 'audio' : 'video', audioContent ? audioFallback : videoFallback).catch(() => null);
+            const rawAudio = await downloadBuffer(audioContent || videoContent, audioContent ? audioDlType : videoDlType, audioContent ? audioFallback : videoFallback).catch(() => null);
             if (!rawAudio || !rawAudio.length) {
                 return await fail("I couldn't download that audio.\n│ Try again or send it as a file.");
             }
@@ -175,6 +223,7 @@ export default {
                 : await toOpus(audioInput);
 
             let imageInput = null;
+            let imageIsVideo = false;
             const imageContent = imageMsg;
             if (imageContent) {
                 try {
@@ -185,6 +234,7 @@ export default {
             }
             if ((!imageInput || !imageInput.length) && videoContent && !audioContent) {
                 imageInput = audioInput;
+                imageIsVideo = true;
             }
             if (!imageInput || !imageInput.length) {
                 const fallbackPath = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'toxic.jpg');
@@ -196,7 +246,15 @@ export default {
                 }
             }
 
-            const stickerBuf = await toWebp(Buffer.from(imageInput));
+            let stickerBuf;
+            try {
+                parseWebp(Buffer.from(imageInput));
+                stickerBuf = Buffer.from(imageInput);
+            } catch {
+                stickerBuf = imageIsVideo
+                    ? await toAnimatedWebp(Buffer.from(imageInput)).catch((e) => { log('animated webp failed, using static:', e?.message || e); return toWebp(Buffer.from(imageInput)); })
+                    : await toWebp(Buffer.from(imageInput));
+            }
             const webp = parseWebp(stickerBuf);
 
             const upload = async (plain, kind) => {
