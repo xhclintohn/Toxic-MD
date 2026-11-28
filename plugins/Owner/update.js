@@ -125,7 +125,7 @@ async function performZipUpdate(client, m, opts, root) {
 
 export default {
     name: 'update',
-    aliases: ['botupdate', 'selfupdate', 'checkupdate', 'upd', 'vupdate'],
+    aliases: ['botupdate', 'selfupdate', 'checkupdate', 'upd'],
     description: 'Update Toxic-MD and Baileys — checks versions first and only updates what is outdated (.update check / .update force)',
     run: async (context) => {
         await ownerMiddleware(context, async () => {
