@@ -50,7 +50,7 @@ const EXTRA_ALIASES = {
   fetch:      ['get', 'web', 'curl', 'url', 'http', 'https'],
   ping:       ['p', 'speed', 'latency', 'response', 'pong', 'px'],
   menu:       ['commands', 'list', 'cmds', 'm'],
-  start:      ['alive', 'online', 'toxic'],
+  start:      ['toxic'],
   help:       ['h', 'info', 'usage'],
   eval:       ['ev', 'evl'],
   shell:      ['sh', 'bash', 'terminal', 'exec'],
@@ -157,7 +157,7 @@ const EXTRA_ALIASES = {
   gpp:          ['setgpp','setgrouppp','setgcprofile','gcprofile','changegpp','grouppp','gcpp','groupphoto','setgroupphoto','gcpic','setgcpic','grouppic','setgrouppic'],
   xreport:      ['xrp', 'reportspam', 'interopspam'],
   updatebails:  ['ub', 'updatebaileys', 'reinstall', 'npmi'],
-  gcname:       ['changename','changegcname','groupname','editgcname','renamegc','setgcname','gcnm','renamegroup','setgroupname','gname'] };
+  gcname:       ['changename','changegcname','groupname','editgcname','renamegc','setgcname','gcnm','renamegroup','gname'] };
 
 export const commands = {};
 export const aliases = {};
