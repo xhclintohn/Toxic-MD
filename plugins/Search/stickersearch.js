@@ -47,7 +47,7 @@ async function searchStickerly(keyword) {
 
 export default {
   name: 'stickersearch',
-  aliases: ['stickersearch', 'stick', 'stickers', 'stickerly'],
+  aliases: ['stick', 'stickers', 'stickerly'],
   description: 'Search Sticker.ly packs and send one as a native WhatsApp sticker pack',
   run: async (context) => {
     const { client, m, text } = context;
